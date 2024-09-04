@@ -8813,7 +8813,7 @@ subpage MENU
                 }
 
                 .sub_headline_text {
-                    font-size: clamp(16px, 5vw, 24px);
+                    font-size: clamp(14px, 5vw, 16px);
                     font-weight: 500;
                 }
 
