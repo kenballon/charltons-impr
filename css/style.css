@@ -9260,6 +9260,7 @@ subpage MENU
 }
 
 .awards_hero {
+    min-height: 500px;
     height: calc(100svh - 450px);
 
     >div {
