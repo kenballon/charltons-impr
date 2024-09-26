@@ -8906,6 +8906,12 @@ subpage MENU
             container-name: recentnewsletter;
         }
     }
+
+    .et_pb_row.home_newsletter_row {
+        div.et_pb_column {
+            padding-inline: 0;
+        }
+    }
 }
 
 @container recentnewsletter (max-width:1023px) {
