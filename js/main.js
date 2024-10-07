@@ -665,6 +665,9 @@ document.addEventListener("readystatechange", (e) => {
     tabFunc();
     showAwardImageFunc();
     showNewsEvents();
+    const buttonAllActive = document
+      .getElementById("all")
+      .classList.add("active");
   }
 });
 
@@ -779,7 +782,8 @@ const showAwardImageFunc = () => {
 // =======================================
 //  News and Events JS
 // =======================================
-let postsPerPage = 10;
+let currentFilterID = null;
+let postsPerPage = 15;
 let currentPage = 1;
 
 const SELECTORS = {
@@ -805,7 +809,7 @@ filterButtons.forEach((button) => {
     // Add the active class to the clicked button
     button.classList.add("active");
 
-    const currentFilterID = button.id === "all" ? null : button.id;
+    currentFilterID = button.id === "all" ? null : button.id;
     currentPage = 1;
     showNewsEvents(currentFilterID);
   });
@@ -813,9 +817,6 @@ filterButtons.forEach((button) => {
 
 function showNewsEvents(filterID = null) {
   const newsPostContainer = document.querySelector(SELECTORS.allNewsPosts);
-  const buttonAllActive = document
-    .getElementById("all")
-    .classList.contains("active");
 
   if (newsPostContainer) {
     let newsPosts = Array.from(
@@ -911,7 +912,7 @@ function generatePaginationButtons(totalPages) {
 
     button.addEventListener("click", () => {
       currentPage = i;
-      showNewsEvents();
+      showNewsEvents(currentFilterID);
     });
 
     paginationWrapper.appendChild(button);
@@ -951,22 +952,22 @@ function updateNavigationButtons(totalPages) {
 // Add event listeners to the navigation buttons
 document.getElementById("prev_post_btn").addEventListener("click", () => {
   currentPage--;
-  showNewsEvents();
+  showNewsEvents(currentFilterID);
 });
 
 document.getElementById("first_post_btn").addEventListener("click", () => {
   currentPage = 1;
-  showNewsEvents();
+  showNewsEvents(currentFilterID);
 });
 
 document.getElementById("next_post_btn").addEventListener("click", () => {
   currentPage++;
-  showNewsEvents();
+  showNewsEvents(currentFilterID);
 });
 
 document.getElementById("last_post_btn").addEventListener("click", () => {
   currentPage = Math.ceil(
     document.querySelectorAll(SELECTORS.cardsPosts).length / postsPerPage
   );
-  showNewsEvents();
+  showNewsEvents(currentFilterID);
 });
