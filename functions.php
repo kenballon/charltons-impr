@@ -11,7 +11,7 @@ function enqueue_load_fa()
 
 function chr_theme_enqueue_styles()
 {
-	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '1.0.4', 'all');
+	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '1.0.6', 'all');
 	wp_enqueue_style('custom-style');
 }
 
@@ -27,8 +27,17 @@ add_action('wp_enqueue_scripts', 'true_loadmore_scripts');
 
 function mainjs_script()
 {
-	wp_enqueue_script('mainjs', get_stylesheet_directory_uri() . '/js/main.js', array('jquery'));
-	wp_localize_script('mainjs', 'ajax_object', array('ajax_url' => admin_url('admin-ajax.php')));
+	// Enqueue the main.js script
+	wp_enqueue_script(
+		'mainjs',
+		get_stylesheet_directory_uri() . '/js/main.js',
+		['jquery'],
+		null,
+		true  // Load the script in the footer
+	);
+
+	// Localize the script with the AJAX URL
+	wp_localize_script('mainjs', 'ajax_object', ['ajax_url' => admin_url('admin-ajax.php')]);
 }
 
 add_action('wp_enqueue_scripts', 'mainjs_script');
@@ -1554,6 +1563,7 @@ add_filter('body_class', 'category_id_class');
 
 // Custom Shortcodes Functions
 require_once get_stylesheet_directory() . '/includes/custom-shortcodes.php';
+require_once get_stylesheet_directory() . '/includes/ContentPosts.php';
 
 // =============================================
 // Custom Nav Menu

@@ -360,12 +360,125 @@ function ajax_latest_posts()
     die();
 }
 
+function get_recent_news_posts($atts)
+{
+    $atts = shortcode_atts(
+        [
+            'category' => 'news',
+            'num_posts' => 5,
+        ],
+        $atts,
+        'get_recent_news_posts'
+    );
+
+    $newsEventsPosts = new ContentPosts($atts['category']);
+    $posts = $newsEventsPosts->getPosts($atts['num_posts']);
+
+    $output = '';
+    foreach ($posts as $post) {
+        $output .= '<article class="featured_new_post grid gap-2">';
+        $output .= '<div class="featured_new_post_img">';
+        $output .= '<img src="' . $post['featured_image'] . '" alt="image of a news' . $post['title'] . '" width="500" height="500" />';
+        $output .= '</div>';
+        $output .= '<div class="featured_new_post_content flex item-center flex-col justify-center">';
+        $output .= '<div class="date_container fw-regular">' . $post['date'] . '</div>';
+        $output .= '<a href="' . $post['url'] . '" aria-label="' . $post['title'] . '">';
+        $output .= '<h2>' . $post['title'] . '</h2>';
+        $output .= '</a>';
+        $output .= '<p class="fw-regular">' . $post['excerpt'] . '</p>';
+        $output .= '</div>';
+        $output .= '</article>';
+    }
+
+    return $output;
+}
+
+function getRecentPostWithOffset($atts)
+{
+    $atts = shortcode_atts(
+        [
+            'offset' => 0,
+            'num_posts' => 10,
+            'category' => 'news',
+        ],
+        $atts,
+        'getRecentPostWithOffset'
+    );
+
+    $newsEventsPosts = new ContentPosts($atts['category']);
+    $posts = $newsEventsPosts->getPosts($atts['num_posts'], $atts['offset']);
+
+    $output = '';
+    foreach ($posts as $post) {
+        $output .= '<article class="feat_news_card_item">';
+        $output .= '<a href="' . $post['url'] . '" aria-label="' . $post['title'] . '" class="newsevents_anchorlink flex items-center">';
+        $output .= '<div class="card_item_content">';
+        $output .= '<div class="date_container fw-regular">' . $post['date'] . '</div>';
+        $output .= '<h2 class="newsevents__post-title">' . $post['title'] . '</h2>';
+        $output .= '</div>';
+        $output .= '</a>';
+        $output .= '</article>';
+    }
+
+    return $output;
+}
+
+function getNewsEventsPosts($atts)
+{
+    // Extract shortcode attributes
+    $atts = shortcode_atts(
+        [
+            'category' => 'news',
+            'num_posts' => -1,  // Fetch all posts
+            'posts_per_page' => 12,  // Display 12 posts per page
+            'featImgSize' => 'medium_large',
+            'dateFormat' => 'd M Y',
+        ],
+        $atts,
+        'news_posts'
+    );
+
+    // Create an instance of ContentPosts
+    $newsEventsPosts = new ContentPosts($atts['category'], null, $atts['featImgSize'], $atts['dateFormat']);
+
+    // Fetch posts
+    $posts = $newsEventsPosts->getPosts($atts['num_posts']);
+
+    // Generate the HTML string
+    $articleCard = '';
+    foreach ($posts as $post) {
+        $tags = implode(', ', $post['tags']);
+        $articleCard .= '<article class="news_article_wrapper d-none" aria-hidden="true">';
+        $articleCard .= '<input type="hidden" class="newsevents_hidden_input" id="' . $post['id'] . '" value="' . $tags . '">';
+        $articleCard .= '<div class="news_card_image">';
+        $articleCard .= '<a href="' . $post['url'] . '" aria-label="' . $post['title'] . ' " title="Go to ' . $post['title'] . '" rel="noopener noreferrer" target="_blank">';
+        $articleCard .= '<img src="' . $post['featured_image'] . '" alt="' . $post['title'] . '" width="320" height="320" loading="lazy" class="border-1">';
+        $articleCard .= '</a>';
+        $articleCard .= '</div>';
+        $articleCard .= '<div class="news_card_content">';
+        $articleCard .= '<div class="newsevents__post_date">' . $post['date'] . '</div>';
+        $articleCard .= '<a href="' . $post['url'] . '" aria-label="' . $post['title'] . ' " title="Go to ' . $post['title'] . '" rel="noopener noreferrer" target="_blank">';
+        $articleCard .= '<h2 class="newsevents__post_title text-medium fw-regular">' . $post['title'] . '</h2>';
+        $articleCard .= '</a>';
+        $articleCard .= '</div>';
+        $articleCard .= '</article>';
+    }
+
+    // Return the HTML string
+    return $articleCard;
+}
+
+// Register custom shortcodes.
+
 function register_custom_shortcodes()
 {
     add_shortcode('related_pages', 'related_pages_shortcode');
     add_shortcode('get_recent_post_item', 'get_latest_post_details');
     add_shortcode('get_post_url', 'get_post_details_by_url');
     add_shortcode('custom_search_form', 'custom_search_form_shortcode');
+    add_shortcode('get_recent_news_posts', 'get_recent_news_posts');
+    add_shortcode('get_post_with_offset', 'getRecentPostWithOffset');
+    add_shortcode('content_posts', 'getNewsEventsPosts');
 }
 
 add_action('init', 'register_custom_shortcodes');

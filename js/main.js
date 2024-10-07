@@ -664,6 +664,7 @@ document.addEventListener("readystatechange", (e) => {
   if (e.target.readyState === "complete") {
     tabFunc();
     showAwardImageFunc();
+    showNewsEvents();
   }
 });
 
@@ -774,3 +775,198 @@ const showAwardImageFunc = () => {
     });
   });
 };
+
+// =======================================
+//  News and Events JS
+// =======================================
+let postsPerPage = 10;
+let currentPage = 1;
+
+const SELECTORS = {
+  allNewsPosts: "#all_news_posts",
+  cardsPosts: ".news_article_wrapper",
+  paginationWrapper: ".news_pagination_btns_wrapper",
+  prevBtn: "#prev_post_btn",
+  nextBtn: "#next_post_btn",
+  firstBtn: "#first_post_btn",
+  lastBtn: "#last_post_btn",
+  filterButtons: ".news_btn_tag_filter",
+  newsHiddenInput: ".newsevents_hidden_input",
+};
+
+// Add event listeners to the filter buttons
+const filterButtons = document.querySelectorAll(SELECTORS.filterButtons);
+
+filterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    // Remove the active class from all filter buttons
+    filterButtons.forEach((btn) => btn.classList.remove("active"));
+
+    // Add the active class to the clicked button
+    button.classList.add("active");
+
+    const currentFilterID = button.id === "all" ? null : button.id;
+    currentPage = 1;
+    showNewsEvents(currentFilterID);
+  });
+});
+
+function showNewsEvents(filterID = null) {
+  const newsPostContainer = document.querySelector(SELECTORS.allNewsPosts);
+  const buttonAllActive = document
+    .getElementById("all")
+    .classList.contains("active");
+
+  if (newsPostContainer) {
+    let newsPosts = Array.from(
+      newsPostContainer.querySelectorAll(SELECTORS.cardsPosts)
+    );
+
+    /**
+     * Iterates over each news post and applies a filter based on a given filter ID.
+     * Each post has a hidden input field containing comma-separated tags.
+     * If a filter ID is provided, the function checks if the filter ID matches any of the tags.
+     * If a match is found, the post is made visible; otherwise, it is hidden.
+     * If no filter ID is provided, all posts are made visible.
+     *
+     * @param {Array} newsPosts - An array of DOM elements representing news posts.
+     * @param {string} filterID - The ID to filter the posts by. If null or undefined, all posts are made visible.
+     */
+    newsPosts.forEach((post) => {
+      const newsHiddenInput = post.querySelector(".newsevents_hidden_input");
+
+      let inputValArr = newsHiddenInput.value
+        .split(",")
+        .map((tag) => tag.trim());
+
+      if (filterID) {
+        let isMatch = inputValArr.some((inputVal) => filterID == inputVal);
+        if (isMatch) {
+          console.log(newsHiddenInput);
+          post.classList.remove("d-none");
+          post.setAttribute("aria-hidden", "false");
+        } else {
+          post.classList.add("d-none");
+          post.setAttribute("aria-hidden", "true");
+        }
+      } else {
+        post.classList.remove("d-none");
+        post.setAttribute("aria-hidden", "false");
+      }
+    });
+
+    const visiblePosts = newsPosts.filter(
+      (post) => !post.classList.contains("d-none")
+    );
+
+    const totalPages = Math.ceil(visiblePosts.length / postsPerPage);
+
+    generatePaginationButtons(totalPages);
+    updateNavigationButtons(totalPages);
+
+    visiblePosts.forEach((post, index) => {
+      if (
+        index >= (currentPage - 1) * postsPerPage &&
+        index < currentPage * postsPerPage
+      ) {
+        if (post.classList.contains("d-none")) {
+          post.classList.remove("d-none");
+          post.setAttribute("aria-hidden", "false");
+        }
+      } else {
+        if (!post.classList.contains("d-none")) {
+          post.classList.add("d-none");
+          post.setAttribute("aria-hidden", "true");
+        }
+      }
+    });
+  }
+}
+
+function generatePaginationButtons(totalPages) {
+  const paginationWrapper = document.querySelector(SELECTORS.paginationWrapper);
+
+  paginationWrapper.innerHTML = "";
+
+  for (let i = 1; i <= totalPages; i++) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.classList.add("pagination_btn");
+    button.id = `page_${i}`;
+    button.textContent = i;
+
+    // Determine the start and end page for the current set of pagination buttons
+    let startPage = Math.floor((currentPage - 1) / 5) * 5 + 1;
+    let endPage = startPage + 4;
+
+    // Add the d-none class to the button if it's not within the current set of pagination buttons
+    if (i < startPage || i > endPage) {
+      button.classList.add("d-none");
+    }
+
+    // Add the active class to the current page button
+    if (i === currentPage) {
+      button.classList.add("active");
+    }
+
+    button.addEventListener("click", () => {
+      currentPage = i;
+      showNewsEvents();
+    });
+
+    paginationWrapper.appendChild(button);
+  }
+}
+
+function updateNavigationButtons(totalPages) {
+  const prevButton = document.querySelector(SELECTORS.prevBtn);
+  const firstButton = document.querySelector(SELECTORS.firstBtn);
+  const nextButton = document.querySelector(SELECTORS.nextBtn);
+  const lastButton = document.querySelector(SELECTORS.lastBtn);
+
+  // Show the "Previous" and "First" buttons if the current page is not the first page
+  if (currentPage > 1) {
+    if (
+      prevButton.classList.contains("d-none") &&
+      firstButton.classList.contains("d-none")
+    ) {
+      prevButton.classList.remove("d-none");
+      firstButton.classList.remove("d-none");
+    }
+  } else {
+    prevButton.classList.add("d-none");
+    firstButton.classList.add("d-none");
+  }
+
+  // Show the "Next" and "Last" buttons if the current page is not the last page
+  if (currentPage < totalPages) {
+    nextButton.classList.remove("d-none");
+    lastButton.classList.remove("d-none");
+  } else {
+    nextButton.classList.add("d-none");
+    lastButton.classList.add("d-none");
+  }
+}
+
+// Add event listeners to the navigation buttons
+document.getElementById("prev_post_btn").addEventListener("click", () => {
+  currentPage--;
+  showNewsEvents();
+});
+
+document.getElementById("first_post_btn").addEventListener("click", () => {
+  currentPage = 1;
+  showNewsEvents();
+});
+
+document.getElementById("next_post_btn").addEventListener("click", () => {
+  currentPage++;
+  showNewsEvents();
+});
+
+document.getElementById("last_post_btn").addEventListener("click", () => {
+  currentPage = Math.ceil(
+    document.querySelectorAll(SELECTORS.cardsPosts).length / postsPerPage
+  );
+  showNewsEvents();
+});
