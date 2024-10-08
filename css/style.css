@@ -80,6 +80,11 @@ strong {
     font-weight: 700;
 }
 
+ol,
+ul {
+    padding-left: 1rem;
+}
+
 /* ================================================= */
 /* NEW HEADER NAVIGATION */
 /* ================================================= */
@@ -9078,11 +9083,17 @@ subpage MENU
     }
 
     .related-page-title {
+        text-wrap: pretty;
         margin-bottom: 0;
-        line-height: 1.5;
-        font-size: 18px;
+        line-height: 150%;
+        font-size: 14px;
         font-weight: 500;
-        hyphens: auto;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-transform: capitalize;
 
         &:hover {
             color: var(--chr-primary-color-700) !important;
@@ -9173,6 +9184,14 @@ subpage MENU
         font-weight: 400;
         font-size: clamp(1rem, 0.123vw + 0.977rem, 1.125rem);
         line-height: 160%;
+    }
+
+    .updates_paragraph_wrapper {
+
+        ol,
+        ul {
+            padding-left: 1.5rem !important;
+        }
     }
 
     .update_aside_wrapper .related-pages {

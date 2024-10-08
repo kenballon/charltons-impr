@@ -78,9 +78,9 @@ function related_pages_shortcode($atts)
                 loading="lazy" fetchpriority="high">
         </div>
         <h1 class="related-page-title"><?php the_title(); ?></h1>
-        <div class="related-page-excerpt">
+        <!-- <div class="related-page-excerpt">
             <?php echo get_custom_excerpt(get_the_excerpt(), $excerpt_length); ?>
-        </div>
+        </div> -->
     </article>
 </a>
 <?php
