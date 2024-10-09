@@ -9782,13 +9782,15 @@ subpage MENU
             }
 
             .newsevents__post_title {
+                font-size: clamp(0.875rem, 0.224vw + 0.732rem, 1rem);
                 text-wrap: pretty;
+                line-height: 150%;
+
                 display: -webkit-box;
                 -webkit-line-clamp: 4;
                 -webkit-box-orient: vertical;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                line-height: 150%;
 
                 @media (min-width: 768px) {
                     -webkit-line-clamp: 3;

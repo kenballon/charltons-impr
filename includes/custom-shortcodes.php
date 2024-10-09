@@ -458,7 +458,7 @@ function getNewsEventsPosts($atts)
         $articleCard .= '<div class="news_card_content">';
         $articleCard .= '<div class="newsevents__post_date">' . $post['date'] . '</div>';
         $articleCard .= '<a href="' . $post['url'] . '" aria-label="' . $post['title'] . ' " title="Go to ' . $post['title'] . '" rel="noopener noreferrer" target="_blank">';
-        $articleCard .= '<h2 class="newsevents__post_title text-medium fw-regular">' . $post['title'] . '</h2>';
+        $articleCard .= '<h2 class="newsevents__post_title fw-medium">' . $post['title'] . '</h2>';
         $articleCard .= '</a>';
         $articleCard .= '</div>';
         $articleCard .= '</article>';
