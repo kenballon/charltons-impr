@@ -40,7 +40,13 @@ function related_pages_shortcode($atts)
         'orderby' => $orderby,
         'order' => 'DESC',
         'has_password' => false,
-        'post__not_in' => [$current_post_id]  // Exclude current post
+        'post__not_in' => [$current_post_id],  // Exclude current post
+        'meta_query' => [
+            [
+                'key' => '_thumbnail_id',
+                'compare' => 'EXISTS'
+            ]
+        ]
     ];
 
     // Run the query
@@ -51,15 +57,8 @@ function related_pages_shortcode($atts)
 
     if ($related_query->have_posts()) {
         echo '<aside class="related-pages">';
-        $count = 0;
-        while ($related_query->have_posts() && $count < $number_of_pages_list) {
+        while ($related_query->have_posts()) {
             $related_query->the_post();
-
-            if (!has_post_thumbnail()) {
-                continue;
-            }
-
-            $count++;
 
             $image_id = get_post_thumbnail_id();
             $image_alt = get_post_meta($image_id, '_wp_attachment_image_alt', true);

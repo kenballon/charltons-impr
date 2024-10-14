@@ -377,6 +377,10 @@
     text-transform: capitalize;
 }
 
+.text-xs {
+    font-size: clamp(0.75rem, 0.224vw + 0.607rem, 0.875rem);
+}
+
 .text-sm {
     font-size: clamp(0.875rem, 0.9235rem + 0.2041vw, 1.25rem);
 }
