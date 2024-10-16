@@ -422,7 +422,7 @@ function getRecentPostWithOffset($atts)
     return $output;
 }
 
-function getNewsEventsPosts($atts)
+function getNewsEventsPosts_SC($atts)
 {
     // Extract shortcode attributes
     $atts = shortcode_atts(
@@ -434,7 +434,7 @@ function getNewsEventsPosts($atts)
             'dateFormat' => 'd M Y',
         ],
         $atts,
-        'news_posts'
+        'getNewsEventsPosts_SC'
     );
 
     // Create an instance of ContentPosts
@@ -477,7 +477,7 @@ function register_custom_shortcodes()
     add_shortcode('custom_search_form', 'custom_search_form_shortcode');
     add_shortcode('get_recent_news_posts', 'get_recent_news_posts');
     add_shortcode('get_post_with_offset', 'getRecentPostWithOffset');
-    add_shortcode('content_posts', 'getNewsEventsPosts');
+    add_shortcode('content_posts', 'getNewsEventsPosts_SC');
 }
 
 add_action('init', 'register_custom_shortcodes');
