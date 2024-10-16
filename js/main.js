@@ -1,3 +1,5 @@
+import FilterButton from "./FilterButton.js";
+
 function loadOptionUrl() {
   window.location = document.getElementById("option-url").value;
 }
@@ -798,21 +800,10 @@ const SELECTORS = {
   newsHiddenInput: ".newsevents_hidden_input",
 };
 
-// Add event listeners to the filter buttons
-const filterButtons = document.querySelectorAll(SELECTORS.filterButtons);
-
-filterButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    // Remove the active class from all filter buttons
-    filterButtons.forEach((btn) => btn.classList.remove("active"));
-
-    // Add the active class to the clicked button
-    button.classList.add("active");
-
-    currentFilterID = button.id === "all" ? null : button.id;
-    currentPage = 1;
-    showNewsEvents(currentFilterID);
-  });
+FilterButton.initializeAll(SELECTORS.filterButtons, (filterID) => {
+  currentFilterID = filterID === "all" ? null : filterID;
+  currentPage = 1;
+  showNewsEvents(currentFilterID);
 });
 
 function showNewsEvents(filterID = null) {
@@ -843,7 +834,6 @@ function showNewsEvents(filterID = null) {
       if (filterID) {
         let isMatch = inputValArr.some((inputVal) => filterID == inputVal);
         if (isMatch) {
-          console.log(newsHiddenInput);
           post.classList.remove("d-none");
           post.setAttribute("aria-hidden", "false");
         } else {

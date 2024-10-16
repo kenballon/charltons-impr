@@ -27,6 +27,15 @@ add_action('wp_enqueue_scripts', 'true_loadmore_scripts');
 
 function mainjs_script()
 {
+	// Enqueue the FilterButtons.js script
+	wp_enqueue_script(
+		'filterbutton',
+		get_stylesheet_directory_uri() . '/js/FilterButton.js',
+		[],
+		null,
+		true  // Load the script in the footer
+	);
+
 	// Enqueue the main.js script
 	wp_enqueue_script(
 		'mainjs',
@@ -41,6 +50,19 @@ function mainjs_script()
 }
 
 add_action('wp_enqueue_scripts', 'mainjs_script');
+
+function mainjs_module($tag, $handle, $src)
+{
+	// List of scripts to load as module
+	$module_scripts = ['mainjs', 'filterbutton'];
+
+	if (in_array($handle, $module_scripts)) {
+		$tag = '<script type="module" src="' . esc_url($src) . '"></script>';
+	}
+	return $tag;
+}
+
+add_filter('script_loader_tag', 'mainjs_module', 10, 3);
 
 function pagination_script()
 {
