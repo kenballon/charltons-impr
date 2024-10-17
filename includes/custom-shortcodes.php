@@ -363,6 +363,7 @@ function get_recent_news_posts($atts)
 {
     $atts = shortcode_atts(
         [
+            'post_type' => 'post',
             'category' => 'news',
             'num_posts' => 5,
         ],
@@ -370,7 +371,7 @@ function get_recent_news_posts($atts)
         'get_recent_news_posts'
     );
 
-    $newsEventsPosts = new ContentPosts($atts['category']);
+    $newsEventsPosts = new ContentPosts($atts['post_type'], $atts['category']);
     $posts = $newsEventsPosts->getPosts($atts['num_posts']);
 
     $output = '';
@@ -396,6 +397,7 @@ function getRecentPostWithOffset($atts)
 {
     $atts = shortcode_atts(
         [
+            'post_type' => 'post',
             'offset' => 0,
             'num_posts' => 10,
             'category' => 'news',
@@ -404,7 +406,7 @@ function getRecentPostWithOffset($atts)
         'getRecentPostWithOffset'
     );
 
-    $newsEventsPosts = new ContentPosts($atts['category']);
+    $newsEventsPosts = new ContentPosts($atts['post_type'], $atts['category']);
     $posts = $newsEventsPosts->getPosts($atts['num_posts'], $atts['offset']);
 
     $output = '';
@@ -422,23 +424,24 @@ function getRecentPostWithOffset($atts)
     return $output;
 }
 
-function getNewsEventsPosts_SC($atts)
+function getNewsEventsPosts_sc($atts)
 {
     // Extract shortcode attributes
     $atts = shortcode_atts(
         [
+            'post_type' => 'post',
             'category' => 'news',
             'num_posts' => -1,  // Fetch all posts
             'posts_per_page' => 12,  // Display 12 posts per page
             'featImgSize' => 'medium_large',
-            'dateFormat' => 'd M Y',
+            'dateFormat' => 'd M Y'
         ],
         $atts,
-        'getNewsEventsPosts_SC'
+        'getNewsEventsPosts_sc'
     );
 
     // Create an instance of ContentPosts
-    $newsEventsPosts = new ContentPosts($atts['category'], null, $atts['featImgSize'], $atts['dateFormat']);
+    $newsEventsPosts = new ContentPosts($atts['post_type'], $atts['category'], null, $atts['featImgSize'], $atts['dateFormat']);
 
     // Fetch posts
     $posts = $newsEventsPosts->getPosts($atts['num_posts']);
@@ -467,6 +470,40 @@ function getNewsEventsPosts_SC($atts)
     return $articleCard;
 }
 
+function insights_presentations_sc($atts)
+{
+    // Extract shortcode attributes
+    $atts = shortcode_atts([
+        'offset' => 0
+    ], $atts, 'insights_presentations_sc');
+
+    // Query the posts
+    $query = new WP_Query([
+        'post_type' => 'project',
+        'category' => 'publications-and-presentations',
+        'posts_per_page' => -1,  // Fetch all posts
+        'offset' => $atts['offset'],
+    ]);
+
+    // Format the posts into HTML
+    $output = '<div class="projects">';
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            $output .= '<div class="project">';
+            $output .= '<h2 class="text-sm fw-regular"><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h2>';
+            $output .= '<div class="date">' . esc_html(date_i18n('M j, Y', strtotime(get_the_date()))) . '</div>';
+            $output .= '</div>';
+        }
+        wp_reset_postdata();
+    } else {
+        $output .= '<p>No projects found.</p>';
+    }
+    $output .= '</div>';
+
+    return $output;
+}
+
 // Register custom shortcodes.
 
 function register_custom_shortcodes()
@@ -477,7 +514,8 @@ function register_custom_shortcodes()
     add_shortcode('custom_search_form', 'custom_search_form_shortcode');
     add_shortcode('get_recent_news_posts', 'get_recent_news_posts');
     add_shortcode('get_post_with_offset', 'getRecentPostWithOffset');
-    add_shortcode('content_posts', 'getNewsEventsPosts_SC');
+    add_shortcode('content_posts', 'getNewsEventsPosts_sc');
+    add_shortcode('insights_presentations', 'insights_presentations_sc');
 }
 
 add_action('init', 'register_custom_shortcodes');

@@ -6,9 +6,11 @@ class ContentPosts
     private ?string $tags;
     private string $featImgSize;
     private string $dateFormat;
+    private string $postType;
 
-    public function __construct(?string $category = null, ?string $tags = null, string $featImgSize = 'medium_large', string $dateFormat = 'd M Y')
+    public function __construct(string $postType = 'post', ?string $category = null, ?string $tags = null, string $featImgSize = 'medium_large', string $dateFormat = 'd M Y')
     {
+        $this->postType = $postType;
         $this->category = $category;
         $this->tags = $tags;
         $this->featImgSize = $featImgSize;
@@ -24,7 +26,7 @@ class ContentPosts
     private function getQueryArgs(int $num_posts): array
     {
         return [
-            'post_type' => 'post',
+            'post_type' => $this->postType,
             'post_status' => 'publish',
             'has_password' => false,
             'category_name' => $this->category,

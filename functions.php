@@ -1644,3 +1644,22 @@ function get_custom_nav_menu($location)
 
 	return $menu_array;
 }
+
+// TODO: will work on this later
+// function clf_awards_post_type()
+// {
+// 	register_post_type('awards',
+// 		[
+// 			'labels' => [
+// 				'name' => __('Awards'),
+// 				'singular_name' => __('Award')
+// 			],
+// 			'public' => true,
+// 			'has_archive' => true,
+// 			'rewrite' => ['slug' => 'awards'],
+// 			'menu_icon' => 'dashicons-awards',
+// 			'taxonomies' => ['category', 'post_tag'],
+// 		]);
+// }
+
+// add_action('init', 'clf_awards_post_type');
