@@ -10037,6 +10037,17 @@ subpage MENU
             }
         }
     }
+
+    @media (max-width:1033px) {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--chr-text-gray-300);
+
+        .ne_suggested_articles_wrapper {
+            padding-bottom: .6rem;
+            border-bottom: 1px solid var(--chr-text-gray-300);
+        }
+    }
 }
 
 
