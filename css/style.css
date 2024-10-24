@@ -4512,7 +4512,7 @@ img.img-display-block {
 }
 
 .content-podcast .pod-title {
-    margin: 40px 0 20px 0;
+    margin: 40px auto 20px auto;
 }
 
 .content-podcast .pod-video {
@@ -9727,37 +9727,6 @@ subpage MENU
 }
 
 .all_newsevents_container {
-    .btn_tag_filter_wrapper {
-        .news_btn_tag_filter {
-            padding: .5rem 1.5rem;
-            background-color: var(--chr-text-gray-100);
-            border-radius: 50px;
-            border: 1px solid var(--chr-text-gray-300);
-            margin-bottom: 3.5rem;
-            cursor: pointer;
-
-            &:hover {
-                background-color: var(--chr-primary-color-900);
-                color: white;
-                border: 1px solid var(--chr-primary-color-900);
-            }
-
-            &.active {
-                background-color: var(--chr-primary-color-900);
-                color: white;
-                border: 1px solid var(--chr-primary-color-900);
-            }
-        }
-
-        @media (max-width:992px) {
-            flex-wrap: wrap;
-            margin-bottom: 2rem;
-
-            .news_btn_tag_filter {
-                margin-bottom: 1rem;
-            }
-        }
-    }
 
     .news_posts_container {
         grid-template-columns: repeat(2, 1fr);
@@ -9848,6 +9817,40 @@ subpage MENU
     .pagination_btn.active {
         background-color: var(--chr-primary-color-900);
         color: white;
+    }
+}
+
+.btn_tag_filter_wrapper {
+
+    .news_btn_tag_filter,
+    .ppw_category_filter {
+        padding: .5rem 1.5rem;
+        background-color: var(--chr-text-gray-100);
+        border-radius: 50px;
+        border: 1px solid var(--chr-text-gray-300);
+        margin-bottom: 3.5rem;
+        cursor: pointer;
+
+        &:hover {
+            background-color: var(--chr-primary-color-900);
+            color: white;
+            border: 1px solid var(--chr-primary-color-900);
+        }
+
+        &.active {
+            background-color: var(--chr-primary-color-900);
+            color: white;
+            border: 1px solid var(--chr-primary-color-900);
+        }
+    }
+
+    @media (max-width:992px) {
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+
+        .news_btn_tag_filter {
+            margin-bottom: 1rem;
+        }
     }
 }
 
@@ -9952,8 +9955,6 @@ subpage MENU
 
                 @media (min-width: 1024px) {
                     max-height: 680px !important;
-                    overflow-x: scroll;
-
                 }
             }
 
@@ -10035,5 +10036,103 @@ subpage MENU
                 border-top: 1px solid var(--chr-text-gray-300);
             }
         }
+    }
+}
+
+
+
+/* ================================================= */
+/* INSIGHTS 2024 STYLING  */
+/* ================================================= */
+
+.insights_yearly_wrapper {
+    margin-block: 1rem;
+    border-block: 1px solid var(--chr-text-gray-200);
+
+    .year_wrapper {
+        padding-top: 1rem;
+        min-width: 30%;
+        padding-right: 2rem;
+        margin-right: 1rem;
+        border-right: 1px solid var(--chr-text-gray-200);
+
+        .insights_year_lbl_sm {
+            font-size: 0.75rem;
+            color: var(--chr-text-gray-100);
+        }
+
+        .insights_year_lbl {
+            font-size: clamp(2rem, 6.264vw - 2.017rem, 5.5rem);
+            font-weight: 400;
+            color: var(--chr-text-gray-400) !important;
+        }
+    }
+
+    .articles_wrapper {
+        padding-block: 1rem;
+        width: 70%;
+
+        .insights_post_title_wrapper {
+            transition: all .3s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+            padding-block: 0.5rem;
+
+            .insights_sm_date {
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                color: var(--chr-text-gray-400);
+            }
+
+            .insights_post_title {
+                font-size: 1rem;
+                font-weight: 600;
+
+                a {
+                    color: var(--chr-text-gray-100);
+                }
+            }
+
+            &:hover {
+                background-color: var(--chr-text-gray-700);
+                padding-left: 1rem;
+
+                .insights_sm_date {
+                    color: var(--chr-text-gray-300);
+                }
+
+                .insights_post_title {
+                    a {
+                        color: var(--chr-primary-color-900);
+                    }
+                }
+            }
+        }
+
+        .insights_post_title_wrapper+.insights_post_title_wrapper {
+            border-top: 1px dotted var(--chr-text-gray-200);
+        }
+    }
+}
+
+
+
+.ppw_tag_btn_filter {
+    h2 {
+        cursor: pointer;
+        transition: all .1s ease-in;
+        color: var(--chr-text-gray-100) !important;
+
+        &:hover {
+            text-decoration: underline !important;
+            color: var(--chr-primary-color-700) !important;
+        }
+    }
+
+
+}
+
+.ppw_tag_btn_filter.active {
+    h2 {
+        text-decoration: underline !important;
+        color: var(--chr-primary-color-700) !important;
     }
 }
