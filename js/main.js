@@ -796,11 +796,13 @@ const SELECTORS = {
   nextBtn: "#next_post_btn",
   firstBtn: "#first_post_btn",
   lastBtn: "#last_post_btn",
-  filterButtons: ".news_btn_tag_filter",
+  newsEventsFilterButtons: ".news_btn_tag_filter",
   newsHiddenInput: ".newsevents_hidden_input",
+  CategPPWFilterButtons: ".ppw_category_filter",
+  TagsPPWFilterButtons: ".ppw_tag_btn_filter",
 };
 
-FilterButton.initializeAll(SELECTORS.filterButtons, (filterID) => {
+FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
   currentFilterID = filterID === "all" ? null : filterID;
   currentPage = 1;
   showNewsEvents(currentFilterID);
@@ -940,24 +942,109 @@ function updateNavigationButtons(totalPages) {
 }
 
 // Add event listeners to the navigation buttons
-document.getElementById("prev_post_btn").addEventListener("click", () => {
+document.getElementById("prev_post_btn")?.addEventListener("click", () => {
   currentPage--;
   showNewsEvents(currentFilterID);
 });
 
-document.getElementById("first_post_btn").addEventListener("click", () => {
+document.getElementById("first_post_btn")?.addEventListener("click", () => {
   currentPage = 1;
   showNewsEvents(currentFilterID);
 });
 
-document.getElementById("next_post_btn").addEventListener("click", () => {
+document.getElementById("next_post_btn")?.addEventListener("click", () => {
   currentPage++;
   showNewsEvents(currentFilterID);
 });
 
-document.getElementById("last_post_btn").addEventListener("click", () => {
+document.getElementById("last_post_btn")?.addEventListener("click", () => {
   currentPage = Math.ceil(
     document.querySelectorAll(SELECTORS.cardsPosts).length / postsPerPage
   );
   showNewsEvents(currentFilterID);
 });
+
+// =======================================
+//  PPW JS CODE
+// =======================================
+const ppwArticlesPost = Array.from(
+  document.querySelectorAll(".insights_post_title_wrapper")
+);
+const articlePostContainers = document.querySelectorAll(".articles_wrapper");
+
+FilterButton.initializeAll(SELECTORS.CategPPWFilterButtons, (filterID) => {
+  filterByCategoryOrTag(filterID === "all" ? null : filterID, "category");
+});
+
+FilterButton.initializeAll(SELECTORS.TagsPPWFilterButtons, (filterID) => {
+  filterByCategoryOrTag(filterID === "all" ? null : filterID, "tag");
+});
+
+// Function to filter by category or tag
+function filterByCategoryOrTag(filterName, type) {
+  const filterBtns = document.querySelectorAll(
+    type === "category" ? ".ppw_tag_btn_filter" : ".ppw_category_filter"
+  );
+
+  // Remove active class from filter buttons
+  filterBtns.forEach((btn) => btn.classList.remove("active"));
+
+  // Clear article containers
+  articlePostContainers.forEach((container) => (container.innerHTML = ""));
+
+  // Filter posts
+  ppwArticlesPost.forEach((post) => {
+    const postCategory = post.dataset.category;
+    const postTags = post.dataset.tags ? post.dataset.tags.split(",") : [];
+    const postYear = post.dataset.year;
+
+    const shouldAppend =
+      type === "category"
+        ? !filterName || postCategory === filterName
+        : !filterName || postTags.some((tag) => tag.trim() === filterName);
+
+    if (shouldAppend) {
+      articlePostContainers.forEach((container) => {
+        if (container.id === postYear) {
+          container.appendChild(post);
+        }
+      });
+    }
+  });
+
+  // Toggle visibility of yearly wrappers
+  articlePostContainers.forEach((container) => {
+    const parentDiv = container.closest(".insights_yearly_wrapper");
+    if (container.children.length === 0) {
+      parentDiv.classList.remove("flex");
+      parentDiv.classList.add("d-none");
+    } else {
+      parentDiv.classList.add("flex");
+      parentDiv.classList.remove("d-none");
+    }
+  });
+}
+// =======================================
+//  INSIGHTS FILTER JS CODE
+// =======================================
+const insightFilterButtons = document.getElementById("insights_filter_toggle");
+const svgFilterIcon = document.getElementById("insights_filter_icon");
+const svgCloseIcon = document.getElementById("insights_filter_close_icon");
+const filterBtnsContainer = document.querySelector(
+  ".insights_page.btn_tag_filter_wrapper"
+);
+
+function toggleFilter(event) {
+  event.preventDefault();
+
+  const isActive = insightFilterButtons.classList.toggle("active");
+  const dataStateValue = isActive ? "true" : "false";
+  insightFilterButtons.setAttribute("data-state", dataStateValue);
+
+  svgCloseIcon.classList.toggle("hidden", !isActive);
+  svgFilterIcon.classList.toggle("hidden", isActive);
+  filterBtnsContainer.classList.toggle("hidden", !isActive);
+}
+
+// Add event listener to the button
+insightFilterButtons.addEventListener("click", toggleFilter);

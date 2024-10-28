@@ -11,7 +11,7 @@ function enqueue_load_fa()
 
 function chr_theme_enqueue_styles()
 {
-	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '1.0.13', 'all');
+	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '1.0.14', 'all');
 	wp_enqueue_style('custom-style');
 }
 
@@ -954,15 +954,16 @@ function project_register_post_type()
 {
 	register_post_type(
 		'project',
-		array(
+		[
 			'labels' => array(
 				'name' => __('Projects'),
 				'singular_name' => __('Project')
 			),
 			'public' => true,
 			'has_archive' => true,
-			'rewrite' => array('slug' => 'hong-kong-law')
-		)
+			'rewrite' => ['slug' => 'hong-kong-law'],
+			'taxonomies' => ['post_tag'],
+		]
 	);
 }  // end example_register_post_type
 
@@ -1585,7 +1586,6 @@ add_filter('body_class', 'category_id_class');
 
 // Custom Shortcodes Functions
 require_once get_stylesheet_directory() . '/includes/custom-shortcodes.php';
-require_once get_stylesheet_directory() . '/includes/ContentPosts.php';
 
 // =============================================
 // Custom Nav Menu
@@ -1644,22 +1644,3 @@ function get_custom_nav_menu($location)
 
 	return $menu_array;
 }
-
-// TODO: will work on this later
-// function clf_awards_post_type()
-// {
-// 	register_post_type('awards',
-// 		[
-// 			'labels' => [
-// 				'name' => __('Awards'),
-// 				'singular_name' => __('Award')
-// 			],
-// 			'public' => true,
-// 			'has_archive' => true,
-// 			'rewrite' => ['slug' => 'awards'],
-// 			'menu_icon' => 'dashicons-awards',
-// 			'taxonomies' => ['category', 'post_tag'],
-// 		]);
-// }
-
-// add_action('init', 'clf_awards_post_type');

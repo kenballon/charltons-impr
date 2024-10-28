@@ -361,6 +361,7 @@ function ajax_latest_posts()
 
 function get_recent_news_posts($atts)
 {
+    // Extract shortcode attributes
     $atts = shortcode_atts(
         [
             'post_type' => 'post',
@@ -371,25 +372,45 @@ function get_recent_news_posts($atts)
         'get_recent_news_posts'
     );
 
-    $newsEventsPosts = new ContentPosts($atts['post_type'], $atts['category']);
-    $posts = $newsEventsPosts->getPosts($atts['num_posts']);
+    // Set up WP_Query arguments
+    $args = [
+        'post_type' => $atts['post_type'],
+        'category_name' => $atts['category'],
+        'posts_per_page' => $atts['num_posts']
+    ];
 
+    // Create a new WP_Query instance
+    $query = new WP_Query($args);
+
+    // Generate the HTML string
     $output = '';
-    foreach ($posts as $post) {
-        $output .= '<article class="featured_new_post grid gap-2">';
-        $output .= '<div class="featured_new_post_img">';
-        $output .= '<img src="' . $post['featured_image'] . '" alt="image of a news' . $post['title'] . '" width="500" height="500" />';
-        $output .= '</div>';
-        $output .= '<div class="featured_new_post_content flex item-center flex-col justify-center">';
-        $output .= '<div class="date_container fw-regular">' . $post['date'] . '</div>';
-        $output .= '<a href="' . $post['url'] . '" aria-label="' . $post['title'] . '">';
-        $output .= '<h2>' . $post['title'] . '</h2>';
-        $output .= '</a>';
-        $output .= '<p class="fw-regular">' . $post['excerpt'] . '</p>';
-        $output .= '</div>';
-        $output .= '</article>';
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            $post_id = get_the_ID();
+            $post_title = get_the_title();
+            $post_url = get_permalink();
+            $post_date = date_i18n('d M Y', strtotime(get_the_date()));
+            $post_excerpt = wp_strip_all_tags(get_the_excerpt());
+            $post_feat_img = get_the_post_thumbnail_url($post_id, 'full');
+
+            $output .= '<article class="featured_new_post grid gap-2">';
+            $output .= '<div class="featured_new_post_img">';
+            $output .= '<img src="' . esc_url($post_feat_img) . '" alt="image of a news ' . esc_attr($post_title) . '" width="500" height="500" />';
+            $output .= '</div>';
+            $output .= '<div class="featured_new_post_content flex item-center flex-col justify-center">';
+            $output .= '<div class="date_container fw-regular">' . esc_html($post_date) . '</div>';
+            $output .= '<a href="' . esc_url($post_url) . '" aria-label="' . esc_attr($post_title) . '">';
+            $output .= '<h2>' . esc_html($post_title) . '</h2>';
+            $output .= '</a>';
+            $output .= '<p class="fw-regular">' . esc_html($post_excerpt) . '</p>';
+            $output .= '</div>';
+            $output .= '</article>';
+        }
+        wp_reset_postdata();
     }
 
+    // Return the HTML string
     return $output;
 }
 
@@ -406,19 +427,29 @@ function getRecentPostWithOffset($atts)
         'getRecentPostWithOffset'
     );
 
-    $newsEventsPosts = new ContentPosts($atts['post_type'], $atts['category']);
-    $posts = $newsEventsPosts->getPosts($atts['num_posts'], $atts['offset']);
+    $query_args = [
+        'post_type' => $atts['post_type'],
+        'category_name' => $atts['category'],
+        'posts_per_page' => $atts['num_posts'],
+        'offset' => $atts['offset'],
+    ];
+
+    $query = new WP_Query($query_args);
 
     $output = '';
-    foreach ($posts as $post) {
-        $output .= '<article class="feat_news_card_item">';
-        $output .= '<a href="' . $post['url'] . '" aria-label="' . $post['title'] . '" class="newsevents_anchorlink flex items-center">';
-        $output .= '<div class="card_item_content">';
-        $output .= '<div class="date_container fw-regular">' . $post['date'] . '</div>';
-        $output .= '<h2 class="newsevents__post-title">' . $post['title'] . '</h2>';
-        $output .= '</div>';
-        $output .= '</a>';
-        $output .= '</article>';
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            $output .= '<article class="feat_news_card_item">';
+            $output .= '<a href="' . get_permalink() . '" aria-label="' . get_the_title() . '" class="newsevents_anchorlink flex items-center">';
+            $output .= '<div class="card_item_content">';
+            $output .= '<div class="date_container fw-regular">' . date_i18n('j M Y', strtotime(get_the_date())) . '</div>';
+            $output .= '<h2 class="newsevents__post-title">' . get_the_title() . '</h2>';
+            $output .= '</div>';
+            $output .= '</a>';
+            $output .= '</article>';
+        }
+        wp_reset_postdata();
     }
 
     return $output;
@@ -440,30 +471,53 @@ function getNewsEventsPosts_sc($atts)
         'getNewsEventsPosts_sc'
     );
 
-    // Create an instance of ContentPosts
-    $newsEventsPosts = new ContentPosts($atts['post_type'], $atts['category'], null, $atts['featImgSize'], $atts['dateFormat']);
+    // Set up WP_Query arguments
+    $args = [
+        'post_type' => $atts['post_type'],
+        'category_name' => $atts['category'],
+        'posts_per_page' => $atts['num_posts']
+    ];
 
-    // Fetch posts
-    $posts = $newsEventsPosts->getPosts($atts['num_posts']);
+    // Create a new WP_Query instance
+    $query = new WP_Query($args);
 
     // Generate the HTML string
     $articleCard = '';
-    foreach ($posts as $post) {
-        $tags = implode(', ', $post['tags']);
-        $articleCard .= '<article class="news_article_wrapper d-none" aria-hidden="true">';
-        $articleCard .= '<input type="hidden" class="newsevents_hidden_input" id="' . $post['id'] . '" value="' . $tags . '">';
-        $articleCard .= '<div class="news_card_image">';
-        $articleCard .= '<a href="' . $post['url'] . '" aria-label="' . $post['title'] . ' " title="Go to ' . $post['title'] . '" rel="noopener noreferrer" target="_blank">';
-        $articleCard .= '<img src="' . $post['featured_image'] . '" alt="' . $post['title'] . '" width="320" height="320" loading="lazy" class="border-1">';
-        $articleCard .= '</a>';
-        $articleCard .= '</div>';
-        $articleCard .= '<div class="news_card_content">';
-        $articleCard .= '<div class="newsevents__post_date">' . $post['date'] . '</div>';
-        $articleCard .= '<a href="' . $post['url'] . '" aria-label="' . $post['title'] . ' " title="Go to ' . $post['title'] . '" rel="noopener noreferrer" target="_blank">';
-        $articleCard .= '<h2 class="newsevents__post_title fw-medium">' . $post['title'] . '</h2>';
-        $articleCard .= '</a>';
-        $articleCard .= '</div>';
-        $articleCard .= '</article>';
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            $post_id = get_the_ID();
+            $post_title = get_the_title();
+            $post_url = get_permalink();
+            $post_date = get_the_date($atts['dateFormat']);
+            $post_tags = get_the_tags();
+            $post_feat_img = get_the_post_thumbnail_url($post_id, $atts['featImgSize']);
+
+            // Extract tag names and convert to lowercase
+            $tag_names = [];
+            if ($post_tags) {
+                foreach ($post_tags as $tag) {
+                    $tag_names[] = strtolower($tag->name);
+                }
+            }
+            $tag_names_str = implode(', ', $tag_names);
+
+            $articleCard .= '<article class="news_article_wrapper d-none" aria-hidden="true">';
+            $articleCard .= '<input type="hidden" class="newsevents_hidden_input" id="' . $post_id . '" value="' . esc_attr($tag_names_str) . '">';
+            $articleCard .= '<div class="news_card_image">';
+            $articleCard .= '<a href="' . esc_url($post_url) . '" aria-label="' . esc_attr($post_title) . ' " title="Go to ' . esc_attr($post_title) . '" rel="noopener noreferrer" target="_blank">';
+            $articleCard .= '<img src="' . esc_url($post_feat_img) . '" alt="' . esc_attr($post_title) . '" width="320" height="320" loading="lazy" class="border-1">';
+            $articleCard .= '</a>';
+            $articleCard .= '</div>';
+            $articleCard .= '<div class="news_card_content">';
+            $articleCard .= '<div class="newsevents__post_date">' . esc_html($post_date) . '</div>';
+            $articleCard .= '<a href="' . esc_url($post_url) . '" aria-label="' . esc_attr($post_title) . ' " title="Go to ' . esc_attr($post_title) . '" rel="noopener noreferrer" target="_blank">';
+            $articleCard .= '<h2 class="newsevents__post_title fw-medium">' . esc_html($post_title) . '</h2>';
+            $articleCard .= '</a>';
+            $articleCard .= '</div>';
+            $articleCard .= '</article>';
+        }
+        wp_reset_postdata();
     }
 
     // Return the HTML string
@@ -480,20 +534,56 @@ function insights_presentations_sc($atts)
     // Query the posts
     $query = new WP_Query([
         'post_type' => 'project',
-        'category' => 'publications-and-presentations',
-        'posts_per_page' => -1,  // Fetch all posts
+        'posts_per_page' => -1,
         'offset' => $atts['offset'],
     ]);
 
     // Format the posts into HTML
-    $output = '<div class="projects">';
+    $output = '<div class="insights_allposts_wrapper">';
+    $current_year = null;
     if ($query->have_posts()) {
         while ($query->have_posts()) {
             $query->the_post();
-            $output .= '<div class="project">';
-            $output .= '<h2 class="text-sm fw-regular"><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h2>';
-            $output .= '<div class="date">' . esc_html(date_i18n('M j, Y', strtotime(get_the_date()))) . '</div>';
-            $output .= '</div>';
+            $post_id = get_the_ID();
+            $getDate = get_the_date('Y-m-d');
+            $year = get_the_date('Y');
+            $month_n_date = get_the_date('M Y');
+            $terms = wp_get_post_terms($post_id, 'project_category');
+
+            $tags = wp_get_post_tags($post_id);
+            $category_name = '';
+            $category_slug = '';
+            $category_id = '';
+
+            if (!empty($terms) && !is_wp_error($terms)) {
+                $category_name = $terms[0]->name;
+                $category_slug = $terms[0]->slug;
+                $category_id = $terms[0]->term_id;
+            }
+
+            $tag_names = [];
+            foreach ($tags as $tag) {
+                $tag_names[] = strtolower($tag->name);
+            }
+
+            // If the year has changed, close the current div and start a new one
+            if ($year !== $current_year) {
+                if ($current_year !== null) {
+                    $output .= '</div></div>';  // Close the previous year's div and articles_wrapper
+                }
+                $output .= '<div class="insights_yearly_wrapper flex">';  // Start a new div for the new year
+                $output .= '<div  class="year_wrapper"><small class="insights_year_lbl_sm">YEAR</small><h2 class="insights_year_lbl">' . esc_attr($year) . '</h2></div>';  // Year wrapper
+                $output .= '<div id="year_' . esc_attr($year) . '" class="articles_wrapper flex justify-center flex-col">';  // Start articles wrapper
+                $current_year = $year;
+            }
+
+            $output .= '<article class="insights_post_title_wrapper" data-year="year_' . esc_attr($year) . '"  data-category="' . esc_html($category_slug) . '" data-tags="' . esc_attr(implode(', ', $tag_names)) . '">';
+            $output .= '<time datetime="' . esc_attr($getDate) . '" class="insights_sm_date">' . esc_attr($month_n_date) . '</time>';
+            $output .= '<h1 class="insights_post_title"><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h1>';
+            $output .= '</article>';
+        }
+        if ($current_year !== null) {
+            $output .= '</div></div>';  // Close the last year's div and articles_wrapper
         }
         wp_reset_postdata();
     } else {
