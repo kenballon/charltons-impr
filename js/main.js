@@ -244,6 +244,10 @@ jQuery(document).ready(function ($) {
 // =======================================
 //  KENNETH BALLON NEW NAV JS CODE
 // =======================================
+// Get the current URL
+const currentUrl = window.location.href;
+const origin = window.location.origin;
+
 document.addEventListener("DOMContentLoaded", () => {
   // mobile nav reveal
   const header = document.querySelector("header");
@@ -662,14 +666,19 @@ function revealSearch() {
   });
 }
 
+// =======================================
+//  Awards Page JS
+// =======================================
 document.addEventListener("readystatechange", (e) => {
   if (e.target.readyState === "complete") {
     tabFunc();
     showAwardImageFunc();
     showNewsEvents();
-    const buttonAllActive = document
-      .getElementById("all")
-      .classList.add("active");
+
+    const buttonAllActive = document.getElementById("all");
+    currentUrl.startsWith(origin + "/news")
+      ? buttonAllActive?.classList.add("active")
+      : "";
   }
 });
 
@@ -1047,4 +1056,43 @@ function toggleFilter(event) {
 }
 
 // Add event listener to the button
-insightFilterButtons.addEventListener("click", toggleFilter);
+insightFilterButtons?.addEventListener("click", toggleFilter);
+
+// =======================================
+//  TEST ONLY JS CODE
+// =======================================
+
+// function handleFilterRedirection(currentUrl, origin) {
+//   console.log(origin);
+
+//   // Check if the URL matches the specific page
+//   if (currentUrl.startsWith(origin + "/information-insights/test-only")) {
+//     // Check if the URL contains an extra slash before the query parameters
+//     if (currentUrl.includes("/?filter=")) {
+//       // Remove the extra slash
+//       currentUrl = currentUrl.replace("/?filter=", "?filter=");
+//       // Update the browser's URL without reloading the page
+//       window.history.replaceState({}, document.title, currentUrl);
+//     }
+
+//     // Get the query parameter from the URL
+//     const urlParams = new URLSearchParams(window.location.search);
+//     const filter = urlParams.get("filter");
+
+//     // Check if the filter parameter exists and simulate a click event on the corresponding button
+//     if (filter) {
+//       const filterBtns = document.querySelectorAll(
+//         SELECTORS.CategPPWFilterButtons
+//       );
+
+//       filterBtns.forEach((btn) => {
+//         if (btn.id === filter) {
+//           console.log(filter);
+//           btn.click();
+//         } else if (btn.classList.contains("active")) {
+//           btn.classList.remove("active");
+//         }
+//       });
+//     }
+//   }
+// }

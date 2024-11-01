@@ -10113,6 +10113,20 @@ subpage MENU
 
         }
 
+        .link_wrapper {
+            border: 1px solid var(--chr-text-gray-500);
+            cursor: pointer;
+            transition: all .2s ease-in;
+
+            &:hover {
+                background-color: var(--chr-primary-color-900);
+
+                a {
+                    color: var(--chr-primary-color-100);
+                }
+            }
+        }
+
         .filter_label_wrapper.active {
             display: flex;
             background-color: var(--chr-primary-color-900);
