@@ -736,6 +736,10 @@ header#main-header.search-open {
     display: none !important;
 }
 
+.active {
+    display: block !important;
+}
+
 /* #endregion HEADER NAVIGATION STYLES::END */
 /* ================================================= */
 
@@ -9219,7 +9223,7 @@ subpage MENU
         }
     }
 }
-
+/* ================================================= */
 /* #endregion UPDATES BLOG LIST CUSTOM CSS STYLING::END  */
 /* ================================================= */
 
@@ -9245,8 +9249,9 @@ subpage MENU
     }
 }
 
-
+/* ================================================= */
 /* AWARDS PAGE 2024 STYLING  */
+/* ================================================= */
 .et_pb_section.awards_hero,
 .et_pb_section.awards_hero__hero-image {
     padding: 24px !important;
@@ -9563,10 +9568,6 @@ subpage MENU
 }
 
 .tab_content.active {
-    display: block;
-}
-
-.active {
     display: block;
 }
 
