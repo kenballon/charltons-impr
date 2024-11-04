@@ -589,8 +589,6 @@ header#main-header {
                 }
             }
 
-
-
             .social_icon_block_header {
                 margin-top: 4px;
                 padding-top: 1rem;
@@ -735,7 +733,7 @@ header#main-header.search-open {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 /* #endregion HEADER NAVIGATION STYLES::END */
@@ -10364,3 +10362,4 @@ subpage MENU
         }
     }
 }
+

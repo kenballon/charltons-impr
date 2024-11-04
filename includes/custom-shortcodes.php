@@ -524,76 +524,6 @@ function getNewsEventsPosts_sc($atts)
     return $articleCard;
 }
 
-// function insights_presentations_sc($atts)
-// {
-//     // Extract shortcode attributes
-//     $atts = shortcode_atts([
-//         'offset' => 0
-//     ], $atts, 'insights_presentations_sc');
-
-//     // Query the posts
-//     $query = new WP_Query([
-//         'post_type' => 'project',  // Include both 'project' and 'post' post types
-//         'posts_per_page' => -1,
-//         'offset' => $atts['offset'],
-//     ]);
-
-//     // Format the posts into HTML
-//     $output = '<div class="insights_allposts_wrapper">';
-//     $current_year = null;
-//     if ($query->have_posts()) {
-//         while ($query->have_posts()) {
-//             $query->the_post();
-//             $post_id = get_the_ID();
-//             $getDate = get_the_date('Y-m-d');
-//             $year = get_the_date('Y');
-//             $month_n_date = get_the_date('M Y');
-//             $terms = wp_get_post_terms($post_id, 'project_category');
-
-//             $tags = wp_get_post_tags($post_id);
-//             $category_name = '';
-//             $category_slug = '';
-//             $category_id = '';
-
-//             if (!empty($terms) && !is_wp_error($terms)) {
-//                 $category_name = $terms[0]->name;
-//                 $category_slug = $terms[0]->slug;
-//                 $category_id = $terms[0]->term_id;
-//             }
-
-//             $tag_names = [];
-//             foreach ($tags as $tag) {
-//                 $tag_names[] = strtolower($tag->name);
-//             }
-
-//             // If the year has changed, close the current div and start a new one
-//             if ($year !== $current_year) {
-//                 if ($current_year !== null) {
-//                     $output .= '</div></div>';  // Close the previous year's div and articles_wrapper
-//                 }
-//                 $output .= '<div class="insights_yearly_wrapper flex">';  // Start a new div for the new year
-//                 $output .= '<div  class="year_wrapper"><small class="insights_year_lbl_sm">YEAR</small><h2 class="insights_year_lbl">' . esc_attr($year) . '</h2></div>';  // Year wrapper
-//                 $output .= '<div id="year_' . esc_attr($year) . '" class="articles_wrapper flex justify-center flex-col">';  // Start articles wrapper
-//                 $current_year = $year;
-//             }
-
-//             $output .= '<article class="insights_post_title_wrapper" data-year="year_' . esc_attr($year) . '"  data-category="' . esc_html($category_slug) . '" data-tags="' . esc_attr(implode(', ', $tag_names)) . '">';
-//             $output .= '<time datetime="' . esc_attr($getDate) . '" class="insights_sm_date">' . esc_attr($month_n_date) . '</time>';
-//             $output .= '<h1 class="insights_post_title"><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h1>';
-//             $output .= '</article>';
-//         }
-//         if ($current_year !== null) {
-//             $output .= '</div></div>';  // Close the last year's div and articles_wrapper
-//         }
-//         wp_reset_postdata();
-//     } else {
-//         $output .= '<p>No projects found.</p>';
-//     }
-//     $output .= '</div>';
-
-//     return $output;
-// }
-
 function insights_presentations_sc($atts)
 {
     // Extract shortcode attributes
@@ -607,6 +537,8 @@ function insights_presentations_sc($atts)
     $query_args = [
         'post_type' => 'project',
         'posts_per_page' => -1,
+        'post_status' => 'publish',
+        'has_password' => false,
         'offset' => $atts['offset'],
     ];
 

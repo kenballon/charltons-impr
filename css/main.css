@@ -576,7 +576,7 @@ header#main-header .header_nav_div_wrapper .search_wrapper.hide-animate {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 /* #endregion HEADER NAVIGATION STYLES::END */
