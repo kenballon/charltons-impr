@@ -10084,6 +10084,49 @@ subpage MENU
     }
 }
 
+.insights_hero {
+    min-height: 200px;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 2rem;
+
+    .hero_insights_content {
+        h1 {
+            font-size: clamp(1.75rem, 0.895vw + 1.176rem, 2.25rem);
+            color: white !important;
+            padding: 0;
+        }
+    }
+
+    .insights_url_podcast {
+        a {
+            color: white;
+            text-transform: uppercase;
+            padding: .5rem 1.5rem;
+            background-color: var(--chr-primary-color-900);
+            border-radius: 100px;
+
+            &:hover {
+                background-color: var(--chr-primary-color-700);
+            }
+        }
+    }
+
+    @media (max-width:767px) {
+        padding-inline: 0;
+
+        .hero_insights_content {
+            flex-direction: column;
+            justify-content: center;
+            gap: 2rem;
+        }
+    }
+
+    @media (max-width:1280px) {
+        padding-inline: 0;
+    }
+}
+
 .header_label_filter_buttons {
     display: flex;
     flex-direction: column;
@@ -10135,6 +10178,7 @@ subpage MENU
         @media (max-width: 992px) {
             gap: 1rem;
             flex-direction: column;
+            align-items: start;
 
             .insights_headline_lbl {
                 width: 100%;
