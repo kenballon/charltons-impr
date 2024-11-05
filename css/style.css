@@ -10170,7 +10170,7 @@ subpage MENU
         }
 
         .filter_label_wrapper.active {
-            display: flex;
+            display: flex !important;
             background-color: var(--chr-primary-color-900);
         }
 

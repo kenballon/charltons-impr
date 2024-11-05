@@ -9186,7 +9186,7 @@ subpage MENU
   color: var(--chr-primary-color-100);
 }
 .header_label_filter_buttons .headline_filter .filter_label_wrapper.active {
-  display: flex;
+  display: flex !important;
   background-color: var(--chr-primary-color-900);
 }
 @media (max-width: 992px) {
