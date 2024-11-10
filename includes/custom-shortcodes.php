@@ -399,7 +399,7 @@ function get_recent_news_posts($atts)
             $output .= '<img src="' . esc_url($post_feat_img) . '" alt="image of a news ' . esc_attr($post_title) . '" width="500" height="500" />';
             $output .= '</div>';
             $output .= '<div class="featured_new_post_content flex item-center flex-col justify-center">';
-            $output .= '<div class="date_container fw-regular">' . esc_html($post_date) . '</div>';
+            // $output .= '<div class="date_container fw-regular">' . esc_html($post_date) . '</div>';
             $output .= '<a href="' . esc_url($post_url) . '" aria-label="' . esc_attr($post_title) . '">';
             $output .= '<h2>' . esc_html($post_title) . '</h2>';
             $output .= '</a>';
@@ -443,7 +443,7 @@ function getRecentPostWithOffset($atts)
             $output .= '<article class="feat_news_card_item">';
             $output .= '<a href="' . get_permalink() . '" aria-label="' . get_the_title() . '" class="newsevents_anchorlink flex items-center">';
             $output .= '<div class="card_item_content">';
-            $output .= '<div class="date_container fw-regular">' . date_i18n('j M Y', strtotime(get_the_date())) . '</div>';
+            $output .= '<div class="date_container fw-regular">' . date_i18n('M Y', strtotime(get_the_date())) . '</div>';
             $output .= '<h2 class="newsevents__post-title">' . get_the_title() . '</h2>';
             $output .= '</div>';
             $output .= '</a>';
