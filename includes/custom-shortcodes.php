@@ -465,7 +465,7 @@ function getNewsEventsPosts_sc($atts)
             'num_posts' => -1,  // Fetch all posts
             'posts_per_page' => 12,  // Display 12 posts per page
             'featImgSize' => 'medium_large',
-            'dateFormat' => 'd M Y'
+            'dateFormat' => 'M Y'
         ],
         $atts,
         'getNewsEventsPosts_sc'
@@ -510,7 +510,7 @@ function getNewsEventsPosts_sc($atts)
             $articleCard .= '</a>';
             $articleCard .= '</div>';
             $articleCard .= '<div class="news_card_content">';
-            $articleCard .= '<div class="newsevents__post_date">' . esc_html($post_date) . '</div>';
+            // $articleCard .= '<div class="newsevents__post_date">' . esc_html($post_date) . '</div>';
             $articleCard .= '<a href="' . esc_url($post_url) . '" aria-label="' . esc_attr($post_title) . ' " title="Go to ' . esc_attr($post_title) . '" rel="noopener noreferrer" target="_blank">';
             $articleCard .= '<h2 class="newsevents__post_title fw-medium">' . esc_html($post_title) . '</h2>';
             $articleCard .= '</a>';
