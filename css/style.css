@@ -9223,6 +9223,7 @@ subpage MENU
         }
     }
 }
+
 /* ================================================= */
 /* #endregion UPDATES BLOG LIST CUSTOM CSS STYLING::END  */
 /* ================================================= */
@@ -9964,15 +9965,11 @@ subpage MENU
             padding-block: 2rem;
 
             .ne_singlepost_text_content_wrapper {
-                min-height: max-content;
 
                 .et_pb_text_inner p {
                     font-weight: 400;
                 }
 
-                @media (min-width: 1024px) {
-                    max-height: 680px !important;
-                }
             }
 
             @media (min-width: 1034px) {
@@ -10363,4 +10360,3 @@ subpage MENU
         }
     }
 }
-
