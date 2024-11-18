@@ -9294,6 +9294,9 @@ subpage MENU
   border: 0;
   padding: 0.65rem 0.5rem;
   background-color: transparent;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
 }
 .et_pb_section.newsletter_page_section .nl_posts_content_wrapper .newsletter_filter_wrapper #nl_filter_search_wrapper .newsletter_search_wrapper {
   min-width: 550px;
@@ -9410,7 +9413,7 @@ subpage MENU
 .et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view .newsletter_post_item:first-child {
   border-top: 1px solid var(--chr-text-gray-300);
 }
-.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view .newsletter_post_item:last-child {
+.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view .newsletter_post_item:not(.d-none):last-child {
   border-bottom: 1px solid var(--chr-text-gray-300);
 }
 .et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view .newsletter_post_item.d-none {

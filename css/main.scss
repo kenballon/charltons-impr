@@ -10092,6 +10092,7 @@ subpage MENU
             border: 0;
             padding: .65rem .5rem;
             background-color: transparent;
+            appearance: none;
           }
         }
 
@@ -10225,11 +10226,11 @@ subpage MENU
 
           &:first-child {
             border-top: 1px solid var(--chr-text-gray-300);
-          }
+          }       
+        }
 
-          &:last-child {
-            border-bottom: 1px solid var(--chr-text-gray-300);
-          }
+        .newsletter_post_item:not(.d-none):last-child {
+          border-bottom: 1px solid var(--chr-text-gray-300);
         }
 
         .newsletter_post_item.d-none {
