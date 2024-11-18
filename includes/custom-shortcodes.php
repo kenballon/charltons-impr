@@ -68,7 +68,7 @@ function related_pages_shortcode($atts)
             }
 
             $image_src = wp_get_attachment_image_src($image_id, 'medium_large');
-?>
+            ?>
 <a href="<?php the_permalink(); ?>" target="_blank" rel="noopener noreferrer">
     <article class="related-page">
         <div class="related-page-image">
@@ -255,8 +255,6 @@ function get_post_details_by_url($atts)
     return $output;
 }
 
-// SEARCH FUNCTION
-
 /**
  * Shortcode to display a custom search form.
  *
@@ -268,7 +266,7 @@ function get_post_details_by_url($atts)
 function custom_search_form_shortcode()
 {
     ob_start();
-?>
+    ?>
 <div class="search_wrapper relative d-none">
     <form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>" class="custom-search-form">
         <input type="search" name="s" id="search-input" placeholder="Search..."
@@ -288,17 +286,27 @@ function custom_search_form_shortcode()
 function ajax_search()
 {
     $search_query = sanitize_text_field($_POST['search']);
+    $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '';
+
     $args = [
         's' => $search_query,
         'post_type' => 'post',  // Include both posts and pages
-        'posts_per_page' => 3
+        'posts_per_page' => 4,
+        'post_status' => 'publish',  // Only include published posts
+        'post_password' => '',  // Exclude password-protected posts
     ];
+
+    if (!empty($category)) {
+        $args['category_name'] = $category;  // Add category filter if provided
+    }
+
     $search_query = new WP_Query($args);
 
     if ($search_query->have_posts()):
         while ($search_query->have_posts()):
             $search_query->the_post();
-?>
+            if (!post_password_required()):  // Exclude password-protected posts
+                ?>
 <li>
     <a href="<?php the_permalink(); ?>">
         <div class="thumbnail">
@@ -314,9 +322,10 @@ function ajax_search()
     </a>
 </li>
 <?php
+            endif;
         endwhile;
     else:
-        echo '<li>No results found</li>';
+        echo '<li class="text-white">No results found</li>';
     endif;
     wp_reset_postdata();
     die();
@@ -335,7 +344,7 @@ function ajax_latest_posts()
     if ($latest_posts->have_posts()):
         while ($latest_posts->have_posts()):
             $latest_posts->the_post();
-?>
+            ?>
 <li>
     <a href="<?php the_permalink(); ?>">
         <div class="thumbnail">
@@ -510,7 +519,7 @@ function getNewsEventsPosts_sc($atts)
             $articleCard .= '</a>';
             $articleCard .= '</div>';
             $articleCard .= '<div class="news_card_content">';
-            // $articleCard .= '<div class="newsevents__post_date">' . esc_html($post_date) . '</div>';
+            $articleCard .= '<div class="newsevents__post_date">' . esc_html($post_date) . '</div>';
             $articleCard .= '<a href="' . esc_url($post_url) . '" aria-label="' . esc_attr($post_title) . ' " title="Go to ' . esc_attr($post_title) . '" rel="noopener noreferrer" target="_blank">';
             $articleCard .= '<h2 class="newsevents__post_title fw-medium">' . esc_html($post_title) . '</h2>';
             $articleCard .= '</a>';
@@ -619,8 +628,204 @@ function insights_presentations_sc($atts)
     return $output;
 }
 
-// Register custom shortcodes.
+function get_newsletters_posts_sc($atts)
+{
+    // Set default attributes
+    $atts = shortcode_atts(
+        [
+            'category' => 'hong-kong-law',
+            'posts_per_page' => -1,
+            'search' => '',
+        ],
+        $atts,
+        'newsletters_posts'
+    );
 
+    // Query arguments
+    $args = [
+        'category_name' => $atts['category'],
+        'post_status' => 'publish',
+        'has_password' => false,
+        'posts_per_page' => $atts['posts_per_page'],
+        'meta_query' => [
+            [
+                'key' => '_wp_trash_meta_status',
+                'compare' => 'NOT EXISTS',
+            ],
+        ],
+    ];
+
+    if (!empty($atts['category'])) {
+        $args['category_name'] = $atts['category'];
+    }
+
+    if (!empty($atts['search'])) {
+        $args['s'] = sanitize_text_field($atts['search']);
+    }
+
+    // The Query
+    $query = new WP_Query($args);
+
+    ob_start();
+
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            $post_title = get_the_title();
+            $post_url = get_permalink();
+            $post_date = get_the_date('d M Y');
+            $post_excerpt = wp_trim_words(
+                strip_shortcodes(wp_strip_all_tags(get_the_excerpt())),
+                40,
+                '...'
+            );
+
+            $image_id = get_post_thumbnail_id();
+            $image_alt = get_post_meta(
+                $image_id,
+                '_wp_attachment_image_alt',
+                true
+            );
+
+            if (empty($image_alt)) {
+                $image_alt = get_the_title();
+            }
+
+            $image_src = wp_get_attachment_image_src($image_id, 'medium_large');
+
+            if (!$image_src) {
+                continue;  // Skip posts without a thumbnail image
+            }
+?>
+
+<article class="newsletter_post_item flex-col" data-nl_date="<?= esc_html(
+                $post_date
+            ) ?> " data-category="<?= esc_attr($atts['category']) ?>">
+    <div class="post-thumbnail">
+        <img src="<?php echo esc_url(
+                $image_src[0]
+            ); ?>" alt="<?php echo esc_attr($image_alt); ?>" width="286" height="286" loading="lazy"
+            fetchpriority="high">
+        <h2 class="post-title" title="<?php echo esc_html($post_title); ?>">
+            <a class="" href="<?php echo esc_url($post_url); ?>">
+                <?php echo esc_html($post_title); ?>
+            </a>
+        </h2>
+        <?php if (!empty($post_excerpt)): ?>
+        <div class="post-excerpt"><?php echo esc_html($post_excerpt); ?></div>
+        <?php else: ?>
+        <div class="post-excerpt"></div>
+        <?php endif; ?>
+        <a class="cta-gridview" href="<?php echo esc_url(
+                $post_url
+            ); ?>">Read Newsletter</a>
+    </div>
+    <div class="newsletter_post_text_contents mt-auto">
+        <a class="read-newsletter-button" href="<?php echo esc_url(
+                $post_url
+            ); ?>">Read Newsletter</a>
+    </div>
+</article>
+
+<?php
+        }
+    } else {
+        echo '<p>No newsletters found. Please select another category.</p>';
+    }
+
+    // Restore original Post Data
+    wp_reset_postdata();
+
+    return ob_get_clean();
+}
+
+function ajax_search_newsletter()
+{
+    $search_query = sanitize_text_field($_POST['search']);
+    $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '';
+
+    $args = [
+        's' => $search_query,
+        'post_type' => 'post',
+        'posts_per_page' => 20,
+        'post_status' => 'publish',
+        'post_password' => '',
+    ];
+
+    if (!empty($category)) {
+        $args['category_name'] = $category;  // Add category filter if provided
+    }
+
+    $search_query = new WP_Query($args);
+
+    if ($search_query->have_posts()):
+        while ($search_query->have_posts()):
+            $search_query->the_post();
+            $post_title = get_the_title();
+            $post_url = get_permalink();
+            $post_date = get_the_date('d M Y');
+            $post_excerpt = wp_trim_words(strip_shortcodes(wp_strip_all_tags(get_the_excerpt())), 40, '...');
+
+            $image_id = get_post_thumbnail_id();
+            $image_alt = get_post_meta($image_id, '_wp_attachment_image_alt', true);
+
+            if (empty($image_alt)) {
+                $image_alt = get_the_title();
+            }
+
+            $image_src = wp_get_attachment_image_src($image_id, 'medium_large');
+            if (!post_password_required()):  // Exclude password-protected posts
+                ?>
+<article class="newsletter_post_item flex-col" data-nl_date="<?= esc_html($post_date) ?> "
+    data-category="<?= esc_attr($category) ?>">
+    <div class="post-thumbnail">
+        <img src="<?php echo esc_url($image_src[0]); ?>" alt="<?php echo esc_attr($image_alt); ?>" width="286"
+            height="286" loading="lazy">
+        <h2 class="post-title" title="<?php echo esc_html($post_title); ?>">
+            <a class="" href="<?php echo esc_url($post_url); ?>">
+                <?php echo esc_html($post_title); ?>
+            </a>
+        </h2>
+        <?php if (!empty($post_excerpt)): ?>
+        <div class="post-excerpt"><?php echo esc_html($post_excerpt); ?></div>
+        <?php else: ?>
+        <div class="post-excerpt"></div>
+        <?php endif; ?>
+        <a class="cta-gridview" href="<?php echo esc_url($post_url); ?>">Read Newsletter</a>
+    </div>
+    <div class="newsletter_post_text_contents mt-auto">
+        <a class="read-newsletter-button" href="<?php echo esc_url($post_url); ?>">Read Newsletter</a>
+    </div>
+</article>
+<?php
+            endif;
+        endwhile;
+    else:
+        echo '<div class="py-4 text-lg fw-semibold">Oops, we could not find what you are looking for. Try adjusting your search or browse our categories.</div>';
+    endif;
+    wp_reset_postdata();
+    die();
+}
+
+function get_newsletters_posts()
+{
+    $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : 'hong-kong-law';
+    echo do_shortcode('[newsletters_posts category="' . $category . '"]');
+    wp_die();
+}
+
+add_action('init', 'register_custom_shortcodes');
+add_action('wp_ajax_ajax_search', 'ajax_search');
+add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
+add_action('wp_ajax_ajax_latest_posts', 'ajax_latest_posts');
+add_action('wp_ajax_nopriv_ajax_latest_posts', 'ajax_latest_posts');
+
+add_action('wp_ajax_get_newsletters_posts', 'get_newsletters_posts');
+add_action('wp_ajax_nopriv_get_newsletters_posts', 'get_newsletters_posts');
+add_action('wp_ajax_ajax_search_newsletter', 'ajax_search_newsletter');
+add_action('wp_ajax_nopriv_ajax_search_newsletter', 'ajax_search_newsletter');
+
+// Register custom shortcodes.
 function register_custom_shortcodes()
 {
     add_shortcode('related_pages', 'related_pages_shortcode');
@@ -631,10 +836,5 @@ function register_custom_shortcodes()
     add_shortcode('get_post_with_offset', 'getRecentPostWithOffset');
     add_shortcode('content_posts', 'getNewsEventsPosts_sc');
     add_shortcode('insights_presentations', 'insights_presentations_sc');
+    add_shortcode('newsletters_posts', 'get_newsletters_posts_sc');
 }
-
-add_action('init', 'register_custom_shortcodes');
-add_action('wp_ajax_ajax_search', 'ajax_search');
-add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
-add_action('wp_ajax_ajax_latest_posts', 'ajax_latest_posts');
-add_action('wp_ajax_nopriv_ajax_latest_posts', 'ajax_latest_posts');
