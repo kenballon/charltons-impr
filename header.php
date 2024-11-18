@@ -19,9 +19,6 @@
     $template_directory_uri = get_template_directory_uri();
     ?>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gloock&display=swap" rel="stylesheet">
     <link rel="pingback" href="<?php bloginfo('pingback_url'); ?>" />
 
     <script type="text/javascript">
@@ -29,6 +26,9 @@
     </script>
 
     <?php wp_head(); ?>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gloock&display=swap" rel="stylesheet">
 </head>
 
 <body <?php body_class(); ?>>
@@ -101,10 +101,10 @@
                         ob_end_clean();
 
                         printf(
-                            format: "<div class=\"et_duplicate_social_icons\">
+                            "<div class=\"et_duplicate_social_icons\">
 \t\t\t\t\t\t\t\t%1\$s
 \t\t\t\t\t\t\t</div>",
-                            values: et_core_esc_previously($duplicate_social_icons)
+                            et_core_esc_previously($duplicate_social_icons)
                         );
                     }
 
