@@ -248,7 +248,23 @@ jQuery(document).ready(function ($) {
 const currentUrl = window.location.href;
 const origin = window.location.origin;
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("readystatechange", (e) => {
+  if (e.target.readyState === "complete") {
+    customHeaderNavigation();
+    tabFunc();
+    showAwardImageFunc();
+    showNewsEvents();
+    allNewsLettersPosts();
+    newsletterSortByNewestOldest();
+
+    const buttonAllActive = document.getElementById("all");
+    currentUrl.startsWith(origin + "/news")
+      ? buttonAllActive?.classList.add("active")
+      : "";
+  }
+});
+
+function customHeaderNavigation() {
   // mobile nav reveal
   const header = document.querySelector("header");
   const mobileNavMenu = document.querySelector(".mobile_nav_show");
@@ -457,10 +473,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   customSearch();
   revealSearch();
-});
+}
 
 function customSearch() {
-  let searchTimer;
   const searchInput = document.getElementById("search-input");
   const searchMatchesWrapper = document.querySelector(
     ".search_matches_wrapper"
@@ -555,6 +570,36 @@ function customSearch() {
   document.addEventListener("click", handleClickOutside);
 }
 
+function revealSearch() {
+  const header = document.querySelector("header");
+  const searchFormButton = document.getElementById("showsearchinput");
+  const searchInput = document.getElementById("search-input");
+  const navSearchWrapper = document.querySelector(".nav_search_wrapper");
+  const searchWrapper = document.querySelector(".search_wrapper");
+  const closeSearchButton = document.getElementById("close_search");
+
+  searchFormButton.addEventListener("click", () => {
+    navSearchWrapper.classList.add("hide-animate");
+    header.classList.add("search-open");
+
+    setTimeout(() => {
+      toggleClass(navSearchWrapper, "hide-animate", "hidden");
+      toggleClass(searchWrapper, "d-none", "show");
+      searchInput.focus();
+    }, 200);
+  });
+
+  closeSearchButton.addEventListener("click", () => {
+    toggleClass(searchWrapper, "show", "hide-animate");
+    header.classList.remove("search-open");
+
+    setTimeout(() => {
+      toggleClass(searchWrapper, "hide-animate", "d-none");
+      toggleClass(navSearchWrapper, "hidden", "show");
+    }, 200);
+  });
+}
+
 // ==================================================
 // MOBILE ICON PLUS INTERACTIVITY
 // ==================================================
@@ -636,51 +681,9 @@ function toggleClass(element, removeClass, addClass) {
   }
 }
 
-function revealSearch() {
-  const header = document.querySelector("header");
-  const searchFormButton = document.getElementById("showsearchinput");
-  const searchInput = document.getElementById("search-input");
-  const navSearchWrapper = document.querySelector(".nav_search_wrapper");
-  const searchWrapper = document.querySelector(".search_wrapper");
-  const closeSearchButton = document.getElementById("close_search");
-
-  searchFormButton.addEventListener("click", () => {
-    navSearchWrapper.classList.add("hide-animate");
-    header.classList.add("search-open");
-
-    setTimeout(() => {
-      toggleClass(navSearchWrapper, "hide-animate", "hidden");
-      toggleClass(searchWrapper, "d-none", "show");
-      searchInput.focus();
-    }, 200);
-  });
-
-  closeSearchButton.addEventListener("click", () => {
-    toggleClass(searchWrapper, "show", "hide-animate");
-    header.classList.remove("search-open");
-
-    setTimeout(() => {
-      toggleClass(searchWrapper, "hide-animate", "d-none");
-      toggleClass(navSearchWrapper, "hidden", "show");
-    }, 200);
-  });
-}
-
 // =======================================
 //  Awards Page JS
 // =======================================
-document.addEventListener("readystatechange", (e) => {
-  if (e.target.readyState === "complete") {
-    tabFunc();
-    showAwardImageFunc();
-    showNewsEvents();
-
-    const buttonAllActive = document.getElementById("all");
-    currentUrl.startsWith(origin + "/news")
-      ? buttonAllActive?.classList.add("active")
-      : "";
-  }
-});
 
 const tabFunc = () => {
   const awardSectionComponent = document.querySelectorAll(
@@ -1059,40 +1062,411 @@ function toggleFilter(event) {
 insightFilterButtons?.addEventListener("click", toggleFilter);
 
 // =======================================
-//  TEST ONLY JS CODE
+//  NEWSLETTERS PAGE JS CODE
 // =======================================
 
-// function handleFilterRedirection(currentUrl, origin) {
-//   console.log(origin);
+function allNewsLettersPosts() {
+  const nlBtnTogglebtn = document.getElementById("nl_toggle_btn_styleview");
+  const newsLetterPostItems = document.querySelectorAll(
+    ".newsletter_post_item"
+  );
 
-//   // Check if the URL matches the specific page
-//   if (currentUrl.startsWith(origin + "/information-insights/test-only")) {
-//     // Check if the URL contains an extra slash before the query parameters
-//     if (currentUrl.includes("/?filter=")) {
-//       // Remove the extra slash
-//       currentUrl = currentUrl.replace("/?filter=", "?filter=");
-//       // Update the browser's URL without reloading the page
-//       window.history.replaceState({}, document.title, currentUrl);
-//     }
+  nlBtnTogglebtn?.addEventListener("click", () => {
+    const newsLetterWrapper = document.querySelector(".newsletters_post");
+    const currentStyle = nlBtnTogglebtn.getAttribute("data-styleview");
+    const newStyle = currentStyle === "grid" ? "listview" : "grid";
+    nlBtnTogglebtn.setAttribute("data-styleview", newStyle);
+    newsLetterWrapper.classList.toggle("list_view");
+  });
 
-//     // Get the query parameter from the URL
-//     const urlParams = new URLSearchParams(window.location.search);
-//     const filter = urlParams.get("filter");
+  const selectElement = document.getElementById("newsletters-category-select");
+  const searchInput = document?.getElementById("newsletterSearch");
+  const showCloseButton = document?.getElementById("nl_close_search");
+  const nlSearchIcon = document?.getElementById("nl_search_icon");
+  const loader = document.getElementById("loader");
 
-//     // Check if the filter parameter exists and simulate a click event on the corresponding button
-//     if (filter) {
-//       const filterBtns = document.querySelectorAll(
-//         SELECTORS.CategPPWFilterButtons
-//       );
+  selectElement.addEventListener("change", function () {
+    let selectedCategory = selectElement.value;
+    searchInput.value = "";
+    fetchFilteredPosts(selectedCategory);
+    newsLetterSearchFunc(selectedCategory);
+    // showNewsLettersPostItems(selectedCategory);
+  });
 
-//       filterBtns.forEach((btn) => {
-//         if (btn.id === filter) {
-//           console.log(filter);
-//           btn.click();
-//         } else if (btn.classList.contains("active")) {
-//           btn.classList.remove("active");
-//         }
-//       });
-//     }
-//   }
-// }
+  // Call the function on initial page load
+  let selectedCategory = selectElement.value;
+  handleNewsletterPosts();
+  newsLetterSearchFunc(selectedCategory);
+  // showNewsLettersPostItems();
+
+  //SEARCH NEWSLETTERS
+  searchInput.addEventListener("input", function () {
+    showCloseButton.classList.toggle("active", searchInput.value.length >= 2);
+    if (searchInput.value.length >= 2) {
+      nlSearchIcon.style.display = "none";
+    } else if (searchInput.value.length === 0) {
+      nlSearchIcon.style.display = "flex";
+    }
+  });
+
+  showCloseButton.addEventListener("click", function () {
+    searchInput.value = "";
+    showCloseButton.classList.remove("active");
+    nlSearchIcon.style.display = "flex";
+    fetchFilteredPosts(selectElement.value);
+  });
+  //SEARCH NEWSLETTERS END
+}
+
+function fetchFilteredPosts(category) {
+  const startTime = Date.now();
+
+  loader.style.display = "inline-block"; // Show loader
+  document.getElementById("newsletters_post").innerHTML = ""; // Clear the existing posts
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "/wp-admin/admin-ajax.php", true);
+  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  xhr.onload = function () {
+    loader.style.display = "none";
+    if (xhr.status === 200) {
+      document.getElementById("newsletters_post").innerHTML = xhr.responseText;
+
+      handleNewsletterPosts();
+
+      console.log(category);
+
+      const endTime = Date.now(); // Capture the end time
+      const timeTaken = (endTime - startTime) / 1000; // Calculate the time taken
+      console.log(`Data retrieved in ${timeTaken} seconds`);
+    }
+  };
+  xhr.onerror = function () {
+    loader.style.display = "none"; // Hide loader on error
+    console.error("AJAX Error:", xhr.status);
+  };
+  xhr.send("action=get_newsletters_posts&category=" + category);
+
+  // Reset the Load More button to its original state
+  const loadMoreButton = document.getElementById("btn_load_more");
+  loadMoreButton.textContent = "Load More";
+  loadMoreButton.classList.add("d-none");
+}
+
+const newsLetterSearchFunc = (category, searchInputId = "newsletterSearch") => {
+  const searchInput = document?.getElementById(searchInputId);
+
+  const matchedPostTitleElement = document?.getElementById("newsletters_post");
+
+  if (!searchInput) {
+    console.error("Search input element not found");
+    return;
+  }
+
+  // Remove any existing event listener to avoid multiple bindings
+  searchInput.removeEventListener("input", searchInput._handler);
+
+  // Define the new event handler
+  const handler = function () {
+    const searchQuery = this.value;
+    if (searchQuery.length >= 2) {
+      loader.style.display = "inline-block";
+      matchedPostTitleElement.innerHTML = ""; // Clear the existing posts
+      // Trigger search when input is at least 2 characters
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", ajax_object.ajax_url, true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          loader.style.display = "none";
+          // Update the search results with the response
+          matchedPostTitleElement.innerHTML = xhr.responseText;
+          handleNewsletterPosts(category);
+        }
+      };
+      xhr.onerror = function () {
+        loader.style.display = "none";
+        console.error("AJAX Error:", xhr.status);
+      };
+      xhr.send(
+        "action=ajax_search_newsletter&search=" +
+          encodeURIComponent(searchQuery) +
+          "&category=" +
+          encodeURIComponent(category)
+      );
+    } else if (searchQuery.length === 0) {
+      matchedPostTitleElement.innerHTML = "";
+      fetchFilteredPosts(category);
+    }
+  };
+
+  // Attach the new event handler and store it for future removal
+  searchInput.addEventListener("input", handler);
+  searchInput._handler = handler;
+};
+
+function newsletterSortByNewestOldest() {
+  const btnSortOldest = document.getElementById("nl_sortby_oldnew__old");
+
+  btnSortOldest?.addEventListener("click", () => {
+    const postItems = document.querySelectorAll(".newsletter_post_item");
+    const activeOldest = btnSortOldest.classList.contains("active");
+    const pressedTrue = btnSortOldest.getAttribute("aria-pressed") === "true";
+    const container = document.getElementById("newsletters_post");
+
+    btnSortOldest.classList.toggle("active");
+    const newActiveOldest = !activeOldest;
+
+    btnSortOldest.setAttribute("aria-pressed", newActiveOldest);
+
+    btnSortOldest.innerHTML = newActiveOldest ? "Oldest" : "Newest";
+
+    const sortedItems = Array.from(postItems).sort((a, b) => {
+      const dateA = new Date(a.getAttribute("data-nl_date"));
+      const dateB = new Date(b.getAttribute("data-nl_date"));
+      return newActiveOldest ? dateA - dateB : dateB - dateA;
+    });
+
+    container.innerHTML = "";
+    sortedItems.forEach((item, index) => {
+      if (item.classList.contains("d-none")) {
+        item.classList.remove("d-none");
+      }
+      container.appendChild(item);
+      if (index >= 12) {
+        item.classList.add("d-none");
+      }
+    });
+  });
+}
+
+function handleNewsletterPosts() {
+  const newsLetterPostItems = document.querySelectorAll(
+    ".newsletter_post_item"
+  );
+  const totalItems = newsLetterPostItems.length;
+  const loadMoreButton = document.getElementById("btn_load_more");
+
+  if (totalItems <= 12) {
+    loadMoreButton.classList.add("d-none");
+  } else {
+    loadMoreButton.classList.remove("d-none");
+    for (let i = 12; i < totalItems; i++) {
+      newsLetterPostItems[i].classList.add("d-none");
+    }
+
+    // Remove any existing event listeners to avoid multiple bindings
+    loadMoreButton.removeEventListener("click", loadMoreHandler);
+    loadMoreButton.addEventListener("click", loadMoreHandler);
+  }
+}
+
+function loadMoreHandler() {
+  const newsLetterPostItems = document.querySelectorAll(
+    ".newsletter_post_item"
+  );
+  const totalItems = newsLetterPostItems.length;
+  const loadMoreButton = document.getElementById("btn_load_more");
+  const hiddenItems = document.querySelectorAll(".newsletter_post_item.d-none");
+
+  if (hiddenItems.length > 0) {
+    for (let i = 0; i < 12 && i < hiddenItems.length; i++) {
+      hiddenItems[i].classList.remove("d-none");
+    }
+
+    if (
+      document.querySelectorAll(".newsletter_post_item.d-none").length === 0
+    ) {
+      loadMoreButton.innerHTML = "Show Less";
+    }
+  } else {
+    for (let i = 12; i < totalItems; i++) {
+      newsLetterPostItems[i].classList.add("d-none");
+    }
+    loadMoreButton.textContent = "Load More";
+  }
+}
+
+function showNewsLettersPostItems(
+  selectedCategory = "hong-kong-law",
+  loaderId = "loader"
+) {
+  const postsPerPage = -1; // Replace with the desired number of posts per page
+  const search = ""; // Replace with the desired search term
+  const postType = "post"; // Replace with the desired post type
+  const checkInterval = 900000; // Check for new posts every 15 minutes
+
+  function fetchPosts(callback) {
+    fetch(
+      `/wp-admin/admin-ajax.php?action=get_newsletters_posts&posts_per_page=${postsPerPage}&search=${search}&post_type=${postType}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          callback(data);
+        } else {
+          console.error("Expected an array of posts but got:", data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching posts:", error);
+      });
+  }
+
+  function storeInIndexedDB(posts) {
+    const request = indexedDB.open("newslettersDB", 1);
+
+    request.onupgradeneeded = function (event) {
+      const db = event.target.result;
+      const objectStore = db.createObjectStore("posts", { keyPath: "url" });
+      objectStore.createIndex("title", "title", { unique: false });
+      objectStore.createIndex("date", "date", { unique: false });
+      objectStore.createIndex("excerpt", "excerpt", { unique: false });
+      objectStore.createIndex("image_src", "image_src", { unique: false });
+      objectStore.createIndex("image_alt", "image_alt", { unique: false });
+      objectStore.createIndex("category", "category", { unique: false });
+    };
+
+    request.onsuccess = function (event) {
+      const db = event.target.result;
+      const transaction = db.transaction(["posts"], "readwrite");
+      const objectStore = transaction.objectStore("posts");
+
+      posts.forEach((post) => {
+        objectStore.put(post);
+      });
+
+      transaction.oncomplete = function () {
+        console.log("All posts have been stored in IndexedDB.");
+
+        // Calculate the size of the data being stored
+        const jsonString = JSON.stringify(posts);
+        const sizeInBytes = new Blob([jsonString]).size;
+        const sizeInMB = sizeInBytes / (1024 * 1024);
+        console.log(`Data size: ${sizeInMB.toFixed(2)} MB`);
+      };
+
+      transaction.onerror = function (event) {
+        console.error("Transaction error: ", event.target.error);
+      };
+    };
+
+    request.onerror = function (event) {
+      console.error("IndexedDB error: ", event.target.error);
+    };
+  }
+
+  function getPostsFromIndexedDB(callback) {
+    const request = indexedDB.open("newslettersDB", 1);
+
+    request.onupgradeneeded = function (event) {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains("posts")) {
+        db.createObjectStore("posts", { keyPath: "url" });
+      }
+    };
+
+    request.onsuccess = function (event) {
+      const db = event.target.result;
+      const transaction = db.transaction(["posts"], "readonly");
+      const objectStore = transaction.objectStore("posts");
+
+      const posts = [];
+      objectStore.openCursor().onsuccess = function (event) {
+        const cursor = event.target.result;
+        if (cursor) {
+          posts.push(cursor.value);
+          cursor.continue();
+        } else {
+          callback(posts);
+        }
+      };
+    };
+
+    request.onerror = function (event) {
+      console.error("IndexedDB error: ", event.target.error);
+      callback([]);
+    };
+  }
+
+  function renderPosts(posts) {
+    const container = document.getElementById("newsletters_post");
+
+    if (!container) {
+      console.error("Container element not found");
+      return;
+    }
+
+    container.innerHTML = "";
+
+    const filteredPosts = posts.filter((post) =>
+      post.category.includes(selectedCategory)
+    );
+
+    // Sort posts by date from newest to oldest
+    filteredPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    filteredPosts.forEach((post) => {
+      const article = document.createElement("article");
+      article.classList.add("newsletter_post_item", "flex-col");
+      article.setAttribute("data-nl_date", post.date);
+      article.setAttribute("data-category", selectedCategory);
+
+      article.innerHTML = /*html*/ `
+                <div class="post-thumbnail">
+                    <img src="${post.image_src}" alt="${
+        post.image_alt
+      }" width="286" height="286" loading="lazy" fetchpriority="high">
+                    <h2 class="post-title" title="${post.title}">
+                      <a href="${post.url}"> ${post.title}</a>
+                    </h2>
+                    ${
+                      post.excerpt
+                        ? `<div class="post-excerpt">${post.excerpt}</div>`
+                        : ""
+                    }
+                    <a class="cta-gridview" href="${
+                      post.url
+                    }">Read Newsletter</a>
+                </div>
+                <div class="newsletter_post_text_contents mt-auto">
+                    <a class="read-newsletter-button" href="${
+                      post.url
+                    }">Read Newsletter</a>
+                </div>
+            `;
+
+      container.appendChild(article);
+    });
+  }
+
+  function checkForNewPosts() {
+    fetchPosts((fetchedPosts) => {
+      getPostsFromIndexedDB((storedPosts) => {
+        const newPosts = fetchedPosts.filter(
+          (fetchedPost) =>
+            !storedPosts.some(
+              (storedPost) => storedPost.url === fetchedPost.url
+            )
+        );
+
+        if (newPosts.length > 0) {
+          storeInIndexedDB([...storedPosts, ...newPosts]);
+          renderPosts([...storedPosts, ...newPosts]);
+        }
+      });
+    });
+  }
+
+  getPostsFromIndexedDB((posts) => {
+    if (posts.length > 0) {
+      renderPosts(posts);
+    } else {
+      fetchPosts((fetchedPosts) => {
+        storeInIndexedDB(fetchedPosts);
+        renderPosts(fetchedPosts);
+      });
+    }
+  });
+
+  setInterval(checkForNewPosts, checkInterval);
+}
