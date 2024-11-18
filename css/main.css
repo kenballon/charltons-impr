@@ -9402,7 +9402,6 @@ subpage MENU
 .et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view {
   grid-template-columns: 1fr;
   row-gap: 0.5rem;
-  max-width: 750px;
 }
 .et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view .newsletter_post_item {
   display: grid;

@@ -10216,8 +10216,7 @@ subpage MENU
 
       .newsletters_post.list_view {
         grid-template-columns: 1fr;
-        row-gap: .5rem;
-        max-width: 750px;
+        row-gap: .5rem;        
 
         .newsletter_post_item {
           display: grid;

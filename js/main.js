@@ -1084,13 +1084,21 @@ function allNewsLettersPosts() {
   const showCloseButton = document?.getElementById("nl_close_search");
   const nlSearchIcon = document?.getElementById("nl_search_icon");
   const loader = document.getElementById("loader");
+  const nlCategTitle = document.getElementById("nl_categ_title");
 
   selectElement.addEventListener("change", function () {
     let selectedCategory = selectElement.value;
     searchInput.value = "";
-    fetchFilteredPosts(selectedCategory);
-    newsLetterSearchFunc(selectedCategory);
-    // showNewsLettersPostItems(selectedCategory);
+
+    if (selectedCategory === "all") {
+      nlCategTitle.textContent = "Hong Kong Law";
+      fetchFilteredPosts("hong-kong-law");
+    } else {
+      nlCategTitle.textContent =
+        selectElement.options[selectElement.selectedIndex].textContent;
+      fetchFilteredPosts(selectedCategory);
+      newsLetterSearchFunc(selectedCategory);
+    }
   });
 
   // Call the function on initial page load
@@ -1119,8 +1127,6 @@ function allNewsLettersPosts() {
 }
 
 function fetchFilteredPosts(category) {
-  const startTime = Date.now();
-
   loader.style.display = "inline-block"; // Show loader
   document.getElementById("newsletters_post").innerHTML = ""; // Clear the existing posts
   const xhr = new XMLHttpRequest();
@@ -1132,12 +1138,6 @@ function fetchFilteredPosts(category) {
       document.getElementById("newsletters_post").innerHTML = xhr.responseText;
 
       handleNewsletterPosts();
-
-      console.log(category);
-
-      const endTime = Date.now(); // Capture the end time
-      const timeTaken = (endTime - startTime) / 1000; // Calculate the time taken
-      console.log(`Data retrieved in ${timeTaken} seconds`);
     }
   };
   xhr.onerror = function () {
