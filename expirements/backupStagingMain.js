@@ -476,7 +476,7 @@ function customHeaderNavigation() {
 }
 
 function customSearch() {
-  const searchInput = document.getElementById("search-input");
+  const searchInput = document?.getElementById("search-input");
   const searchMatchesWrapper = document.querySelector(
     ".search_matches_wrapper"
   );
@@ -573,7 +573,7 @@ function customSearch() {
 function revealSearch() {
   const header = document.querySelector("header");
   const searchFormButton = document.getElementById("showsearchinput");
-  const searchInput = document.getElementById("search-input");
+  const searchInput = document?.getElementById("search-input");
   const navSearchWrapper = document.querySelector(".nav_search_wrapper");
   const searchWrapper = document.querySelector(".search_wrapper");
   const closeSearchButton = document.getElementById("close_search");
@@ -1079,28 +1079,36 @@ function allNewsLettersPosts() {
     newsLetterWrapper.classList.toggle("list_view");
   });
 
-  const selectElement = document.getElementById("newsletters-category-select");
+  const selectElement = document?.getElementById("newsletters-category-select");
   const searchInput = document?.getElementById("newsletterSearch");
   const showCloseButton = document?.getElementById("nl_close_search");
   const nlSearchIcon = document?.getElementById("nl_search_icon");
   const loader = document.getElementById("loader");
+  const nlCategTitle = document.getElementById("nl_categ_title");
 
-  selectElement.addEventListener("change", function () {
-    let selectedCategory = selectElement.value;
+  selectElement?.addEventListener("change", function () {
+    let selectedCategory = selectElement?.value;
     searchInput.value = "";
-    fetchFilteredPosts(selectedCategory);
-    newsLetterSearchFunc(selectedCategory);
-    // showNewsLettersPostItems(selectedCategory);
+
+    if (selectedCategory === "all") {
+      nlCategTitle.textContent = "Hong Kong Law";
+      fetchFilteredPosts("hong-kong-law");
+    } else {
+      nlCategTitle.textContent =
+        selectElement.options[selectElement.selectedIndex].textContent;
+      fetchFilteredPosts(selectedCategory);
+      newsLetterSearchFunc(selectedCategory);
+    }
   });
 
   // Call the function on initial page load
-  let selectedCategory = selectElement.value;
+  let selectedCategory = selectElement?.value;
   handleNewsletterPosts();
-  newsLetterSearchFunc(selectedCategory);
+  newsLetterSearchFunc();
   // showNewsLettersPostItems();
 
   //SEARCH NEWSLETTERS
-  searchInput.addEventListener("input", function () {
+  searchInput?.addEventListener("input", function () {
     showCloseButton.classList.toggle("active", searchInput.value.length >= 2);
     if (searchInput.value.length >= 2) {
       nlSearchIcon.style.display = "none";
@@ -1113,14 +1121,16 @@ function allNewsLettersPosts() {
     searchInput.value = "";
     showCloseButton.classList.remove("active");
     nlSearchIcon.style.display = "flex";
-    fetchFilteredPosts(selectElement.value);
+    if (selectElement.value === "all") {
+      fetchFilteredPosts("hong-kong-law");
+    } else {
+      fetchFilteredPosts(selectElement.value);
+    }
   });
   //SEARCH NEWSLETTERS END
 }
 
 function fetchFilteredPosts(category) {
-  const startTime = Date.now();
-
   loader.style.display = "inline-block"; // Show loader
   document.getElementById("newsletters_post").innerHTML = ""; // Clear the existing posts
   const xhr = new XMLHttpRequest();
@@ -1132,12 +1142,6 @@ function fetchFilteredPosts(category) {
       document.getElementById("newsletters_post").innerHTML = xhr.responseText;
 
       handleNewsletterPosts();
-
-      console.log(category);
-
-      const endTime = Date.now(); // Capture the end time
-      const timeTaken = (endTime - startTime) / 1000; // Calculate the time taken
-      console.log(`Data retrieved in ${timeTaken} seconds`);
     }
   };
   xhr.onerror = function () {
@@ -1147,12 +1151,15 @@ function fetchFilteredPosts(category) {
   xhr.send("action=get_newsletters_posts&category=" + category);
 
   // Reset the Load More button to its original state
-  const loadMoreButton = document.getElementById("btn_load_more");
+  const loadMoreButton = document?.getElementById("btn_load_more");
   loadMoreButton.textContent = "Load More";
-  loadMoreButton.classList.add("d-none");
+  loadMoreButton?.classList.add("d-none");
 }
 
-const newsLetterSearchFunc = (category, searchInputId = "newsletterSearch") => {
+const newsLetterSearchFunc = (
+  category = "hong-kong-law",
+  searchInputId = "newsletterSearch"
+) => {
   const searchInput = document?.getElementById(searchInputId);
 
   const matchedPostTitleElement = document?.getElementById("newsletters_post");
@@ -1244,19 +1251,19 @@ function handleNewsletterPosts() {
     ".newsletter_post_item"
   );
   const totalItems = newsLetterPostItems.length;
-  const loadMoreButton = document.getElementById("btn_load_more");
+  const loadMoreButton = document?.getElementById("btn_load_more");
 
   if (totalItems <= 12) {
-    loadMoreButton.classList.add("d-none");
+    loadMoreButton?.classList.add("d-none");
   } else {
-    loadMoreButton.classList.remove("d-none");
+    loadMoreButton?.classList.remove("d-none");
     for (let i = 12; i < totalItems; i++) {
       newsLetterPostItems[i].classList.add("d-none");
     }
 
     // Remove any existing event listeners to avoid multiple bindings
-    loadMoreButton.removeEventListener("click", loadMoreHandler);
-    loadMoreButton.addEventListener("click", loadMoreHandler);
+    loadMoreButton?.removeEventListener("click", loadMoreHandler);
+    loadMoreButton?.addEventListener("click", loadMoreHandler);
   }
 }
 
@@ -1265,7 +1272,7 @@ function loadMoreHandler() {
     ".newsletter_post_item"
   );
   const totalItems = newsLetterPostItems.length;
-  const loadMoreButton = document.getElementById("btn_load_more");
+  const loadMoreButton = document?.getElementById("btn_load_more");
   const hiddenItems = document.querySelectorAll(".newsletter_post_item.d-none");
 
   if (hiddenItems.length > 0) {
@@ -1286,187 +1293,187 @@ function loadMoreHandler() {
   }
 }
 
-function showNewsLettersPostItems(
-  selectedCategory = "hong-kong-law",
-  loaderId = "loader"
-) {
-  const postsPerPage = -1; // Replace with the desired number of posts per page
-  const search = ""; // Replace with the desired search term
-  const postType = "post"; // Replace with the desired post type
-  const checkInterval = 900000; // Check for new posts every 15 minutes
+// function showNewsLettersPostItems(
+//   selectedCategory = "hong-kong-law",
+//   loaderId = "loader"
+// ) {
+//   const postsPerPage = -1; // Replace with the desired number of posts per page
+//   const search = ""; // Replace with the desired search term
+//   const postType = "post"; // Replace with the desired post type
+//   const checkInterval = 900000; // Check for new posts every 15 minutes
 
-  function fetchPosts(callback) {
-    fetch(
-      `/wp-admin/admin-ajax.php?action=get_newsletters_posts&posts_per_page=${postsPerPage}&search=${search}&post_type=${postType}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          callback(data);
-        } else {
-          console.error("Expected an array of posts but got:", data);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching posts:", error);
-      });
-  }
+//   function fetchPosts(callback) {
+//     fetch(
+//       `/wp-admin/admin-ajax.php?action=get_newsletters_posts&posts_per_page=${postsPerPage}&search=${search}&post_type=${postType}`
+//     )
+//       .then((response) => response.json())
+//       .then((data) => {
+//         if (Array.isArray(data)) {
+//           callback(data);
+//         } else {
+//           console.error("Expected an array of posts but got:", data);
+//         }
+//       })
+//       .catch((error) => {
+//         console.error("Error fetching posts:", error);
+//       });
+//   }
 
-  function storeInIndexedDB(posts) {
-    const request = indexedDB.open("newslettersDB", 1);
+//   function storeInIndexedDB(posts) {
+//     const request = indexedDB.open("newslettersDB", 1);
 
-    request.onupgradeneeded = function (event) {
-      const db = event.target.result;
-      const objectStore = db.createObjectStore("posts", { keyPath: "url" });
-      objectStore.createIndex("title", "title", { unique: false });
-      objectStore.createIndex("date", "date", { unique: false });
-      objectStore.createIndex("excerpt", "excerpt", { unique: false });
-      objectStore.createIndex("image_src", "image_src", { unique: false });
-      objectStore.createIndex("image_alt", "image_alt", { unique: false });
-      objectStore.createIndex("category", "category", { unique: false });
-    };
+//     request.onupgradeneeded = function (event) {
+//       const db = event.target.result;
+//       const objectStore = db.createObjectStore("posts", { keyPath: "url" });
+//       objectStore.createIndex("title", "title", { unique: false });
+//       objectStore.createIndex("date", "date", { unique: false });
+//       objectStore.createIndex("excerpt", "excerpt", { unique: false });
+//       objectStore.createIndex("image_src", "image_src", { unique: false });
+//       objectStore.createIndex("image_alt", "image_alt", { unique: false });
+//       objectStore.createIndex("category", "category", { unique: false });
+//     };
 
-    request.onsuccess = function (event) {
-      const db = event.target.result;
-      const transaction = db.transaction(["posts"], "readwrite");
-      const objectStore = transaction.objectStore("posts");
+//     request.onsuccess = function (event) {
+//       const db = event.target.result;
+//       const transaction = db.transaction(["posts"], "readwrite");
+//       const objectStore = transaction.objectStore("posts");
 
-      posts.forEach((post) => {
-        objectStore.put(post);
-      });
+//       posts.forEach((post) => {
+//         objectStore.put(post);
+//       });
 
-      transaction.oncomplete = function () {
-        console.log("All posts have been stored in IndexedDB.");
+//       transaction.oncomplete = function () {
+//         console.log("All posts have been stored in IndexedDB.");
 
-        // Calculate the size of the data being stored
-        const jsonString = JSON.stringify(posts);
-        const sizeInBytes = new Blob([jsonString]).size;
-        const sizeInMB = sizeInBytes / (1024 * 1024);
-        console.log(`Data size: ${sizeInMB.toFixed(2)} MB`);
-      };
+//         // Calculate the size of the data being stored
+//         const jsonString = JSON.stringify(posts);
+//         const sizeInBytes = new Blob([jsonString]).size;
+//         const sizeInMB = sizeInBytes / (1024 * 1024);
+//         console.log(`Data size: ${sizeInMB.toFixed(2)} MB`);
+//       };
 
-      transaction.onerror = function (event) {
-        console.error("Transaction error: ", event.target.error);
-      };
-    };
+//       transaction.onerror = function (event) {
+//         console.error("Transaction error: ", event.target.error);
+//       };
+//     };
 
-    request.onerror = function (event) {
-      console.error("IndexedDB error: ", event.target.error);
-    };
-  }
+//     request.onerror = function (event) {
+//       console.error("IndexedDB error: ", event.target.error);
+//     };
+//   }
 
-  function getPostsFromIndexedDB(callback) {
-    const request = indexedDB.open("newslettersDB", 1);
+//   function getPostsFromIndexedDB(callback) {
+//     const request = indexedDB.open("newslettersDB", 1);
 
-    request.onupgradeneeded = function (event) {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains("posts")) {
-        db.createObjectStore("posts", { keyPath: "url" });
-      }
-    };
+//     request.onupgradeneeded = function (event) {
+//       const db = event.target.result;
+//       if (!db.objectStoreNames.contains("posts")) {
+//         db.createObjectStore("posts", { keyPath: "url" });
+//       }
+//     };
 
-    request.onsuccess = function (event) {
-      const db = event.target.result;
-      const transaction = db.transaction(["posts"], "readonly");
-      const objectStore = transaction.objectStore("posts");
+//     request.onsuccess = function (event) {
+//       const db = event.target.result;
+//       const transaction = db.transaction(["posts"], "readonly");
+//       const objectStore = transaction.objectStore("posts");
 
-      const posts = [];
-      objectStore.openCursor().onsuccess = function (event) {
-        const cursor = event.target.result;
-        if (cursor) {
-          posts.push(cursor.value);
-          cursor.continue();
-        } else {
-          callback(posts);
-        }
-      };
-    };
+//       const posts = [];
+//       objectStore.openCursor().onsuccess = function (event) {
+//         const cursor = event.target.result;
+//         if (cursor) {
+//           posts.push(cursor.value);
+//           cursor.continue();
+//         } else {
+//           callback(posts);
+//         }
+//       };
+//     };
 
-    request.onerror = function (event) {
-      console.error("IndexedDB error: ", event.target.error);
-      callback([]);
-    };
-  }
+//     request.onerror = function (event) {
+//       console.error("IndexedDB error: ", event.target.error);
+//       callback([]);
+//     };
+//   }
 
-  function renderPosts(posts) {
-    const container = document.getElementById("newsletters_post");
+//   function renderPosts(posts) {
+//     const container = document.getElementById("newsletters_post");
 
-    if (!container) {
-      console.error("Container element not found");
-      return;
-    }
+//     if (!container) {
+//       console.error("Container element not found");
+//       return;
+//     }
 
-    container.innerHTML = "";
+//     container.innerHTML = "";
 
-    const filteredPosts = posts.filter((post) =>
-      post.category.includes(selectedCategory)
-    );
+//     const filteredPosts = posts.filter((post) =>
+//       post.category.includes(selectedCategory)
+//     );
 
-    // Sort posts by date from newest to oldest
-    filteredPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+//     // Sort posts by date from newest to oldest
+//     filteredPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    filteredPosts.forEach((post) => {
-      const article = document.createElement("article");
-      article.classList.add("newsletter_post_item", "flex-col");
-      article.setAttribute("data-nl_date", post.date);
-      article.setAttribute("data-category", selectedCategory);
+//     filteredPosts.forEach((post) => {
+//       const article = document.createElement("article");
+//       article.classList.add("newsletter_post_item", "flex-col");
+//       article.setAttribute("data-nl_date", post.date);
+//       article.setAttribute("data-category", selectedCategory);
 
-      article.innerHTML = /*html*/ `
-                <div class="post-thumbnail">
-                    <img src="${post.image_src}" alt="${
-        post.image_alt
-      }" width="286" height="286" loading="lazy" fetchpriority="high">
-                    <h2 class="post-title" title="${post.title}">
-                      <a href="${post.url}"> ${post.title}</a>
-                    </h2>
-                    ${
-                      post.excerpt
-                        ? `<div class="post-excerpt">${post.excerpt}</div>`
-                        : ""
-                    }
-                    <a class="cta-gridview" href="${
-                      post.url
-                    }">Read Newsletter</a>
-                </div>
-                <div class="newsletter_post_text_contents mt-auto">
-                    <a class="read-newsletter-button" href="${
-                      post.url
-                    }">Read Newsletter</a>
-                </div>
-            `;
+//       article.innerHTML = /*html*/ `
+//                 <div class="post-thumbnail">
+//                     <img src="${post.image_src}" alt="${
+//         post.image_alt
+//       }" width="286" height="286" loading="lazy" fetchpriority="high">
+//                     <h2 class="post-title" title="${post.title}">
+//                       <a href="${post.url}"> ${post.title}</a>
+//                     </h2>
+//                     ${
+//                       post.excerpt
+//                         ? `<div class="post-excerpt">${post.excerpt}</div>`
+//                         : ""
+//                     }
+//                     <a class="cta-gridview" href="${
+//                       post.url
+//                     }">Read Newsletter</a>
+//                 </div>
+//                 <div class="newsletter_post_text_contents mt-auto">
+//                     <a class="read-newsletter-button" href="${
+//                       post.url
+//                     }">Read Newsletter</a>
+//                 </div>
+//             `;
 
-      container.appendChild(article);
-    });
-  }
+//       container.appendChild(article);
+//     });
+//   }
 
-  function checkForNewPosts() {
-    fetchPosts((fetchedPosts) => {
-      getPostsFromIndexedDB((storedPosts) => {
-        const newPosts = fetchedPosts.filter(
-          (fetchedPost) =>
-            !storedPosts.some(
-              (storedPost) => storedPost.url === fetchedPost.url
-            )
-        );
+//   function checkForNewPosts() {
+//     fetchPosts((fetchedPosts) => {
+//       getPostsFromIndexedDB((storedPosts) => {
+//         const newPosts = fetchedPosts.filter(
+//           (fetchedPost) =>
+//             !storedPosts.some(
+//               (storedPost) => storedPost.url === fetchedPost.url
+//             )
+//         );
 
-        if (newPosts.length > 0) {
-          storeInIndexedDB([...storedPosts, ...newPosts]);
-          renderPosts([...storedPosts, ...newPosts]);
-        }
-      });
-    });
-  }
+//         if (newPosts.length > 0) {
+//           storeInIndexedDB([...storedPosts, ...newPosts]);
+//           renderPosts([...storedPosts, ...newPosts]);
+//         }
+//       });
+//     });
+//   }
 
-  getPostsFromIndexedDB((posts) => {
-    if (posts.length > 0) {
-      renderPosts(posts);
-    } else {
-      fetchPosts((fetchedPosts) => {
-        storeInIndexedDB(fetchedPosts);
-        renderPosts(fetchedPosts);
-      });
-    }
-  });
+//   getPostsFromIndexedDB((posts) => {
+//     if (posts.length > 0) {
+//       renderPosts(posts);
+//     } else {
+//       fetchPosts((fetchedPosts) => {
+//         storeInIndexedDB(fetchedPosts);
+//         renderPosts(fetchedPosts);
+//       });
+//     }
+//   });
 
-  setInterval(checkForNewPosts, checkInterval);
-}
+//   setInterval(checkForNewPosts, checkInterval);
+// }
