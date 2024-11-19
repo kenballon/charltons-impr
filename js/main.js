@@ -1086,7 +1086,7 @@ function allNewsLettersPosts() {
   const loader = document.getElementById("loader");
   const nlCategTitle = document.getElementById("nl_categ_title");
 
-  selectElement.addEventListener("change", function () {
+  selectElement?.addEventListener("change", function () {
     let selectedCategory = selectElement.value;
     searchInput.value = "";
 
