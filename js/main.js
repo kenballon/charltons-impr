@@ -476,7 +476,7 @@ function customHeaderNavigation() {
 }
 
 function customSearch() {
-  const searchInput = document.getElementById("search-input");
+  const searchInput = document?.getElementById("search-input");
   const searchMatchesWrapper = document.querySelector(
     ".search_matches_wrapper"
   );
@@ -573,7 +573,7 @@ function customSearch() {
 function revealSearch() {
   const header = document.querySelector("header");
   const searchFormButton = document.getElementById("showsearchinput");
-  const searchInput = document.getElementById("search-input");
+  const searchInput = document?.getElementById("search-input");
   const navSearchWrapper = document.querySelector(".nav_search_wrapper");
   const searchWrapper = document.querySelector(".search_wrapper");
   const closeSearchButton = document.getElementById("close_search");
@@ -1108,8 +1108,8 @@ function allNewsLettersPosts() {
   // showNewsLettersPostItems();
 
   //SEARCH NEWSLETTERS
-  searchInput.addEventListener("input", function () {
-    showCloseButton.classList.toggle("active", searchInput.value.length >= 2);
+  searchInput?.addEventListener("input", function () {
+    showCloseButton?.classList.toggle("active", searchInput.value.length >= 2);
     if (searchInput.value.length >= 2) {
       nlSearchIcon.style.display = "none";
     } else if (searchInput.value.length === 0) {
@@ -1117,9 +1117,9 @@ function allNewsLettersPosts() {
     }
   });
 
-  showCloseButton.addEventListener("click", function () {
+  showCloseButton?.addEventListener("click", function () {
     searchInput.value = "";
-    showCloseButton.classList.remove("active");
+    showCloseButton?.classList.remove("active");
     nlSearchIcon.style.display = "flex";
     fetchFilteredPosts(selectElement.value);
   });
@@ -1148,7 +1148,7 @@ function fetchFilteredPosts(category) {
 
   // Reset the Load More button to its original state
   const loadMoreButton = document?.getElementById("btn_load_more");
-  loadMoreButton?.textContent = "Load More";
+  loadMoreButton.textContent = "Load More";
   loadMoreButton?.classList.add("d-none");
 }
 
@@ -1276,13 +1276,13 @@ function loadMoreHandler() {
     if (
       document.querySelectorAll(".newsletter_post_item.d-none").length === 0
     ) {
-      loadMoreButton?.innerHTML = "Show Less";
+      loadMoreButton.innerHTML = "Show Less";
     }
   } else {
     for (let i = 12; i < totalItems; i++) {
       newsLetterPostItems[i].classList.add("d-none");
     }
-    loadMoreButton?.textContent = "Load More";
+    loadMoreButton.textContent = "Load More";
   }
 }
 
