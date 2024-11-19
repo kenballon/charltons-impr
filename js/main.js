@@ -1079,7 +1079,7 @@ function allNewsLettersPosts() {
     newsLetterWrapper.classList.toggle("list_view");
   });
 
-  const selectElement = document.getElementById("newsletters-category-select");
+  const selectElement = document?.getElementById("newsletters-category-select");
   const searchInput = document?.getElementById("newsletterSearch");
   const showCloseButton = document?.getElementById("nl_close_search");
   const nlSearchIcon = document?.getElementById("nl_search_icon");
