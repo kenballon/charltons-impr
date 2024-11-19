@@ -1147,9 +1147,9 @@ function fetchFilteredPosts(category) {
   xhr.send("action=get_newsletters_posts&category=" + category);
 
   // Reset the Load More button to its original state
-  const loadMoreButton = document.getElementById("btn_load_more");
-  loadMoreButton.textContent = "Load More";
-  loadMoreButton.classList.add("d-none");
+  const loadMoreButton = document?.getElementById("btn_load_more");
+  loadMoreButton?.textContent = "Load More";
+  loadMoreButton?.classList.add("d-none");
 }
 
 const newsLetterSearchFunc = (category, searchInputId = "newsletterSearch") => {
@@ -1244,19 +1244,19 @@ function handleNewsletterPosts() {
     ".newsletter_post_item"
   );
   const totalItems = newsLetterPostItems.length;
-  const loadMoreButton = document.getElementById("btn_load_more");
+  const loadMoreButton = document?.getElementById("btn_load_more");
 
   if (totalItems <= 12) {
-    loadMoreButton.classList.add("d-none");
+    loadMoreButton?.classList.add("d-none");
   } else {
-    loadMoreButton.classList.remove("d-none");
+    loadMoreButton?.classList.remove("d-none");
     for (let i = 12; i < totalItems; i++) {
       newsLetterPostItems[i].classList.add("d-none");
     }
 
     // Remove any existing event listeners to avoid multiple bindings
-    loadMoreButton.removeEventListener("click", loadMoreHandler);
-    loadMoreButton.addEventListener("click", loadMoreHandler);
+    loadMoreButton?.removeEventListener("click", loadMoreHandler);
+    loadMoreButton?.addEventListener("click", loadMoreHandler);
   }
 }
 
@@ -1265,7 +1265,7 @@ function loadMoreHandler() {
     ".newsletter_post_item"
   );
   const totalItems = newsLetterPostItems.length;
-  const loadMoreButton = document.getElementById("btn_load_more");
+  const loadMoreButton = document?.getElementById("btn_load_more");
   const hiddenItems = document.querySelectorAll(".newsletter_post_item.d-none");
 
   if (hiddenItems.length > 0) {
@@ -1276,13 +1276,13 @@ function loadMoreHandler() {
     if (
       document.querySelectorAll(".newsletter_post_item.d-none").length === 0
     ) {
-      loadMoreButton.innerHTML = "Show Less";
+      loadMoreButton?.innerHTML = "Show Less";
     }
   } else {
     for (let i = 12; i < totalItems; i++) {
       newsLetterPostItems[i].classList.add("d-none");
     }
-    loadMoreButton.textContent = "Load More";
+    loadMoreButton?.textContent = "Load More";
   }
 }
 
