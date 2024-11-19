@@ -1087,7 +1087,7 @@ function allNewsLettersPosts() {
   const nlCategTitle = document.getElementById("nl_categ_title");
 
   selectElement?.addEventListener("change", function () {
-    let selectedCategory = selectElement.value;
+    let selectedCategory = selectElement?.value;
     searchInput.value = "";
 
     if (selectedCategory === "all") {
@@ -1102,7 +1102,7 @@ function allNewsLettersPosts() {
   });
 
   // Call the function on initial page load
-  let selectedCategory = selectElement.value;
+  let selectedCategory = selectElement?.value;
   handleNewsletterPosts();
   newsLetterSearchFunc(selectedCategory);
   // showNewsLettersPostItems();
