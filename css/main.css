@@ -324,7 +324,7 @@ header#main-header .header_nav_div_wrapper .nav_search_wrapper .header_navigatio
 header#main-header .header_nav_div_wrapper .nav_search_wrapper .header_navigation .parent_ul .nav_parent_list_item.active-hovered a.parent_link {
   color: var(--chr-primary-color);
 }
-@media (max-width: 1310px) {
+@media (max-width: 1115px) {
   header#main-header .header_nav_div_wrapper .nav_search_wrapper .header_navigation .parent_ul {
     display: none;
   }
