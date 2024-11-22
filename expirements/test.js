@@ -1,24 +1,26 @@
-function showNLPost(selectedCategory = "hong-kong-law", loaderId = "loader") {
+function showNewsLettersPostItems(
+  selectedCategory = "hong-kong-law",
+  loaderId = "loader"
+) {
   const postsPerPage = -1; // Replace with the desired number of posts per page
   const search = ""; // Replace with the desired search term
   const postType = "post"; // Replace with the desired post type
-  const loader = document.getElementById(loaderId);
+  const checkInterval = 900000; // Check for new posts every 15 minutes
 
-  function fetchPosts() {
-    loader.style.display = "inline-block"; // Show the spinner
-
+  function fetchPosts(callback) {
     fetch(
-      `/wp-admin/admin-ajax.php?action=get_newsletters_posts&posts_per_page=${postsPerPage}&search=${search}&post_type=${postType}`,
+      `/wp-admin/admin-ajax.php?action=get_newsletters_posts&posts_per_page=${postsPerPage}&search=${search}&post_type=${postType}`
     )
       .then((response) => response.json())
       .then((data) => {
-        storeInIndexedDB(data);
-        renderPosts(data);
-        loader.style.display = "none"; // Hide the spinner
+        if (Array.isArray(data)) {
+          callback(data);
+        } else {
+          console.error("Expected an array of posts but got:", data);
+        }
       })
       .catch((error) => {
         console.error("Error fetching posts:", error);
-        loader.style.display = "none"; // Hide the spinner in case of error
       });
   }
 
@@ -47,6 +49,12 @@ function showNLPost(selectedCategory = "hong-kong-law", loaderId = "loader") {
 
       transaction.oncomplete = function () {
         console.log("All posts have been stored in IndexedDB.");
+
+        // Calculate the size of the data being stored
+        const jsonString = JSON.stringify(posts);
+        const sizeInBytes = new Blob([jsonString]).size;
+        const sizeInMB = sizeInBytes / (1024 * 1024);
+        console.log(`Data size: ${sizeInMB.toFixed(2)} MB`);
       };
 
       transaction.onerror = function (event) {
@@ -94,15 +102,20 @@ function showNLPost(selectedCategory = "hong-kong-law", loaderId = "loader") {
 
   function renderPosts(posts) {
     const container = document.getElementById("newsletters_post");
+
     if (!container) {
       console.error("Container element not found");
       return;
     }
+
     container.innerHTML = "";
 
     const filteredPosts = posts.filter((post) =>
-      post.category.includes(selectedCategory),
+      post.category.includes(selectedCategory)
     );
+
+    // Sort posts by date from newest to oldest
+    filteredPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     filteredPosts.forEach((post) => {
       const article = document.createElement("article");
@@ -110,14 +123,14 @@ function showNLPost(selectedCategory = "hong-kong-law", loaderId = "loader") {
       article.setAttribute("data-nl_date", post.date);
       article.setAttribute("data-category", selectedCategory);
 
-      article.innerHTML = `
+      article.innerHTML = /*html*/ `
                 <div class="post-thumbnail">
                     <img src="${post.image_src}" alt="${
-                      post.image_alt
-                    }" width="286" height="286" loading="lazy">
-                    <h2 class="post-title" title="${post.title}">${
-                      post.title
-                    }</h2>
+        post.image_alt
+      }" width="286" height="286" loading="lazy" fetchpriority="high">
+                    <h2 class="post-title" title="${post.title}">
+                      <a href="${post.url}"> ${post.title}</a>
+                    </h2>
                     ${
                       post.excerpt
                         ? `<div class="post-excerpt">${post.excerpt}</div>`
@@ -138,11 +151,34 @@ function showNLPost(selectedCategory = "hong-kong-law", loaderId = "loader") {
     });
   }
 
+  function checkForNewPosts() {
+    fetchPosts((fetchedPosts) => {
+      getPostsFromIndexedDB((storedPosts) => {
+        const newPosts = fetchedPosts.filter(
+          (fetchedPost) =>
+            !storedPosts.some(
+              (storedPost) => storedPost.url === fetchedPost.url
+            )
+        );
+
+        if (newPosts.length > 0) {
+          storeInIndexedDB([...storedPosts, ...newPosts]);
+          renderPosts([...storedPosts, ...newPosts]);
+        }
+      });
+    });
+  }
+
   getPostsFromIndexedDB((posts) => {
     if (posts.length > 0) {
       renderPosts(posts);
     } else {
-      fetchPosts();
+      fetchPosts((fetchedPosts) => {
+        storeInIndexedDB(fetchedPosts);
+        renderPosts(fetchedPosts);
+      });
     }
   });
+
+  setInterval(checkForNewPosts, checkInterval);
 }
