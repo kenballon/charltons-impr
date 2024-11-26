@@ -408,7 +408,7 @@ function get_recent_news_posts($atts)
             $output .= '<img src="' . esc_url($post_feat_img) . '" alt="image of a news ' . esc_attr($post_title) . '" width="500" height="500" />';
             $output .= '</div>';
             $output .= '<div class="featured_new_post_content flex item-center flex-col justify-center">';
-            // $output .= '<div class="date_container fw-regular">' . esc_html($post_date) . '</div>';
+            $output .= '<div class="date_container fw-regular">' . esc_html($post_date) . '</div>';
             $output .= '<a href="' . esc_url($post_url) . '" aria-label="' . esc_attr($post_title) . '">';
             $output .= '<h2>' . esc_html($post_title) . '</h2>';
             $output .= '</a>';
@@ -628,190 +628,189 @@ function insights_presentations_sc($atts)
     return $output;
 }
 
+function cache_all_posts($atts = [], $cache_duration = HOUR_IN_SECONDS)
+{
+    // Extract shortcode attributes with default values
+    $atts = shortcode_atts([
+        'post_type' => 'post',
+        'posts_per_page' => -1,
+        'category' => '',  // Add category attribute
+    ], $atts, 'cache_all_posts');
+
+    // Generate the transient key based on the query parameters
+    $transient_key = 'cached_post_data_' . md5(serialize($atts));
+
+    // Attempt to fetch the cached data
+    if (false === ($cached_data = get_transient($transient_key))) {
+        // Prepare query arguments
+        $query_args = [
+            'post_type' => $atts['post_type'],
+            'posts_per_page' => $atts['posts_per_page'],
+            'post_status' => 'publish',
+            'has_password' => false,
+            'orderby' => 'date',
+        ];
+
+        // Add category to query arguments if provided
+        if (!empty($atts['category'])) {
+            $query_args['category_name'] = $atts['category'];
+        }
+
+        // Execute the query
+        $query = new WP_Query($query_args);
+
+        $cached_data = [];
+
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+
+                // Ensure the post has a featured image
+                if (has_post_thumbnail()) {
+                    // Fetch and format categories and tags
+                    $categories = get_the_category();
+                    $tags = get_the_tags();
+
+                    $category_slugs = $categories ? array_map(function ($cat) {
+                        return $cat->slug;
+                    }, $categories) : [];
+
+                    $tag_slugs = $tags ? array_map(function ($tag) {
+                        return $tag->slug;
+                    }, $tags) : [];
+
+                    $cached_data[] = [
+                        'id' => get_the_ID(),
+                        'title' => get_the_title(),
+                        'post_date' => get_the_date('d-m-Y'),
+                        'categories' => implode(', ', $category_slugs),
+                        'tags' => implode(', ', $tag_slugs),
+                        'excerpt' => wp_strip_all_tags(get_the_excerpt()),
+                        'url' => get_permalink(),
+                        'featured_image' => get_the_post_thumbnail_url(get_the_ID(), 'medium_large'),
+                    ];
+                }
+            }
+            wp_reset_postdata();
+
+            // Cache the retrieved data
+            set_transient($transient_key, $cached_data, $cache_duration);
+        }
+    }
+
+    return $cached_data;
+}
+
 function get_newsletters_posts_sc($atts)
 {
-    // Set default attributes
-    $atts = shortcode_atts(
-        [
-            'category' => 'hong-kong-law',
-            'posts_per_page' => -1,
-            'search' => '',
-        ],
-        $atts,
-        'newsletters_posts'
-    );
+    $data = cache_all_posts($atts);
+    $html_output = '';
+    $counter = 0;
 
-    // Query arguments
-    $args = [
-        'category_name' => $atts['category'],
-        'post_status' => 'publish',
-        'has_password' => false,
-        'posts_per_page' => $atts['posts_per_page'],
-        'meta_query' => [
-            [
-                'key' => '_wp_trash_meta_status',
-                'compare' => 'NOT EXISTS',
-            ],
-        ],
-    ];
+    foreach ($data as $post) {
+        $post_date_original = esc_html($post['post_date']);
+        $post_date = DateTime::createFromFormat('d-m-Y', $post['post_date'])->format('d M Y');
+        $post_url = esc_url($post['url']);
+        $image_src = esc_url($post['featured_image']);
+        $image_alt = esc_attr($post['title']);
+        $post_title = esc_html($post['title']);
+        $post_excerpt = esc_html($post['excerpt']);
+        $category = esc_attr($atts['category']);
+        $class = $counter >= 12 ? 'd-none' : '';
 
-    if (!empty($atts['category'])) {
-        $args['category_name'] = $atts['category'];
+        $html_output .= <<<HTML
+            <article class="newsletter_post_item flex-col {$class}" data-nl_date="{$post_date_original}" data-category="{$category}">
+                <a href="{$post_url}">
+                    <div class="post-thumbnail">
+                        <img src="{$image_src}" alt="{$image_alt}" width="286" height="286">
+                        <time class="post-date" datetime="{$post_date}">{$post_date}</time>
+                        <h2 class="post-title" title="{$post_title}">{$post_title}</h2>
+                        <div class="post-excerpt">{$post_excerpt}</div>
+                    </div>
+                </a>
+            </article>
+            HTML;
+
+        $counter++;
     }
 
-    if (!empty($atts['search'])) {
-        $args['s'] = sanitize_text_field($atts['search']);
-    }
-
-    // The Query
-    $query = new WP_Query($args);
-
-    ob_start();
-
-    if ($query->have_posts()) {
-        while ($query->have_posts()) {
-            $query->the_post();
-            $post_title = get_the_title();
-            $post_url = get_permalink();
-            $post_date = get_the_date('d M Y');
-            $post_excerpt = wp_trim_words(
-                strip_shortcodes(wp_strip_all_tags(get_the_excerpt())),
-                40,
-                '...'
-            );
-
-            $image_id = get_post_thumbnail_id();
-            $image_alt = get_post_meta(
-                $image_id,
-                '_wp_attachment_image_alt',
-                true
-            );
-
-            if (empty($image_alt)) {
-                $image_alt = get_the_title();
-            }
-
-            $image_src = wp_get_attachment_image_src($image_id, 'medium_large');
-
-            if (!$image_src) {
-                continue;  // Skip posts without a thumbnail image
-            }
-?>
-
-<article class="newsletter_post_item flex-col" data-nl_date="<?= esc_html(
-                $post_date
-            ) ?> " data-category="<?= esc_attr($atts['category']) ?>">
-    <div class="post-thumbnail">
-        <img src="<?php echo esc_url(
-                $image_src[0]
-            ); ?>" alt="<?php echo esc_attr($image_alt); ?>" width="286" height="286" loading="lazy"
-            fetchpriority="high">
-        <h2 class="post-title" title="<?php echo esc_html($post_title); ?>">
-            <a class="" href="<?php echo esc_url($post_url); ?>">
-                <?php echo esc_html($post_title); ?>
-            </a>
-        </h2>
-        <?php if (!empty($post_excerpt)): ?>
-        <div class="post-excerpt"><?php echo esc_html($post_excerpt); ?></div>
-        <?php else: ?>
-        <div class="post-excerpt"></div>
-        <?php endif; ?>
-        <a class="cta-gridview" href="<?php echo esc_url(
-                $post_url
-            ); ?>">Read Newsletter</a>
-    </div>
-    <div class="newsletter_post_text_contents mt-auto">
-        <a class="read-newsletter-button" href="<?php echo esc_url(
-                $post_url
-            ); ?>">Read Newsletter</a>
-    </div>
-</article>
-
-<?php
-        }
-    } else {
-        echo '<p>No newsletters found. Please select another category.</p>';
-    }
-
-    // Restore original Post Data
-    wp_reset_postdata();
-
-    return ob_get_clean();
+    return $html_output;
 }
 
-function ajax_search_newsletter()
+function storeAllPost($atts)
 {
-    $search_query = sanitize_text_field($_POST['search']);
-    $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '';
+    $data = cache_all_posts($atts);
+    $json_data = json_encode($data);
 
-    $args = [
-        's' => $search_query,
-        'post_type' => 'post',
-        'posts_per_page' => 20,
-        'post_status' => 'publish',
-        'post_password' => '',
-    ];
+    $script = <<<EOT
+        <script>
+        (async () => {
+            const data = $json_data;
 
-    if (!empty($category)) {
-        $args['category_name'] = $category;  // Add category filter if provided
-    }
-
-    $search_query = new WP_Query($args);
-
-    if ($search_query->have_posts()):
-        while ($search_query->have_posts()):
-            $search_query->the_post();
-            $post_title = get_the_title();
-            $post_url = get_permalink();
-            $post_date = get_the_date('d M Y');
-            $post_excerpt = wp_trim_words(strip_shortcodes(wp_strip_all_tags(get_the_excerpt())), 40, '...');
-
-            $image_id = get_post_thumbnail_id();
-            $image_alt = get_post_meta($image_id, '_wp_attachment_image_alt', true);
-
-            if (empty($image_alt)) {
-                $image_alt = get_the_title();
+            if (!window.indexedDB) {
+                console.log("Your browser doesn't support a stable version of IndexedDB.");
+                return;
             }
 
-            $image_src = wp_get_attachment_image_src($image_id, 'medium_large');
-            if (!post_password_required()):  // Exclude password-protected posts
-                ?>
-<article class="newsletter_post_item flex-col" data-nl_date="<?= esc_html($post_date) ?> "
-    data-category="<?= esc_attr($category) ?>">
-    <div class="post-thumbnail">
-        <img src="<?php echo esc_url($image_src[0]); ?>" alt="<?php echo esc_attr($image_alt); ?>" width="286"
-            height="286" loading="lazy">
-        <h2 class="post-title" title="<?php echo esc_html($post_title); ?>">
-            <a class="" href="<?php echo esc_url($post_url); ?>">
-                <?php echo esc_html($post_title); ?>
-            </a>
-        </h2>
-        <?php if (!empty($post_excerpt)): ?>
-        <div class="post-excerpt"><?php echo esc_html($post_excerpt); ?></div>
-        <?php else: ?>
-        <div class="post-excerpt"></div>
-        <?php endif; ?>
-        <a class="cta-gridview" href="<?php echo esc_url($post_url); ?>">Read Newsletter</a>
-    </div>
-    <div class="newsletter_post_text_contents mt-auto">
-        <a class="read-newsletter-button" href="<?php echo esc_url($post_url); ?>">Read Newsletter</a>
-    </div>
-</article>
-<?php
-            endif;
-        endwhile;
-    else:
-        echo '<div class="py-4 text-lg fw-semibold">Oops, we could not find what you are looking for. Try adjusting your search or browse our categories.</div>';
-    endif;
-    wp_reset_postdata();
-    die();
-}
+            const dbName = "PostsDatabase";
 
-function get_newsletters_posts()
-{
-    $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : 'hong-kong-law';
-    echo do_shortcode('[newsletters_posts category="' . $category . '"]');
-    wp_die();
+            try {
+                await deleteDatabase(dbName);
+                // console.log("Existing database deleted successfully.");
+            } catch (error) {
+                console.log("Error deleting database: ", error);
+            }
+
+            try {
+                const db = await openDatabase(dbName, 1);
+                await storePosts(db, data);
+                // console.log("All posts have been added to the IndexedDB.");
+            } catch (error) {
+                console.log("Database error: ", error);
+            }
+
+            async function deleteDatabase(name) {
+                return new Promise((resolve, reject) => {
+                    const deleteRequest = indexedDB.deleteDatabase(name);
+
+                    deleteRequest.onsuccess = () => resolve();
+                    deleteRequest.onerror = (event) => reject(event.target.errorCode);
+                    deleteRequest.onblocked = () => console.log("Database deletion blocked.");
+                });
+            }
+
+            async function openDatabase(name, version) {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(name, version);
+
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        db.createObjectStore("posts", { keyPath: "id" });
+                    };
+
+                    request.onsuccess = (event) => resolve(event.target.result);
+                    request.onerror = (event) => reject(event.target.errorCode);
+                });
+            }
+
+            async function storePosts(db, posts) {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction(["posts"], "readwrite");
+                    const objectStore = transaction.objectStore("posts");
+
+                    posts.forEach((post) => {
+                        objectStore.put(post);
+                    });
+
+                    transaction.oncomplete = () => resolve();
+                    transaction.onerror = () => reject(transaction.error);
+                });
+            }
+        })();
+        </script>
+        EOT;
+
+    return $script;
 }
 
 add_action('init', 'register_custom_shortcodes');
@@ -822,8 +821,6 @@ add_action('wp_ajax_nopriv_ajax_latest_posts', 'ajax_latest_posts');
 
 add_action('wp_ajax_get_newsletters_posts', 'get_newsletters_posts');
 add_action('wp_ajax_nopriv_get_newsletters_posts', 'get_newsletters_posts');
-add_action('wp_ajax_ajax_search_newsletter', 'ajax_search_newsletter');
-add_action('wp_ajax_nopriv_ajax_search_newsletter', 'ajax_search_newsletter');
 
 // Register custom shortcodes.
 function register_custom_shortcodes()
@@ -836,5 +833,6 @@ function register_custom_shortcodes()
     add_shortcode('get_post_with_offset', 'getRecentPostWithOffset');
     add_shortcode('content_posts', 'getNewsEventsPosts_sc');
     add_shortcode('insights_presentations', 'insights_presentations_sc');
+    add_shortcode('store_all_posts', 'storeAllPost');
     add_shortcode('newsletters_posts', 'get_newsletters_posts_sc');
 }

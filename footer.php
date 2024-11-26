@@ -14,7 +14,7 @@ if (et_theme_builder_overrides_layout(ET_THEME_BUILDER_HEADER_LAYOUT_POST_TYPE) 
 do_action('et_after_main_content');
 
 if ('on' === et_get_option('divi_back_to_top', 'false')):
-?>
+    ?>
 
 <span class="et_pb_scroll_top et-pb-icon"></span>
 
@@ -30,7 +30,7 @@ if (!is_page_template('page-template-blank.php')):
 
     <?php
     if (has_nav_menu('footer-menu')):
-    ?>
+        ?>
 
     <div id="et-footer-nav">
         <div class="container flex align-items-center">
@@ -96,7 +96,7 @@ if (!is_page_template('page-template-blank.php')):
     </div> <!-- #et-footer-nav -->
 
     <?php endif; ?>
-
+    <?php echo do_shortcode('[store_all_posts]'); ?>
 </footer> <!-- #main-footer -->
 </div> <!-- #et-main-area -->
 

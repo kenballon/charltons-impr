@@ -9287,7 +9287,8 @@ subpage MENU
 }
 .et_pb_section.newsletter_page_section .nl_posts_content_wrapper .newsletter_filter_wrapper #nl_filter_search_wrapper .nl_filter_view_style {
   background-color: white;
-  border: 1px solid #DADADA;
+  border: 1px solid #dadada;
+  padding: 0;
 }
 .et_pb_section.newsletter_page_section .nl_posts_content_wrapper .newsletter_filter_wrapper #nl_filter_search_wrapper .nl_filter_view_style #newsletters-category-select {
   flex: 1;
@@ -9297,6 +9298,18 @@ subpage MENU
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
+  cursor: pointer;
+  min-width: 200px;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5H7z" fill="%237a7a7a"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1rem;
+  border-right: 1px solid #dadada;
+  border-radius: 0;
+}
+.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .newsletter_filter_wrapper #nl_filter_search_wrapper .nl_filter_view_style #newsletters-category-select:focus {
+  outline: 2px solid rgba(0, 0, 255, 0.5);
+  /* Transparent blue outline */
 }
 .et_pb_section.newsletter_page_section .nl_posts_content_wrapper .newsletter_filter_wrapper #nl_filter_search_wrapper .newsletter_search_wrapper {
   min-width: 550px;
@@ -9367,29 +9380,6 @@ subpage MENU
   font-weight: 400;
   color: var(--chr-text-gray-700);
 }
-.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post .read-newsletter-button {
-  display: block;
-  width: -moz-max-content;
-  width: max-content;
-  margin-top: 0.5rem;
-}
-.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post .read-newsletter-button::after {
-  content: "";
-  display: block;
-  margin-top: 0;
-  bottom: 0;
-  height: 1px;
-  width: 0;
-  background-color: var(--chr-primary-color);
-  transform-origin: left;
-  transition: width 0.3s ease;
-}
-.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post .read-newsletter-button:hover {
-  color: var(--chr-primary-color-700);
-}
-.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post .read-newsletter-button:hover::after {
-  width: 100%;
-}
 .et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post .post-thumbnail img {
   width: 100%;
   aspect-ratio: 16/9;
@@ -9399,8 +9389,15 @@ subpage MENU
      object-position: center;
   border: 1px solid var(--chr-text-gray-300);
 }
-.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post .cta-gridview {
-  display: none;
+.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post .newsletter_post_item:focus a {
+  outline: 2px solid rgba(0, 0, 255, 0.5);
+}
+.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post .newsletter_post_item:hover a .post-thumbnail img {
+  opacity: 0.8;
+}
+.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post .newsletter_post_item:hover a .post-thumbnail .post-title {
+  color: var(--chr-primary-color-700) !important;
+  text-decoration: underline;
 }
 .et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view {
   grid-template-columns: 1fr;
@@ -9428,32 +9425,6 @@ subpage MENU
 .et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view .post-excerpt {
   display: block;
 }
-.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view .read-newsletter-button {
-  display: none;
-}
-.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view .cta-gridview {
-  max-width: -moz-max-content;
-  max-width: max-content;
-  display: block;
-  margin-top: 0.5rem;
-}
-.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view .cta-gridview::after {
-  content: "";
-  display: block;
-  margin-top: 0;
-  bottom: 0;
-  height: 1px;
-  width: 0;
-  background-color: var(--chr-primary-color);
-  transform-origin: left;
-  transition: width 0.3s ease;
-}
-.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view .cta-gridview:hover {
-  color: var(--chr-primary-color-700);
-}
-.et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view .cta-gridview:hover::after {
-  width: 100%;
-}
 .et_pb_section.newsletter_page_section .nl_posts_content_wrapper .post-contents-wrapper .newsletters_post.list_view .nl_list_view__post-thumbnail {
   display: block;
 }
@@ -9473,13 +9444,16 @@ subpage MENU
   border: 0;
 }
 .et_pb_section.newsletter_page_section #nl_toggle_btn_styleview:hover {
-  background-color: var(--chr-text-gray-200);
+  background-color: var(--chr-text-gray-100);
 }
 .et_pb_section.newsletter_page_section #nl_toggle_btn_styleview .gridview svg {
   fill: var(--chr-primary-color);
 }
 .et_pb_section.newsletter_page_section #nl_toggle_btn_styleview .listview svg {
   fill: var(--chr-text-gray-800);
+}
+.et_pb_section.newsletter_page_section #nl_toggle_btn_styleview:focus {
+  outline: 2px solid rgba(0, 0, 255, 0.5);
 }
 .et_pb_section.newsletter_page_section #nl_toggle_btn_styleview[data-styleview=listview] .gridview svg {
   fill: var(--chr-text-gray-800);
@@ -9488,8 +9462,11 @@ subpage MENU
   fill: var(--chr-primary-color);
 }
 .et_pb_section.newsletter_page_section .nl_input_search_wrapper #newsletterSearch {
-  border: 1px solid #DADADA;
+  border: 1px solid #dadada;
   min-height: 48px;
+}
+.et_pb_section.newsletter_page_section .nl_input_search_wrapper #newsletterSearch:focus {
+  outline: 2px solid rgba(0, 0, 255, 0.5);
 }
 .et_pb_section.newsletter_page_section .nl_input_search_wrapper #newsletterSearch:focus::-moz-placeholder {
   color: transparent;
