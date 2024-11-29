@@ -720,7 +720,7 @@ function get_newsletters_posts_sc($atts)
 
         $html_output .= <<<HTML
             <article class="newsletter_post_item flex-col {$class}" data-nl_date="{$post_date_original}" data-category="{$category}">
-                <a href="{$post_url}">
+                <a href="{$post_url}" tabindex="0">
                     <div class="post-thumbnail">
                         <img src="{$image_src}" alt="{$image_alt}" width="286" height="286">
                         <time class="post-date" datetime="{$post_date}">{$post_date}</time>

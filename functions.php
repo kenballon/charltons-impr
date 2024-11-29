@@ -11,7 +11,7 @@ function enqueue_load_fa()
 
 function chr_theme_enqueue_styles()
 {
-	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.8', 'all');
+	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.9', 'all');
 	wp_enqueue_style('custom-style');
 }
 
@@ -1585,7 +1585,7 @@ add_filter('body_class', 'category_id_class');
 // =============================================
 
 // Custom Shortcodes Functions
-// require_once get_stylesheet_directory() . '/includes/custom-shortcodes.php';
+require_once get_stylesheet_directory() . '/includes/custom-shortcodes.php';
 
 // =============================================
 // Custom Nav Menu

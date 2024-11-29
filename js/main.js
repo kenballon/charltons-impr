@@ -255,12 +255,14 @@ document.addEventListener("readystatechange", (e) => {
     showAwardImageFunc();
     showNewsEvents();
     allNewsLettersPosts();
-    newsletterSortByNewestOldest();
 
     const buttonAllActive = document.getElementById("all");
     currentUrl.startsWith(origin + "/news")
       ? buttonAllActive?.classList.add("active")
       : "";
+
+    const defaultFilterdBtn = document?.getElementById("hong-kong-law");
+    defaultFilterdBtn?.classList.add("active");
   }
 });
 
@@ -1066,46 +1068,45 @@ insightFilterButtons?.addEventListener("click", toggleFilter);
 // =======================================
 
 function allNewsLettersPosts() {
-  const nlBtnTogglebtn = document.getElementById("nl_toggle_btn_styleview");
   const newsLetterPostItems = document.querySelectorAll(
     ".newsletter_post_item"
   );
 
-  nlBtnTogglebtn?.addEventListener("click", () => {
-    const newsLetterWrapper = document.querySelector(".newsletters_post");
-    const currentStyle = nlBtnTogglebtn.getAttribute("data-styleview");
-    const newStyle = currentStyle === "grid" ? "listview" : "grid";
-    nlBtnTogglebtn.setAttribute("data-styleview", newStyle);
-    newsLetterWrapper.classList.toggle("list_view");
-  });
-
-  const selectElement = document?.getElementById("newsletters-category-select");
   const searchInput = document?.getElementById("newsletterSearch");
   const showCloseButton = document?.getElementById("nl_close_search");
   const nlSearchIcon = document?.getElementById("nl_search_icon");
   const loader = document.getElementById("loader");
   const nlCategTitle = document.getElementById("nl_categ_title");
 
-  selectElement?.addEventListener("change", function () {
-    let selectedCategory = selectElement?.value;
-    searchInput.value = "";
-
-    if (selectedCategory === "all") {
-      nlCategTitle.textContent = "Hong Kong Law";
-      fetchFilteredPosts("hong-kong-law");
-    } else {
-      nlCategTitle.textContent =
-        selectElement.options[selectElement.selectedIndex].textContent;
-      fetchFilteredPosts(selectedCategory);
-      newsLetterSearchFunc(selectedCategory);
-    }
+  FilterButton.initializeAll(SELECTORS.CategPPWFilterButtons, (filterID) => {
+    filterByCategoryNewsletter(filterID);
   });
 
+  function filterByCategoryNewsletter(category = "hong-kong-law") {
+    const newsLetterPostItems = document.querySelectorAll(
+      ".newsletter_post_item"
+    );
+
+    newsLetterPostItems.forEach((post) => {
+      const postCategory = post.dataset.category;
+      const shouldAppend = !category || postCategory === category;
+
+      if (shouldAppend) {
+        post.classList.remove("d-none");
+      } else {
+        post.classList.add("d-none");
+      }
+    });
+
+    nlCategTitle.textContent = category
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+    getAllNewsletterPost(category);
+    newsLetterSearchFunc(category);
+  }
+
   // Call the function on initial page load
-  let selectedCategory = selectElement?.value;
-  handleNewsletterPosts();
   newsLetterSearchFunc();
-  // showNewsLettersPostItems();
 
   //SEARCH NEWSLETTERS
   searchInput?.addEventListener("input", function () {
@@ -1117,178 +1118,340 @@ function allNewsLettersPosts() {
     }
   });
 
-  showCloseButton.addEventListener("click", function () {
+  showCloseButton?.addEventListener("click", function () {
     searchInput.value = "";
     showCloseButton.classList.remove("active");
     nlSearchIcon.style.display = "flex";
-    if (selectElement.value === "all") {
-      fetchFilteredPosts("hong-kong-law");
-    } else {
-      fetchFilteredPosts(selectElement.value);
-    }
+
+    getAllNewsletterPost();
   });
   //SEARCH NEWSLETTERS END
 }
 
-function fetchFilteredPosts(category) {
-  loader.style.display = "inline-block"; // Show loader
-  document.getElementById("newsletters_post").innerHTML = ""; // Clear the existing posts
-  const xhr = new XMLHttpRequest();
-  xhr.open("POST", "/wp-admin/admin-ajax.php", true);
-  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-  xhr.onload = function () {
-    loader.style.display = "none";
-    if (xhr.status === 200) {
-      document.getElementById("newsletters_post").innerHTML = xhr.responseText;
+const loadMoreButton = document?.getElementById("btn_load_more");
 
-      handleNewsletterPosts();
-    }
-  };
-  xhr.onerror = function () {
-    loader.style.display = "none"; // Hide loader on error
-    console.error("AJAX Error:", xhr.status);
-  };
-  xhr.send("action=get_newsletters_posts&category=" + category);
+const openIndexedDB = (dbName, version = 1) => {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(dbName, version);
 
-  // Reset the Load More button to its original state
-  const loadMoreButton = document?.getElementById("btn_load_more");
-  loadMoreButton.textContent = "Load More";
-  loadMoreButton?.classList.add("d-none");
-}
+    request.onerror = (event) => {
+      console.error("IndexedDB Error:", event.target.errorCode);
+      reject(event.target.errorCode);
+    };
 
-const newsLetterSearchFunc = (
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+      resolve(db);
+    };
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      // Perform any database upgrade operations here if needed
+      console.log("Database upgrade needed:", db);
+    };
+  });
+};
+
+function newsLetterSearchFunc(
   category = "hong-kong-law",
   searchInputId = "newsletterSearch"
-) => {
+) {
   const searchInput = document?.getElementById(searchInputId);
 
-  const matchedPostTitleElement = document?.getElementById("newsletters_post");
-
   if (!searchInput) {
-    console.error("Search input element not found");
+    console.warn("Search input element not found");
     return;
   }
 
   // Remove any existing event listener to avoid multiple bindings
   searchInput.removeEventListener("input", searchInput._handler);
 
-  // Define the new event handler
-  const handler = function () {
-    const searchQuery = this.value;
+  const handler = async function () {
+    const dbName = "PostsDatabase";
+    const storeName = "posts";
+    const searchQuery = this.value.toLowerCase();
+    const matchedPosts = [];
+
     if (searchQuery.length >= 2) {
-      loader.style.display = "inline-block";
-      matchedPostTitleElement.innerHTML = ""; // Clear the existing posts
-      // Trigger search when input is at least 2 characters
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", ajax_object.ajax_url, true);
-      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          loader.style.display = "none";
-          // Update the search results with the response
-          matchedPostTitleElement.innerHTML = xhr.responseText;
-          handleNewsletterPosts(category);
-        }
-      };
-      xhr.onerror = function () {
-        loader.style.display = "none";
-        console.error("AJAX Error:", xhr.status);
-      };
-      xhr.send(
-        "action=ajax_search_newsletter&search=" +
-          encodeURIComponent(searchQuery) +
-          "&category=" +
-          encodeURIComponent(category)
-      );
+      try {
+        const db = await openIndexedDB(dbName);
+        const transaction = db.transaction([storeName], "readonly");
+        const objectStore = transaction.objectStore(storeName);
+
+        objectStore.openCursor().onsuccess = function (event) {
+          const cursor = event.target.result;
+          if (cursor) {
+            const {
+              title = "",
+              excerpt = "",
+              categories = "",
+              date = "",
+            } = cursor.value;
+            const postCategories = categories.toLowerCase().split(", ");
+
+            if (
+              postCategories.includes(category.toLowerCase()) &&
+              (title.toLowerCase().includes(searchQuery) ||
+                excerpt.toLowerCase().includes(searchQuery))
+            ) {
+              matchedPosts.push(cursor.value);
+            }
+            cursor.continue();
+          }
+        };
+
+        transaction.oncomplete = function () {
+          displayPosts(matchedPosts);
+        };
+
+        objectStore.openCursor().onerror = function (event) {
+          console.error("Cursor Error:", event.target.errorCode);
+        };
+      } catch (error) {
+        console.error("Failed to open database:", error);
+      }
     } else if (searchQuery.length === 0) {
-      matchedPostTitleElement.innerHTML = "";
-      fetchFilteredPosts(category);
+      getAllNewsletterPost(category);
     }
   };
 
-  // Attach the new event handler and store it for future removal
+  // Add the event listener with the handler function
   searchInput.addEventListener("input", handler);
-  searchInput._handler = handler;
-};
-
-function newsletterSortByNewestOldest() {
-  const btnSortOldest = document.getElementById("nl_sortby_oldnew__old");
-
-  btnSortOldest?.addEventListener("click", () => {
-    const postItems = document.querySelectorAll(".newsletter_post_item");
-    const activeOldest = btnSortOldest.classList.contains("active");
-    const pressedTrue = btnSortOldest.getAttribute("aria-pressed") === "true";
-    const container = document.getElementById("newsletters_post");
-
-    btnSortOldest.classList.toggle("active");
-    const newActiveOldest = !activeOldest;
-
-    btnSortOldest.setAttribute("aria-pressed", newActiveOldest);
-
-    btnSortOldest.innerHTML = newActiveOldest ? "Oldest" : "Newest";
-
-    const sortedItems = Array.from(postItems).sort((a, b) => {
-      const dateA = new Date(a.getAttribute("data-nl_date"));
-      const dateB = new Date(b.getAttribute("data-nl_date"));
-      return newActiveOldest ? dateA - dateB : dateB - dateA;
-    });
-
-    container.innerHTML = "";
-    sortedItems.forEach((item, index) => {
-      if (item.classList.contains("d-none")) {
-        item.classList.remove("d-none");
-      }
-      container.appendChild(item);
-      if (index >= 12) {
-        item.classList.add("d-none");
-      }
-    });
-  });
+  searchInput._handler = handler; // Store the handler for future reference
 }
 
-function handleNewsletterPosts() {
-  const newsLetterPostItems = document.querySelectorAll(
-    ".newsletter_post_item"
-  );
-  const totalItems = newsLetterPostItems.length;
-  const loadMoreButton = document?.getElementById("btn_load_more");
+function getAllNewsletterPost(category = "hong-kong-law") {
+  const dbName = "PostsDatabase";
+  const storeName = "posts";
 
-  if (totalItems <= 12) {
-    loadMoreButton?.classList.add("d-none");
-  } else {
-    loadMoreButton?.classList.remove("d-none");
-    for (let i = 12; i < totalItems; i++) {
-      newsLetterPostItems[i].classList.add("d-none");
-    }
-
-    // Remove any existing event listeners to avoid multiple bindings
-    loadMoreButton?.removeEventListener("click", loadMoreHandler);
-    loadMoreButton?.addEventListener("click", loadMoreHandler);
+  if (!window.indexedDB) {
+    console.log("Your browser doesn't support IndexedDB.");
+    return;
   }
+
+  openIndexedDB(dbName)
+    .then((db) => {
+      const transaction = db.transaction(storeName, "readonly");
+      const store = transaction.objectStore(storeName);
+      const getAllRequest = store.getAll();
+
+      getAllRequest.onsuccess = function () {
+        let posts = getAllRequest.result;
+
+        // Sort posts by post_date in descending order
+        posts.sort((a, b) => {
+          const dateA = new Date(a.post_date.split("-").reverse().join("-"));
+          const dateB = new Date(b.post_date.split("-").reverse().join("-"));
+          return dateB - dateA;
+        });
+
+        // Filter posts by category if a category is provided
+        if (category) {
+          posts = posts.filter((post) => {
+            const postCategories = sanitizeHTML(post.categories)
+              .toLowerCase()
+              .split(", ");
+            return postCategories.includes(category.toLowerCase());
+          });
+        }
+
+        displayPosts(posts);
+      };
+
+      getAllRequest.onerror = function () {
+        console.log("Error reading posts from IndexedDB.");
+      };
+    })
+    .catch((error) => {
+      console.log("Error opening IndexedDB:", error);
+    })
+    .finally(() => {
+      loader.style.display = "none";
+    });
+}
+
+function displayPosts(posts) {
+  const container = document?.getElementById("newsletters_post");
+  container.innerHTML = ""; // Clear previous content
+
+  // Display the first 12 posts immediately
+  posts.slice(0, 12).forEach((post) => {
+    const article = createPostElement(post);
+    container.appendChild(article);
+  });
+
+  // Delay the insertion of the remaining posts and add "d-none" class
+  const remainingPosts = posts.slice(12);
+  insertPostsInBatches(container, remainingPosts, 12);
+}
+
+function insertPostsInBatches(container, posts, batchSize) {
+  let index = 0;
+
+  function insertBatch() {
+    const batch = posts.slice(index, index + batchSize);
+    batch.forEach((post) => {
+      const article = createPostElement(post);
+      article.classList.add("d-none");
+      container.appendChild(article);
+    });
+
+    index += batchSize;
+
+    if (index < posts.length) {
+      setTimeout(insertBatch, 100); // Delay for 100ms before inserting the next batch
+    }
+  }
+
+  insertBatch();
+}
+
+function createPostElement(post) {
+  const article = document.createElement("article");
+  article.className = "newsletter_post_item flex-col";
+  article.setAttribute("data-nl_date", post.post_date);
+
+  // Sanitize and strip HTML tags from categories and join them with commas
+  const categories = sanitizeHTML(post.categories)
+    .toLowerCase()
+    .split(",")
+    .join(", ");
+  article.setAttribute("data-category", categories);
+
+  const link = document.createElement("a");
+  link.href = post.url;
+  link.tabIndex = 0;
+
+  const thumbnailDiv = document.createElement("div");
+  thumbnailDiv.className = "post-thumbnail";
+
+  const img = document.createElement("img");
+  img.src = post.featured_image;
+  img.alt = post.title;
+  img.width = 286;
+  img.height = 286;
+  // img.loading = "lazy";
+  img.fetchpriority = "high";
+
+  const title = document.createElement("h2");
+  title.className = "post-title";
+  title.title = decodeHTMLEntities(post.title);
+  title.textContent = decodeHTMLEntities(post.title);
+
+  const postDate = document.createElement("time");
+  postDate.className = "post-date";
+
+  const date = parseDate(post.post_date);
+  if (!date || isNaN(date.getTime())) {
+    postDate.textContent = "Invalid Date";
+  } else {
+    const options = { day: "numeric", month: "short", year: "numeric" };
+    const formattedDate = date.toLocaleDateString("en-GB", options);
+    postDate.textContent = formattedDate;
+    postDate.setAttribute("datetime", date.toISOString());
+  }
+
+  const excerptDiv = document.createElement("div");
+  excerptDiv.className = "post-excerpt";
+
+  // Sanitize and strip HTML tags from excerpt
+  const excerptText = decodeHTMLEntities(post.excerpt);
+  excerptDiv.textContent = excerptText;
+
+  thumbnailDiv.appendChild(img);
+  thumbnailDiv.appendChild(postDate);
+  thumbnailDiv.appendChild(title);
+  thumbnailDiv.appendChild(excerptDiv);
+  link.appendChild(thumbnailDiv);
+  article.appendChild(link);
+
+  return article;
+}
+
+function sanitizeHTML(html) {
+  const tempDiv = document.createElement("div");
+  tempDiv.textContent = html;
+  return tempDiv.innerHTML;
+}
+
+function decodeHTMLEntities(text) {
+  const textArea = document.createElement("textarea");
+  textArea.innerHTML = text;
+  return textArea.value;
+}
+
+function parseDate(dateString) {
+  const parts = dateString.split("-");
+  if (parts.length !== 3) return null;
+
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1; // Month is zero-based in JavaScript Date
+  const year = parseInt(parts[2], 10);
+
+  return new Date(year, month, day);
 }
 
 function loadMoreHandler() {
-  const newsLetterPostItems = document.querySelectorAll(
-    ".newsletter_post_item"
-  );
-  const totalItems = newsLetterPostItems.length;
-  const loadMoreButton = document?.getElementById("btn_load_more");
-  const hiddenItems = document.querySelectorAll(".newsletter_post_item.d-none");
+  try {
+    const hiddenItems = document.querySelectorAll(
+      ".newsletter_post_item.d-none"
+    );
+    const newsLetterPostItems = document.querySelectorAll(
+      ".newsletter_post_item"
+    );
 
-  if (hiddenItems.length > 0) {
-    for (let i = 0; i < 12 && i < hiddenItems.length; i++) {
-      hiddenItems[i].classList.remove("d-none");
+    if (hiddenItems.length > 0) {
+      hiddenItems.forEach((item, index) => {
+        if (index < 12) item.classList.remove("d-none");
+      });
+      loadMoreButton.innerHTML =
+        hiddenItems.length <= 12 ? "Show Less" : "Load More";
+    } else {
+      newsLetterPostItems.forEach((item, index) => {
+        if (index >= 12) item.classList.add("d-none");
+      });
+      loadMoreButton.textContent = "Load More";
     }
-
-    if (
-      document.querySelectorAll(".newsletter_post_item.d-none").length === 0
-    ) {
-      loadMoreButton.innerHTML = "Show Less";
-    }
-  } else {
-    for (let i = 12; i < totalItems; i++) {
-      newsLetterPostItems[i].classList.add("d-none");
-    }
-    loadMoreButton.textContent = "Load More";
+  } catch (error) {
+    console.error("Error in loadMoreHandler:", error);
   }
 }
+
+function updateNewsLetterPostItemsCount() {
+  try {
+    const newsLetterPostItems = document.querySelectorAll(
+      ".newsletter_post_item"
+    );
+    const hiddenItems = document.querySelectorAll(
+      ".newsletter_post_item.d-none"
+    );
+
+    loadMoreButton.classList.toggle("d-none", newsLetterPostItems.length <= 12);
+    loadMoreButton.innerHTML =
+      hiddenItems.length > 0 ? "Load More" : "Show Less";
+  } catch (error) {
+    console.error("Error in updateNewsLetterPostItemsCount:", error);
+  }
+}
+
+const newslettersPostElement = document?.getElementById("newsletters_post");
+
+if (newslettersPostElement) {
+  try {
+    const observer = new MutationObserver(() =>
+      updateNewsLetterPostItemsCount()
+    );
+
+    observer.observe(newslettersPostElement, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
+  } catch (error) {
+    console.error("Error in MutationObserver setup:", error);
+  }
+} else {
+  console.warn("newslettersPostElement not found.");
+}
+
+loadMoreButton?.addEventListener("click", loadMoreHandler);
