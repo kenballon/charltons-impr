@@ -1123,7 +1123,15 @@ function allNewsLettersPosts() {
     showCloseButton.classList.remove("active");
     nlSearchIcon.style.display = "flex";
 
-    getAllNewsletterPost();
+    const filterBtnPillActive = document?.querySelectorAll(
+      ".ppw_category_filter"
+    );
+
+    filterBtnPillActive.forEach((btn) => {
+      if (btn.classList.contains("active")) {
+        getAllNewsletterPost(btn.id);
+      }
+    });
   });
   //SEARCH NEWSLETTERS END
 }
@@ -1405,12 +1413,12 @@ function loadMoreHandler() {
         if (index < 12) item.classList.remove("d-none");
       });
       loadMoreButton.innerHTML =
-        hiddenItems.length <= 12 ? "Show Less" : "Load More";
+        hiddenItems.length <= 12 ? "Show Less" : "See More";
     } else {
       newsLetterPostItems.forEach((item, index) => {
         if (index >= 12) item.classList.add("d-none");
       });
-      loadMoreButton.textContent = "Load More";
+      loadMoreButton.textContent = "See More";
     }
   } catch (error) {
     console.error("Error in loadMoreHandler:", error);
@@ -1428,7 +1436,7 @@ function updateNewsLetterPostItemsCount() {
 
     loadMoreButton.classList.toggle("d-none", newsLetterPostItems.length <= 12);
     loadMoreButton.innerHTML =
-      hiddenItems.length > 0 ? "Load More" : "Show Less";
+      hiddenItems.length > 0 ? "See More" : "Show Less";
   } catch (error) {
     console.error("Error in updateNewsLetterPostItemsCount:", error);
   }
