@@ -72,6 +72,34 @@
 
     <a href="https://www.charltonslaw.com/legal/newsletters/668/hong-kong-court-orders-jpex-to-return-247498-usdt-to-customers.pdf"
         target="_blank">View PDF</a>
+
+
+    <button onclick="downloadPDF()">Download PDF</button>
+    <script>
+        function downloadPDF() {
+            var pdfPath = 'https://www.charltonslaw.com/legal/newsletters/668/hong-kong-court-orders-jpex-to-return-247498-usdt-to-customers.pdf';
+            var link = document.createElement('a');
+            link.href = pdfPath; link.download = 'test.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } 
+    </script>
+
+    <h3 class="text-white fw-semibold">Charltons</h3>
+    <div class="flex space-between">
+        <div>
+            Dominion Centre, 12th <br />Floor43-59 Queen’s Road EastHong Kong
+        </div>
+        <div>
+            <address>
+                <p>Tel: <a href="tel:+85229057888">+ (852) 2905 7888</a></p>
+                <p>Fax: <a href="fax:+85228549596">+ (852) 2854 9596</a></p>
+                <a href="https://www.charltonslaw.com" target="_blank"
+                    rel="noopener noreferrer">www.charltonslaw.com</a>
+            </address>
+        </div>
+    </div>
 </body>
 
 </html>
