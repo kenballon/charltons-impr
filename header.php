@@ -494,10 +494,10 @@
                                         <img style="max-width: 24px;" src="/media/icons/social-media/youtube.svg"
                                             alt="youtube">
                                     </a>
-                                    <a class="social-networks__link d-block" href="https://anchor.fm/charltons"
-                                        target="_blank" rel="noopener">
-                                        <img style="max-width: 24px;" src="/media/icons/social-media/anchor.svg"
-                                            alt="youtube">
+                                    <a class="social-networks__link d-block" href="https://creators.spotify.com/pod/show/charltons"
+                                        target="_blank" rel="noopener noreferrer nofollow">
+                                        <img style="max-width: 24px;" src="/media/icons/social-media/spotify.svg"
+                                            alt="Spotify for Creators - Charltons Law Podcasts">
                                     </a>
                                     <a class="social-networks__link d-block" href="https://rumble.com/c/c-1647355"
                                         target="_blank" rel="noopener">
@@ -541,10 +541,10 @@
                                     <img style="max-width: 24px;" src="/media/icons/social-media/youtube.svg"
                                         alt="youtube">
                                 </a>
-                                <a class="social-networks__link d-block" href="https://anchor.fm/charltons"
-                                    target="_blank" rel="noopener">
-                                    <img style="max-width: 24px;" src="/media/icons/social-media/anchor.svg"
-                                        alt="youtube">
+                                <a class="social-networks__link d-block" href="https://creators.spotify.com/pod/show/charltons"
+                                    target="_blank" rel="noopener noreferrer nofollow">
+                                    <img style="max-width: 24px;" src="/media/icons/social-media/spotify.svg"
+                                        alt="Spotify for Creators">
                                 </a>
                                 <a class="social-networks__link d-block" href="https://rumble.com/c/c-1647355"
                                     target="_blank" rel="noopener">
