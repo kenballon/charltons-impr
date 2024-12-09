@@ -776,12 +776,31 @@ const tabFunc = () => {
 const showAwardImageFunc = () => {
   const awardComponentWrapper = document.querySelectorAll(".component_wrapper");
 
+  // awardComponentWrapper.forEach((component) => {
+  //   const images = component.querySelectorAll(".award_img_wrapper img");
+  //   const listItems = component.querySelectorAll(".award_list_wrapper li");
+
+  //   listItems.forEach((listItem) => {
+  //     listItem.addEventListener("mouseenter", (e) => {
+  //       e.stopPropagation();
+  //       const targetId = e.currentTarget.id;
+  //       images.forEach((image) => {
+  //         if (image.dataset.awardimageid === targetId) {
+  //           image.classList.add("active");
+  //         } else {
+  //           image.classList.remove("active");
+  //         }
+  //       });
+  //     });
+  //   });
+  // });
   awardComponentWrapper.forEach((component) => {
     const images = component.querySelectorAll(".award_img_wrapper img");
-    const listItems = component.querySelectorAll(".award_list_wrapper li");
+    const listItems = component.querySelectorAll(".award_list_wrapper > li"); // Select only direct children
 
     listItems.forEach((listItem) => {
       listItem.addEventListener("mouseenter", (e) => {
+        e.stopPropagation(); // Prevent event from bubbling up
         const targetId = e.currentTarget.id;
         images.forEach((image) => {
           if (image.dataset.awardimageid === targetId) {
