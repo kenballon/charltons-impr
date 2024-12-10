@@ -290,10 +290,10 @@ function ajax_search()
 
     $args = [
         's' => $search_query,
-        'post_type' => 'post',  // Include both posts and pages
+        'post_type' => 'post',
         'posts_per_page' => 4,
-        'post_status' => 'publish',  // Only include published posts
-        'post_password' => '',  // Exclude password-protected posts
+        'post_status' => 'publish',
+        'has_password' => false,
     ];
 
     if (!empty($category)) {
@@ -337,7 +337,9 @@ function ajax_latest_posts()
         'post_type' => 'post',  // Include both posts and pages
         'posts_per_page' => 3,
         'orderby' => 'date',
-        'order' => 'DESC'
+        'order' => 'DESC',
+        'post_status' => 'publish',
+        'has_password' => false,
     ];
     $latest_posts = new WP_Query($args);
 
@@ -407,7 +409,7 @@ function get_recent_news_posts($atts)
             $output .= '<div class="featured_new_post_img">';
             $output .= '<img src="' . esc_url($post_feat_img) . '" alt="image of a news ' . esc_attr($post_title) . '" width="500" height="500" />';
             $output .= '</div>';
-            $output .= '<div class="featured_new_post_content flex item-center flex-col justify-center">';
+            $output .= '<div class="featured_new_post_content flex items-center flex-col justify-center">';
             $output .= '<div class="date_container fw-regular">' . esc_html($post_date) . '</div>';
             $output .= '<a href="' . esc_url($post_url) . '" aria-label="' . esc_attr($post_title) . '">';
             $output .= '<h2>' . esc_html($post_title) . '</h2>';
@@ -628,7 +630,7 @@ function insights_presentations_sc($atts)
     return $output;
 }
 
-function cache_all_posts($atts = [], $cache_duration = HOUR_IN_SECONDS)
+function cache_all_posts($atts = [], $cache_duration = 30 * MINUTE_IN_SECONDS)
 {
     // Extract shortcode attributes with default values
     $atts = shortcode_atts([
@@ -813,6 +815,294 @@ function storeAllPost($atts)
     return $script;
 }
 
+function getNewsletterPostTitle($atts)
+{
+    // Define default attributes
+    $atts = shortcode_atts(
+        array(
+            'category' => 'hong-kong-law',  // Default category
+        ),
+        $atts
+    );
+
+    // Sanitize the category
+    $category = sanitize_text_field($atts['category']);
+
+    // Get the current post ID
+    $current_post_id = get_the_ID();
+
+    // Check if the current post belongs to the specified category
+    if (has_category($category, $current_post_id)) {
+        // Get the post details
+        $post_title = get_the_title($current_post_id);
+        $post_date = get_the_date('d M Y', $current_post_id);
+        $post_datetime = get_the_date('Y-m-d', $current_post_id);  // ISO format
+        $categories = get_the_category($current_post_id);
+        $category_name = !empty($categories) ? esc_html($categories[0]->name) : 'Uncategorized';
+        $category_link = !empty($categories) ? get_category_link($categories[0]->term_id) : '#';
+        $post_tags = get_the_tags($current_post_id);
+        $tags_list = '';
+        $featured_image_id = get_post_thumbnail_id($current_post_id);
+        $featured_image_url = wp_get_attachment_image_url($featured_image_id, 'full');
+        $featured_image_mime_type = get_post_mime_type($featured_image_id);
+        $featured_image_width = 768;  // Example width
+        $featured_image_height = 512;  // Example height
+        $pdf_url = filter_var(get_field('pdf_url', $current_post_id), FILTER_SANITIZE_URL);
+        $word_url = filter_var(get_field('word_url', $current_post_id), FILTER_SANITIZE_URL);
+
+        if (filter_var($pdf_url, FILTER_VALIDATE_URL) === false) {
+            $pdf_url = '';  // or handle the invalid URL case as needed
+        }
+
+        if (filter_var($word_url, FILTER_VALIDATE_URL) === false) {
+            $word_url = '';  // or handle the invalid URL case as needed
+        }
+
+        // Build tags list
+        if ($post_tags) {
+            foreach ($post_tags as $tag) {
+                $tag_link = get_tag_link($tag->term_id);
+                $tags_list .= '<a href="' . esc_url($tag_link) . '" class="post-tag">' . esc_html($tag->name) . '</a> ';
+            }
+        }
+
+        // Start output buffer
+        ob_start();
+        ?>
+<div class="featured_image">
+    <picture>
+        <source srcset="<?php echo esc_attr($featured_image_url); ?>" sizes="(max-width: 768px) 100vw, 768px"
+            media="all and (max-width: 1790px)" type="<?php echo esc_attr($featured_image_mime_type); ?>"
+            width="<?php echo esc_attr($featured_image_width); ?>"
+            height="<?php echo esc_attr($featured_image_height); ?>">
+        <img src="<?php echo esc_url($featured_image_url); ?>" alt="<?php echo esc_attr($post_title); ?>">
+    </picture>
+</div>
+<div class="nl_sp_hero_txt_wrapper">
+    <h1 class="entry-title"><?php echo esc_html($post_title); ?></h1>
+    <div class="category_name_wrapper">
+        <a href="<?php echo esc_url($category_link); ?>"
+            class="category_name uppercase fw-bold"><?php echo esc_html($category_name); ?></a>
+        <div class="date flex gap-1">
+            <time datetime="<?php echo esc_attr($post_datetime); ?>"
+                class="cayman_post_date text-gray-500 fw-regular"><?php echo esc_html($post_date); ?></time>
+            <span id="read_time_est" class="text-gray-500 fw-regular"></span>
+        </div>
+    </div>
+</div>
+<div class="newsletter_btn_share_wrapper flex space-between items-center my-2">
+    <div class="tags_wrapper flex gap-1 items-center">
+        <?php echo $tags_list; ?>
+    </div>
+    <div class="printable_wrapper flex gap-1">
+        <input type="hidden" name="pdf_url" value="<?php echo esc_url($pdf_url); ?>" id="pdf_url_hidden_input">
+        <input type="hidden" name="word_url" value="<?php echo esc_url($word_url); ?>" id="word_url_hidden_input">
+        <!-- download document -->
+        <div class="nl_download-wrapper relative flex items-center">
+            <button type="button" class="print_btn" aria-label="Download as PDF" id="open_dl_options"
+                data-dialog="close">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                    fill="#e8eaed">
+                    <path
+                        d="M480-336.92 338.46-478.46l28.31-28.77L460-414v-346h40v346l93.23-93.23 28.31 28.77L480-336.92ZM264.62-200q-27.62 0-46.12-18.5Q200-237 200-264.62v-96.92h40v96.92q0 9.24 7.69 16.93 7.69 7.69 16.93 7.69h430.76q9.24 0 16.93-7.69 7.69-7.69 7.69-16.93v-96.92h40v96.92q0 27.62-18.5 46.12Q723-200 695.38-200H264.62Z" />
+                </svg>
+                <div class="pdf-dl">
+                    Download
+                </div>
+            </button>
+            <div id="nlDowloadOptions" aria-hidden="true">
+                <ul>
+                    <li>
+                        <button aria-label="Share on twitter" class="flex gap-1 items-center" id="dl_pdf">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#5f6368">
+                                <path
+                                    d="M346.15-464.62h30.77v-80h49.23q13.16 0 21.97-8.8 8.8-8.81 8.8-21.96v-49.24q0-13.15-8.8-21.96-8.81-8.8-21.97-8.8h-80v190.76Zm30.77-110.76v-49.24h49.23v49.24h-49.23Zm121.54 110.76h76.92q13.16 0 21.97-8.8 8.8-8.81 8.8-21.96v-129.24q0-13.15-8.8-21.96-8.81-8.8-21.97-8.8h-76.92v190.76Zm30.77-30.76v-129.24h46.15v129.24h-46.15Zm126.15 30.76h30.77v-80h55.39v-30.76h-55.39v-49.24h55.39v-30.76h-86.16v190.76ZM324.62-280q-27.62 0-46.12-18.5Q260-317 260-344.62v-430.76q0-27.62 18.5-46.12Q297-840 324.62-840h430.76q27.62 0 46.12 18.5Q820-803 820-775.38v430.76q0 27.62-18.5 46.12Q783-280 755.38-280H324.62Zm0-40h430.76q9.24 0 16.93-7.69 7.69-7.69 7.69-16.93v-430.76q0-9.24-7.69-16.93-7.69-7.69-16.93-7.69H324.62q-9.24 0-16.93 7.69-7.69 7.69-7.69 16.93v430.76q0 9.24 7.69 16.93 7.69 7.69 16.93 7.69Zm-120 160q-27.62 0-46.12-18.5Q140-197 140-224.61v-470.77h40v470.77q0 9.23 7.69 16.92 7.69 7.69 16.93 7.69h470.76v40H204.62ZM300-800v480-480Z" />
+                            </svg>
+                            <div>PDF Version</div>
+                        </button>
+                    </li>
+                    <li>
+                        <button aria-label="Share on facebook" class="flex gap-1 items-center" id="dl_word">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#5f6368">
+                                <path
+                                    d="M264.62-120q-27.62 0-46.12-18.5Q200-157 200-184.62v-590.76q0-27.62 18.5-46.12Q237-840 264.62-840H580l180 180v475.38q0 27.62-18.5 46.12Q723-120 695.38-120H264.62ZM560-640v-160H264.62q-9.24 0-16.93 7.69-7.69 7.69-7.69 16.93v590.76q0 9.24 7.69 16.93 7.69 7.69 16.93 7.69h430.76q9.24 0 16.93-7.69 7.69-7.69 7.69-16.93V-640H560ZM240-800v160-160 640-640Z" />
+                            </svg>
+                            <div>Word Version</div>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- share to social media -->
+        <div class="share-wrapper relative flex items-center">
+            <button type="button" class="print_btn" id="nl_sharebtn" data-dialog="close">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M15.218 4.931a.4.4 0 0 1-.118.132l.012.006a.45.45 0 0 1-.292.074.5.5 0 0 1-.3-.13l-2.02-2.02v7.07c0 .28-.23.5-.5.5s-.5-.22-.5-.5v-7.04l-2 2a.45.45 0 0 1-.57.04h-.02a.4.4 0 0 1-.16-.3.4.4 0 0 1 .1-.32l2.8-2.8a.5.5 0 0 1 .7 0l2.8 2.79a.42.42 0 0 1 .068.498m-.106.138.008.004v-.01zM16 7.063h1.5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-11c-1.1 0-2-.9-2-2v-10a2 2 0 0 1 2-2H8a.5.5 0 0 1 .35.15.5.5 0 0 1 .15.35.5.5 0 0 1-.15.35.5.5 0 0 1-.35.15H6.4c-.5 0-.9.4-.9.9v10.2a.9.9 0 0 0 .9.9h11.2c.5 0 .9-.4.9-.9v-10.2c0-.5-.4-.9-.9-.9H16a.5.5 0 0 1 0-1"
+                        clip-rule="evenodd"></path>
+                </svg>
+                <div class="share-this">
+                    Share
+                </div>
+            </button>
+            <div id="nlShareOptions" aria-hidden="true">
+                <ul>
+                    <li>
+                        <button>
+                            <div class="flex gap-1 items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                    viewBox="0 0 24 24">
+                                    <path fill="currentColor" fill-rule="evenodd"
+                                        d="m12.505 9.678.59-.59a5 5 0 0 1 1.027 7.862l-2.829 2.83a5 5 0 0 1-7.07-7.072l2.382-2.383q.002.646.117 1.298l-1.793 1.792a4 4 0 0 0 5.657 5.657l2.828-2.828a4 4 0 0 0-1.046-6.411q.063-.081.137-.155m-1.01 4.646-.589.59a5 5 0 0 1-1.027-7.862l2.828-2.83a5 5 0 0 1 7.071 7.072l-2.382 2.383a7.7 7.7 0 0 0-.117-1.297l1.792-1.793a4 4 0 1 0-5.657-5.657l-2.828 2.828a4 4 0 0 0 1.047 6.411 2 2 0 0 1-.138.155"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <div>Copy link</div>
+                            </div>
+                        </button>
+                    </li>
+                    <li>
+                        <button aria-label="Share on linkedin" class="flex gap-1 items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                viewBox="0 0 24 24" class="cg aoi">
+                                <path fill="currentColor"
+                                    d="M21 4.324v15.352A1.324 1.324 0 0 1 19.676 21H4.324A1.324 1.324 0 0 1 3 19.676V4.324A1.324 1.324 0 0 1 4.324 3h15.352A1.324 1.324 0 0 1 21 4.324M8.295 9.886H5.648v8.478h2.636V9.886zm.221-2.914a1.52 1.52 0 0 0-1.51-1.533H6.96a1.533 1.533 0 0 0 0 3.066 1.52 1.52 0 0 0 1.556-1.487zm9.825 6.236c0-2.555-1.626-3.542-3.229-3.542a3.02 3.02 0 0 0-2.67 1.37h-.082V9.875H9.875v8.477h2.648v-4.494a1.754 1.754 0 0 1 1.579-1.893h.104c.837 0 1.464.523 1.464 1.858v4.54h2.647l.024-5.144z">
+                                </path>
+                            </svg>
+                            <div class="ca hq">Share on LinkedIn</div>
+                        </button>
+                    </li>
+                    <li>
+                        <button aria-label="Share on twitter" class="flex gap-1 items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                viewBox="0 0 24 24" class="cg aoi">
+                                <path fill="#242424"
+                                    d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z">
+                                </path>
+                            </svg>
+                            <div>Share on X</div>
+                        </button>
+                    </li>
+                    <li>
+                        <button aria-label="Share on facebook" class="flex gap-1 items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                viewBox="0 0 24 24" class="cg aoi">
+                                <path fill="currentColor"
+                                    d="M22 12.061C22 6.505 17.523 2 12 2S2 6.505 2 12.061c0 5.022 3.657 9.184 8.438 9.939v-7.03h-2.54V12.06h2.54V9.845c0-2.522 1.492-3.915 3.777-3.915 1.094 0 2.238.197 2.238.197v2.476h-1.26c-1.243 0-1.63.775-1.63 1.57v1.888h2.773l-.443 2.908h-2.33V22c4.78-.755 8.437-4.917 8.437-9.939">
+                                </path>
+                            </svg>
+                            <div>Share on Facebook</div>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<?php
+        return ob_get_clean();
+    }
+
+    // If the post does not belong to the specified category, return an empty string
+    return '';
+}
+
+function newsletter_scf_custom_fields($atts)
+{
+    // Define default attributes
+    $atts = shortcode_atts(
+        [
+            'field' => '',  // Field to retrieve
+            'quote_number' => '',  // Quote set number (1, 2, or 3)
+            'placement' => 'bq-right',  // Default quote figure class
+            'layout' => 'float',  // Default layout
+        ],
+        $atts
+    );
+
+    // Sanitize inputs
+    $field = sanitize_text_field($atts['field']);
+    $quote_number = sanitize_text_field($atts['quote_number']);
+    $placement = sanitize_html_class($atts['placement']);
+    $layout = sanitize_text_field($atts['layout']);
+
+    // Validate field input
+    if (empty($field)) {
+        return 'Error: No field specified';
+    }
+
+    // Get the current post ID
+    $current_post_id = get_the_ID();
+
+    // If no post ID is found, return empty
+    if (!$current_post_id) {
+        return '';
+    }
+
+    // Handle quotes with multiple sets
+    if ($field === 'quotes') {
+        // Determine the dynamic field names based on quote_number
+        $quotes_field = $quote_number ? 'quotes_' . $quote_number : 'quotes';
+        $quote_author_field = $quote_number ? 'quote_author_' . $quote_number : 'quote_author';
+
+        // Retrieve quotes and authors directly for the current post
+        $quotes = get_field($quotes_field, $current_post_id);
+        $quote_authors = get_field($quote_author_field, $current_post_id);
+
+        // Ensure quotes are in an array
+        $quotes = is_array($quotes) ? $quotes : array($quotes);
+        $quote_authors = is_array($quote_authors) ? $quote_authors : array($quote_authors);
+
+        // Generate output for specific quote set
+        $output = '';
+        foreach ($quotes as $index => $quote) {
+            $author = isset($quote_authors[$index]) ? $quote_authors[$index] : '';
+
+            $output .= '<figure class="' . esc_attr($placement) . '"><div class="callout-text">';
+            $output .= '<blockquote>' . wp_kses_post($quote);
+
+            if (!empty($author)) {
+                $output .= '<div class="flex"><small class="ml-auto">– ' . esc_html($author) . '</small></div>';
+            }
+
+            $output .= '</blockquote></div>';
+            $output .= '</figure>';
+        }
+
+        return $output;
+    }
+
+    // Retrieve the field value for the current post
+    $value = get_field($field, $current_post_id);
+
+    // If no value found, return empty
+    if (empty($value)) {
+        return '';
+    }
+
+    // Process based on field type
+    switch ($field) {
+        case 'key_takeaways':
+            // Wrap rich text content in a div with keypoints_wrapper class
+            return '<div class="keypoints_wrapper">' . wp_kses_post($value) . '</div>';
+
+        case 'references':
+            // Determine the class based on layout
+            $references_class = $layout === 'blocked'
+                ? 'newsletter_references_blocked'
+                : 'newsletter_references';
+
+            return '<div class="' . esc_attr($references_class) . '">' . wp_kses_post($value) . '</div>';
+
+        default:
+            // For any other fields
+            return is_array($value)
+                ? implode(', ', array_map('esc_html', $value))
+                : esc_html($value);
+    }
+}
+
 add_action('init', 'register_custom_shortcodes');
 add_action('wp_ajax_ajax_search', 'ajax_search');
 add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
@@ -835,4 +1125,6 @@ function register_custom_shortcodes()
     add_shortcode('insights_presentations', 'insights_presentations_sc');
     add_shortcode('store_all_posts', 'storeAllPost');
     add_shortcode('newsletters_posts', 'get_newsletters_posts_sc');
+    add_shortcode('getNewsletterPostTitle', 'getNewsletterPostTitle');
+    add_shortcode('newsletter_scf_custom_fields', 'newsletter_scf_custom_fields');
 }
