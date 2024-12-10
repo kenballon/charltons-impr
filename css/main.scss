@@ -15,8 +15,6 @@ in our server */
   --ff-primary: "Inter", "SF Pro Display", system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
     "Helvetica Neue", sans-serif;
-  --ff-secondary: "Crimson Pro", "Times New Roman", serif, -apple-system;
-  --ff-glock: "Gloock", serif;
 
   --chr-primary-color: #e71d24;
   --chr-primary-color-900: #6F0C0F;
@@ -82,7 +80,7 @@ a {
 blockquote {
   font-weight: 600;
   text-align: left;
-  font-family: var(--ff-secondary);
+  font-family: var(--ff-primary);
   border-color: transparent;
   margin: 0;
   padding: 0;
@@ -100,10 +98,10 @@ blockquote {
 }
 
 q {
-  font-family: var(--ff-secondary);
+  font-family: var(--ff-primary);
   font-weight: 500;
   font-style: italic;
-  font-size: 1.2em;
+  font-size: 1rem;
 }
 
 figure {
@@ -10149,8 +10147,8 @@ subpage MENU
     }
 
     h1 {
-      font-family: var(--ff-glock);
-      font-weight: 400;
+      font-family: var(--ff-primary);
+      font-weight: 700;
       font-size: clamp(1.75rem, 2.237vw + 0.315rem, 3rem);
     }
   }
@@ -10225,8 +10223,8 @@ subpage MENU
 
         .post-title {
           padding: 0;
-          font-family: var(--ff-glock);
-          font-weight: 400;
+          font-family: var(--ff-primary);
+          font-weight: 600;
           font-size: 1rem;
           line-height: 160%;
 
@@ -10551,8 +10549,8 @@ subpage MENU
             padding-top: 3rem;
 
             .entry-title {
-              font-family: var(--ff-glock);
-              font-weight: 400;
+              font-family: var(--ff-primary);
+              font-weight: 700;
               font-size: clamp(1.5rem, 1.79vw + 0.352rem, 2.5rem);
             }
 
@@ -10567,6 +10565,7 @@ subpage MENU
   }
 
   .et_pb_row.row_nl_singlepost_content_wrapper {
+    --fs-paragrah: 1rem;
     display: flex;
     max-width: 100%;
 
@@ -10575,9 +10574,10 @@ subpage MENU
 
       .single_post_content_wrapper {
         max-width: 800px;
-        font-size: 1.25rem;
+        font-size: var(--fs-paragrah);
+        font-family: var(--ff-primary);
+        color: var(--chr-text-gray-700);
         line-height: 170%;
-        font-family: var(--ff-secondary);
         margin-inline: auto;
         position: relative;
 
@@ -10597,8 +10597,9 @@ subpage MENU
         p,
         em {
           font-weight: 400;
-          font-family: var(--ff-secondary);
-          font-size: 1.25rem;
+          font-size: var(--fs-paragrah);
+          font-family: var(--ff-primary);
+          color: var(--chr-text-gray-700);
           line-height: 170%;
           position: relative;
           text-align: left;
@@ -10616,7 +10617,7 @@ subpage MENU
         }
 
         a {
-          font-family: var(--ff-secondary);
+          font-family: var(--ff-primary);
           color: var(--chr-primary-color);
           background-image: linear-gradient(transparent, transparent), linear-gradient(currentColor, currentColor);
           background-size: 100% 0.0625rem, 0 0.0625rem;
@@ -10637,8 +10638,10 @@ subpage MENU
 
         ol,
         ul {
+          margin-left: 1.25rem;
           padding-left: 2rem;
-          font-family: var(--ff-secondary);
+          font-family: var(--ff-primary);
+          color: var(--chr-text-gray-700);
         }
 
         ol li,
@@ -10742,8 +10745,8 @@ subpage MENU
     .footer_headline_txt {
       .et_pb_text_inner {
         h2 {
-          font-family: var(--ff-glock);
-          font-weight: 400;
+          font-family: var(--ff-primary);
+          font-weight: 700;
           color: var(--chr-primary-color) !important;
         }
 
@@ -10919,6 +10922,7 @@ subpage MENU
   ul,
   ol {
     padding: .3rem !important;
+    margin-left: 1.25rem;
 
     li {
       margin-bottom: .5rem !important;
@@ -10927,6 +10931,7 @@ subpage MENU
 
       >* {
         font-family: inherit !important;
+        color: var(--chr-text-gray-600);
       }
     }
   }
@@ -10977,43 +10982,10 @@ subpage MENU
 
   .share-this,
   .pdf-dl {
-    display: none;
+    font-size: 10px;
   }
 
   &:hover {
-
-    .share-this,
-    .pdf-dl {
-      display: block;
-      position: absolute;
-      width: max-content;
-      top: -28px;
-      z-index: 50;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: black;
-      padding: 4px 12px;
-      border-radius: 24px;
-      color: white;
-      font-size: 10px;
-      font-weight: 300;
-
-
-      &::after {
-        content: "";
-        display: block;
-        position: absolute;
-        width: 12px;
-        height: 12px;
-        bottom: -2.5px;
-        z-index: -1;
-        left: 45%;
-        background-color: black;
-        transform: rotate(45deg) skew(10deg, 10deg);
-      }
-    }
-
-
     svg {
       fill: var(--chr-primary-color-500);
 
@@ -11024,15 +10996,25 @@ subpage MENU
   }
 }
 
-#shareOptions {
+.print_btn.open {
+  svg {
+    fill: var(--chr-primary-color-500);
+
+    path {
+      fill: var(--chr-primary-color-500);
+    }
+  }
+}
+
+#nlShareOptions,
+#nlDowloadOptions {
   display: none;
   position: absolute;
-  top: 40px;
+  top: 52px;
   left: 50%;
   z-index: 50;
   transform: translate(-50%, 0%);
   width: 250px;
-  min-height: 100px;
   box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px;
   border-radius: 8px;
   background-color: white;
@@ -11088,7 +11070,8 @@ subpage MENU
   }
 }
 
-#shareOptions.open {
+#nlShareOptions.open,
+#nlDowloadOptions.open {
   display: block;
 }
 
@@ -11104,7 +11087,10 @@ subpage MENU
 .et_pb_row.purposes_wrapper {
   >div {
     p {
-      font-weight: 300;
+      font-family: var(--ff-primary);
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 140%;
       color: var(--chr-text-gray-500);
     }
   }

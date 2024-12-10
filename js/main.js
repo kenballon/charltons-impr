@@ -255,6 +255,7 @@ document.addEventListener("readystatechange", (e) => {
     showAwardImageFunc();
     showNewsEvents();
     allNewsLettersPosts();
+    initNewsletterPage();
 
     const buttonAllActive = document.getElementById("all");
     currentUrl.startsWith(origin + "/news")
@@ -776,24 +777,6 @@ const tabFunc = () => {
 const showAwardImageFunc = () => {
   const awardComponentWrapper = document.querySelectorAll(".component_wrapper");
 
-  // awardComponentWrapper.forEach((component) => {
-  //   const images = component.querySelectorAll(".award_img_wrapper img");
-  //   const listItems = component.querySelectorAll(".award_list_wrapper li");
-
-  //   listItems.forEach((listItem) => {
-  //     listItem.addEventListener("mouseenter", (e) => {
-  //       e.stopPropagation();
-  //       const targetId = e.currentTarget.id;
-  //       images.forEach((image) => {
-  //         if (image.dataset.awardimageid === targetId) {
-  //           image.classList.add("active");
-  //         } else {
-  //           image.classList.remove("active");
-  //         }
-  //       });
-  //     });
-  //   });
-  // });
   awardComponentWrapper.forEach((component) => {
     const images = component.querySelectorAll(".award_img_wrapper img");
     const listItems = component.querySelectorAll(".award_list_wrapper > li"); // Select only direct children
@@ -1482,3 +1465,116 @@ if (newslettersPostElement) {
 }
 
 loadMoreButton?.addEventListener("click", loadMoreHandler);
+
+function initNewsletterPage() {
+  const wordsPerMinute = 200;
+  const wrapper = document.querySelector(".single_post_content_wrapper");
+  const readTimeElement = document.getElementById("read_time_est");
+
+  if (wrapper && readTimeElement) {
+    const wordCount = wrapper.innerText.trim().split(/\s+/).length;
+    readTimeElement.innerText = `${Math.ceil(
+      wordCount / wordsPerMinute
+    )} minute read`;
+  } else {
+    console.warn("Wrapper or read time element not found!");
+  }
+
+  const openDownloadURL = (url, errorMessage) => {
+    if (!url) return console.error(errorMessage);
+    const link = Object.assign(document.createElement("a"), {
+      href: url,
+      target: "_blank",
+    });
+    document.body.appendChild(link).click();
+    document.body.removeChild(link);
+  };
+
+  const toggleDialog = (dialog, button) => {
+    const handleClickOutside = (event) => {
+      if (!dialog.contains(event.target) && !button.contains(event.target)) {
+        dialog.classList.remove("open");
+        button.setAttribute("data-dialog", "close");
+        button.classList.remove("open");
+        document.removeEventListener("click", handleClickOutside);
+      }
+    };
+
+    dialog.classList.toggle("open");
+    if (dialog.classList.contains("open")) {
+      button.setAttribute("data-dialog", "open");
+      button.classList.add("open");
+      document.addEventListener("click", handleClickOutside);
+    } else {
+      button.setAttribute("data-dialog", "close");
+      button.classList.remove("open");
+      document.removeEventListener("click", handleClickOutside);
+    }
+  };
+
+  const openDownloadOptions = document?.getElementById("open_dl_options");
+  const downloadDialog = document?.getElementById("nlDowloadOptions");
+  const downloadPDF = document?.getElementById("dl_pdf");
+  const openWordUrl = document?.getElementById("dl_word");
+  const nlShareButton = document?.getElementById("nl_sharebtn");
+  const shareDialog = document?.getElementById("nlShareOptions");
+
+  openDownloadOptions?.addEventListener("click", () =>
+    toggleDialog(downloadDialog, openDownloadOptions)
+  );
+
+  downloadPDF?.addEventListener("click", () => {
+    openDownloadURL(
+      document.getElementById("pdf_url_hidden_input")?.value,
+      "PDF URL is not available."
+    );
+    downloadDialog.classList.remove("open");
+  });
+
+  openWordUrl?.addEventListener("click", () => {
+    openDownloadURL(
+      document.getElementById("word_url_hidden_input")?.value,
+      "Word URL is not available."
+    );
+    downloadDialog.classList.remove("open");
+  });
+
+  const shareActions = {
+    "Copy link": "copy",
+    "Share on LinkedIn": "https://www.linkedin.com/shareArticle?url=",
+    "Share on X": "https://twitter.com/intent/tweet?url=",
+    "Share on Facebook": "https://www.facebook.com/sharer/sharer.php?u=",
+  };
+
+  const handleShareAction = (action) => {
+    const url = window.location.href;
+    if (action === "copy") {
+      navigator.clipboard.writeText(url).then(() => {
+        const successDiv = Object.assign(document.createElement("div"), {
+          textContent: "URL copied to clipboard!",
+          style:
+            "position: absolute; top: 80%; left: 50%; transform: translate(-50%, -50%); background-color: black; color: white; padding: 10px; border-radius: 5px; z-index: 900;",
+        });
+        document.body.appendChild(successDiv);
+        setTimeout(() => document.body.removeChild(successDiv), 2000);
+      });
+    } else if (action === "mailto") {
+      window.location.href = `mailto:?subject=${encodeURIComponent(
+        "Check out this page"
+      )}&body=${encodeURIComponent(`I found this interesting: ${url}`)}`;
+    } else {
+      window.open(action + encodeURIComponent(url), "_blank");
+    }
+    shareDialog.classList.remove("open");
+  };
+
+  document.querySelectorAll("#nlShareOptions button").forEach((button) => {
+    const action = shareActions[button.textContent.trim()];
+    if (action)
+      button.addEventListener("click", () => handleShareAction(action));
+  });
+
+  nlShareButton?.addEventListener("click", () =>
+    toggleDialog(shareDialog, nlShareButton)
+  );
+}
