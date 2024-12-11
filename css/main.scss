@@ -10635,6 +10635,13 @@ subpage MENU
           font-weight: 400;
           margin-bottom: 1rem;
           text-align: left;
+
+          strong,
+          em {
+            font-weight: 500;
+            font-size: var(--fs-paragrah);
+          }
+
         }
 
         h1,

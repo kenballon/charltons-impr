@@ -9741,6 +9741,13 @@ subpage MENU
   margin-bottom: 1rem;
   text-align: left;
 }
+.newsletter_section_single_post .et_pb_row.row_nl_singlepost_content_wrapper .et_pb_column .single_post_content_wrapper ol li strong,
+.newsletter_section_single_post .et_pb_row.row_nl_singlepost_content_wrapper .et_pb_column .single_post_content_wrapper ol li em,
+.newsletter_section_single_post .et_pb_row.row_nl_singlepost_content_wrapper .et_pb_column .single_post_content_wrapper ul li strong,
+.newsletter_section_single_post .et_pb_row.row_nl_singlepost_content_wrapper .et_pb_column .single_post_content_wrapper ul li em {
+  font-weight: 500;
+  font-size: var(--fs-paragrah);
+}
 .newsletter_section_single_post .et_pb_row.row_nl_singlepost_content_wrapper .et_pb_column .single_post_content_wrapper h1,
 .newsletter_section_single_post .et_pb_row.row_nl_singlepost_content_wrapper .et_pb_column .single_post_content_wrapper h2,
 .newsletter_section_single_post .et_pb_row.row_nl_singlepost_content_wrapper .et_pb_column .single_post_content_wrapper h3,
