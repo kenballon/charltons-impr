@@ -9904,11 +9904,8 @@ subpage MENU
 
 .newsletter_references {
   position: relative;
-  z-index: 50;
-  width: 35%;
-  float: right;
+  margin-top: 2rem;
   padding: 1rem;
-  margin-left: 0.8rem;
   border: 1px dotted var(--chr-text-gray-300);
   border-radius: 8px;
   font-family: var(--ff-primary);
@@ -9925,6 +9922,7 @@ subpage MENU
 .newsletter_references ul,
 .newsletter_references ol {
   padding: 0.3rem !important;
+  margin-left: 1.25rem;
 }
 .newsletter_references ul li,
 .newsletter_references ol li {
@@ -9935,6 +9933,7 @@ subpage MENU
 .newsletter_references ul li > *,
 .newsletter_references ol li > * {
   font-family: inherit !important;
+  color: var(--chr-text-gray-600);
 }
 .newsletter_references p,
 .newsletter_references div {
@@ -9944,53 +9943,6 @@ subpage MENU
 }
 @media (max-width: 992px) {
   .newsletter_references {
-    width: 100%;
-    margin: 0;
-    margin-block: 1.5rem;
-  }
-}
-
-.newsletter_references_blocked {
-  position: relative;
-  margin-top: 2rem;
-  padding: 1rem;
-  border: 1px dotted var(--chr-text-gray-300);
-  border-radius: 8px;
-  font-family: var(--ff-primary);
-}
-.newsletter_references_blocked > * {
-  color: var(--chr-text-gray-600);
-  font-family: var(--ff-primary) !important;
-  font-size: 12px !important;
-}
-.newsletter_references_blocked > * > * {
-  font-family: var(--ff-primary) !important;
-  font-size: 12px !important;
-}
-.newsletter_references_blocked ul,
-.newsletter_references_blocked ol {
-  padding: 0.3rem !important;
-  margin-left: 1.25rem;
-}
-.newsletter_references_blocked ul li,
-.newsletter_references_blocked ol li {
-  margin-bottom: 0.5rem !important;
-  line-height: 150%;
-  font-size: 12px;
-}
-.newsletter_references_blocked ul li > *,
-.newsletter_references_blocked ol li > * {
-  font-family: inherit !important;
-  color: var(--chr-text-gray-600);
-}
-.newsletter_references_blocked p,
-.newsletter_references_blocked div {
-  font-size: inherit;
-  font-family: var(--ff-primary);
-  margin-bottom: 0.5rem;
-}
-@media (max-width: 992px) {
-  .newsletter_references_blocked {
     width: 100%;
     margin: 0;
     margin-block: 1.5rem;

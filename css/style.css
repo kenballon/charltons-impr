@@ -10833,60 +10833,6 @@ subpage MENU
 
 .newsletter_references {
   position: relative;
-  z-index: 50;
-  width: 35%;
-  float: right;
-  padding: 1rem;
-  margin-left: .8rem;
-  border: 1px dotted var(--chr-text-gray-300);
-  border-radius: 8px;
-  font-family: var(--ff-primary);
-
-  >* {
-    color: var(--chr-text-gray-600);
-    font-family: var(--ff-primary) !important;
-    font-size: 12px !important;
-
-    >* {
-      font-family: var(--ff-primary) !important;
-      font-size: 12px !important;
-    }
-  }
-
-
-  ul,
-  ol {
-    padding: .3rem !important;
-
-    li {
-      margin-bottom: .5rem !important;
-      line-height: 150%;
-      font-size: 12px;
-
-      >* {
-        font-family: inherit !important;
-      }
-    }
-  }
-
-  p,
-  div {
-    font-size: inherit;
-    font-family: var(--ff-primary);
-    margin-bottom: .5rem;
-  }
-
-
-
-  @media (max-width:992px) {
-    width: 100%;
-    margin: 0;
-    margin-block: 1.5rem;
-  }
-}
-
-.newsletter_references_blocked {
-  position: relative;
   margin-top: 2rem;
   padding: 1rem;
   border: 1px dotted var(--chr-text-gray-300);
