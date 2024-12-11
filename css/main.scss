@@ -10965,6 +10965,22 @@ subpage MENU
 
       &:hover {
         background-color: var(--chr-text-gray-100);
+
+        button {
+          svg {
+            path {
+              fill: var(--chr-primary-color);
+            }
+          }
+        }
+
+        button#dl_word {
+          svg {
+            path {
+              fill: blue;
+            }
+          }
+        }
       }
 
       button {

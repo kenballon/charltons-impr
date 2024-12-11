@@ -10023,6 +10023,14 @@ subpage MENU
 #nlDowloadOptions ul li:hover {
   background-color: var(--chr-text-gray-100);
 }
+#nlShareOptions ul li:hover button svg path,
+#nlDowloadOptions ul li:hover button svg path {
+  fill: var(--chr-primary-color);
+}
+#nlShareOptions ul li:hover button#dl_word svg path,
+#nlDowloadOptions ul li:hover button#dl_word svg path {
+  fill: blue;
+}
 #nlShareOptions ul li button,
 #nlDowloadOptions ul li button {
   background-color: transparent;
