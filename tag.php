@@ -5,7 +5,7 @@
     <?php if (have_posts()): ?>
     <header class="archive_header_hero">
         <div>
-            <h1 class="archive-title"><?php single_tag_title(); ?></h1>
+            <h1 class="archive-title"><?php single_tag_title(); ?> Archives</h1>
         </div>
     </header>
 
