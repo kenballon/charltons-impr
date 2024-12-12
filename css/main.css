@@ -10227,17 +10227,110 @@ subpage MENU
 /* #endregion KEYFRAMES ANIMATIONS::START  */
 /* ================================================= */
 .main_categ_tag_wrapper {
-  padding-block: 4rem;
+  padding-bottom: 4rem;
 }
-.main_categ_tag_wrapper .categ_tag_list_archived {
+.main_categ_tag_wrapper .archive_header_hero {
+  position: relative;
+  min-height: 300px;
+  background: url("/wp-content/uploads/2024/06/Shenzhen_Bay_Bridge-1920.webp") no-repeat center center;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.main_categ_tag_wrapper .archive_header_hero > div {
+  width: 100%;
   max-width: 1180px;
   margin-inline: auto;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  z-index: 1;
+}
+.main_categ_tag_wrapper .archive_header_hero > div h1,
+.main_categ_tag_wrapper .archive_header_hero > div h2,
+.main_categ_tag_wrapper .archive_header_hero > div h3,
+.main_categ_tag_wrapper .archive_header_hero > div h4 {
+  color: white !important;
+  text-shadow: 4px 5px 6px rgba(35, 0, 0, 0.58);
+  font-size: clamp(1.75rem, 2.237vw + 0.315rem, 3rem);
+}
+@media (max-width: 1170px) {
+  .main_categ_tag_wrapper .archive_header_hero > div {
+    padding-inline: 1.125rem;
+  }
+}
+.main_categ_tag_wrapper .archive_header_hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+@media (max-width: 767px) {
+  .main_categ_tag_wrapper .archive_header_hero {
+    min-height: 150px;
+  }
+}
+.main_categ_tag_wrapper .categ_tag_list_archived {
+  min-height: 50dvh;
+  max-width: 1180px;
+  margin-inline: auto;
+  grid-template-columns: 3fr 1fr;
+  padding-top: 2rem;
+}
+.main_categ_tag_wrapper .categ_tag_list_archived > div .article_archive_post_item {
+  padding-block: 1rem;
+}
+.main_categ_tag_wrapper .categ_tag_list_archived > div .article_archive_post_item:last-child {
+  border-bottom: 2px solid var(--chr-text-gray-800);
+}
+.main_categ_tag_wrapper .categ_tag_list_archived > div .article_archive_post_item:first-child {
+  border-top: 2px solid var(--chr-text-gray-800);
+}
+@media (max-width: 767px) {
+  .main_categ_tag_wrapper .categ_tag_list_archived > div .article_archive_post_item {
+    gap: unset;
+  }
+}
+.main_categ_tag_wrapper .categ_tag_list_archived > div .article_archive_post_item + .article_archive_post_item {
+  border-top: 1px dotted var(--chr-text-gray-300);
 }
 .main_categ_tag_wrapper .categ_tag_list_archived .post-thumbnail img {
-  max-width: 100px;
+  max-width: 50px;
   height: 100%;
   aspect-ratio: 1/1;
   -o-object-fit: cover;
      object-fit: cover;
+}
+@media (max-width: 767px) {
+  .main_categ_tag_wrapper .categ_tag_list_archived .post-thumbnail img {
+    display: none;
+  }
+}
+@media (max-width: 992px) {
+  .main_categ_tag_wrapper .categ_tag_list_archived {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 1170px) {
+  .main_categ_tag_wrapper .categ_tag_list_archived {
+    padding: 1.125rem;
+  }
+}
+.main_categ_tag_wrapper .tag-link,
+.main_categ_tag_wrapper .page-numbers {
+  margin: 4px;
+  border: 1px solid var(--chr-text-gray-100);
+  display: inline-block;
+  padding: 4px 10px;
+  transition: all 0.2s ease-in;
+  font-size: 12px;
+  font-weight: 400;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.main_categ_tag_wrapper .tag-link:hover,
+.main_categ_tag_wrapper .page-numbers:hover {
+  color: white;
+  border: 1px solid var(--chr-primary-color-500);
+  background-color: var(--chr-primary-color-500);
 }/*# sourceMappingURL=main.css.map */

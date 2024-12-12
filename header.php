@@ -327,7 +327,7 @@
                                             <li class="nav_child_list_item pr-4">
                                                 <div class="link_wrapper flex align-items-center space-between">
                                                     <a href="<?= esc_url($child_item['children-item']->url) ?>"
-                                                        class="child_link"
+                                                        class="child_link default_text_link"
                                                         aria-label=" <?= esc_html($child_item['children-item']->title) ?>">
                                                         <?= esc_html($child_item['children-item']->title) ?>
                                                     </a>
@@ -348,7 +348,7 @@
                                             <li class="nav_child_list_item">
                                                 <div class="link_wrapper">
                                                     <a href="<?= esc_url($child_item['children-item']->url) ?>"
-                                                        class="child_link"
+                                                        class="child_link default_text_link"
                                                         aria-label=" <?= esc_html($child_item['children-item']->title) ?>">
                                                         <?= esc_html($child_item['children-item']->title) ?>
                                                     </a>
@@ -365,7 +365,8 @@
                                             <?php foreach ($child_item['grandchildren'] as $grandchild_id => $grandchild_item): ?>
                                             <li class="grandchild_list_item">
                                                 <a href="<?= esc_url($grandchild_item['grandchildren-item']->url) ?>"
-                                                    aria-label="<?= esc_html($grandchild_item['grandchildren-item']->title) ?>">
+                                                    aria-label="<?= esc_html($grandchild_item['grandchildren-item']->title) ?>"
+                                                    class="default_text_link">
                                                     <?= esc_html($grandchild_item['grandchildren-item']->title) ?>
                                                 </a>
                                             </li>
@@ -515,6 +516,7 @@
                     <div class="nav_right_col flex gap-2 ml-auto relative">
                         <!-- .container -->
                         <div class="search-and-social flex align-items-center">
+
                             <div class="social_icon_block_header lg_show">
                                 <a class="social-networks__link d-block" href="https://www.facebook.com/charltons/"
                                     target="_blank" rel="noopener">
@@ -566,6 +568,7 @@
                                 <a href="https://www.charltonslaw.com.cn/" target="_self" rel="noopener"
                                     class="text-white ">中文</a>
                             </div>
+
                             <div class="mobile_btn_nav_reveal text-white  uppercase" id="menuMobileButton" type="button"
                                 role="button" title="mobile menu" data-menu-reveal="no">
                                 <span class="default_mobile_menu flex align-items-center">
