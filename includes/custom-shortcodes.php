@@ -21,7 +21,8 @@ function related_pages_shortcode($atts)
         'search_term' => '',
         'number_of_pages_list' => 4,
         'excerpt_length' => 10,
-        'orderby' => ['date', 'rand']
+        'orderby' => 'date',
+        'category' => ''  // New attribute for category
     ], $atts, 'related_pages');
 
     // Sanitize inputs
@@ -29,7 +30,8 @@ function related_pages_shortcode($atts)
     $number_of_pages_list = absint($atts['number_of_pages_list']);
     $current_post_id = get_the_ID();
     $excerpt_length = absint($atts['excerpt_length']);
-    $orderby = $atts['orderby'];
+    $orderby = sanitize_text_field($atts['orderby']);
+    $category = sanitize_text_field($atts['category']);  // Sanitize category input
 
     // Setup query arguments
     $args = [
@@ -48,6 +50,15 @@ function related_pages_shortcode($atts)
             ]
         ]
     ];
+
+    // Add category filter if provided
+    if (!empty($category)) {
+        if (is_numeric($category)) {
+            $args['cat'] = absint($category);  // Use category ID
+        } else {
+            $args['category_name'] = $category;  // Use category slug
+        }
+    }
 
     // Run the query
     $related_query = new WP_Query($args);
@@ -77,9 +88,9 @@ function related_pages_shortcode($atts)
                 loading="lazy" fetchpriority="high">
         </div>
         <h1 class="related-page-title"><?php the_title(); ?></h1>
-        <!-- <div class="related-page-excerpt">
-            <?php echo get_custom_excerpt(get_the_excerpt(), $excerpt_length); ?>
-        </div> -->
+        <div class="related-page-excerpt">
+            <?php // echo get_custom_excerpt(get_the_excerpt(), $excerpt_length); ?>
+        </div>
     </article>
 </a>
 <?php
