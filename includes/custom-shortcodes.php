@@ -59,11 +59,12 @@ function related_post_sc($atts)
 
     // Add category filter if provided
     if (!empty($category)) {
+        $categories = array_map('trim', explode(',', $category));  // Split and trim categories
         $args['tax_query'] = [
             [
                 'taxonomy' => 'category',
-                'field' => is_numeric($category) ? 'term_id' : 'slug',
-                'terms' => $category,
+                'field' => is_numeric($categories[0]) ? 'term_id' : 'slug',
+                'terms' => $categories,
             ]
         ];
     }
@@ -121,7 +122,7 @@ function related_post_sc($atts)
  * @return string HTML content to display related pages.
  *
  * @example
- * [related_pages_2 category="news" number_of_pages_list="3" orderby="title"]
+ * [related_page_item category="news" number_of_pages_list="3" orderby="title"]
  */
 function related_pages_sc($atts)
 {
@@ -138,10 +139,17 @@ function related_pages_sc($atts)
         return '';
     }
 
+    // Split the category attribute by commas and trim whitespace
+    $categories = array_map('trim', explode(',', $atts['category']));
+
     $args = [
         'post_type' => 'page',
         'tax_query' => [
-            ['taxonomy' => 'category', 'field' => 'slug', 'terms' => $atts['category']]
+            [
+                'taxonomy' => 'category',
+                'field' => is_numeric($categories[0]) ? 'term_id' : 'slug',
+                'terms' => $categories
+            ]
         ],
         'posts_per_page' => $atts['number_of_pages_list'],
         'orderby' => $atts['orderby'],
