@@ -543,6 +543,10 @@
     overflow: hidden;
 }
 
+.overflow-clip {
+    overflow: clip;
+}
+
 /* List */
 .ul {
     list-style-type: none !important;

@@ -6,37 +6,43 @@ function get_custom_excerpt($content, $word_count)
 }
 
 /**
- * Shortcode to display related pages based on a search term.
+ * Shortcode to display related posts.
+ *
+ * Attributes:
+ * - number_of_pages_list (int): Number of related posts to display. Default is 4.
+ * - excerpt_length (int): Length of the excerpt to display. Default is 10.
+ * - orderby (string): Field to order posts by. Default is 'date'.
+ * - category (string|int): Category slug or ID to filter posts by. Default is empty.
+ * - post_type (string): Post type to query. Default is 'post'.
+ *
+ * Example usage:
+ * [related_pages number_of_pages_list="5" excerpt_length="20" orderby="title" category="news" post_type="custom_post"]
  *
  * @param array $atts Shortcode attributes.
- * @return string HTML output of related pages.
- *
- * Sample usage:
- * [related_pages search_term="example" number_of_pages_list="4" excerpt_length="10" orderby="date"]
+ * @return string HTML output of related posts.
  */
-function related_pages_shortcode($atts)
+function related_post_sc($atts)
 {
     // Extract shortcode attributes
     $atts = shortcode_atts([
-        'search_term' => '',
         'number_of_pages_list' => 4,
         'excerpt_length' => 10,
         'orderby' => 'date',
-        'category' => ''  // New attribute for category
-    ], $atts, 'related_pages');
+        'category' => '',  // New attribute for category
+        'post_type' => 'post'  // New attribute for post type with default value 'post'
+    ], $atts, 'related_post_sc');
 
     // Sanitize inputs
-    $search_term = sanitize_text_field($atts['search_term']);
     $number_of_pages_list = absint($atts['number_of_pages_list']);
     $current_post_id = get_the_ID();
     $excerpt_length = absint($atts['excerpt_length']);
     $orderby = sanitize_text_field($atts['orderby']);
     $category = sanitize_text_field($atts['category']);  // Sanitize category input
+    $post_type = sanitize_text_field($atts['post_type']);  // Sanitize post type input
 
     // Setup query arguments
     $args = [
-        's' => $search_term,
-        'post_type' => ['post', 'page'],
+        'post_type' => $post_type,  // Use the post type from the shortcode attribute
         'post_status' => 'publish',
         'posts_per_page' => $number_of_pages_list,
         'orderby' => $orderby,
@@ -53,11 +59,13 @@ function related_pages_shortcode($atts)
 
     // Add category filter if provided
     if (!empty($category)) {
-        if (is_numeric($category)) {
-            $args['cat'] = absint($category);  // Use category ID
-        } else {
-            $args['category_name'] = $category;  // Use category slug
-        }
+        $args['tax_query'] = [
+            [
+                'taxonomy' => 'category',
+                'field' => is_numeric($category) ? 'term_id' : 'slug',
+                'terms' => $category,
+            ]
+        ];
     }
 
     // Run the query
@@ -67,7 +75,7 @@ function related_pages_shortcode($atts)
     ob_start();
 
     if ($related_query->have_posts()) {
-        echo '<aside class="related-pages">';
+        echo '<aside class="related-post">';
         while ($related_query->have_posts()) {
             $related_query->the_post();
 
@@ -81,22 +89,97 @@ function related_pages_shortcode($atts)
             $image_src = wp_get_attachment_image_src($image_id, 'medium_large');
             ?>
 <a href="<?php the_permalink(); ?>" target="_blank" rel="noopener noreferrer">
-    <article class="related-page">
-        <div class="related-page-image">
+    <article class="related-post-item">
+        <div class="related-post-image">
             <img src="<?php echo esc_url($image_src[0]); ?>" alt="<?php echo esc_attr($image_alt); ?>"
                 width="<?php echo esc_attr($image_src[1]); ?>" height="<?php echo esc_attr($image_src[2]); ?>"
                 loading="lazy" fetchpriority="high">
         </div>
         <h1 class="related-page-title"><?php the_title(); ?></h1>
-        <div class="related-page-excerpt">
-            <?php // echo get_custom_excerpt(get_the_excerpt(), $excerpt_length); ?>
-        </div>
     </article>
 </a>
 <?php
         }
         echo '</aside>';
     }
+
+    wp_reset_postdata();
+
+    return ob_get_clean();
+}
+
+/**
+ * Shortcode to display related pages.
+ *
+ * @param array $atts {
+ *     Shortcode attributes.
+ *
+ *     @type string $category            The category to filter pages by. Default 'our-work'.
+ *     @type int    $number_of_pages_list The number of pages to display. Default 5.
+ *     @type string $orderby             The order by which to sort pages. Default 'date'.
+ * }
+ * @return string HTML content to display related pages.
+ *
+ * @example
+ * [related_pages_2 category="news" number_of_pages_list="3" orderby="title"]
+ */
+function related_pages_sc($atts)
+{
+    global $post;
+
+    $atts = shortcode_atts([
+        'category' => 'our-work',
+        'number_of_pages_list' => 5,
+        'orderby' => 'date'
+    ], $atts, 'related_pages_sc');
+
+    // Early exit if no pages are requested
+    if ($atts['number_of_pages_list'] === 0) {
+        return '';
+    }
+
+    $args = [
+        'post_type' => 'page',
+        'tax_query' => [
+            ['taxonomy' => 'category', 'field' => 'slug', 'terms' => $atts['category']]
+        ],
+        'posts_per_page' => $atts['number_of_pages_list'],
+        'orderby' => $atts['orderby'],
+        'post__not_in' => [$post->ID]  // Exclude the current page
+    ];
+
+    $the_query = new WP_Query($args);
+
+    ob_start();
+
+    if ($the_query->have_posts()):
+        echo '<aside class="related_pages flex flex-col gap-2">';
+        while ($the_query->have_posts()):
+            $the_query->the_post();
+            $image_id = get_post_thumbnail_id();
+            $image_alt = get_post_meta($image_id, '_wp_attachment_image_alt', true);
+
+            if (empty($image_alt)) {
+                $image_alt = get_the_title();
+            }
+
+            $image_src = wp_get_attachment_image_src($image_id, 'medium_large');
+?>
+<?php if ($image_src): ?>
+<article class="related_page_item">
+    <a href="<?php the_permalink(); ?>" class="flex flex-col gap-1" aria-label="<?php the_title(); ?>">
+        <div class="rp_img_div_wrapper overflow-clip flex items-center">
+            <img src="<?php echo esc_url($image_src[0]); ?>" alt="<?php echo esc_attr($image_alt); ?>" width="50"
+                height="50" loading="lazy" fetchpriority="high" class="related_page_img">
+        </div>
+        <h1 class="rp_entry_title"><?php the_title(); ?></h1>
+    </a>
+</article>
+<?php endif; ?>
+<?php
+        endwhile;
+        echo '</aside>';
+    endif;
 
     wp_reset_postdata();
 
@@ -1132,7 +1215,8 @@ add_action('wp_ajax_nopriv_get_newsletters_posts', 'get_newsletters_posts');
 // Register custom shortcodes.
 function register_custom_shortcodes()
 {
-    add_shortcode('related_pages', 'related_pages_shortcode');
+    add_shortcode('related_pages', 'related_post_sc');
+    add_shortcode('related_page_item', 'related_pages_sc');
     add_shortcode('get_recent_post_item', 'get_latest_post_details');
     add_shortcode('get_post_url', 'get_post_details_by_url');
     add_shortcode('custom_search_form', 'custom_search_form_shortcode');
