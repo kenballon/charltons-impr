@@ -1628,8 +1628,14 @@ function getPostTitle(category, startYear, endYear) {
     });
 }
 
+function decodeHtmlEntities(text) {
+  const textarea = document.createElement("textarea");
+  textarea.innerHTML = text;
+  return textarea.value;
+}
 function displayTitles(titles) {
-  exportToTxt(titles);
+  const decodedTitles = titles.map(decodeHtmlEntities);
+  exportToTxt(decodedTitles);
 }
 
 function exportToTxt(titles) {
