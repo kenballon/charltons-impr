@@ -1512,17 +1512,16 @@ function initNewsletterPage() {
     }
   };
 
-  const openDownloadOptions = document?.getElementById("open_dl_options");
-  const downloadDialog = document?.getElementById("nlDowloadOptions");
-  const downloadPDF = document?.getElementById("dl_pdf");
-  const openWordUrl = document?.getElementById("dl_word");
-  const nlShareButton = document?.getElementById("nl_sharebtn");
-  const shareDialog = document?.getElementById("nlShareOptions");
+  const openDownloadOptions = document.getElementById("open_dl_options");
+  const downloadDialog = document.getElementById("nlDowloadOptions");
+  const downloadPDF = document.getElementById("dl_pdf");
+  const openWordUrl = document.getElementById("dl_word");
+  const nlShareButton = document.getElementById("nl_sharebtn");
+  const shareDialog = document.getElementById("nlShareOptions");
 
   openDownloadOptions?.addEventListener("click", () =>
     toggleDialog(downloadDialog, openDownloadOptions)
   );
-
   downloadPDF?.addEventListener("click", () => {
     openDownloadURL(
       document.getElementById("pdf_url_hidden_input")?.value,
@@ -1530,7 +1529,6 @@ function initNewsletterPage() {
     );
     downloadDialog.classList.remove("open");
   });
-
   openWordUrl?.addEventListener("click", () => {
     openDownloadURL(
       document.getElementById("word_url_hidden_input")?.value,
@@ -1578,3 +1576,74 @@ function initNewsletterPage() {
     toggleDialog(shareDialog, nlShareButton)
   );
 }
+
+// temporary code, removing after.
+function getPostTitle(category, startYear, endYear) {
+  const dbName = "PostsDatabase";
+  const storeName = "posts";
+
+  if (!window.indexedDB) {
+    console.log("Your browser doesn't support IndexedDB.");
+    return;
+  }
+
+  openIndexedDB(dbName)
+    .then((db) => {
+      const transaction = db.transaction(storeName, "readonly");
+      const store = transaction.objectStore(storeName);
+      const getAllRequest = store.getAll();
+
+      getAllRequest.onsuccess = function () {
+        let posts = getAllRequest.result;
+
+        // console.table(posts);
+        const filteredPosts = posts.filter((post) => {
+          const postYear = new Date(
+            post.post_date.split("-").reverse().join("-")
+          ).getFullYear();
+          const postCategories = sanitizeHTML(post.categories)
+            .toLowerCase()
+            .split(", ");
+          return (
+            postYear >= startYear &&
+            postYear <= endYear &&
+            postCategories.includes(category)
+          );
+        });
+
+        const postTitles = filteredPosts.map((post) => post.title);
+
+        displayTitles(postTitles);
+      };
+
+      getAllRequest.onerror = function () {
+        console.log("Error reading posts from IndexedDB.");
+      };
+    })
+    .catch((error) => {
+      console.log("Error opening IndexedDB:", error);
+    })
+    .finally(() => {
+      console.log("Done");
+    });
+}
+
+function displayTitles(titles) {
+  exportToTxt(titles);
+}
+
+function exportToTxt(titles) {
+  const blob = new Blob([titles.join("\n")], {
+    type: "text/plain;charset=utf-8",
+  });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "post_titles.txt";
+  link.click();
+}
+
+const getPostTitlesButton = document?.getElementById("get_post_titles");
+
+getPostTitlesButton?.addEventListener("click", () =>
+  getPostTitle("hong-kong-law", 2023, 2024)
+);
