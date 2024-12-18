@@ -8949,7 +8949,7 @@ subpage MENU
 }
 
 .related_pages {
-  margin-top: 4rem;
+  /* margin-top: 4rem; */
   max-width: 300px;
 
   .related_page_item {
@@ -8988,6 +8988,12 @@ subpage MENU
         }
       }
 
+    }
+  }
+
+  .related_page_item.square{
+    .rp_img_div_wrapper {
+      aspect-ratio: 1 / 1;
     }
   }
 

@@ -8343,7 +8343,7 @@ subpage MENU
 }
 
 .related_pages {
-  margin-top: 4rem;
+  /* margin-top: 4rem; */
   max-width: 300px;
 }
 .related_pages .related_page_item .rp_img_div_wrapper {
@@ -8372,6 +8372,9 @@ subpage MENU
 }
 .related_pages .related_page_item a:hover .related_page_img {
   transform: scale(1.25);
+}
+.related_pages .related_page_item.square .rp_img_div_wrapper {
+  aspect-ratio: 1/1;
 }
 @media (min-width: 768px) and (max-width: 980px) {
   .related_pages {

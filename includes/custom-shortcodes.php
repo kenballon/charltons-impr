@@ -118,11 +118,14 @@ function related_post_sc($atts)
  *     @type string $category            The category to filter pages by. Default 'our-work'.
  *     @type int    $number_of_pages_list The number of pages to display. Default 5.
  *     @type string $orderby             The order by which to sort pages. Default 'date'.
+ *     @type string $layout_style        The layout style to apply to the articles. Default ''.
+ *     @type string $exclude_children    The child categories to exclude. Default ''.
+ *     @type string $include_children    Whether to include child categories. Default 'false'.
  * }
  * @return string HTML content to display related pages.
  *
  * @example
- * [related_page_item category="news" number_of_pages_list="3" orderby="title"]
+ * [related_page_item category="news" number_of_pages_list="3" orderby="rand" layout_style="square" exclude_children="people-culture" include_children="false"]
  */
 function related_pages_sc($atts)
 {
@@ -131,7 +134,10 @@ function related_pages_sc($atts)
     $atts = shortcode_atts([
         'category' => 'our-work',
         'number_of_pages_list' => 5,
-        'orderby' => 'date'
+        'orderby' => 'date',
+        'layout_style' => '',
+        'exclude_children' => '',  // Add exclude_children attribute
+        'include_children' => 'false'  // Add include_children attribute
     ], $atts, 'related_pages_sc');
 
     // Early exit if no pages are requested
@@ -142,13 +148,46 @@ function related_pages_sc($atts)
     // Split the category attribute by commas and trim whitespace
     $categories = array_map('trim', explode(',', $atts['category']));
 
+    // Get only parent categories
+    $parent_categories = [];
+    foreach ($categories as $category) {
+        $term = get_term_by(is_numeric($category) ? 'id' : 'slug', $category, 'category');
+        if ($term && $term->parent == 0) {
+            $parent_categories[] = $term->term_id;
+        }
+    }
+
+    if (empty($parent_categories)) {
+        return '<p>No related pages found.</p>';
+    }
+
+    // Split the exclude_children attribute by commas and trim whitespace
+    $exclude_children = array_map('trim', explode(',', $atts['exclude_children']));
+
+    // Get term IDs of the child categories to exclude
+    $exclude_term_ids = [];
+    foreach ($exclude_children as $exclude_child) {
+        $term = get_term_by(is_numeric($exclude_child) ? 'id' : 'slug', $exclude_child, 'category');
+        if ($term) {
+            $exclude_term_ids[] = $term->term_id;
+        }
+    }
+
     $args = [
         'post_type' => 'page',
         'tax_query' => [
+            'relation' => 'AND',
             [
                 'taxonomy' => 'category',
-                'field' => is_numeric($categories[0]) ? 'term_id' : 'slug',
-                'terms' => $categories
+                'field' => 'term_id',
+                'terms' => $parent_categories,
+                'include_children' => filter_var($atts['include_children'], FILTER_VALIDATE_BOOLEAN),  // Dynamic include_children
+            ],
+            [
+                'taxonomy' => 'category',
+                'field' => 'term_id',
+                'terms' => $exclude_term_ids,
+                'operator' => 'NOT IN',  // Exclude specified child categories
             ]
         ],
         'posts_per_page' => $atts['number_of_pages_list'],
@@ -174,7 +213,7 @@ function related_pages_sc($atts)
             $image_src = wp_get_attachment_image_src($image_id, 'medium_large');
 ?>
 <?php if ($image_src): ?>
-<article class="related_page_item">
+<article class="related_page_item <?php echo esc_attr($atts['layout_style']); ?>">
     <a href="<?php the_permalink(); ?>" class="flex flex-col gap-1" aria-label="<?php the_title(); ?>">
         <div class="rp_img_div_wrapper overflow-clip flex items-center">
             <img src="<?php echo esc_url($image_src[0]); ?>" alt="<?php echo esc_attr($image_alt); ?>" width="50"
@@ -271,7 +310,8 @@ function get_latest_post_details($atts)
             }
 
             $output .= '<div class="post-excerpt text-white mb-3">' . $post_excerpt . '</div>';
-            $output .= '<div class="cta_wrapper"><a href="' . esc_url($post_url) . '" class="cta_btn_link white-cta" aria-label="Read full article on ' . esc_attr($post_title) . '">Read More ›</a></div>';
+            $output .= '<div class="cta_wrapper"><a href="' . esc_url($post_url) . '" class="cta_btn_link white-cta"
+            aria-label="Read full article on ' . esc_attr($post_title) . '">Read More ›</a></div>';
             $output .= '</div>';
         }
 
@@ -340,12 +380,14 @@ function get_post_details_by_url($atts)
         $thumbnail_id = get_post_thumbnail_id($post_id);
         $thumbnail_src = wp_get_attachment_image_src($thumbnail_id, 'full');
         if ($thumbnail_src) {
-            $post_thumbnail = '<img src="' . esc_url($thumbnail_src[0]) . '" alt="' . esc_attr($post_title) . '" loading="lazy" decoding="async">';
+            $post_thumbnail = '<img src="' . esc_url($thumbnail_src[0]) . '" alt="' . esc_attr($post_title) . '" loading="lazy"
+    decoding="async">';
         }
     }
 
     // Create the output for the post
-    $output .= '<a href="' . esc_url($post_url) . '" target="_blank" class="post_wrapper relative" data-url="' . esc_url($post_url) . '">';
+    $output .= '<a href="' . esc_url($post_url) . '" target="_blank" class="post_wrapper relative"
+    data-url="' . esc_url($post_url) . '">';
     // Output the thumbnail if included
     if ($include_thumbnail && $post_thumbnail) {
         $output .= '<div class="post-thumbnail">' . $post_thumbnail . '</div>';
