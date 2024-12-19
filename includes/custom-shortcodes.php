@@ -212,17 +212,19 @@ function related_pages_sc($atts)
 
             $image_src = wp_get_attachment_image_src($image_id, 'medium_large');
 ?>
-<?php if ($image_src): ?>
+
 <article class="related_page_item <?php echo esc_attr($atts['layout_style']); ?>">
     <a href="<?php the_permalink(); ?>" class="flex flex-col gap-1" aria-label="<?php the_title(); ?>">
+        <?php if ($image_src): ?>
         <div class="rp_img_div_wrapper overflow-clip flex items-center">
             <img src="<?php echo esc_url($image_src[0]); ?>" alt="<?php echo esc_attr($image_alt); ?>" width="50"
                 height="50" loading="lazy" fetchpriority="high" class="related_page_img">
         </div>
+        <?php endif; ?>
         <h1 class="rp_entry_title"><?php the_title(); ?></h1>
     </a>
 </article>
-<?php endif; ?>
+
 <?php
         endwhile;
         echo '</aside>';
