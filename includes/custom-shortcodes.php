@@ -125,7 +125,9 @@ function related_post_sc($atts)
  * @return string HTML content to display related pages.
  *
  * @example
- * [related_page_item category="news" number_of_pages_list="3" orderby="rand" layout_style="square" exclude_children="people-culture" include_children="false"]
+ * [related_page_item category="the-firm" number_of_pages_list="3" orderby="rand" layout_style="square" exclude_children="people-culture" include_children="false"]
+ * @example
+ * [related_page_item category="industries" number_of_pages_list="3" orderby="rand" include_children="true"]
  */
 function related_pages_sc($atts)
 {
@@ -148,16 +150,16 @@ function related_pages_sc($atts)
     // Split the category attribute by commas and trim whitespace
     $categories = array_map('trim', explode(',', $atts['category']));
 
-    // Get only parent categories
-    $parent_categories = [];
+    // Get term IDs of the specified categories
+    $category_term_ids = [];
     foreach ($categories as $category) {
         $term = get_term_by(is_numeric($category) ? 'id' : 'slug', $category, 'category');
-        if ($term && $term->parent == 0) {
-            $parent_categories[] = $term->term_id;
+        if ($term) {
+            $category_term_ids[] = $term->term_id;
         }
     }
 
-    if (empty($parent_categories)) {
+    if (empty($category_term_ids)) {
         return '<p>No related pages found.</p>';
     }
 
@@ -180,7 +182,7 @@ function related_pages_sc($atts)
             [
                 'taxonomy' => 'category',
                 'field' => 'term_id',
-                'terms' => $parent_categories,
+                'terms' => $category_term_ids,
                 'include_children' => filter_var($atts['include_children'], FILTER_VALIDATE_BOOLEAN),  // Dynamic include_children
             ],
             [
