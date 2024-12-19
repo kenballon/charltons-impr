@@ -8857,7 +8857,7 @@ subpage MENU
       overflow: clip;
 
       img {
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 16 / 9;
         transition: all 0.1s cubic-bezier(0.455, 0.03, 0.515, 0.955);
         object-fit: cover;
       }
