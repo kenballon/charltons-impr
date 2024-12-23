@@ -807,7 +807,7 @@ let currentPage = 1;
 const SELECTORS = {
   allNewsPosts: "#all_news_posts",
   cardsPosts: ".news_article_wrapper",
-  paginationWrapper: ".news_pagination_btns_wrapper",
+  paginationWrapper: "#news_pagination_btns_wrapper",
   prevBtn: "#prev_post_btn",
   nextBtn: "#next_post_btn",
   firstBtn: "#first_post_btn",
@@ -816,6 +816,7 @@ const SELECTORS = {
   newsHiddenInput: ".newsevents_hidden_input",
   CategPPWFilterButtons: ".ppw_category_filter",
   TagsPPWFilterButtons: ".ppw_tag_btn_filter",
+  paginationDots: "#ne_pagination_dots",
 };
 
 FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
@@ -928,32 +929,39 @@ function generatePaginationButtons(totalPages) {
 }
 
 function updateNavigationButtons(totalPages) {
-  const prevButton = document.querySelector(SELECTORS.prevBtn);
-  const firstButton = document.querySelector(SELECTORS.firstBtn);
-  const nextButton = document.querySelector(SELECTORS.nextBtn);
-  const lastButton = document.querySelector(SELECTORS.lastBtn);
+  const buttons = {
+    prev: document.querySelector(SELECTORS.prevBtn),
+    first: document.querySelector(SELECTORS.firstBtn),
+    next: document.querySelector(SELECTORS.nextBtn),
+    last: document.querySelector(SELECTORS.lastBtn),
+    dots: document.querySelector(SELECTORS.paginationDots),
+  };
+
+  const toggleClass = (element, className, condition) => {
+    element.classList.toggle(className, !condition);
+  };
 
   // Show the "Previous" and "First" buttons if the current page is not the first page
-  if (currentPage > 1) {
-    if (
-      prevButton.classList.contains("d-none") &&
-      firstButton.classList.contains("d-none")
-    ) {
-      prevButton.classList.remove("d-none");
-      firstButton.classList.remove("d-none");
-    }
-  } else {
-    prevButton.classList.add("d-none");
-    firstButton.classList.add("d-none");
+  toggleClass(buttons.prev, "d-none", currentPage > 1);
+  toggleClass(buttons.first, "d-none", currentPage >= 6);
+
+  if (currentPage >= 6) {
+    buttons.first.textContent = "1";
   }
 
   // Show the "Next" and "Last" buttons if the current page is not the last page
-  if (currentPage < totalPages) {
-    nextButton.classList.remove("d-none");
-    lastButton.classList.remove("d-none");
+  toggleClass(buttons.next, "d-none", currentPage < totalPages);
+  toggleClass(buttons.last, "d-none", currentPage < totalPages);
+
+  if (totalPages > 5) {
+    buttons.last.textContent = totalPages;
+    buttons.dots.classList.remove("d-none");
   } else {
-    nextButton.classList.add("d-none");
-    lastButton.classList.add("d-none");
+    buttons.dots.classList.add("d-none");
+  }
+
+  if (currentPage >= totalPages) {
+    buttons.dots.classList.add("d-none");
   }
 }
 

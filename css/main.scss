@@ -9680,10 +9680,21 @@ subpage MENU
 
   .pagination_container {
     padding-block: 2rem;
+    gap: .5rem;
+
+    .news_previous_wrapper_div {
+      gap: 0.5rem;
+    }
 
     .news_pagination_btns_wrapper {
       display: flex;
       gap: 0.5rem;
+    }
+
+    .news_next_wrapper_div {
+      gap: 0.5rem;
+
+      .ne_pagination_dots {}
     }
 
     button {
