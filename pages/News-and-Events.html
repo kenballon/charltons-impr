@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="all_newsevents_container">
+        <div class="btn_tag_filter_wrapper flex gap-1"><button id="all" class="news_btn_tag_filter"
+                type="button">All</button>
+            <button id="webinars" class="news_btn_tag_filter" type="button">Webinars</button>
+            <button id="events" class="news_btn_tag_filter" type="button">Events</button>
+            <button id="news" class="news_btn_tag_filter" type="button">News</button>
+            <button id="awards" class="news_btn_tag_filter" type="button">Awards</button>
+            <button id="youtube" class="news_btn_tag_filter" type="button">Youtube</button>
+        </div>
+        <div id="all_news_posts" class="news_posts_container grid gap-2">
+            <!-- loop all posts with a certain category: shortcode loop -->
+            [content_posts category="news" dateFormat="d M Y"]
+        </div>
+        <div class="pagination_container flex justify-center">
+            <div class="news_previous_wrapper_div flex">
+                <button id="prev_post_btn" class="prev d-none" type="button">Previous</button>
+                <button id="first_post_btn" class="first d-none" type="button">First</button>
+            </div>
+            <div id="news_pagination_btns_wrapper" class="news_pagination_btns_wrapper"></div>
+            <div class="news_next_wrapper_div flex">
+                <div id="ne_pagination_dots" class="ne_pagination_dots d-none">...</div>
+                <button id="last_post_btn" class="last" type="button">Last</button>
+                <button id="next_post_btn" class="next" type="button">Next</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
