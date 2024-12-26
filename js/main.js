@@ -833,16 +833,6 @@ function showNewsEvents(filterID = null) {
       newsPostContainer.querySelectorAll(SELECTORS.cardsPosts)
     );
 
-    /**
-     * Iterates over each news post and applies a filter based on a given filter ID.
-     * Each post has a hidden input field containing comma-separated tags.
-     * If a filter ID is provided, the function checks if the filter ID matches any of the tags.
-     * If a match is found, the post is made visible; otherwise, it is hidden.
-     * If no filter ID is provided, all posts are made visible.
-     *
-     * @param {Array} newsPosts - An array of DOM elements representing news posts.
-     * @param {string} filterID - The ID to filter the posts by. If null or undefined, all posts are made visible.
-     */
     newsPosts.forEach((post) => {
       const newsHiddenInput = post.querySelector(".newsevents_hidden_input");
 
@@ -958,6 +948,7 @@ function updateNavigationButtons(totalPages) {
     buttons.dots.classList.remove("d-none");
   } else {
     buttons.dots.classList.add("d-none");
+    buttons.last.classList.add("d-none");
   }
 
   if (currentPage >= totalPages) {
