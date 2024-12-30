@@ -816,7 +816,8 @@ const SELECTORS = {
   newsHiddenInput: ".newsevents_hidden_input",
   CategPPWFilterButtons: ".ppw_category_filter",
   TagsPPWFilterButtons: ".ppw_tag_btn_filter",
-  paginationDots: "#ne_pagination_dots",
+  paginationdots_first: "#ne_pagination_dots_first",
+  paginationdots_last: "#ne_pagination_dots",
 };
 
 FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
@@ -924,7 +925,8 @@ function updateNavigationButtons(totalPages) {
     first: document.querySelector(SELECTORS.firstBtn),
     next: document.querySelector(SELECTORS.nextBtn),
     last: document.querySelector(SELECTORS.lastBtn),
-    dots: document.querySelector(SELECTORS.paginationDots),
+    dots_first: document.querySelector(SELECTORS.paginationdots_first),
+    dots_last: document.querySelector(SELECTORS.paginationdots_last),
   };
 
   const toggleClass = (element, className, condition) => {
@@ -937,6 +939,10 @@ function updateNavigationButtons(totalPages) {
 
   if (currentPage >= 6) {
     buttons.first.textContent = "1";
+    buttons.dots_first.classList.remove("d-none");
+  } else if (currentPage < 6) {
+    buttons.dots_first.classList.add("d-none");
+    buttons.first.classList.add("d-none");
   }
 
   // Show the "Next" and "Last" buttons if the current page is not the last page
@@ -945,14 +951,14 @@ function updateNavigationButtons(totalPages) {
 
   if (totalPages > 5) {
     buttons.last.textContent = totalPages;
-    buttons.dots.classList.remove("d-none");
+    buttons.dots_last.classList.remove("d-none");
   } else {
-    buttons.dots.classList.add("d-none");
+    buttons.dots_last.classList.add("d-none");
     buttons.last.classList.add("d-none");
   }
 
   if (currentPage >= totalPages) {
-    buttons.dots.classList.add("d-none");
+    buttons.dots_last.classList.add("d-none");
   }
 }
 
