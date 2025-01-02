@@ -856,8 +856,14 @@ function get_newsletters_posts_sc($atts)
     $data = cache_all_posts($atts);
     $html_output = '';
     $counter = 0;
+    $show_time = isset($atts['show_time']) && $atts['show_time'] === 'false' ? 'd-none' : '';
+    $offset = isset($atts['offset']) ? intval($atts['offset']) : 0;
 
-    foreach ($data as $post) {
+    foreach ($data as $index => $post) {
+        if ($index < $offset) {
+            continue;
+        }
+
         $post_date_original = esc_html($post['post_date']);
         $post_date = DateTime::createFromFormat('d-m-Y', $post['post_date'])->format('d M Y');
         $post_url = esc_url($post['url']);
@@ -870,10 +876,10 @@ function get_newsletters_posts_sc($atts)
 
         $html_output .= <<<HTML
             <article class="newsletter_post_item flex-col {$class}" data-nl_date="{$post_date_original}" data-category="{$category}">
-                <a href="{$post_url}" tabindex="0">
+                <a href="{$post_url}" tabindex="0" target="_blank" rel="noopener noreferrer" aria-label="Read more about {$post_title}">
                     <div class="post-thumbnail">
                         <img src="{$image_src}" alt="{$image_alt}" width="286" height="286">
-                        <time class="post-date" datetime="{$post_date}">{$post_date}</time>
+                        <time class="post-date {$show_time}" datetime="{$post_date}">{$post_date}</time>
                         <h2 class="post-title" title="{$post_title}">{$post_title}</h2>
                         <div class="post-excerpt">{$post_excerpt}</div>
                     </div>
