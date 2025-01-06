@@ -10755,7 +10755,6 @@ subpage MENU
           color: var(--chr-text-gray-700);
           line-height: 170%;
           position: relative;
-          text-align: left;
         }
 
         @supports (initial-letter: 2) {
@@ -10790,7 +10789,7 @@ subpage MENU
         }
 
         strong {
-          font-size: clamp(1rem, 0.447vw + 0.713rem, 1.25rem);
+          font-size: var(--fs-paragrah);
         }
 
         ol,
