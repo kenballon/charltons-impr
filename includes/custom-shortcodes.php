@@ -778,6 +778,87 @@ function insights_presentations_sc($atts)
     return $output;
 }
 
+function homepage_recent_webinar_sc($atts)
+{
+    // Extract the attributes and set default value for 'tag'
+    $atts = shortcode_atts(
+        [
+            'offset' => 0,
+            'post_count' => 10,
+            'category' => '',
+            'tags' => '',
+            'layout' => 'list',
+        ],
+        $atts,
+        'recent_webinars'
+    );
+
+    // Define the query arguments
+    $query_args = array(
+        'post_type' => 'project',
+        'posts_per_page' => $atts['post_count'],
+        'post_status' => 'publish',
+        'has_password' => false,
+        'offset' => $atts['offset'],
+    );
+
+    // Add tax_query for category filter if provided
+    if (!empty($atts['category'])) {
+        $query_args['tax_query'][] = [
+            'taxonomy' => 'project_category',
+            'field' => 'slug',
+            'terms' => explode(',', $atts['category']),
+        ];
+    }
+
+    // Add tax_query for tags filter if provided
+    if (!empty($atts['tags'])) {
+        $query_args['tax_query'][] = [
+            'taxonomy' => 'post_tag',
+            'field' => 'slug',
+            'terms' => explode(',', $atts['tags']),
+        ];
+    }
+
+    // Execute the query
+    $query = new WP_Query($query_args);
+
+    // Start output buffering
+    ob_start();
+
+    // Check if there are any posts to display
+    if ($query->have_posts()) {
+        // Display the posts based on the layout
+        if ($atts['layout'] === 'list') {
+            echo '<ul class="pub-list">';
+            while ($query->have_posts()) {
+                $query->the_post();
+                echo '<li class="pub-list__pub"><a href="' . get_permalink() . '" aria-label="' . esc_attr(get_the_title()) . '" target="_blank">' . esc_html(get_the_title()) . '</a></li>';
+            }
+            echo '</ul>';
+        } elseif ($atts['layout'] === 'article') {
+            echo '<div class="article">';
+            while ($query->have_posts()) {
+                $query->the_post();
+                echo '<article>';
+                echo '<h2><a href="' . get_permalink() . '" aria-label="' . esc_attr(get_the_title()) . '" target="_blank">' . esc_html(get_the_title()) . '</a></h2>';
+                echo '<p>' . esc_html(get_the_excerpt()) . '</p>';
+                echo '<a href="' . get_permalink() . '" aria-label="Read more about ' . esc_attr(get_the_title()) . '" target="_blank" class="read-more cta_btn_link white-cta">Read more</a>';
+                echo '</article>';
+            }
+            echo '</div>';
+        }
+    } else {
+        echo 'No projects found.';
+    }
+
+    // Reset post data
+    wp_reset_postdata();
+
+    // Return the buffered content
+    return ob_get_clean();
+}
+
 function cache_all_posts($atts = [], $cache_duration = 30 * MINUTE_IN_SECONDS)
 {
     // Extract shortcode attributes with default values
@@ -1288,4 +1369,5 @@ function register_custom_shortcodes()
     add_shortcode('newsletters_posts', 'get_newsletters_posts_sc');
     add_shortcode('getNewsletterPostTitle', 'getNewsletterPostTitle');
     add_shortcode('newsletter_scf_custom_fields', 'newsletter_scf_custom_fields');
+    add_shortcode('recent_webinars', 'homepage_recent_webinar_sc');
 }
