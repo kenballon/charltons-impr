@@ -800,6 +800,7 @@ function homepage_recent_webinar_sc($atts)
         'post_status' => 'publish',
         'has_password' => false,
         'offset' => $atts['offset'],
+        'post__not_in' => array(get_the_ID()),  // Exclude the current post
     );
 
     // Add tax_query for category filter if provided
@@ -847,6 +848,18 @@ function homepage_recent_webinar_sc($atts)
                 echo '</article>';
             }
             echo '</div>';
+        } elseif ($atts['layout'] === 'featured') {
+            while ($query->have_posts()) {
+                $query->the_post();
+                echo '<article class="ppw_related_page_item">';
+                echo '<a href="' . get_permalink() . '" class="flex flex-col gap-1" aria-label="' . esc_attr(get_the_title()) . '">';
+                // echo '<div class="rp_img_div_wrapper overflow-clip flex items-center">';
+                // echo get_the_post_thumbnail(get_the_ID(), 'thumbnail', ['class' => 'related_page_img', 'loading' => 'lazy', 'fetchpriority' => 'high']);
+                // echo '</div>';
+                echo '<h1 class="ppw_entry_title">' . esc_html(get_the_title()) . '</h1>';
+                echo '</a>';
+                echo '</article>';
+            }
         }
     } else {
         echo 'No projects found.';
@@ -1057,7 +1070,7 @@ function getNewsletterPostTitle($atts)
         array(
             'category' => 'hong-kong-law',  // Default category
         ),
-        $atts
+        $atts, 'getNewsletterPostTitle'
     );
 
     // Sanitize the category
@@ -1188,6 +1201,7 @@ function getNewsletterPostTitle($atts)
                     Share
                 </div>
             </button>
+
             <div id="nlShareOptions" aria-hidden="true">
                 <ul>
                     <li>
@@ -1344,6 +1358,116 @@ function newsletter_scf_custom_fields($atts)
     }
 }
 
+function share_download_sc($atts)
+{
+    $atts = shortcode_atts(
+        array(
+            'id' => get_the_ID(),  // Default to the current post ID
+        ),
+        $atts, 'share_download'
+    );
+
+    // Get the post ID
+    $post_id = intval($atts['id']);
+
+    // Check if the post type is 'project'
+    if (get_post_type($post_id) !== 'project') {
+        return 'This shortcode only works for Project posts.';
+    }
+
+    if ($post_id) {
+        // Get the ACF field value
+        $slide_url = esc_url(get_field('slide_url', $post_id));
+
+        // Start output buffering
+        ob_start();
+?>
+<div class="share_download_div_wrapper flex gap-1 relative">
+    <div class="share-wrapper relative flex items-center">
+        <button type="button" class="print_btn flex items-center" id="nl_sharebtn" data-dialog="close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path fill-rule="evenodd"
+                    d="M15.218 4.931a.4.4 0 0 1-.118.132l.012.006a.45.45 0 0 1-.292.074.5.5 0 0 1-.3-.13l-2.02-2.02v7.07c0 .28-.23.5-.5.5s-.5-.22-.5-.5v-7.04l-2 2a.45.45 0 0 1-.57.04h-.02a.4.4 0 0 1-.16-.3.4.4 0 0 1 .1-.32l2.8-2.8a.5.5 0 0 1 .7 0l2.8 2.79a.42.42 0 0 1 .068.498m-.106.138.008.004v-.01zM16 7.063h1.5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-11c-1.1 0-2-.9-2-2v-10a2 2 0 0 1 2-2H8a.5.5 0 0 1 .35.15.5.5 0 0 1 .15.35.5.5 0 0 1-.15.35.5.5 0 0 1-.35.15H6.4c-.5 0-.9.4-.9.9v10.2a.9.9 0 0 0 .9.9h11.2c.5 0 .9-.4.9-.9v-10.2c0-.5-.4-.9-.9-.9H16a.5.5 0 0 1 0-1"
+                    clip-rule="evenodd"></path>
+            </svg>
+            <div class="share-this">
+                Share
+            </div>
+        </button>
+
+        <div id="nlShareOptions" aria-hidden="true">
+            <ul>
+                <li>
+                    <button>
+                        <div class="flex gap-1 items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                viewBox="0 0 24 24">
+                                <path fill="#5f6368" fill-rule="evenodd"
+                                    d="m12.505 9.678.59-.59a5 5 0 0 1 1.027 7.862l-2.829 2.83a5 5 0 0 1-7.07-7.072l2.382-2.383q.002.646.117 1.298l-1.793 1.792a4 4 0 0 0 5.657 5.657l2.828-2.828a4 4 0 0 0-1.046-6.411q.063-.081.137-.155m-1.01 4.646-.589.59a5 5 0 0 1-1.027-7.862l2.828-2.83a5 5 0 0 1 7.071 7.072l-2.382 2.383a7.7 7.7 0 0 0-.117-1.297l1.792-1.793a4 4 0 1 0-5.657-5.657l-2.828 2.828a4 4 0 0 0 1.047 6.411 2 2 0 0 1-.138.155"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <div>Copy link</div>
+                        </div>
+                    </button>
+                </li>
+                <li>
+                    <button aria-label="Share on linkedin" class="flex gap-1 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
+                            class="cg aoi">
+                            <path fill="#5f6368"
+                                d="M21 4.324v15.352A1.324 1.324 0 0 1 19.676 21H4.324A1.324 1.324 0 0 1 3 19.676V4.324A1.324 1.324 0 0 1 4.324 3h15.352A1.324 1.324 0 0 1 21 4.324M8.295 9.886H5.648v8.478h2.636V9.886zm.221-2.914a1.52 1.52 0 0 0-1.51-1.533H6.96a1.533 1.533 0 0 0 0 3.066 1.52 1.52 0 0 0 1.556-1.487zm9.825 6.236c0-2.555-1.626-3.542-3.229-3.542a3.02 3.02 0 0 0-2.67 1.37h-.082V9.875H9.875v8.477h2.648v-4.494a1.754 1.754 0 0 1 1.579-1.893h.104c.837 0 1.464.523 1.464 1.858v4.54h2.647l.024-5.144z">
+                            </path>
+                        </svg>
+                        <div class="ca hq">Share on LinkedIn</div>
+                    </button>
+                </li>
+                <li>
+                    <button aria-label="Share on twitter" class="flex gap-1 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
+                            class="cg aoi">
+                            <path fill="#5f6368"
+                                d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z">
+                            </path>
+                        </svg>
+                        <div>Share on X</div>
+                    </button>
+                </li>
+                <li>
+                    <button aria-label="Share on facebook" class="flex gap-1 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
+                            class="cg aoi">
+                            <path fill="#5f6368"
+                                d="M22 12.061C22 6.505 17.523 2 12 2S2 6.505 2 12.061c0 5.022 3.657 9.184 8.438 9.939v-7.03h-2.54V12.06h2.54V9.845c0-2.522 1.492-3.915 3.777-3.915 1.094 0 2.238.197 2.238.197v2.476h-1.26c-1.243 0-1.63.775-1.63 1.57v1.888h2.773l-.443 2.908h-2.33V22c4.78-.755 8.437-4.917 8.437-9.939">
+                            </path>
+                        </svg>
+                        <div>Share on Facebook</div>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div>
+        <a href="<?= $slide_url ?>" class="view_slides flex items-center" target="_blank" title="Download Slides">
+            <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                    fill="#5f6368">
+                    <path
+                        d="M395.38-336.92 618.46-480 395.38-623.08v286.16ZM224.62-160q-27.62 0-46.12-18.5Q160-197 160-224.62v-510.76q0-27.62 18.5-46.12Q197-800 224.62-800h510.76q27.62 0 46.12 18.5Q800-763 800-735.38v510.76q0 27.62-18.5 46.12Q763-160 735.38-160H224.62Zm0-40h510.76q9.24 0 16.93-7.69 7.69-7.69 7.69-16.93v-510.76q0-9.24-7.69-16.93-7.69-7.69-16.93-7.69H224.62q-9.24 0-16.93 7.69-7.69 7.69-7.69 16.93v510.76q0 9.24 7.69 16.93 7.69 7.69 16.93 7.69ZM200-760v560-560Z" />
+                </svg>
+            </div>
+            <div>Download Slides</div>
+        </a>
+    </div>
+</div>
+
+<?php
+        // Get the buffered content
+        $output = ob_get_clean();
+        return $output;
+    }
+    return '';
+}
+
 add_action('init', 'register_custom_shortcodes');
 add_action('wp_ajax_ajax_search', 'ajax_search');
 add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
@@ -1370,4 +1494,5 @@ function register_custom_shortcodes()
     add_shortcode('getNewsletterPostTitle', 'getNewsletterPostTitle');
     add_shortcode('newsletter_scf_custom_fields', 'newsletter_scf_custom_fields');
     add_shortcode('recent_webinars', 'homepage_recent_webinar_sc');
+    add_shortcode('share_download', 'share_download_sc');
 }

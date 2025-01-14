@@ -14,16 +14,16 @@ in our server */
     BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
     "Helvetica Neue", sans-serif;
   --chr-primary-color: #e71d24;
-  --chr-primary-color-900: #6F0C0F;
+  --chr-primary-color-900: #6f0c0f;
   --chr-primary-color-800: #931015;
-  --chr-primary-color-700: #B8141A;
+  --chr-primary-color-700: #b8141a;
   --chr-primary-color-600: #b4171c;
-  --chr-primary-color-500: #DC181F;
-  --chr-primary-color-400: #E9353B;
-  --chr-primary-color-300: #ED5A5F;
-  --chr-primary-color-200: #F17E82;
-  --chr-primary-color-100: #F5A3A6;
-  --chr-primary-color-50: #FBDADB;
+  --chr-primary-color-500: #dc181f;
+  --chr-primary-color-400: #e9353b;
+  --chr-primary-color-300: #ed5a5f;
+  --chr-primary-color-200: #f17e82;
+  --chr-primary-color-100: #f5a3a6;
+  --chr-primary-color-50: #fbdadb;
   --chr-text-gray-900: #202020;
   --chr-text-gray-800: #3d3d3d;
   --chr-text-gray-700: #525252;
@@ -10215,6 +10215,29 @@ subpage MENU
   display: block;
 }
 
+.share_download_div_wrapper {
+  padding-block: 1rem;
+  border-block: 1px solid var(--chr-text-gray-500);
+}
+.share_download_div_wrapper .print_btn {
+  gap: 0.5rem;
+}
+.share_download_div_wrapper .print_btn:hover .share-this {
+  color: var(--chr-primary-color-500);
+}
+.share_download_div_wrapper .view_slides {
+  font-size: 10px;
+  color: var(--chr-text-gray-900);
+  font-weight: 400;
+  gap: 0.5rem;
+}
+.share_download_div_wrapper .view_slides:hover {
+  color: var(--chr-primary-color-500);
+}
+.share_download_div_wrapper .view_slides:hover svg {
+  fill: var(--chr-primary-color-500);
+}
+
 .purposes_wrapper > div > div,
 .nl_sp_footer.telephone_row,
 .et_pb_row.nl_sp_footer_issue_number,
@@ -10361,7 +10384,7 @@ subpage MENU
   }
 }
 /* ================================================= */
-/* #endregion KEYFRAMES ANIMATIONS::START  */
+/* #endregion KEYFRAMES ANIMATIONS::END  */
 /* ================================================= */
 .main_categ_tag_wrapper {
   padding-bottom: 4rem;
@@ -10470,4 +10493,33 @@ subpage MENU
   color: white;
   border: 1px solid var(--chr-primary-color-500);
   background-color: var(--chr-primary-color-500);
-}/*# sourceMappingURL=main.css.map */
+}
+
+/* ================================================= */
+/* #region PPW SINGLE 2025 STYLING::START  */
+/* ================================================= */
+.ppw_related_page_item {
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--chr-text-gray-300);
+}
+.ppw_related_page_item:first-child {
+  border-top: 1px solid var(--chr-text-gray-300);
+}
+.ppw_related_page_item a > * {
+  font-size: 1rem;
+}
+.ppw_related_page_item a:hover {
+  text-decoration: underline;
+  color: var(--chr-primary-color) !important;
+}
+.ppw_related_page_item a:hover > * {
+  color: var(--chr-primary-color) !important;
+}
+
+.ppw_headline_wrapper h1 {
+  font-size: clamp(1.5rem, 1.79vw + 0.352rem, 2.5rem);
+}
+
+/* ================================================= */
+/* #endregion PPW SINGLE 2025 STYLING::START  */
+/* ================================================= *//*# sourceMappingURL=main.css.map */
