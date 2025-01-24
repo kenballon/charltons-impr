@@ -11,7 +11,7 @@ function enqueue_load_fa()
 
 function chr_theme_enqueue_styles()
 {
-	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.12', 'all');
+	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.11', 'all');
 	wp_enqueue_style('custom-style');
 }
 
@@ -119,7 +119,6 @@ function get_recent_news_homepage_shortcode()
 	);
 
 	$query = new WP_Query($query_args);
-	// $output = '';
 
 	while ($query->have_posts()):
 		$query->the_post();
@@ -966,7 +965,7 @@ function project_register_post_type()
 			'taxonomies' => ['post_tag'],
 		]
 	);
-}
+}  // end example_register_post_type
 
 add_action('init', 'project_register_post_type');
 

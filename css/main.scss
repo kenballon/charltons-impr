@@ -211,6 +211,86 @@ ul {
   }
 }
 
+/* Temporary Hero CSS */
+.et_pb_section.temp_hero_reg_digest_section {
+  padding: 60px !important;
+
+  .temp_hero_reg_digest_row {
+    max-width: 100%;
+
+    >div {
+      padding: 0 !important;
+
+      .temp_hero_reg_digest_custom_code {
+        .nl_hero_temp_2024 {
+          max-width: 100%;
+
+          @media (min-width: 992px) {
+            max-width: 50%;
+          }
+        }
+      }
+    }
+
+  }
+
+  @media (max-width: 767px) {
+    padding: 24px !important;
+  }
+}
+
+.et_pb_section.nl_page_section {
+  padding: 2rem !important;
+
+  >div.et_pb_row.nl_page_row {
+    max-width: 100% !important;
+    padding: 0 !important;
+
+    >div {
+      padding: 2rem !important;
+      border: 1px dashed var(--chr-text-gray-500);
+    }
+
+    .nl_page_custom_code {
+      background-image: linear-gradient(90deg, #0a0000 0%, rgba(10, 0, 0, 0.13) 100%), url(https://dev2.charltonslaw.com/wp-content/uploads/2025/01/hongkong-blue-scaled.webp) !important;
+      padding: 2rem;
+
+      .nl_hero_temp_2024 {
+        max-width: 100%;
+
+        @media (min-width: 768px) {
+          max-width: 40%;
+
+        }
+      }
+    }
+  }
+}
+
+.et_pb_section.temp_hero_ny_card_section {
+  background: linear-gradient(to right, #bc0000, #cb0001);
+  padding: 0 !important;
+
+  >div.temp_hero_reg_digest_row {
+    padding: 0 !important;
+  }
+
+  .et_pb_image_wrap {
+    display: flex;
+    place-content: center;
+
+    img {
+      max-width: 600px;
+
+      @media (max-width: 767px) {
+        max-width: 100%;
+      }
+    }
+  }
+
+}
+
+
 /* ================================================= */
 /* NEW HEADER NAVIGATION */
 /* ================================================= */
