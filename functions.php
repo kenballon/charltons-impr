@@ -11,7 +11,7 @@ function enqueue_load_fa()
 
 function chr_theme_enqueue_styles()
 {
-	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.12', 'all');
+	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.12', 'all');
 	wp_enqueue_style('custom-style');
 }
 
@@ -137,7 +137,7 @@ function get_recent_news_homepage_shortcode()
 	return $output;
 }
 
-add_shortcode('get_recent_news_homepage', 'get_recent_news_homepage_shortcode');
+// add_shortcode('get_recent_news_homepage', 'get_recent_news_homepage_shortcode');
 
 function get_recent_insight_homepage_shortcode($atts, $content = null)
 {

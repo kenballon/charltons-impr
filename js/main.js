@@ -271,12 +271,15 @@ function customHeaderNavigation() {
   // mobile nav reveal
   const header = document.querySelector("header");
   const mobileNavMenu = document.querySelector(".mobile_nav_show");
-  const headerHeight = header.offsetHeight;
 
-  window.addEventListener("resize", (e) => {
+  if (header && mobileNavMenu) {
+    const headerHeight = header.offsetHeight;
+
+    window.addEventListener("resize", (e) => {
+      mobileNavMenu.style.top = `${headerHeight}px`;
+    });
     mobileNavMenu.style.top = `${headerHeight}px`;
-  });
-  mobileNavMenu.style.top = `${headerHeight}px`;
+  }
   // mobile nav reveal end
 
   const parentNavLinkItem = document.querySelectorAll(".nav_parent_list_item");
@@ -488,7 +491,7 @@ function customSearch() {
   loadingIndicator.className = "loading-indicator";
   loadingIndicator.textContent = "Loading...";
   loadingIndicator.style.display = "none";
-  searchMatchesWrapper.appendChild(loadingIndicator);
+  searchMatchesWrapper?.appendChild(loadingIndicator);
 
   // Cache for storing previous search results
   const searchCache = {};
@@ -581,7 +584,7 @@ function revealSearch() {
   const searchWrapper = document.querySelector(".search_wrapper");
   const closeSearchButton = document.getElementById("close_search");
 
-  searchFormButton.addEventListener("click", () => {
+  searchFormButton?.addEventListener("click", () => {
     navSearchWrapper.classList.add("hide-animate");
     header.classList.add("search-open");
 
@@ -592,7 +595,7 @@ function revealSearch() {
     }, 200);
   });
 
-  closeSearchButton.addEventListener("click", () => {
+  closeSearchButton?.addEventListener("click", () => {
     toggleClass(searchWrapper, "show", "hide-animate");
     header.classList.remove("search-open");
 
@@ -646,7 +649,7 @@ function menuMobileBtnToggle() {
   const menuBtn = document.getElementById("menuMobileButton");
   const mobileMenuShow = document.querySelector(".mobile_nav_show");
 
-  menuBtn.addEventListener("click", () => {
+  menuBtn?.addEventListener("click", () => {
     if (window.innerWidth <= 1310) {
       let dataToggleMenuBtn = menuBtn.getAttribute("data-menu-reveal");
 
