@@ -26,6 +26,7 @@ in our server */
     --chr-primary-color-900: #e71d24;
     --chr-primary-color-800: #cf1a20;
     --chr-primary-color-700: #b4171c;
+    --chr-primary-color-500: #dc181f;
     --chr-text-gray-900: #161616;
     --chr-text-gray-800: #2b2a2a;
     --chr-text-gray-700: #474747;
@@ -147,6 +148,21 @@ strong {
         }
     }
 
+}
+
+.text-white {
+    color: white;
+}
+
+.btn-primary {
+    width: max-content;
+    color: white;
+    font-size: 1rem;
+    padding: 10px 20px;
+    background-color: var(--chr-primary-color-500);
+    transition: all 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+    cursor: pointer;
+    border: 0;
 }
 
 
