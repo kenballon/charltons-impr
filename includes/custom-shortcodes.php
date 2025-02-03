@@ -1468,6 +1468,62 @@ function share_download_sc($atts)
     return '';
 }
 
+function get_all_categories_with_children()
+{
+    $categories = get_categories(array(
+        'orderby' => 'name',
+        'order' => 'ASC',
+        'hide_empty' => 0,
+        'parent' => 0  // Only get top-level (parent) categories
+    ));
+
+    $category_list = '<ul>';
+
+    if ($categories) {
+        foreach ($categories as $parent_category) {
+            $category_list .= '<li class="temp_category_name_first_level"><h3>' . $parent_category->name . '</h3>';
+
+            $child_categories = get_categories(array(
+                'orderby' => 'name',
+                'order' => 'ASC',
+                'hide_empty' => 0,
+                'parent' => $parent_category->term_id  // Get children of this parent
+            ));
+
+            if ($child_categories) {
+                $category_list .= '<ul>';
+                foreach ($child_categories as $child_category) {
+                    $category_list .= '<li class="fw-bold">' . $child_category->name;
+
+                    $grandchild_categories = get_categories(array(
+                        'orderby' => 'name',
+                        'order' => 'ASC',
+                        'hide_empty' => 0,
+                        'parent' => $child_category->term_id  // Get children of this child (grandchildren)
+                    ));
+
+                    if ($grandchild_categories) {
+                        $category_list .= '<ul>';
+                        foreach ($grandchild_categories as $grandchild_category) {
+                            $category_list .= '<li class="fw-regular temp_grandchild">' . $grandchild_category->name . '</li>';
+                        }
+                        $category_list .= '</ul>';
+                    }
+
+                    $category_list .= '</li>';
+                }
+                $category_list .= '</ul>';
+            }
+
+            $category_list .= '</li>';
+        }
+    }
+
+    $category_list .= '</ul>';
+
+    return $category_list;
+}
+
 add_action('init', 'register_custom_shortcodes');
 add_action('wp_ajax_ajax_search', 'ajax_search');
 add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
@@ -1495,4 +1551,6 @@ function register_custom_shortcodes()
     add_shortcode('newsletter_scf_custom_fields', 'newsletter_scf_custom_fields');
     add_shortcode('recent_webinars', 'homepage_recent_webinar_sc');
     add_shortcode('share_download', 'share_download_sc');
+
+    add_shortcode('display_categories', 'get_all_categories_with_children');
 }

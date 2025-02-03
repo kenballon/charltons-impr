@@ -201,6 +201,7 @@ function show_breadcrumb_shortcode()
 		$output .= "<li><a href='" . esc_url(get_permalink($ancestor)) . "' title='" . get_the_title($ancestor) . "'>" . get_the_title($ancestor) . '</a></li>';
 		$count++;
 	}
+	$displayCurrent = true;  // Initialize the variable
 	if ($displayCurrent) {  // If TRUE - output the current page title
 		// $output .= "<span>". the_title($post) ."</span>";
 	}

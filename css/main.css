@@ -231,7 +231,7 @@ ul {
   border: 1px dashed var(--chr-text-gray-500);
 }
 .et_pb_section.nl_page_section > div.et_pb_row.nl_page_row .nl_page_custom_code {
-  background-image: linear-gradient(90deg, #0a0000 0%, rgba(10, 0, 0, 0.13) 100%), url("/wp-content/uploads/2025/01/hongkong-blue-scaled-1.webp") !important;
+  background-image: linear-gradient(90deg, #0a0000 0%, rgba(10, 0, 0, 0.13) 100%), url(https://dev2.charltonslaw.com/wp-content/uploads/2025/01/hongkong-blue-scaled.webp) !important;
   padding: 2rem;
 }
 .et_pb_section.nl_page_section > div.et_pb_row.nl_page_row .nl_page_custom_code .nl_hero_temp_2024 {
@@ -10590,4 +10590,18 @@ subpage MENU
 
 /* ================================================= */
 /* #endregion PPW SINGLE 2025 STYLING::START  */
-/* ================================================= *//*# sourceMappingURL=main.css.map */
+/* ================================================= */
+.temp_category_name_first_level {
+  position: relative;
+}
+.temp_category_name_first_level > ul > li {
+  position: relative;
+}
+.temp_category_name_first_level > ul > li > ul > li {
+  list-style: none;
+}
+
+.temp_grandchild::before {
+  content: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMjkiIHZpZXdCb3g9IjAgMCAxNiAyOSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTAuNSAxVjI4SDE1IiBzdHJva2U9IiM4RjhGOEYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWRhc2hhcnJheT0iMiAyIi8+Cjwvc3ZnPgo=");
+  margin-right: 0.2rem;
+}/*# sourceMappingURL=main.css.map */
