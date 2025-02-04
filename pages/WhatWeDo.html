@@ -40,9 +40,18 @@
         justify-content: center;
     }
 
-    .content-between {
+    .space-between {
         justify-content: space-between;
     }
+
+
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
 
     .services_container {
         width: 100%;
@@ -51,13 +60,6 @@
             grid-template-columns: repeat(3, 1fr);
         }
     }
-
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1rem;
-    }
-
 
     ul.services_list {
         list-style: none;
@@ -195,14 +197,16 @@
 <body>
     <main>
         <div class="container">
-            <h2>Select one of our services listed below for more information.</h2>
+            <div class="pb-4">
+                <h2 class="services_select_headline">Select one of our services listed below for more information.</h2>
+            </div>
 
             <div class="services_container grid gap-2">
                 <div class="services-list-col">
                     <h3>Industries</h3>
                     <ul class="services_list">
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Natural Resources</a>
                                 <div type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -214,7 +218,7 @@
                             </div>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Retail & Consumer Sector</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -226,7 +230,7 @@
                             </div>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Finance & Insurance</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -238,7 +242,7 @@
                             </div>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Healthcare and Pharmaceuticals</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -250,7 +254,7 @@
                             </div>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Technology</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -262,7 +266,7 @@
                             </div>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Infrastructure</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -274,7 +278,7 @@
                             </div>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Education</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -286,7 +290,7 @@
                             </div>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Film & Entertainment</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -298,7 +302,7 @@
                             </div>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Industrial</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -315,7 +319,7 @@
                     <h3>Practices</h3>
                     <ul class="services_list">
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Capital Markets</a>
                                 <button type="button" class="arrow_right_svg_plus_icon flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -331,7 +335,7 @@
                             </ul>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">M&A Law</a>
                                 <button type="button" class="arrow_right_svg_plus_icon flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -366,7 +370,7 @@
                             </ul>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Regulatory and Securities</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -383,7 +387,7 @@
                             </ul>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Natural Resources Law</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -400,7 +404,7 @@
                             </ul>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Corporate and Commercial</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -417,7 +421,7 @@
                             </ul>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Private Equity & Funds</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -434,7 +438,7 @@
                             </ul>
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Private Wealth, Trusts & Family
                                     Offices</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
@@ -457,7 +461,7 @@
                     <h3>Location</h3>
                     <ul class="services_list">
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Hong Kong</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -470,7 +474,7 @@
 
                         </li>
                         <li class="services_list_item">
-                            <div class="services_link_wrapper flex items-center content-between">
+                            <div class="services_link_wrapper flex items-center space-between">
                                 <a href="/corporate-services/company-formation/">Cayman Island</a>
                                 <button type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
