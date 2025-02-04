@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What We do</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gloock&family=Manrope:wght@200..800&display=swap"
+        rel="stylesheet">
+</head>
+
+<style>
+    body {
+        font-family: 'Manrope', sans-serif;
+    }
+
+    .flex {
+        display: flex;
+    }
+
+    .grid {
+        display: grid;
+    }
+
+    .gap-1 {
+        gap: 1rem;
+    }
+
+    .items-center {
+        align-items: center;
+    }
+
+    .content-center {
+        justify-content: center;
+    }
+
+    .content-between {
+        justify-content: space-between;
+    }
+
+    .services_container {
+        width: 100%;
+
+        @media (min-width: 768px) {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
+
+    ul.services_list {
+        list-style: none;
+        padding: 0;
+        cursor: pointer;
+
+        .services_list_item {
+            &:first-child {
+                border-top: 1px solid #454545;
+            }
+
+            &:last-child {
+                border-bottom: 1px solid #454545;
+            }
+        }
+
+        .services_list_item+.services_list_item {
+            border-top: 1px solid #454545;
+        }
+
+
+        .services_link_wrapper {
+            padding-block: 1rem;
+
+            a {
+                font-size: 14px;
+                font-weight: 300;
+                text-decoration: none;
+                color: #000;
+                line-height: 2em;
+
+                &:hover {
+                    color: #007bff;
+                }
+            }
+
+            button.arrow_right_svg_plus_icon {
+                border: 0;
+                background-color: transparent;
+                cursor: pointer;
+                transition: all .3s ease;
+
+                &:hover {
+                    svg {
+                        animation: rotate .3s linear;
+                        fill: #007bff;
+                    }
+                }
+            }
+
+            button.arrow_right_svg {
+                border: 0;
+                background-color: transparent;
+                cursor: pointer;
+                transition: all .3s ease;
+
+                &:hover {
+                    svg {
+                        fill: #007bff;
+                    }
+                }
+            }
+
+            button.arrow_right_svg_plus_icon.active {
+                &:hover {
+                    svg {
+                        animation: none;
+                    }
+                }
+            }
+
+            button.arrow_right_svg_plus_icon.active svg {
+                transform: rotate(45deg);
+            }
+        }
+
+        .sub_services_list {
+            list-style: none;
+            padding-left: 1rem;
+            display: none;
+            padding-bottom: 1rem;
+
+
+            .sub_services_list_item {
+                font-size: 12px;
+                font-weight: 300;
+                text-decoration: none;
+                color: #000;
+                line-height: 2em;
+                padding-block: .4rem;
+                border-top: 1px dashed #d1d1d1;
+
+                &:last-child {
+                    border-bottom: 1px dashed #d1d1d1;
+                }
+
+                a {
+                    color: #000;
+                    text-decoration: none;
+
+
+                    &:hover {
+                        color: #007bff;
+                    }
+                }
+            }
+        }
+
+        .sub_services_list.active {
+            display: block;
+        }
+    }
+
+    @keyframes rotate {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(180deg);
+        }
+
+    }
+</style>
+
+<body>
+    <main>
+        <section class="container">
+            <h2>Select one of our services listed below for more information.</h2>
+
+            <div class="services_container grid gap-1">
+                <div class="services-list-col">
+                    <h3>Industries</h3>
+                    <ul class="services_list">
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Natural Resources</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Retail & Consumer Sector</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Finance & Insurance</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Healthcare and Pharmaceuticals</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Technology</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Infrastructure</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Education</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Film & Entertainment</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Industrial</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="services-list-col">
+                    <h3>Practices</h3>
+                    <ul class="services_list">
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Capital Markets</a>
+                                <button type="button" class="arrow_right_svg_plus_icon flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path d="M460-460H240v-40h220v-220h40v220h220v40H500v220h-40v-220Z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <ul class="sub_services_list">
+                                <li class="sub_services_list_item">Industries</li>
+                                <li class="sub_services_list_item">Services</li>
+                            </ul>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">M&A Law</a>
+                                <button type="button" class="arrow_right_svg_plus_icon flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path d="M460-460H240v-40h220v-220h40v220h220v40H500v220h-40v-220Z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <ul class="sub_services_list">
+                                <li class="sub_services_list_item">
+                                    <a href="#">Due Diligence</a>
+                                </li>
+                                <li class="sub_services_list_item">
+                                    <a href="#">Public Takeovers in Hong Kong</a>
+                                </li>
+                                <li class="sub_services_list_item">
+                                    <a href="#">Reverse Takeovers in Hong Kong</a>
+                                </li>
+                                <li class="sub_services_list_item">
+                                    <a href="#">Private M&A</a>
+                                </li>
+                                <li class="sub_services_list_item">
+                                    <a href="#">Cross Border M&A</a>
+                                </li>
+                                <li class="sub_services_list_item">
+                                    <a href="#">Miniral Company M&A</a>
+                                </li>
+                                <li class="sub_services_list_item">
+                                    <a href="#">China M&A</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Regulatory and Securities</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <ul class="sub_services_list">
+                                <li class="sub_services_list_item">test 1</li>
+                                <li class="sub_services_list_item">test 2</li>
+                            </ul>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Natural Resources Law</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <ul class="sub_services_list">
+                                <li class="sub_services_list_item">test 1</li>
+                                <li class="sub_services_list_item">test 2</li>
+                            </ul>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Corporate and Commercial</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <ul class="sub_services_list">
+                                <li class="sub_services_list_item">test 1</li>
+                                <li class="sub_services_list_item">test 2</li>
+                            </ul>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Private Equity & Funds</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <ul class="sub_services_list">
+                                <li class="sub_services_list_item">test 1</li>
+                                <li class="sub_services_list_item">test 2</li>
+                            </ul>
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Private Wealth, Trusts & Family
+                                    Offices</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <ul class="sub_services_list">
+                                <li class="sub_services_list_item">test 1</li>
+                                <li class="sub_services_list_item">test 2</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="services-list-col">
+                    <h3>Location</h3>
+                    <ul class="services_list">
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Hong Kong</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                        </li>
+                        <li class="services_list_item">
+                            <div class="services_link_wrapper flex items-center content-between">
+                                <a href="/corporate-services/company-formation/">Cayman Island</a>
+                                <button type="button" class="arrow_right_svg flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                        width="24px" fill="#5f6368">
+                                        <path
+                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const buttonSVG = document.querySelectorAll('.arrow_right_svg_plus_icon');
+
+        buttonSVG.forEach(button => {
+            button.addEventListener('click', () => {
+                button.classList.toggle('active');
+                const parentItem = button.closest('.services_list_item');
+                if (parentItem) {
+                    const subServicesList = parentItem.querySelector('.sub_services_list');
+                    if (subServicesList) {
+                        subServicesList.classList.toggle('active');
+                    }
+                }
+            });
+        });
+
+
+
+    </script>
+</body>
+
+</html>
