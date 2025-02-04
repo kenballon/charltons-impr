@@ -72,6 +72,21 @@
             &:last-child {
                 border-bottom: 1px solid #454545;
             }
+
+            &:hover {
+
+                >.services_link_wrapper>a {
+                    padding-left: 1rem;
+                    color: #007bff;
+                }
+
+                .arrow_right_svg {
+                    svg {
+                        transform: rotate(-45deg);
+                        fill: #007bff;
+                    }
+                }
+            }
         }
 
         .services_list_item+.services_list_item {
@@ -88,10 +103,7 @@
                 text-decoration: none;
                 color: #000;
                 line-height: 2em;
-
-                &:hover {
-                    color: #007bff;
-                }
+                transition: all .3s ease;
             }
 
             button.arrow_right_svg_plus_icon {
@@ -108,16 +120,13 @@
                 }
             }
 
-            button.arrow_right_svg {
+            .arrow_right_svg {
                 border: 0;
                 background-color: transparent;
                 cursor: pointer;
-                transition: all .3s ease;
 
-                &:hover {
-                    svg {
-                        fill: #007bff;
-                    }
+                svg {
+                    transition: all .3s ease;
                 }
             }
 
@@ -185,7 +194,7 @@
 
 <body>
     <main>
-        <section class="container">
+        <div class="container">
             <h2>Select one of our services listed below for more information.</h2>
 
             <div class="services_container grid gap-2">
@@ -195,13 +204,13 @@
                         <li class="services_list_item">
                             <div class="services_link_wrapper flex items-center content-between">
                                 <a href="/corporate-services/company-formation/">Natural Resources</a>
-                                <button type="button" class="arrow_right_svg flex items-center">
+                                <div type="button" class="arrow_right_svg flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                                         width="24px" fill="#5f6368">
                                         <path
                                             d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z" />
                                     </svg>
-                                </button>
+                                </div>
                             </div>
                         </li>
                         <li class="services_list_item">
@@ -477,7 +486,7 @@
                     </ul>
                 </div>
             </div>
-        </section>
+        </div>
     </main>
 
     <script>
