@@ -9,190 +9,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gloock&family=Manrope:wght@200..800&display=swap"
         rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="../css/_utility.css">
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+    </style>
 </head>
-
-<style>
-    body {
-        font-family: 'Manrope', sans-serif;
-    }
-
-    .flex {
-        display: flex;
-    }
-
-    .grid {
-        display: grid;
-    }
-
-    .gap-1 {
-        gap: 1rem;
-    }
-
-    .gap-2 {
-        gap: 2rem;
-    }
-
-    .items-center {
-        align-items: center;
-    }
-
-    .content-center {
-        justify-content: center;
-    }
-
-    .space-between {
-        justify-content: space-between;
-    }
-
-
-
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1rem;
-    }
-
-
-    .services_container {
-        width: 100%;
-
-        @media (min-width: 768px) {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    ul.services_list {
-        list-style: none;
-        padding: 0;
-        cursor: pointer;
-
-        .services_list_item {
-            &:first-child {
-                border-top: 1px solid #454545;
-            }
-
-            &:last-child {
-                border-bottom: 1px solid #454545;
-            }
-
-            &:hover {
-
-                >.services_link_wrapper>a {
-                    padding-left: 1rem;
-                    color: #007bff;
-                }
-
-                .arrow_right_svg {
-                    svg {
-                        transform: rotate(-45deg);
-                        fill: #007bff;
-                    }
-                }
-            }
-        }
-
-        .services_list_item+.services_list_item {
-            border-top: 1px solid #454545;
-        }
-
-
-        .services_link_wrapper {
-            padding-block: 1rem;
-
-            a {
-                font-size: 14px;
-                font-weight: 300;
-                text-decoration: none;
-                color: #000;
-                line-height: 2em;
-                transition: all .3s ease;
-            }
-
-            button.arrow_right_svg_plus_icon {
-                border: 0;
-                background-color: transparent;
-                cursor: pointer;
-                transition: all .3s ease;
-
-                &:hover {
-                    svg {
-                        animation: rotate .3s linear;
-                        fill: #007bff;
-                    }
-                }
-            }
-
-            .arrow_right_svg {
-                border: 0;
-                background-color: transparent;
-                cursor: pointer;
-
-                svg {
-                    transition: all .3s ease;
-                }
-            }
-
-            button.arrow_right_svg_plus_icon.active {
-                &:hover {
-                    svg {
-                        animation: none;
-                    }
-                }
-            }
-
-            button.arrow_right_svg_plus_icon.active svg {
-                transform: rotate(45deg);
-            }
-        }
-
-        .sub_services_list {
-            list-style: none;
-            padding-left: 1rem;
-            display: none;
-            padding-bottom: 1rem;
-
-
-            .sub_services_list_item {
-                font-size: 12px;
-                font-weight: 300;
-                text-decoration: none;
-                color: #000;
-                line-height: 2em;
-                padding-block: .4rem;
-                border-top: 1px dashed #d1d1d1;
-
-                &:last-child {
-                    border-bottom: 1px dashed #d1d1d1;
-                }
-
-                a {
-                    color: #000;
-                    text-decoration: none;
-
-
-                    &:hover {
-                        color: #007bff;
-                    }
-                }
-            }
-        }
-
-        .sub_services_list.active {
-            display: block;
-        }
-    }
-
-    @keyframes rotate {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(180deg);
-        }
-
-    }
-</style>
 
 <body>
     <main>
@@ -493,19 +320,25 @@
                                 <a href="/our-work/private-wealth-trusts-family-offices/" target="_blank">Private
                                     Wealth, Trusts & Family
                                     Offices</a>
-                                <button type="button" class="arrow_right_svg flex items-center">
+                                <button type="button" class="arrow_right_svg_plus_icon flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                                         width="24px" fill="#5f6368">
-                                        <path
-                                            d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z">
-                                        </path>
+                                        <path d="M460-460H240v-40h220v-220h40v220h220v40H500v220h-40v-220Z"></path>
                                     </svg>
                                 </button>
                             </div>
 
                             <ul class="sub_services_list">
-                                <li class="sub_services_list_item">test 1</li>
-                                <li class="sub_services_list_item">test 2</li>
+                                <li class="sub_services_list_item">
+                                    <a href="/our-work/private-wealth-trusts-family-offices/family-offices-in-hong-kong-comprehensive-financial-services-for-high-net-worth-families/"
+                                        target="_blank" translate="yes">Family Offices in Hong Kong: Comprehensive
+                                        Financial Services for High Net Worth Families</a>
+                                </li>
+                                <li class="sub_services_list_item">
+                                    <a href="/our-work/private-wealth-trusts-family-offices/trusts-in-hong-kong-establishing-and-managing-trust-structures/"
+                                        target="_blank" translate="yes">Trusts in Hong Kong: Establishing and Managing
+                                        Trust Structures</a>
+                                </li>
                             </ul>
                         </li>
                     </ul>
