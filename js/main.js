@@ -1498,6 +1498,39 @@ function initNewsletterPage() {
     document.body.removeChild(link);
   };
 
+  const openDownloadOptions = document.getElementById("open_dl_options");
+  const downloadDialog = document.getElementById("nlDowloadOptions");
+  const downloadPDF = document.getElementById("dl_pdf");
+  const openWordUrl = document.getElementById("dl_word");
+
+  openDownloadOptions?.addEventListener("click", () =>
+    toggleDialog(downloadDialog, openDownloadOptions)
+  );
+  downloadPDF?.addEventListener("click", () => {
+    openDownloadURL(
+      document.getElementById("pdf_url_hidden_input")?.value,
+      "PDF URL is not available."
+    );
+    downloadDialog.classList.remove("open");
+  });
+  openWordUrl?.addEventListener("click", () => {
+    openDownloadURL(
+      document.getElementById("word_url_hidden_input")?.value,
+      "Word URL is not available."
+    );
+    downloadDialog.classList.remove("open");
+  });
+
+  const nlShareButton = document.getElementById("nl_sharebtn");
+  const shareDialog = document.getElementById("nlShareOptions");
+
+  const shareActions = {
+    "Copy link": "copy",
+    "Share on LinkedIn": "https://www.linkedin.com/shareArticle?url=",
+    "Share on X": "https://twitter.com/intent/tweet?url=",
+    "Share on Facebook": "https://www.facebook.com/sharer/sharer.php?u=",
+  };
+
   const toggleDialog = (dialog, button) => {
     const handleClickOutside = (event) => {
       if (!dialog.contains(event.target) && !button.contains(event.target)) {
@@ -1518,38 +1551,6 @@ function initNewsletterPage() {
       button.classList.remove("open");
       document.removeEventListener("click", handleClickOutside);
     }
-  };
-
-  const openDownloadOptions = document.getElementById("open_dl_options");
-  const downloadDialog = document.getElementById("nlDowloadOptions");
-  const downloadPDF = document.getElementById("dl_pdf");
-  const openWordUrl = document.getElementById("dl_word");
-  const nlShareButton = document.getElementById("nl_sharebtn");
-  const shareDialog = document.getElementById("nlShareOptions");
-
-  openDownloadOptions?.addEventListener("click", () =>
-    toggleDialog(downloadDialog, openDownloadOptions)
-  );
-  downloadPDF?.addEventListener("click", () => {
-    openDownloadURL(
-      document.getElementById("pdf_url_hidden_input")?.value,
-      "PDF URL is not available."
-    );
-    downloadDialog.classList.remove("open");
-  });
-  openWordUrl?.addEventListener("click", () => {
-    openDownloadURL(
-      document.getElementById("word_url_hidden_input")?.value,
-      "Word URL is not available."
-    );
-    downloadDialog.classList.remove("open");
-  });
-
-  const shareActions = {
-    "Copy link": "copy",
-    "Share on LinkedIn": "https://www.linkedin.com/shareArticle?url=",
-    "Share on X": "https://twitter.com/intent/tweet?url=",
-    "Share on Facebook": "https://www.facebook.com/sharer/sharer.php?u=",
   };
 
   const handleShareAction = (action) => {
