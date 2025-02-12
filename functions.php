@@ -11,7 +11,7 @@ function enqueue_load_fa()
 
 function chr_theme_enqueue_styles()
 {
-	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.13', 'all');
+	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.14', 'all');
 	wp_enqueue_style('custom-style');
 }
 
@@ -201,6 +201,7 @@ function show_breadcrumb_shortcode()
 		$output .= "<li><a href='" . esc_url(get_permalink($ancestor)) . "' title='" . get_the_title($ancestor) . "'>" . get_the_title($ancestor) . '</a></li>';
 		$count++;
 	}
+	$displayCurrent = true;  // Initialize the variable
 	if ($displayCurrent) {  // If TRUE - output the current page title
 		// $output .= "<span>". the_title($post) ."</span>";
 	}
