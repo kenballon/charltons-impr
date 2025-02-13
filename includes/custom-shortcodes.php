@@ -220,7 +220,7 @@ function related_pages_sc($atts)
         <?php if ($image_src): ?>
         <div class="rp_img_div_wrapper overflow-clip flex items-center">
             <img src="<?php echo esc_url($image_src[0]); ?>" alt="<?php echo esc_attr($image_alt); ?>" width="50"
-                height="50" loading="lazy" fetchpriority="high" class="related_page_img">
+                height="50" loading="lazy" class="related_page_img">
         </div>
         <?php endif; ?>
         <h1 class="rp_entry_title"><?php the_title(); ?></h1>
@@ -919,6 +919,10 @@ function cache_all_posts($atts = [], $cache_duration = 30 * MINUTE_IN_SECONDS)
                         return $cat->slug;
                     }, $categories) : [];
 
+                    $category_names = $categories ? array_map(function ($cat) {
+                        return $cat->name;
+                    }, $categories) : [];
+
                     $tag_slugs = $tags ? array_map(function ($tag) {
                         return $tag->slug;
                     }, $tags) : [];
@@ -928,6 +932,7 @@ function cache_all_posts($atts = [], $cache_duration = 30 * MINUTE_IN_SECONDS)
                         'title' => get_the_title(),
                         'post_date' => get_the_date('d-m-Y'),
                         'categories' => implode(', ', $category_slugs),
+                        'category_names' => implode(', ', $category_names),
                         'tags' => implode(', ', $tag_slugs),
                         'excerpt' => wp_strip_all_tags(get_the_excerpt()),
                         'url' => get_permalink(),
@@ -945,48 +950,6 @@ function cache_all_posts($atts = [], $cache_duration = 30 * MINUTE_IN_SECONDS)
     return $cached_data;
 }
 
-function get_newsletters_posts_sc($atts)
-{
-    $data = cache_all_posts($atts);
-    $html_output = '';
-    $counter = 0;
-    $show_time = isset($atts['show_time']) && $atts['show_time'] === 'false' ? 'd-none' : '';
-    $offset = isset($atts['offset']) ? intval($atts['offset']) : 0;
-
-    foreach ($data as $index => $post) {
-        if ($index < $offset) {
-            continue;
-        }
-
-        $post_date_original = esc_html($post['post_date']);
-        $post_date = DateTime::createFromFormat('d-m-Y', $post['post_date'])->format('d M Y');
-        $post_url = esc_url($post['url']);
-        $image_src = esc_url($post['featured_image']);
-        $image_alt = esc_attr($post['title']);
-        $post_title = esc_html($post['title']);
-        $post_excerpt = esc_html($post['excerpt']);
-        $category = esc_attr($atts['category']);
-        $class = $counter >= 12 ? 'd-none' : '';
-
-        $html_output .= <<<HTML
-            <article class="newsletter_post_item flex-col {$class}" data-nl_date="{$post_date_original}" data-category="{$category}">
-                <a href="{$post_url}" tabindex="0" target="_blank" rel="noopener noreferrer" aria-label="Read more about {$post_title}">
-                    <div class="post-thumbnail">
-                        <img src="{$image_src}" alt="{$image_alt}" width="286" height="286">
-                        <time class="post-date {$show_time}" datetime="{$post_date}">{$post_date}</time>
-                        <h2 class="post-title" title="{$post_title}">{$post_title}</h2>
-                        <div class="post-excerpt">{$post_excerpt}</div>
-                    </div>
-                </a>
-            </article>
-            HTML;
-
-        $counter++;
-    }
-
-    return $html_output;
-}
-
 function storeAllPost($atts)
 {
     $data = cache_all_posts($atts);
@@ -1000,7 +963,7 @@ function storeAllPost($atts)
             if (!window.indexedDB) {
                 console.log("Your browser doesn't support a stable version of IndexedDB.");
                 return;
-            }
+            }            
 
             const dbName = "PostsDatabase";
 
@@ -1061,6 +1024,48 @@ function storeAllPost($atts)
         EOT;
 
     return $script;
+}
+
+function get_newsletters_posts_sc($atts)
+{
+    $data = cache_all_posts($atts);
+    $html_output = '';
+    $counter = 0;
+    $show_time = isset($atts['show_time']) && $atts['show_time'] === 'false' ? 'd-none' : '';
+    $offset = isset($atts['offset']) ? intval($atts['offset']) : 0;
+
+    foreach ($data as $index => $post) {
+        if ($index < $offset) {
+            continue;
+        }
+
+        $post_date_original = esc_html($post['post_date']);
+        $post_date = DateTime::createFromFormat('d-m-Y', $post['post_date'])->format('d M Y');
+        $post_url = esc_url($post['url']);
+        $image_src = esc_url($post['featured_image']);
+        $image_alt = esc_attr($post['title']);
+        $post_title = esc_html($post['title']);
+        $post_excerpt = esc_html($post['excerpt']);
+        $category = esc_attr($atts['category']);
+        $class = $counter >= 12 ? 'd-none' : '';
+
+        $html_output .= <<<HTML
+            <article class="newsletter_post_item flex-col {$class}" data-nl_date="{$post_date_original}" data-category="{$category}">
+                <a href="{$post_url}" tabindex="0" target="_blank" rel="noopener noreferrer" aria-label="Read more about {$post_title}">
+                    <div class="post-thumbnail">
+                        <img src="{$image_src}" alt="{$image_alt}" width="286" height="286">
+                        <time class="post-date {$show_time}" datetime="{$post_date}">{$post_date}</time>
+                        <h2 class="post-title" title="{$post_title}">{$post_title}</h2>
+                        <div class="post-excerpt">{$post_excerpt}</div>
+                    </div>
+                </a>
+            </article>
+            HTML;
+
+        $counter++;
+    }
+
+    return $html_output;
 }
 
 function getNewsletterPostTitle($atts)
@@ -1191,7 +1196,7 @@ function getNewsletterPostTitle($atts)
         </div>
         <!-- share to social media -->
         <div class="share-wrapper relative flex items-center">
-            <button type="button" class="print_btn" id="nl_sharebtn" data-dialog="close">
+            <button type="button" class="share_btn" id="nl_sharebtn" data-dialog="close">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
                         d="M15.218 4.931a.4.4 0 0 1-.118.132l.012.006a.45.45 0 0 1-.292.074.5.5 0 0 1-.3-.13l-2.02-2.02v7.07c0 .28-.23.5-.5.5s-.5-.22-.5-.5v-7.04l-2 2a.45.45 0 0 1-.57.04h-.02a.4.4 0 0 1-.16-.3.4.4 0 0 1 .1-.32l2.8-2.8a.5.5 0 0 1 .7 0l2.8 2.79a.42.42 0 0 1 .068.498m-.106.138.008.004v-.01zM16 7.063h1.5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-11c-1.1 0-2-.9-2-2v-10a2 2 0 0 1 2-2H8a.5.5 0 0 1 .35.15.5.5 0 0 1 .15.35.5.5 0 0 1-.15.35.5.5 0 0 1-.35.15H6.4c-.5 0-.9.4-.9.9v10.2a.9.9 0 0 0 .9.9h11.2c.5 0 .9-.4.9-.9v-10.2c0-.5-.4-.9-.9-.9H16a.5.5 0 0 1 0-1"
@@ -1201,57 +1206,6 @@ function getNewsletterPostTitle($atts)
                     Share
                 </div>
             </button>
-
-            <div id="nlShareOptions" aria-hidden="true">
-                <ul>
-                    <li>
-                        <button>
-                            <div class="flex gap-1 items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                    viewBox="0 0 24 24">
-                                    <path fill="#5f6368" fill-rule="evenodd"
-                                        d="m12.505 9.678.59-.59a5 5 0 0 1 1.027 7.862l-2.829 2.83a5 5 0 0 1-7.07-7.072l2.382-2.383q.002.646.117 1.298l-1.793 1.792a4 4 0 0 0 5.657 5.657l2.828-2.828a4 4 0 0 0-1.046-6.411q.063-.081.137-.155m-1.01 4.646-.589.59a5 5 0 0 1-1.027-7.862l2.828-2.83a5 5 0 0 1 7.071 7.072l-2.382 2.383a7.7 7.7 0 0 0-.117-1.297l1.792-1.793a4 4 0 1 0-5.657-5.657l-2.828 2.828a4 4 0 0 0 1.047 6.411 2 2 0 0 1-.138.155"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                                <div>Copy link</div>
-                            </div>
-                        </button>
-                    </li>
-                    <li>
-                        <button aria-label="Share on linkedin" class="flex gap-1 items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                viewBox="0 0 24 24" class="cg aoi">
-                                <path fill="#5f6368"
-                                    d="M21 4.324v15.352A1.324 1.324 0 0 1 19.676 21H4.324A1.324 1.324 0 0 1 3 19.676V4.324A1.324 1.324 0 0 1 4.324 3h15.352A1.324 1.324 0 0 1 21 4.324M8.295 9.886H5.648v8.478h2.636V9.886zm.221-2.914a1.52 1.52 0 0 0-1.51-1.533H6.96a1.533 1.533 0 0 0 0 3.066 1.52 1.52 0 0 0 1.556-1.487zm9.825 6.236c0-2.555-1.626-3.542-3.229-3.542a3.02 3.02 0 0 0-2.67 1.37h-.082V9.875H9.875v8.477h2.648v-4.494a1.754 1.754 0 0 1 1.579-1.893h.104c.837 0 1.464.523 1.464 1.858v4.54h2.647l.024-5.144z">
-                                </path>
-                            </svg>
-                            <div class="ca hq">Share on LinkedIn</div>
-                        </button>
-                    </li>
-                    <li>
-                        <button aria-label="Share on twitter" class="flex gap-1 items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                viewBox="0 0 24 24" class="cg aoi">
-                                <path fill="#5f6368"
-                                    d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z">
-                                </path>
-                            </svg>
-                            <div>Share on X</div>
-                        </button>
-                    </li>
-                    <li>
-                        <button aria-label="Share on facebook" class="flex gap-1 items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                viewBox="0 0 24 24" class="cg aoi">
-                                <path fill="#5f6368"
-                                    d="M22 12.061C22 6.505 17.523 2 12 2S2 6.505 2 12.061c0 5.022 3.657 9.184 8.438 9.939v-7.03h-2.54V12.06h2.54V9.845c0-2.522 1.492-3.915 3.777-3.915 1.094 0 2.238.197 2.238.197v2.476h-1.26c-1.243 0-1.63.775-1.63 1.57v1.888h2.773l-.443 2.908h-2.33V22c4.78-.755 8.437-4.917 8.437-9.939">
-                                </path>
-                            </svg>
-                            <div>Share on Facebook</div>
-                        </button>
-                    </li>
-                </ul>
-            </div>
         </div>
     </div>
 </div>
@@ -1384,7 +1338,7 @@ function share_download_sc($atts)
 ?>
 <div class="share_download_div_wrapper flex gap-1 relative">
     <div class="share-wrapper relative flex items-center">
-        <button type="button" class="print_btn flex items-center" id="nl_sharebtn" data-dialog="close">
+        <button type="button" class="share_btn flex items-center" id="nl_sharebtn" data-dialog="close">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                 <path fill-rule="evenodd"
                     d="M15.218 4.931a.4.4 0 0 1-.118.132l.012.006a.45.45 0 0 1-.292.074.5.5 0 0 1-.3-.13l-2.02-2.02v7.07c0 .28-.23.5-.5.5s-.5-.22-.5-.5v-7.04l-2 2a.45.45 0 0 1-.57.04h-.02a.4.4 0 0 1-.16-.3.4.4 0 0 1 .1-.32l2.8-2.8a.5.5 0 0 1 .7 0l2.8 2.79a.42.42 0 0 1 .068.498m-.106.138.008.004v-.01zM16 7.063h1.5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-11c-1.1 0-2-.9-2-2v-10a2 2 0 0 1 2-2H8a.5.5 0 0 1 .35.15.5.5 0 0 1 .15.35.5.5 0 0 1-.15.35.5.5 0 0 1-.35.15H6.4c-.5 0-.9.4-.9.9v10.2a.9.9 0 0 0 .9.9h11.2c.5 0 .9-.4.9-.9v-10.2c0-.5-.4-.9-.9-.9H16a.5.5 0 0 1 0-1"
@@ -1394,57 +1348,6 @@ function share_download_sc($atts)
                 Share
             </div>
         </button>
-
-        <div id="nlShareOptions" aria-hidden="true">
-            <ul>
-                <li>
-                    <button>
-                        <div class="flex gap-1 items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                viewBox="0 0 24 24">
-                                <path fill="#5f6368" fill-rule="evenodd"
-                                    d="m12.505 9.678.59-.59a5 5 0 0 1 1.027 7.862l-2.829 2.83a5 5 0 0 1-7.07-7.072l2.382-2.383q.002.646.117 1.298l-1.793 1.792a4 4 0 0 0 5.657 5.657l2.828-2.828a4 4 0 0 0-1.046-6.411q.063-.081.137-.155m-1.01 4.646-.589.59a5 5 0 0 1-1.027-7.862l2.828-2.83a5 5 0 0 1 7.071 7.072l-2.382 2.383a7.7 7.7 0 0 0-.117-1.297l1.792-1.793a4 4 0 1 0-5.657-5.657l-2.828 2.828a4 4 0 0 0 1.047 6.411 2 2 0 0 1-.138.155"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            <div>Copy link</div>
-                        </div>
-                    </button>
-                </li>
-                <li>
-                    <button aria-label="Share on linkedin" class="flex gap-1 items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
-                            class="cg aoi">
-                            <path fill="#5f6368"
-                                d="M21 4.324v15.352A1.324 1.324 0 0 1 19.676 21H4.324A1.324 1.324 0 0 1 3 19.676V4.324A1.324 1.324 0 0 1 4.324 3h15.352A1.324 1.324 0 0 1 21 4.324M8.295 9.886H5.648v8.478h2.636V9.886zm.221-2.914a1.52 1.52 0 0 0-1.51-1.533H6.96a1.533 1.533 0 0 0 0 3.066 1.52 1.52 0 0 0 1.556-1.487zm9.825 6.236c0-2.555-1.626-3.542-3.229-3.542a3.02 3.02 0 0 0-2.67 1.37h-.082V9.875H9.875v8.477h2.648v-4.494a1.754 1.754 0 0 1 1.579-1.893h.104c.837 0 1.464.523 1.464 1.858v4.54h2.647l.024-5.144z">
-                            </path>
-                        </svg>
-                        <div class="ca hq">Share on LinkedIn</div>
-                    </button>
-                </li>
-                <li>
-                    <button aria-label="Share on twitter" class="flex gap-1 items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
-                            class="cg aoi">
-                            <path fill="#5f6368"
-                                d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z">
-                            </path>
-                        </svg>
-                        <div>Share on X</div>
-                    </button>
-                </li>
-                <li>
-                    <button aria-label="Share on facebook" class="flex gap-1 items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
-                            class="cg aoi">
-                            <path fill="#5f6368"
-                                d="M22 12.061C22 6.505 17.523 2 12 2S2 6.505 2 12.061c0 5.022 3.657 9.184 8.438 9.939v-7.03h-2.54V12.06h2.54V9.845c0-2.522 1.492-3.915 3.777-3.915 1.094 0 2.238.197 2.238.197v2.476h-1.26c-1.243 0-1.63.775-1.63 1.57v1.888h2.773l-.443 2.908h-2.33V22c4.78-.755 8.437-4.917 8.437-9.939">
-                            </path>
-                        </svg>
-                        <div>Share on Facebook</div>
-                    </button>
-                </li>
-            </ul>
-        </div>
     </div>
     <div>
         <a href="<?= $slide_url ?>" class="view_slides flex items-center" target="_blank" title="Download Slides">
@@ -1524,6 +1427,53 @@ function get_all_categories_with_children()
     return $category_list;
 }
 
+function getPostTitleAndCategory($atts)
+{
+    // Define default attributes
+    $atts = shortcode_atts(
+        array(
+            'category' => 'awards',  // Default category
+        ),
+        $atts, 'getPostTitleAndCategory'
+    );
+
+    // Sanitize the category
+    $category = sanitize_text_field($atts['category']);
+
+    // Get the current post ID
+    $current_post_id = get_the_ID();
+
+    // Check if the current post belongs to the specified category
+    if (has_category($category, $current_post_id)) {
+        // Get the post details
+        $post_title = get_the_title($current_post_id);
+        $post_date = get_the_date('d M Y', $current_post_id);
+        $post_datetime = get_the_date('Y-m-d', $current_post_id);  // ISO format
+        $categories = get_the_category($current_post_id);
+        $category_name = !empty($categories) ? esc_html($categories[0]->name) : 'Uncategorized';
+
+        // Start output buffer
+        ob_start();
+?>
+
+<div class="award_post_title flex space-between">
+    <div class="post_title">
+        <!-- <h1><?= esc_html($post_title) ?></h1> -->
+        <h1>Charltons The Legal500 Asia Pacific: Greater China – 2025 Award</h1>
+    </div>
+    <div class="category_and_date flex flex-col">
+        <span class="categ_label fw-bold capitalize"><?= $category_name ?></span>
+        <time datetime="<?php echo esc_attr($post_datetime); ?>"><?= esc_html($post_date); ?></time>
+        <div class="divider"></div>
+        <span id="read_time_est" class="text-gray-500 fw-regular"></span>
+    </div>
+</div>
+<?php
+        return ob_get_clean();
+    }
+    return '';
+}
+
 add_action('init', 'register_custom_shortcodes');
 add_action('wp_ajax_ajax_search', 'ajax_search');
 add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
@@ -1548,6 +1498,7 @@ function register_custom_shortcodes()
     add_shortcode('store_all_posts', 'storeAllPost');
     add_shortcode('newsletters_posts', 'get_newsletters_posts_sc');
     add_shortcode('getNewsletterPostTitle', 'getNewsletterPostTitle');
+    add_shortcode('getPostTitleAndCategory', 'getPostTitleAndCategory');
     add_shortcode('newsletter_scf_custom_fields', 'newsletter_scf_custom_fields');
     add_shortcode('recent_webinars', 'homepage_recent_webinar_sc');
     add_shortcode('share_download', 'share_download_sc');
