@@ -67,14 +67,14 @@ async function getAwardPosts() {
       new Date(a.post_date.split("-").reverse().join("-"))
   );
 
-  console.log(awardPosts);
+  // console.log(awardPosts);
 
   const awardsContainer = document?.getElementById("all_awards_wrapper");
   const loadMoreContainer = document?.getElementById("load_more_container");
   // Load only the first 16 posts initially
   const initialPosts = awardPosts.slice(0, maxInitialPosts);
   initialPosts.forEach((post) => {
-    const article = createAwardPostElement(post, "award");
+    const article = createCardUI(post, "award");
     awardsContainer?.appendChild(article);
   });
 
@@ -94,7 +94,7 @@ async function getAwardPosts() {
         currentPostIndex + maxInitialPosts
       );
       remainingPosts.forEach((post) => {
-        const article = createAwardPostElement(post, "award");
+        const article = createCardUI(post, "award");
         awardsContainer.appendChild(article);
       });
       currentPostIndex += maxInitialPosts;
@@ -107,16 +107,11 @@ async function getAwardPosts() {
   }
 }
 
-function createAwardPostElement(post, type) {
-  const div = document.createElement("article");
-  div.className =
+function createCardUI(post, type = "award") {
+  const articleCard = document.createElement("article");
+  articleCard.className =
     type === "award" ? "awards_card_item" : "newsletter_post_item flex-col";
-
-  const input = document.createElement("input");
-  input.type = "hidden";
-  input.name = "tags";
-  input.className = "tags_values";
-  input.value = post.tags;
+  articleCard.setAttribute("data-tags", post.tags);
 
   const link = document.createElement("a");
   link.href = post.url;
@@ -129,7 +124,7 @@ function createAwardPostElement(post, type) {
   img.height = "300";
   img.loading = "lazy";
 
-  const article = document.createElement("article");
+  const div = document.createElement("div");
 
   const flexDiv = document.createElement("div");
   flexDiv.className = "categ_date flex";
@@ -155,14 +150,13 @@ function createAwardPostElement(post, type) {
 
   flexDiv.appendChild(categLbl);
   flexDiv.appendChild(datePosted);
-  article.appendChild(flexDiv);
-  article.appendChild(titleDiv);
+  div.appendChild(flexDiv);
+  div.appendChild(titleDiv);
   link.appendChild(img);
-  link.appendChild(article);
-  div.appendChild(input);
-  div.appendChild(link);
+  link.appendChild(div);
+  articleCard.appendChild(link);
 
-  return div;
+  return articleCard;
 }
 
 function sanitizeHTML(html) {
