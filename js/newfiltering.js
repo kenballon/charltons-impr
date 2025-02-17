@@ -48,6 +48,125 @@ async function fetchPostsFromDB(dbName, storeName, filterCallback) {
   }
 }
 
+function createCardUI(post, type = "award") {
+  const articleCard = document.createElement("article");
+  articleCard.className =
+    type === "award" ? "awards_card_item" : "newsletter_post_item flex-col";
+  articleCard.setAttribute("data-tags", post.tags);
+
+  const link = document.createElement("a");
+  link.href = post.url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.setAttribute(
+    "aria-label",
+    `Read more about ${decodeHTMLEntities(post.title)}`
+  );
+
+  if (type === "newsletter") {
+    articleCard.setAttribute("data-nl_date", post.post_date);
+    articleCard.setAttribute("data-category", post.category_names);
+
+    const postThumbnail = document.createElement("div");
+    postThumbnail.className = "post-thumbnail";
+
+    const img = document.createElement("img");
+    img.src = post.featured_image;
+    img.alt = decodeHTMLEntities(post.title);
+    img.width = "286";
+    img.height = "286";
+    img.setAttribute("fetchpriority", "high");
+    img.setAttribute("decoding", "async");
+
+    const time = document.createElement("time");
+    time.className = "post-date";
+    const date = parseDate(post.post_date);
+    if (!date || isNaN(date.getTime())) {
+      time.textContent = "Invalid Date";
+    } else {
+      const options = { day: "numeric", month: "short", year: "numeric" };
+      const formattedDate = date.toLocaleDateString("en-GB", options);
+      time.textContent = formattedDate;
+      time.setAttribute("datetime", formattedDate);
+    }
+
+    const title = document.createElement("h2");
+    title.className = "post-title";
+    title.title = decodeHTMLEntities(post.title);
+    title.textContent = decodeHTMLEntities(post.title);
+
+    postThumbnail.appendChild(img);
+    postThumbnail.appendChild(time);
+    postThumbnail.appendChild(title);
+    link.appendChild(postThumbnail);
+  } else {
+    const img = document.createElement("img");
+    img.src = post.featured_image;
+    img.alt = decodeHTMLEntities(post.title);
+    img.className = "awards_card_img";
+    img.width = "300";
+    img.height = "300";
+    img.loading = "lazy";
+
+    const div = document.createElement("div");
+
+    const flexDiv = document.createElement("div");
+    flexDiv.className = "categ_date flex";
+
+    const categLbl = document.createElement("div");
+    categLbl.className = "categ_lbl capitalize pr-2";
+    categLbl.textContent = decodeHTMLEntities(post.category_names);
+
+    const datePosted = document.createElement("div");
+    datePosted.className = "date_posted text-gray-700 fw-light";
+    const date = parseDate(post.post_date);
+    if (!date || isNaN(date.getTime())) {
+      datePosted.textContent = "Invalid Date";
+    } else {
+      const options = { day: "numeric", month: "short", year: "numeric" };
+      const formattedDate = date.toLocaleDateString("en-GB", options);
+      datePosted.textContent = formattedDate;
+    }
+
+    const titleDiv = document.createElement("div");
+    titleDiv.className = "title";
+    titleDiv.textContent = decodeHTMLEntities(post.title);
+
+    flexDiv.appendChild(categLbl);
+    flexDiv.appendChild(datePosted);
+    div.appendChild(flexDiv);
+    div.appendChild(titleDiv);
+    link.appendChild(img);
+    link.appendChild(div);
+  }
+
+  articleCard.appendChild(link);
+  return articleCard;
+}
+
+function sanitizeHTML(html) {
+  const tempDiv = document.createElement("div");
+  tempDiv.textContent = html;
+  return tempDiv.innerHTML;
+}
+
+function decodeHTMLEntities(text) {
+  const textArea = document.createElement("textarea");
+  textArea.innerHTML = text;
+  return textArea.value;
+}
+
+function parseDate(dateString) {
+  const parts = dateString.split("-");
+  if (parts.length !== 3) return null;
+
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1; // Month is zero-based in JavaScript Date
+  const year = parseInt(parts[2], 10);
+
+  return new Date(year, month, day);
+}
+
 // Refactored getAwardPosts function
 async function getAwardPosts() {
   const dbName = "PostsDatabase";
@@ -105,79 +224,4 @@ async function getAwardPosts() {
       }
     });
   }
-}
-
-function createCardUI(post, type = "award") {
-  const articleCard = document.createElement("article");
-  articleCard.className =
-    type === "award" ? "awards_card_item" : "newsletter_post_item flex-col";
-  articleCard.setAttribute("data-tags", post.tags);
-
-  const link = document.createElement("a");
-  link.href = post.url;
-
-  const img = document.createElement("img");
-  img.src = post.featured_image;
-  img.alt = decodeHTMLEntities(post.title);
-  img.className = "awards_card_img";
-  img.width = "300";
-  img.height = "300";
-  img.loading = "lazy";
-
-  const div = document.createElement("div");
-
-  const flexDiv = document.createElement("div");
-  flexDiv.className = "categ_date flex";
-
-  const categLbl = document.createElement("div");
-  categLbl.className = "categ_lbl capitalize pr-2";
-  categLbl.textContent = decodeHTMLEntities(post.category_names);
-
-  const datePosted = document.createElement("div");
-  datePosted.className = "date_posted text-gray-700 fw-light";
-  const date = parseDate(post.post_date);
-  if (!date || isNaN(date.getTime())) {
-    datePosted.textContent = "Invalid Date";
-  } else {
-    const options = { day: "numeric", month: "short", year: "numeric" };
-    const formattedDate = date.toLocaleDateString("en-GB", options);
-    datePosted.textContent = formattedDate;
-  }
-
-  const titleDiv = document.createElement("div");
-  titleDiv.className = "title";
-  titleDiv.textContent = decodeHTMLEntities(post.title);
-
-  flexDiv.appendChild(categLbl);
-  flexDiv.appendChild(datePosted);
-  div.appendChild(flexDiv);
-  div.appendChild(titleDiv);
-  link.appendChild(img);
-  link.appendChild(div);
-  articleCard.appendChild(link);
-
-  return articleCard;
-}
-
-function sanitizeHTML(html) {
-  const tempDiv = document.createElement("div");
-  tempDiv.textContent = html;
-  return tempDiv.innerHTML;
-}
-
-function decodeHTMLEntities(text) {
-  const textArea = document.createElement("textarea");
-  textArea.innerHTML = text;
-  return textArea.value;
-}
-
-function parseDate(dateString) {
-  const parts = dateString.split("-");
-  if (parts.length !== 3) return null;
-
-  const day = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10) - 1; // Month is zero-based in JavaScript Date
-  const year = parseInt(parts[2], 10);
-
-  return new Date(year, month, day);
 }
