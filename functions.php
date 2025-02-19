@@ -1,6 +1,6 @@
 <?php
 
-require_once ('nl-archives.php');
+require_once('nl-archives.php');
 
 add_action('wp_enqueue_scripts', 'enqueue_load_fa');
 
@@ -11,7 +11,7 @@ function enqueue_load_fa()
 
 function chr_theme_enqueue_styles()
 {
-	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.14', 'all');
+	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.15', 'all');
 	wp_enqueue_style('custom-style');
 }
 
@@ -443,7 +443,6 @@ add_shortcode('get_post_excerpt', 'get_post_excerpt_shortcode');
 function show_parent_title_shortcode($atts, $content = null)
 {
 	global $post;
-
 	if ($post->post_parent) {
 		$ancestors = get_post_ancestors($post->ID);
 		$root = count($ancestors) - 1;
@@ -498,6 +497,8 @@ add_shortcode('show_news_sitepath', 'show_news_sitepath_shortcode');
 
 function show_news_events_sitepath_shortcode()
 {
+	$post = get_post();
+
 	$output = '';
 	$output .= '<ul>';
 	$output .= '<li><a href="/">Home</a></li>';
@@ -1117,6 +1118,7 @@ function next_prev_post_shortcode($atts, $content = null)
 
 	$query = new WP_Query($query_args);
 	$output = '';
+	$ids = array();
 	while ($query->have_posts()):
 		$query->the_post();
 		$ids[] = $post->ID;
@@ -1124,21 +1126,27 @@ function next_prev_post_shortcode($atts, $content = null)
 	wp_reset_postdata();
 	$current_post_id = get_the_ID();
 	$next_post_id = 0;
+	$prev_post_id = 0;
 
 	foreach ($ids as $key => $id) {
 		if ($current_post_id === $id) {
-			$prev_post_id = $ids[$key - 1];
-			$next_post_id = $ids[$key + 1];
+			if (isset($ids[$key - 1])) {
+				$prev_post_id = $ids[$key - 1];
+			}
+			if (isset($ids[$key + 1])) {
+				$next_post_id = $ids[$key + 1];
+			}
+			break;
 		}
 	}
 
-	if ($prev_post_id != '') {
+	if ($prev_post_id != 0) {
 		$prev_link = '<div class="prev-thumbnail"><a rel="prev" href="' . get_permalink($prev_post_id) . '" class="prev-thumb">' . get_the_title($prev_post_id) . '</a></div>';
 	} else {
 		$prev_link = '<div class="prev-thumbnail">&nbsp;</div>';
 	}
 
-	if ($next_post_id != '') {
+	if ($next_post_id != 0) {
 		$next_link = '<div class="next-thumbnail"><a rel="next" href="' . get_permalink($next_post_id) . '" class="next-thumb">' . get_the_title($next_post_id) . '</a></div>';
 	} else {
 		$next_link = '<div class="next-thumbnail">&nbsp;</div>';
@@ -1524,20 +1532,20 @@ function misha_filter_function()
 				</article>
 			</div>';
 		endwhile;
-?>
+		?>
 
-<?php if ($wp_query->max_num_pages > 1): ?>
-<script>
-var ajaxurl = '<?php echo site_url() ?>/wp-admin/admin-ajax.php';
-var true_posts = '<?php echo serialize($wp_query->query_vars); ?>';
-var current_page = <?php echo (get_query_var('paged')) ? get_query_var('paged') : 1; ?>;
-var max_pages = '<?php echo $wp_query->max_num_pages; ?>';
-</script>
-<!--<a id="true_loadmore">Load more</a>-->
-<?php endif; ?>
+		<?php if ($wp_query->max_num_pages > 1): ?>
+			<script>
+				var ajaxurl = '<?php echo site_url() ?>/wp-admin/admin-ajax.php';
+				var true_posts = '<?php echo serialize($wp_query->query_vars); ?>';
+				var current_page = <?php echo (get_query_var('paged')) ? get_query_var('paged') : 1; ?>;
+				var max_pages = '<?php echo $wp_query->max_num_pages; ?>';
+			</script>
+			<!--<a id="true_loadmore">Load more</a>-->
+		<?php endif; ?>
 
 
-<?php
+		<?php
 		wp_reset_postdata();
 
 		// kama_pagenavi($before = '', $after = '', $echo = true, $args = array(), $wp_query = $query); // пагинация, функция нах-ся в function.php
@@ -1587,7 +1595,7 @@ add_filter('body_class', 'category_id_class');
 // =============================================
 
 // Custom Shortcodes Functions
-require_once get_stylesheet_directory() . '/includes/custom-shortcodes.php';
+// require_once get_stylesheet_directory() . '/includes/custom-shortcodes.php';
 
 // =============================================
 // Custom Nav Menu
@@ -1645,4 +1653,30 @@ function get_custom_nav_menu($location)
 	}
 
 	return $menu_array;
+}
+
+// get post tags sorted by ID
+function get_tags_html()
+{
+	$tags = get_terms([
+		'taxonomy' => 'post_tag',
+		'orderby' => 'term_id',
+		'order' => 'DESC',
+		'hide_empty' => false,
+	]);
+
+	$html = '<div style="display: none;">';
+
+	if ($tags) {
+		$tag_html = array_map(function ($tag) {
+			return '<div>(' . esc_html($tag->term_id) . ') ' . esc_html($tag->name) . '</div>';
+		}, $tags);
+		$html .= implode('', $tag_html);
+	} else {
+		$html .= 'no tags, issue';
+	}
+
+	$html .= '</div>';
+
+	return $html;
 }

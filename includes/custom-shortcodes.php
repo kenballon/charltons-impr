@@ -853,9 +853,6 @@ function homepage_recent_webinar_sc($atts)
                 $query->the_post();
                 echo '<article class="ppw_related_page_item">';
                 echo '<a href="' . get_permalink() . '" class="flex flex-col gap-1" aria-label="' . esc_attr(get_the_title()) . '">';
-                // echo '<div class="rp_img_div_wrapper overflow-clip flex items-center">';
-                // echo get_the_post_thumbnail(get_the_ID(), 'thumbnail', ['class' => 'related_page_img', 'loading' => 'lazy', 'fetchpriority' => 'high']);
-                // echo '</div>';
                 echo '<h1 class="ppw_entry_title">' . esc_html(get_the_title()) . '</h1>';
                 echo '</a>';
                 echo '</article>';
@@ -872,7 +869,7 @@ function homepage_recent_webinar_sc($atts)
     return ob_get_clean();
 }
 
-function cache_all_posts($atts = [], $cache_duration = 30 * MINUTE_IN_SECONDS)
+function cache_all_posts($atts = [], $cache_duration = 15 * MINUTE_IN_SECONDS)
 {
     // Extract shortcode attributes with default values
     $atts = shortcode_atts([
@@ -969,7 +966,7 @@ function storeAllPost($atts)
 
             try {
                 await deleteDatabase(dbName);
-                // console.log("Existing database deleted successfully.");
+                console.log("Existing database deleted successfully.");
             } catch (error) {
                 console.log("Error deleting database: ", error);
             }
@@ -977,7 +974,7 @@ function storeAllPost($atts)
             try {
                 const db = await openDatabase(dbName, 1);
                 await storePosts(db, data);
-                // console.log("All posts have been added to the IndexedDB.");
+                console.log("All posts have been added to the IndexedDB.");
             } catch (error) {
                 console.log("Database error: ", error);
             }
@@ -1024,48 +1021,6 @@ function storeAllPost($atts)
         EOT;
 
     return $script;
-}
-
-function get_newsletters_posts_sc($atts)
-{
-    $data = cache_all_posts($atts);
-    $html_output = '';
-    $counter = 0;
-    $show_time = isset($atts['show_time']) && $atts['show_time'] === 'false' ? 'd-none' : '';
-    $offset = isset($atts['offset']) ? intval($atts['offset']) : 0;
-
-    foreach ($data as $index => $post) {
-        if ($index < $offset) {
-            continue;
-        }
-
-        $post_date_original = esc_html($post['post_date']);
-        $post_date = DateTime::createFromFormat('d-m-Y', $post['post_date'])->format('d M Y');
-        $post_url = esc_url($post['url']);
-        $image_src = esc_url($post['featured_image']);
-        $image_alt = esc_attr($post['title']);
-        $post_title = esc_html($post['title']);
-        $post_excerpt = esc_html($post['excerpt']);
-        $category = esc_attr($atts['category']);
-        $class = $counter >= 12 ? 'd-none' : '';
-
-        $html_output .= <<<HTML
-            <article class="newsletter_post_item flex-col {$class}" data-nl_date="{$post_date_original}" data-category="{$category}">
-                <a href="{$post_url}" tabindex="0" target="_blank" rel="noopener noreferrer" aria-label="Read more about {$post_title}">
-                    <div class="post-thumbnail">
-                        <img src="{$image_src}" alt="{$image_alt}" width="286" height="286">
-                        <time class="post-date {$show_time}" datetime="{$post_date}">{$post_date}</time>
-                        <h2 class="post-title" title="{$post_title}">{$post_title}</h2>
-                        <div class="post-excerpt">{$post_excerpt}</div>
-                    </div>
-                </a>
-            </article>
-            HTML;
-
-        $counter++;
-    }
-
-    return $html_output;
 }
 
 function getNewsletterPostTitle($atts)
@@ -1496,7 +1451,6 @@ function register_custom_shortcodes()
     add_shortcode('content_posts', 'getNewsEventsPosts_sc');
     add_shortcode('insights_presentations', 'insights_presentations_sc');
     add_shortcode('store_all_posts', 'storeAllPost');
-    add_shortcode('newsletters_posts', 'get_newsletters_posts_sc');
     add_shortcode('getNewsletterPostTitle', 'getNewsletterPostTitle');
     add_shortcode('getPostTitleAndCategory', 'getPostTitleAndCategory');
     add_shortcode('newsletter_scf_custom_fields', 'newsletter_scf_custom_fields');
