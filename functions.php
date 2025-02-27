@@ -1,6 +1,6 @@
 <?php
 
-require_once('nl-archives.php');
+require_once ('nl-archives.php');
 
 add_action('wp_enqueue_scripts', 'enqueue_load_fa');
 
@@ -11,7 +11,7 @@ function enqueue_load_fa()
 
 function chr_theme_enqueue_styles()
 {
-	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.15', 'all');
+	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.16', 'all');
 	wp_enqueue_style('custom-style');
 }
 
@@ -1532,20 +1532,20 @@ function misha_filter_function()
 				</article>
 			</div>';
 		endwhile;
-		?>
+?>
 
-		<?php if ($wp_query->max_num_pages > 1): ?>
-			<script>
-				var ajaxurl = '<?php echo site_url() ?>/wp-admin/admin-ajax.php';
-				var true_posts = '<?php echo serialize($wp_query->query_vars); ?>';
-				var current_page = <?php echo (get_query_var('paged')) ? get_query_var('paged') : 1; ?>;
-				var max_pages = '<?php echo $wp_query->max_num_pages; ?>';
-			</script>
-			<!--<a id="true_loadmore">Load more</a>-->
-		<?php endif; ?>
+<?php if ($wp_query->max_num_pages > 1): ?>
+<script>
+var ajaxurl = '<?php echo site_url() ?>/wp-admin/admin-ajax.php';
+var true_posts = '<?php echo serialize($wp_query->query_vars); ?>';
+var current_page = <?php echo (get_query_var('paged')) ? get_query_var('paged') : 1; ?>;
+var max_pages = '<?php echo $wp_query->max_num_pages; ?>';
+</script>
+<!--<a id="true_loadmore">Load more</a>-->
+<?php endif; ?>
 
 
-		<?php
+<?php
 		wp_reset_postdata();
 
 		// kama_pagenavi($before = '', $after = '', $echo = true, $args = array(), $wp_query = $query); // пагинация, функция нах-ся в function.php
