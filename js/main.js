@@ -1649,19 +1649,19 @@ async function showFilteredAwardsByYear(filterID) {
 FilterButton.initializeAll(SELECTORS.awardsFilterButton, (filterID) => {
   currentFilterID = filterID === "all" ? null : filterID;
   showFilteredAwards(currentFilterID);
-  const awardsYearFilterBtn = document.querySelector(
+  const awardsYearFilterBtn = document?.querySelector(
     ".awards_btn_yrfilter.active"
   );
-  awardsYearFilterBtn.classList.remove("active");
+  awardsYearFilterBtn ? awardsYearFilterBtn.classList.remove("active") : null;
 });
 
 FilterButton.initializeAll(".awards_btn_yrfilter", (filterID) => {
   currentFilterID = filterID === "all" ? null : filterID;
   showFilteredAwardsByYear(currentFilterID);
-  const awardsTagFilterBtn = document.querySelector(
+  const awardsTagFilterBtn = document?.querySelector(
     ".awards_btn_filter.active"
   );
-  awardsTagFilterBtn.classList.remove("active");
+  awardsTagFilterBtn ? awardsTagFilterBtn.classList.remove("active") : null;
 });
 
 const searchInput = document?.getElementById("newsletterSearch");
