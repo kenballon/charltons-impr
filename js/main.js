@@ -1117,8 +1117,31 @@ function initNewsletterPage() {
   const openWordUrl = document.getElementById("dl_word");
 
   openDownloadOptions?.addEventListener("click", () =>
-    toggleDialog(downloadDialog, openDownloadOptions)
+    toggleDownloadDialog(downloadDialog)
   );
+
+  const toggleDownloadDialog = (toggleDiv) => {
+    const isOpen = toggleDiv.classList.toggle("open");
+    toggleDiv.setAttribute("aria-hidden", !isOpen);
+
+    const handleClickOutside = (event) => {
+      if (
+        !toggleDiv.contains(event.target) &&
+        !openDownloadOptions.contains(event.target)
+      ) {
+        toggleDiv.classList.remove("open");
+        toggleDiv.setAttribute("aria-hidden", "true");
+        document.removeEventListener("click", handleClickOutside);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("click", handleClickOutside);
+    } else {
+      document.removeEventListener("click", handleClickOutside);
+    }
+  };
+
   downloadPDF?.addEventListener("click", () => {
     openDownloadURL(
       document.getElementById("pdf_url_hidden_input")?.value,
