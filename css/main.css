@@ -10874,6 +10874,7 @@ ul.services_list .sub_services_list.active {
 @media (max-width: 767px) {
   .ap_featured_img_wrapper {
     height: 200px;
+    max-height: 200px;
   }
 }
 

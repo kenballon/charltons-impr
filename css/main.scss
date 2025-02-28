@@ -11953,9 +11953,9 @@ ul.services_list {
     object-fit: cover;
   }
 
-
   @media (max-width: 767px) {
     height: 200px;
+    max-height: 200px;
   }
 }
 
