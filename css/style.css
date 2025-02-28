@@ -11945,7 +11945,7 @@ ul.services_list {
 }
 
 /* ================================================= */
-.ap_featured_img_wrapper {
+.et_pb_module.ap_featured_img_wrapper {
   position: relative;
 
   img {
@@ -11956,6 +11956,10 @@ ul.services_list {
   @media (max-width: 767px) {
     height: 200px;
     max-height: 200px;
+
+    img{
+      height: 100%;
+    }
   }
 }
 

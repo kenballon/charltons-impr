@@ -10863,18 +10863,21 @@ ul.services_list .sub_services_list.active {
   }
 }
 /* ================================================= */
-.ap_featured_img_wrapper {
+.et_pb_module.ap_featured_img_wrapper {
   position: relative;
 }
-.ap_featured_img_wrapper img {
+.et_pb_module.ap_featured_img_wrapper img {
   height: 100%;
   -o-object-fit: cover;
      object-fit: cover;
 }
 @media (max-width: 767px) {
-  .ap_featured_img_wrapper {
+  .et_pb_module.ap_featured_img_wrapper {
     height: 200px;
     max-height: 200px;
+  }
+  .et_pb_module.ap_featured_img_wrapper img {
+    height: 100%;
   }
 }
 
