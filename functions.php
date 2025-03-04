@@ -39,7 +39,7 @@ function mainjs_script()
 	// Enqueue the main.js script
 	wp_enqueue_script(
 		'mainjs',
-		get_stylesheet_directory_uri() . '/js/main.js',
+		get_stylesheet_directory_uri() . '/js/main.min.js',
 		['jquery'],
 		null,
 		true  // Load the script in the footer

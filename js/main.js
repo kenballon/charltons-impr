@@ -1354,7 +1354,14 @@ async function fetchPostsFromDB(dbName, storeName, filterCallback) {
   }
 }
 
-function createCardUI(post, type = "award") {
+/**
+ * Creates a card UI element for a given post.
+ * 
+ * @param {Object} post - The post object containing data for the card.
+ * @param {string} [type="award"] - The type of card to create ("award" or "newsletter").
+ * @returns {HTMLElement} - The created article card element.
+ */
+function createCardUI(post, type = "award", isInitial = false) {
   const articleCard = document.createElement("article");
   articleCard.className =
     type === "award" ? "awards_card_item" : "newsletter_post_item flex-col";
@@ -1369,21 +1376,23 @@ function createCardUI(post, type = "award") {
     `Read more about ${decodeHTMLEntities(post.title)}`
   );
 
-  if (type === "newsletter") {
-    articleCard.setAttribute("data-nl_date", post.post_date);
-    articleCard.setAttribute("data-category", post.category_names);
-
-    const postThumbnail = document.createElement("div");
-    postThumbnail.className = "post-thumbnail";
-
+  function createImageElement(post, className, width, height, isInitial) {
     const img = document.createElement("img");
     img.src = post.featured_image;
     img.alt = decodeHTMLEntities(post.title);
-    img.width = "286";
-    img.height = "286";
-    img.setAttribute("fetchpriority", "high");
+    img.className = className;
+    img.width = width;
+    img.height = height;
     img.setAttribute("decoding", "async");
-
+  
+    if (!isInitial) {
+      img.loading = "lazy";
+    }
+  
+    return img;
+  }
+  
+  function createDateElement(post) {
     const time = document.createElement("time");
     time.className = "post-date";
     const date = parseDate(post.post_date);
@@ -1395,34 +1404,44 @@ function createCardUI(post, type = "award") {
       time.textContent = formattedDate;
       time.setAttribute("datetime", formattedDate);
     }
-
+    return time;
+  }
+  
+  function createTitleElement(post) {
     const title = document.createElement("h2");
     title.className = "post-title";
     title.title = decodeHTMLEntities(post.title);
     title.textContent = decodeHTMLEntities(post.title);
-
+    return title;
+  }
+  
+  if (type === "newsletter") {
+    articleCard.setAttribute("data-nl_date", post.post_date);
+    articleCard.setAttribute("data-category", post.category_names);
+  
+    const postThumbnail = document.createElement("div");
+    postThumbnail.className = "post-thumbnail";
+  
+    const img = createImageElement(post, "", 286, 286, isInitial);
+    const time = createDateElement(post);
+    const title = createTitleElement(post);
+  
     postThumbnail.appendChild(img);
     postThumbnail.appendChild(time);
     postThumbnail.appendChild(title);
     link.appendChild(postThumbnail);
   } else {
-    const img = document.createElement("img");
-    img.src = post.featured_image;
-    img.alt = decodeHTMLEntities(post.title);
-    img.className = "awards_card_img";
-    img.width = "300";
-    img.height = "300";
-    img.loading = "lazy";
-
+    const img = createImageElement(post, "awards_card_img", 300, 300, isInitial);
+  
     const div = document.createElement("div");
-
+  
     const flexDiv = document.createElement("div");
     flexDiv.className = "categ_date flex";
-
+  
     const categLbl = document.createElement("div");
     categLbl.className = "categ_lbl capitalize pr-2";
     categLbl.textContent = decodeHTMLEntities(post.category_names);
-
+  
     const datePosted = document.createElement("div");
     datePosted.className = "date_posted text-gray-700 fw-light";
     const date = parseDate(post.post_date);
@@ -1433,11 +1452,11 @@ function createCardUI(post, type = "award") {
       const formattedDate = date.toLocaleDateString("en-GB", options);
       datePosted.textContent = formattedDate;
     }
-
+  
     const titleDiv = document.createElement("div");
     titleDiv.className = "title";
     titleDiv.textContent = decodeHTMLEntities(post.title);
-
+  
     flexDiv.appendChild(categLbl);
     flexDiv.appendChild(datePosted);
     div.appendChild(flexDiv);
@@ -1547,7 +1566,7 @@ async function getAwardPosts() {
   // Load only the first 16 posts initially
   const initialPosts = sortedAwardPosts.slice(0, maxInitialPosts);
   initialPosts.forEach((post) => {
-    const article = createCardUI(post, "award");
+    const article = createCardUI(post, "award", true);
     awardsContainer?.appendChild(article);
   });
 
@@ -1593,7 +1612,7 @@ async function showFilteredAwards(filterID) {
   // Load only the first 16 posts initially
   const initialPosts = filteredPosts.slice(0, maxInitialPosts);
   initialPosts.forEach((post) => {
-    const article = createCardUI(post, "award");
+    const article = createCardUI(post, "award", true);
     awardsContainer?.appendChild(article);
   });
 
@@ -1650,7 +1669,7 @@ async function showFilteredAwardsByYear(filterID) {
   // Load only the first 16 posts initially
   const initialPosts = filteredPosts.slice(0, maxInitialPosts);
   initialPosts.forEach((post) => {
-    const article = createCardUI(post, "award");
+    const article = createCardUI(post, "award", true);
     awardsContainer?.appendChild(article);
   });
 
@@ -1709,7 +1728,7 @@ async function getNewsletterPosts(category = "hong-kong-law") {
 
   const initialPosts = sortedNewsletterPosts.slice(0, maxInitialPosts);
   initialPosts.forEach((post) => {
-    const article = createCardUI(post, "newsletter");
+    const article = createCardUI(post, "newsletter", true);
     newsletterContainer?.appendChild(article);
   });
 
@@ -1759,7 +1778,7 @@ async function showFilteredNewsletters(filterCategoryID) {
 
   const initialPosts = filteredPosts.slice(0, maxInitialPosts);
   initialPosts.forEach((post) => {
-    const article = createCardUI(post, "newsletter");
+    const article = createCardUI(post, "newsletter", true);
     newsletterContainer?.appendChild(article);
   });
 
@@ -1824,7 +1843,7 @@ searchInput?.addEventListener("input", async function (e) {
   const initialPosts = filteredPosts.slice(0, maxInitialPosts);
 
   initialPosts.forEach((post) => {
-    const article = createCardUI(post, "newsletter");
+    const article = createCardUI(post, "newsletter", true);
     newsletterContainer?.appendChild(article);
   });
 
