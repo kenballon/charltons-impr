@@ -1356,10 +1356,16 @@ async function fetchPostsFromDB(dbName, storeName, filterCallback) {
 
 /**
  * Creates a card UI element for a given post.
- * 
+ *
  * @param {Object} post - The post object containing data for the card.
  * @param {string} [type="award"] - The type of card to create ("award" or "newsletter").
- * @returns {HTMLElement} - The created article card element.
+ * @param {boolean} [isInitial=false] - Flag indicating if the card is part of the initial load.
+ * @returns {HTMLElement} The created article card element.
+ *
+ * This function generates an article card element based on the provided post data.
+ * It supports two types of cards: "award" and "newsletter". The card includes an image,
+ * title, and date, and is linked to the post URL. The function also handles lazy loading
+ * for images that are not part of the initial load.
  */
 function createCardUI(post, type = "award", isInitial = false) {
   const articleCard = document.createElement("article");
@@ -1378,20 +1384,31 @@ function createCardUI(post, type = "award", isInitial = false) {
 
   function createImageElement(post, className, width, height, isInitial) {
     const img = document.createElement("img");
-    img.src = post.featured_image;
-    img.alt = decodeHTMLEntities(post.title);
-    img.className = className;
+
+    img.setAttribute("fetchpriority", "high");
+    img.setAttribute("decoding", "async");
     img.width = width;
     img.height = height;
-    img.setAttribute("decoding", "async");
-  
+
+    const defaultImage = post.featured_image;
+    img.src = defaultImage;
+    img.srcset = `
+        ${post.featured_image_small || defaultImage} 300w,
+        ${post.featured_image_medium || defaultImage} 768w,
+        ${post.featured_image_large || defaultImage} 1024w
+    `;
+
+    img.sizes = "(max-width: 300px) 300px, (max-width: 768px) 768px, 1024px";
+    img.alt = decodeHTMLEntities(post.title);
+    img.className = className;
+
     if (!isInitial) {
       img.loading = "lazy";
     }
-  
+
     return img;
   }
-  
+
   function createDateElement(post) {
     const time = document.createElement("time");
     time.className = "post-date";
@@ -1406,7 +1423,7 @@ function createCardUI(post, type = "award", isInitial = false) {
     }
     return time;
   }
-  
+
   function createTitleElement(post) {
     const title = document.createElement("h2");
     title.className = "post-title";
@@ -1414,34 +1431,40 @@ function createCardUI(post, type = "award", isInitial = false) {
     title.textContent = decodeHTMLEntities(post.title);
     return title;
   }
-  
+
   if (type === "newsletter") {
     articleCard.setAttribute("data-nl_date", post.post_date);
     articleCard.setAttribute("data-category", post.category_names);
-  
+
     const postThumbnail = document.createElement("div");
     postThumbnail.className = "post-thumbnail";
-  
+
     const img = createImageElement(post, "", 286, 286, isInitial);
     const time = createDateElement(post);
     const title = createTitleElement(post);
-  
+
     postThumbnail.appendChild(img);
     postThumbnail.appendChild(time);
     postThumbnail.appendChild(title);
     link.appendChild(postThumbnail);
   } else {
-    const img = createImageElement(post, "awards_card_img", 300, 300, isInitial);
-  
+    const img = createImageElement(
+      post,
+      "awards_card_img",
+      300,
+      300,
+      isInitial
+    );
+
     const div = document.createElement("div");
-  
+
     const flexDiv = document.createElement("div");
     flexDiv.className = "categ_date flex";
-  
+
     const categLbl = document.createElement("div");
     categLbl.className = "categ_lbl capitalize pr-2";
     categLbl.textContent = decodeHTMLEntities(post.category_names);
-  
+
     const datePosted = document.createElement("div");
     datePosted.className = "date_posted text-gray-700 fw-light";
     const date = parseDate(post.post_date);
@@ -1452,11 +1475,11 @@ function createCardUI(post, type = "award", isInitial = false) {
       const formattedDate = date.toLocaleDateString("en-GB", options);
       datePosted.textContent = formattedDate;
     }
-  
+
     const titleDiv = document.createElement("div");
     titleDiv.className = "title";
     titleDiv.textContent = decodeHTMLEntities(post.title);
-  
+
     flexDiv.appendChild(categLbl);
     flexDiv.appendChild(datePosted);
     div.appendChild(flexDiv);
