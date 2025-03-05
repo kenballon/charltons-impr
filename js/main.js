@@ -1383,12 +1383,11 @@ function createCardUI(post, type = "award", isInitial = false) {
   );
 
   function createImageElement(post, className, width, height, isInitial) {
-    const img = document.createElement("img");
-
-    img.setAttribute("fetchpriority", "high");
+    const img = document.createElement("img");    
     img.setAttribute("decoding", "async");
     img.width = width;
     img.height = height;
+    img.className = className;
 
     const defaultImage = post.featured_image;
     img.src = defaultImage;
@@ -1400,7 +1399,7 @@ function createCardUI(post, type = "award", isInitial = false) {
 
     img.sizes = "(max-width: 300px) 300px, (max-width: 768px) 768px, 1024px";
     img.alt = decodeHTMLEntities(post.title);
-    img.className = className;
+   
 
     if (!isInitial) {
       img.loading = "lazy";
