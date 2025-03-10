@@ -33,18 +33,20 @@ export default class FilterButton {
   }
 
   /**
-   * Activates the button by adding the "active" class and setting isActive to true.
+   * Activates the button by adding the "active" class, setting isActive to true, and setting aria-pressed to true.
    */
   activate() {
     this.element.classList.add("active");
+    this.element.setAttribute("aria-pressed", "true");
     this.isActive = true;
   }
 
   /**
-   * Deactivates the button by removing the "active" class and setting isActive to false.
+   * Deactivates the button by removing the "active" class, setting isActive to false, and setting aria-pressed to false.
    */
   deactivate() {
     this.element.classList.remove("active");
+    this.element.removeAttribute("aria-pressed");
     this.isActive = false;
   }
 
