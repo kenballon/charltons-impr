@@ -711,13 +711,11 @@ const tabFunc = () => {
 
     let tabContainerWrapper = section.querySelector(".award_tabs_container");
     if (window.innerWidth <= 1023) {
-      tabContainerWrapper.style.maxWidth = `${
-        (tabWidth / tabBtns.length) * 3
-      }px`;
+      tabContainerWrapper.style.maxWidth = `${(tabWidth / tabBtns.length) * 3
+        }px`;
     } else {
-      tabContainerWrapper.style.maxWidth = `${
-        (tabWidth / tabBtns.length) * 5
-      }px`;
+      tabContainerWrapper.style.maxWidth = `${(tabWidth / tabBtns.length) * 5
+        }px`;
     }
 
     const containerWidth = section
@@ -1375,7 +1373,6 @@ function createCardUI(post, type = "award", isInitial = false) {
 
   const link = document.createElement("a");
   link.href = post.url;
-  link.target = "_blank";
   link.rel = "noopener noreferrer";
   link.setAttribute(
     "aria-label",
@@ -1383,7 +1380,7 @@ function createCardUI(post, type = "award", isInitial = false) {
   );
 
   function createImageElement(post, className, width, height, isInitial) {
-    const img = document.createElement("img");    
+    const img = document.createElement("img");
     img.setAttribute("decoding", "async");
     img.width = width;
     img.height = height;
@@ -1399,7 +1396,7 @@ function createCardUI(post, type = "award", isInitial = false) {
 
     img.sizes = "(max-width: 300px) 300px, (max-width: 768px) 768px, 1024px";
     img.alt = decodeHTMLEntities(post.title);
-   
+
 
     if (!isInitial) {
       img.loading = "lazy";
@@ -1712,7 +1709,9 @@ async function showFilteredAwardsByYear(filterID) {
 
 FilterButton.initializeAll(SELECTORS.awardsFilterButton, (filterID) => {
   currentFilterID = filterID === "all" ? null : filterID;
+
   showFilteredAwards(currentFilterID);
+
   const awardsYearFilterBtn = document?.querySelector(
     ".awards_btn_yrfilter.active"
   );
@@ -1726,6 +1725,7 @@ FilterButton.initializeAll(".awards_btn_yrfilter", (filterID) => {
     ".awards_btn_filter.active"
   );
   awardsTagFilterBtn ? awardsTagFilterBtn.classList.remove("active") : null;
+
 });
 
 const searchInput = document?.getElementById("newsletterSearch");
@@ -1893,3 +1893,18 @@ showCloseButton?.addEventListener("click", function () {
   showFilteredNewsletters(activeFilterBtn?.id);
 });
 //SEARCH NEWSLETTERS END
+
+const buttonSVG = document.querySelectorAll('.arrow_right_svg_plus_icon');
+
+buttonSVG.forEach(button => {
+  button.addEventListener('click', () => {
+    button.classList.toggle('active');
+    const parentItem = button.closest('.services_list_item');
+    if (parentItem) {
+      const subServicesList = parentItem.querySelector('.sub_services_list');
+      if (subServicesList) {
+        subServicesList.classList.toggle('active');
+      }
+    }
+  });
+});
