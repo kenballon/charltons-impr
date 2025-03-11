@@ -526,8 +526,6 @@ function get_recent_news_posts($atts)
             'post_type' => 'post',
             'category' => 'news',
             'num_posts' => 5,
-            'post_status' => 'publish',
-            'has_password' => false,
         ],
         $atts,
         'get_recent_news_posts'
@@ -537,7 +535,9 @@ function get_recent_news_posts($atts)
     $args = [
         'post_type' => $atts['post_type'],
         'category_name' => $atts['category'],
-        'posts_per_page' => $atts['num_posts']
+        'posts_per_page' => $atts['num_posts'],
+        'post_status' => 'publish',
+        'has_password' => false,
     ];
 
     // Create a new WP_Query instance
@@ -583,8 +583,6 @@ function getRecentPostWithOffset($atts)
             'offset' => 0,
             'num_posts' => 10,
             'category' => 'news',
-            'post_status' => 'publish',
-            'has_password' => false,
         ],
         $atts,
         'getRecentPostWithOffset'
@@ -595,6 +593,8 @@ function getRecentPostWithOffset($atts)
         'category_name' => $atts['category'],
         'posts_per_page' => $atts['num_posts'],
         'offset' => $atts['offset'],
+        'post_status' => 'publish',
+        'has_password' => false,
     ];
 
     $query = new WP_Query($query_args);
@@ -629,8 +629,6 @@ function getNewsEventsPosts_sc($atts)
             'posts_per_page' => 12,  // Display 12 posts per page
             'featImgSize' => 'medium_large',
             'dateFormat' => 'M Y',
-            'post_status' => 'publish',
-            'has_password' => false,
         ],
         $atts,
         'getNewsEventsPosts_sc'
@@ -640,7 +638,9 @@ function getNewsEventsPosts_sc($atts)
     $args = [
         'post_type' => $atts['post_type'],
         'category_name' => $atts['category'],
-        'posts_per_page' => $atts['num_posts']
+        'posts_per_page' => $atts['num_posts'],
+        'post_status' => 'publish',
+        'has_password' => false,
     ];
 
     // Create a new WP_Query instance
@@ -648,6 +648,7 @@ function getNewsEventsPosts_sc($atts)
 
     // Generate the HTML string
     $articleCard = '';
+
     if ($query->have_posts()) {
         while ($query->have_posts()) {
             $query->the_post();
@@ -667,7 +668,7 @@ function getNewsEventsPosts_sc($atts)
             }
             $tag_names_str = implode(', ', $tag_names);
 
-            $articleCard .= '<article class="news_article_wrapper d-none" aria-hidden="true">';
+            $articleCard .= '<article class="news_article_wrapper d-none" aria-hidden="true" data-category="' . esc_html($atts['category']) . '">';
             $articleCard .= '<input type="hidden" class="newsevents_hidden_input" id="' . $post_id . '" value="' . esc_attr($tag_names_str) . '">';
             $articleCard .= '<div class="news_card_image">';
             $articleCard .= '<a href="' . esc_url($post_url) . '" aria-label="' . esc_attr($post_title) . ' " title="Go to ' . esc_attr($post_title) . '" rel="noopener noreferrer" target="_blank">';
