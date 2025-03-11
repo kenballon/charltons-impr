@@ -526,6 +526,8 @@ function get_recent_news_posts($atts)
             'post_type' => 'post',
             'category' => 'news',
             'num_posts' => 5,
+            'post_status' => 'publish',
+            'has_password' => false,
         ],
         $atts,
         'get_recent_news_posts'
@@ -581,6 +583,8 @@ function getRecentPostWithOffset($atts)
             'offset' => 0,
             'num_posts' => 10,
             'category' => 'news',
+            'post_status' => 'publish',
+            'has_password' => false,
         ],
         $atts,
         'getRecentPostWithOffset'
@@ -624,7 +628,9 @@ function getNewsEventsPosts_sc($atts)
             'num_posts' => -1,  // Fetch all posts
             'posts_per_page' => 12,  // Display 12 posts per page
             'featImgSize' => 'medium_large',
-            'dateFormat' => 'M Y'
+            'dateFormat' => 'M Y',
+            'post_status' => 'publish',
+            'has_password' => false,
         ],
         $atts,
         'getNewsEventsPosts_sc'
@@ -869,7 +875,7 @@ function homepage_recent_webinar_sc($atts)
     return ob_get_clean();
 }
 
-function cache_all_posts($atts = [], $cache_duration = 15 * MINUTE_IN_SECONDS)
+function cache_all_posts($atts = [], $cache_duration = MINUTE_IN_SECONDS)
 {
     // Extract shortcode attributes with default values
     $atts = shortcode_atts([
@@ -966,7 +972,7 @@ function storeAllPost($atts)
 
             try {
                 await deleteDatabase(dbName);
-                console.log("Existing database deleted successfully.");
+               // console.log("Existing database deleted successfully.");
             } catch (error) {
                 console.log("Error deleting database: ", error);
             }
@@ -974,7 +980,7 @@ function storeAllPost($atts)
             try {
                 const db = await openDatabase(dbName, 1);
                 await storePosts(db, data);
-                console.log("All posts have been added to the IndexedDB.");
+                //console.log("All posts have been added to the IndexedDB.");
             } catch (error) {
                 console.log("Database error: ", error);
             }
