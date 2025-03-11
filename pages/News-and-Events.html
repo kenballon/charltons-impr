@@ -8,19 +8,24 @@
 </head>
 
 <body>
+
     <div class="all_newsevents_container">
-        <div class="btn_tag_filter_wrapper flex gap-1"><button id="all" class="news_btn_tag_filter"
+        <nav class="btn_tag_filter_wrapper flex gap-1"><button id="all" class="news_btn_tag_filter"
                 type="button">All</button>
             <button id="webinars" class="news_btn_tag_filter" type="button">Webinars</button>
             <button id="events" class="news_btn_tag_filter" type="button">Events</button>
             <button id="news" class="news_btn_tag_filter" type="button">News</button>
             <button id="awards" class="news_btn_tag_filter" type="button">Awards</button>
             <button id="youtube" class="news_btn_tag_filter" type="button">Youtube</button>
-        </div>
+        </nav>
+
         <div id="all_news_posts" class="news_posts_container grid gap-2">
             <!-- loop all posts with a certain category: shortcode loop -->
-            [content_posts category="news" dateFormat="d M Y"]
+            [content_posts category="news, career" dateFormat="d M Y"]
+
         </div>
+
+        <!-- custom pagination -->
         <div class="pagination_container flex justify-center">
             <div class="news_previous_wrapper_div flex">
                 <button id="prev_post_btn" class="prev d-none" type="button">Previous</button>
@@ -36,22 +41,6 @@
         </div>
     </div>
 
-
-    <div class="newsletters_post" data-displaystyle="grid" id="newsletters_post">
-
-        <article class="newsletter_post_item flex-col">
-            <a href="https://creators.spotify.com/pod/show/charltons-quantum" tabindex="0" target="_blank">
-                <div class="post-thumbnail">
-                    <img src="https://s3-us-west-2.amazonaws.com/anchor-generated-image-bank/staging/podcast_uploaded_nologo400/42276314/42276314-1729496435954-5e787509c2f62.jpg"
-                        alt="quantum podcasts" width="286" height="286" />
-                    <h2 class="post-title" title="Tech Horizons">Tech Horizons</h2>
-                </div>
-            </a>
-        </article>
-
-        [newsletters_posts category="podcasts" show_time="false"]
-
-    </div>
 </body>
 
 </html>
