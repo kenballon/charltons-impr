@@ -253,7 +253,8 @@ document.addEventListener("readystatechange", (e) => {
     customHeaderNavigation();
     tabFunc();
     showAwardImageFunc();
-    showNewsEvents();
+    // showNewsEvents();
+    getNewsAndEventsPosts(["awards-and-rankings", "news"]);
     getNewsletterPosts();
     initNewsletterPage();
     getAwardPosts();
@@ -824,171 +825,6 @@ const SELECTORS = {
   paginationdots_last: "#ne_pagination_dots",
 };
 
-FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
-  currentFilterID = filterID === "all" ? null : filterID;
-  currentPage = 1;
-  showNewsEvents(currentFilterID);
-});
-
-function showNewsEvents(filterID = null) {
-  const newsPostContainer = document.querySelector(SELECTORS.allNewsPosts);
-
-  if (newsPostContainer) {
-    let newsPosts = Array.from(
-      newsPostContainer.querySelectorAll(SELECTORS.cardsPosts)
-    );
-
-    newsPosts.forEach((post) => {
-      const newsHiddenInput = post.querySelector(".newsevents_hidden_input");
-
-      let inputValArr = newsHiddenInput.value
-        .split(",")
-        .map((tag) => tag.trim());
-
-      if (filterID) {
-        let isMatch = inputValArr.some((inputVal) => filterID == inputVal);
-        if (isMatch) {
-          post.classList.remove("d-none");
-          post.setAttribute("aria-hidden", "false");
-        } else {
-          post.classList.add("d-none");
-          post.setAttribute("aria-hidden", "true");
-        }
-      } else {
-        post.classList.remove("d-none");
-        post.setAttribute("aria-hidden", "false");
-      }
-    });
-
-    const visiblePosts = newsPosts.filter(
-      (post) => !post.classList.contains("d-none")
-    );
-
-    const totalPages = Math.ceil(visiblePosts.length / postsPerPage);
-
-    generatePaginationButtons(totalPages);
-    updateNavigationButtons(totalPages);
-
-    visiblePosts.forEach((post, index) => {
-      if (
-        index >= (currentPage - 1) * postsPerPage &&
-        index < currentPage * postsPerPage
-      ) {
-        if (post.classList.contains("d-none")) {
-          post.classList.remove("d-none");
-          post.setAttribute("aria-hidden", "false");
-        }
-      } else {
-        if (!post.classList.contains("d-none")) {
-          post.classList.add("d-none");
-          post.setAttribute("aria-hidden", "true");
-        }
-      }
-    });
-  }
-}
-
-function generatePaginationButtons(totalPages) {
-  const paginationWrapper = document.querySelector(SELECTORS.paginationWrapper);
-
-  paginationWrapper.innerHTML = "";
-
-  for (let i = 1; i <= totalPages; i++) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.classList.add("pagination_btn");
-    button.id = `page_${i}`;
-    button.textContent = i;
-
-    // Determine the start and end page for the current set of pagination buttons
-    let startPage = Math.floor((currentPage - 1) / 5) * 5 + 1;
-    let endPage = startPage + 4;
-
-    // Add the d-none class to the button if it's not within the current set of pagination buttons
-    if (i < startPage || i > endPage) {
-      button.classList.add("d-none");
-    }
-
-    // Add the active class to the current page button
-    if (i === currentPage) {
-      button.classList.add("active");
-    }
-
-    button.addEventListener("click", () => {
-      currentPage = i;
-      showNewsEvents(currentFilterID);
-    });
-
-    paginationWrapper.appendChild(button);
-  }
-}
-
-function updateNavigationButtons(totalPages) {
-  const buttons = {
-    prev: document.querySelector(SELECTORS.prevBtn),
-    first: document.querySelector(SELECTORS.firstBtn),
-    next: document.querySelector(SELECTORS.nextBtn),
-    last: document.querySelector(SELECTORS.lastBtn),
-    dots_first: document.querySelector(SELECTORS.paginationdots_first),
-    dots_last: document.querySelector(SELECTORS.paginationdots_last),
-  };
-
-  const toggleClass = (element, className, condition) => {
-    element.classList.toggle(className, !condition);
-  };
-
-  // Show the "Previous" and "First" buttons if the current page is not the first page
-  toggleClass(buttons.prev, "d-none", currentPage > 1);
-  toggleClass(buttons.first, "d-none", currentPage >= 6);
-
-  if (currentPage >= 6) {
-    buttons.first.textContent = "1";
-    buttons.dots_first.classList.remove("d-none");
-  } else if (currentPage < 6) {
-    buttons.dots_first.classList.add("d-none");
-    buttons.first.classList.add("d-none");
-  }
-
-  // Show the "Next" and "Last" buttons if the current page is not the last page
-  toggleClass(buttons.next, "d-none", currentPage < totalPages);
-  toggleClass(buttons.last, "d-none", currentPage < totalPages);
-
-  if (totalPages > 5) {
-    buttons.last.textContent = totalPages;
-    buttons.dots_last.classList.remove("d-none");
-  } else {
-    buttons.dots_last.classList.add("d-none");
-    buttons.last.classList.add("d-none");
-  }
-
-  if (currentPage >= totalPages) {
-    buttons.dots_last.classList.add("d-none");
-  }
-}
-
-// Add event listeners to the navigation buttons
-document.getElementById("prev_post_btn")?.addEventListener("click", () => {
-  currentPage--;
-  showNewsEvents(currentFilterID);
-});
-
-document.getElementById("first_post_btn")?.addEventListener("click", () => {
-  currentPage = 1;
-  showNewsEvents(currentFilterID);
-});
-
-document.getElementById("next_post_btn")?.addEventListener("click", () => {
-  currentPage++;
-  showNewsEvents(currentFilterID);
-});
-
-document.getElementById("last_post_btn")?.addEventListener("click", () => {
-  currentPage = Math.ceil(
-    document.querySelectorAll(SELECTORS.cardsPosts).length / postsPerPage
-  );
-  showNewsEvents(currentFilterID);
-});
-
 // ============================================================
 //  PPW (Publication, Presentations, and Webinars) JS CODE
 // ============================================================
@@ -1443,7 +1279,52 @@ function createCardUI(post, type = "award", isInitial = false) {
     postThumbnail.appendChild(time);
     postThumbnail.appendChild(title);
     link.appendChild(postThumbnail);
-  } else {
+  } else if (type === "news") {
+    articleCard.className = "news_article_wrapper";
+    articleCard.setAttribute("data-category", post.categories);
+    articleCard.setAttribute("data-tags", post.tags);
+
+    const newsCardImage = document.createElement("div");
+    newsCardImage.className = "news_card_image";
+
+    const imageLink = document.createElement("a");
+    imageLink.href = post.url;
+    imageLink.rel = "noopener noreferrer";
+    imageLink.setAttribute("aria-label", decodeHTMLEntities(post.title));
+    imageLink.title = decodeHTMLEntities(post.title);
+
+    const img = createImageElement(post, "border-1", 320, 320, isInitial);
+    imageLink.appendChild(img);
+    newsCardImage.appendChild(imageLink);
+
+    const newsCardContent = document.createElement("div");
+    newsCardContent.className = "news_card_content";
+
+    const postDate = document.createElement("div");
+    postDate.className = "newsevents__post_date";
+    const date = parseDate(post.post_date);
+    postDate.textContent = date && !isNaN(date.getTime())
+      ? date.toLocaleDateString("en-GB", { month: "short", year: "numeric" })
+      : "Invalid Date";
+
+    const titleLink = document.createElement("a");
+    titleLink.href = post.url;
+    titleLink.rel = "noopener noreferrer";
+    titleLink.setAttribute("aria-label", decodeHTMLEntities(post.title));
+    titleLink.title = decodeHTMLEntities(post.title);
+
+    const title = document.createElement("h2");
+    title.className = "newsevents__post_title fw-medium";
+    title.textContent = decodeHTMLEntities(post.title);
+    titleLink.appendChild(title);
+
+    newsCardContent.appendChild(postDate);
+    newsCardContent.appendChild(titleLink);
+
+    articleCard.appendChild(newsCardImage);
+    articleCard.appendChild(newsCardContent);
+  }
+  else {
     const img = createImageElement(
       post,
       "awards_card_img",
@@ -1570,7 +1451,7 @@ async function getAwardPosts() {
   const dbName = "PostsDatabase";
   const storeName = "posts";
   const tagValue = "awards";
-  const maxInitialPosts = 16;
+  const maxInitialPosts = 25;
   let currentPostIndex = 0;
 
   const awardPosts = await fetchPostsFromDB(dbName, storeName, (post) => {
@@ -1608,7 +1489,7 @@ async function showFilteredAwards(filterID) {
   const dbName = "PostsDatabase";
   const storeName = "posts";
   const tagValue = "awards";
-  const maxInitialPosts = 16;
+  const maxInitialPosts = 10;
   let currentPostIndex = 0;
 
   const awardPosts = await fetchPostsFromDB(dbName, storeName, (post) => {
@@ -1654,7 +1535,7 @@ async function showFilteredAwardsByYear(filterID) {
   const dbName = "PostsDatabase";
   const storeName = "posts";
   const tagValue = "awards";
-  const maxInitialPosts = 16;
+  const maxInitialPosts = 20;
   let currentPostIndex = 0;
 
   const awardPosts = await fetchPostsFromDB(dbName, storeName, (post) => {
@@ -1907,4 +1788,144 @@ buttonSVG.forEach(button => {
       }
     }
   });
+});
+
+// =======================================
+//  NEWS & EVENTS PAGE JS CODE : REFACTORED
+// =======================================
+
+async function getNewsAndEventsPosts(categories = [], filterID = null) {
+  const dbName = "PostsDatabase";
+  const storeName = "posts";
+
+  // get all posts from db that matches the categories
+  const awardsOrNews = await fetchPostsFromDB(dbName, storeName, (post) => {
+    const postCategories = post.categories.toLowerCase().split(", ");
+    const matchesCategory = postCategories.some((category) => categories.includes(category));
+    return matchesCategory;
+  });
+
+  let filteredPosts = awardsOrNews;
+
+  // Filter posts by tag if filterID is provided
+  if (filterID) {
+    filteredPosts = awardsOrNews.filter((post) => {
+      const postTags = post.tags.toLowerCase().split(", ");
+      return postTags.includes(filterID);
+    });
+  }
+
+  const sortedPosts = sortPostsByDate(filteredPosts);
+
+  // Initial render
+  renderPosts(sortedPosts, 1);
+  renderPagination(sortedPosts);
+}
+
+function renderPosts(posts, page, postsPerPage = 15) {
+  const awardNewsPostContainer = document?.getElementById("all_news_posts");
+  awardNewsPostContainer.innerHTML = "";
+  const start = (page - 1) * postsPerPage;
+  const end = start + postsPerPage;
+  const postsToRender = posts.slice(start, end);
+
+  postsToRender.forEach((post) => {
+    const article = createCardUI(post, "news", true);
+    awardNewsPostContainer?.appendChild(article);
+  });
+}
+
+function renderPagination(posts, postsPerPage = 15) {
+  const paginationWrapper = document?.getElementById("news_pagination_btns_wrapper");
+  const prevBtn = document?.getElementById("prev_post_btn");
+  const nextBtn = document?.getElementById("next_post_btn");
+  const firstBtn = document?.getElementById("first_post_btn");
+  const lastBtn = document?.getElementById("last_post_btn");
+  const paginationDotsFirst = document?.getElementById("ne_pagination_dots_first");
+  const paginationDotsLast = document?.getElementById("ne_pagination_dots");
+
+  let currentPage = 1;
+  const totalPages = Math.ceil(posts.length / postsPerPage);
+
+  function updatePagination() {
+    paginationWrapper.innerHTML = "";
+    let startPage = Math.floor((currentPage - 1) / 5) * 5 + 1;
+    let endPage = startPage + 4;
+
+    for (let i = 1; i <= totalPages; i++) {
+      const pageButton = document.createElement("button");
+      pageButton.textContent = i;
+      pageButton.className = "pagination_btn";
+
+      if (i < startPage || i > endPage) {
+        pageButton.classList.add("d-none");
+      }
+
+      if (i === currentPage) {
+        pageButton.classList.add("active");
+      }
+
+      pageButton.addEventListener("click", () => {
+        currentPage = i;
+        renderPosts(posts, currentPage);
+        updatePagination();
+      });
+      paginationWrapper.appendChild(pageButton);
+    }
+
+    firstBtn.classList.add("d-none");
+    prevBtn.classList.add("d-none");
+
+    nextBtn.classList.toggle("d-none", currentPage === totalPages);
+    lastBtn.classList.toggle("d-none", endPage >= totalPages);
+    paginationDotsFirst.classList.toggle("d-none", currentPage <= 5);
+    paginationDotsLast.classList.toggle("d-none", currentPage >= totalPages - 2);
+
+    if (currentPage >= 6) {
+      prevBtn.classList.remove("d-none");
+      firstBtn.classList.remove("d-none");
+      firstBtn.textContent = "1";
+    }
+
+    if (currentPage < totalPages) {
+      lastBtn.textContent = totalPages;
+    }
+  }
+
+  prevBtn.addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPosts(posts, currentPage);
+      updatePagination();
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderPosts(posts, currentPage);
+      updatePagination();
+    }
+  });
+
+  firstBtn.addEventListener("click", () => {
+    currentPage = 1;
+    renderPosts(posts, currentPage);
+    updatePagination();
+  });
+
+  lastBtn.addEventListener("click", () => {
+    currentPage = totalPages;
+    renderPosts(posts, currentPage);
+    updatePagination();
+  });
+
+  updatePagination();
+}
+
+// Initialize the filter buttons
+FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
+  currentFilterID = filterID === "all" ? null : filterID;
+  console.log(currentFilterID);
+  getNewsAndEventsPosts(["awards-and-rankings", "news"], currentFilterID);
 });

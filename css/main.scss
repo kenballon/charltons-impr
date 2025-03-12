@@ -12069,6 +12069,10 @@ subpage MENU
 
         .categ_date {
           margin-bottom: 1rem;
+
+          @media (max-width:1024px) {
+            flex-direction: column;
+          }
         }
 
         .title {
@@ -12089,15 +12093,15 @@ subpage MENU
   }
 
   @media (min-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (min-width: 1024px) {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  @media (min-width: 1366px) {
+  @media (min-width: 1024px) {
     grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (min-width: 1366px) {
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 

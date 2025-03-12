@@ -10980,6 +10980,11 @@ subpage MENU
 #all_awards_wrapper .awards_card_item a > div .categ_date {
   margin-bottom: 1rem;
 }
+@media (max-width: 1024px) {
+  #all_awards_wrapper .awards_card_item a > div .categ_date {
+    flex-direction: column;
+  }
+}
 #all_awards_wrapper .awards_card_item a > div .title {
   font-size: 1rem;
   font-weight: 700;
@@ -10992,17 +10997,17 @@ subpage MENU
 }
 @media (min-width: 768px) {
   #all_awards_wrapper {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 @media (min-width: 1024px) {
   #all_awards_wrapper {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 @media (min-width: 1366px) {
   #all_awards_wrapper {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 

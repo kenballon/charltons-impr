@@ -618,78 +618,6 @@ function getRecentPostWithOffset($atts)
     return $output;
 }
 
-function getNewsEventsPosts_sc($atts)
-{
-    // Extract shortcode attributes
-    $atts = shortcode_atts(
-        [
-            'post_type' => 'post',
-            'category' => 'news',
-            'num_posts' => -1,  // Fetch all posts
-            'posts_per_page' => 12,  // Display 12 posts per page
-            'featImgSize' => 'medium_large',
-            'dateFormat' => 'M Y',
-        ],
-        $atts,
-        'getNewsEventsPosts_sc'
-    );
-
-    // Set up WP_Query arguments
-    $args = [
-        'post_type' => $atts['post_type'],
-        'category_name' => $atts['category'],
-        'posts_per_page' => $atts['num_posts'],
-        'post_status' => 'publish',
-        'has_password' => false,
-    ];
-
-    // Create a new WP_Query instance
-    $query = new WP_Query($args);
-
-    // Generate the HTML string
-    $articleCard = '';
-
-    if ($query->have_posts()) {
-        while ($query->have_posts()) {
-            $query->the_post();
-            $post_id = get_the_ID();
-            $post_title = get_the_title();
-            $post_url = get_permalink();
-            $post_date = get_the_date($atts['dateFormat']);
-            $post_tags = get_the_tags();
-            $post_feat_img = get_the_post_thumbnail_url($post_id, $atts['featImgSize']);
-
-            // Extract tag names and convert to lowercase
-            $tag_names = [];
-            if ($post_tags) {
-                foreach ($post_tags as $tag) {
-                    $tag_names[] = strtolower($tag->name);
-                }
-            }
-            $tag_names_str = implode(', ', $tag_names);
-
-            $articleCard .= '<article class="news_article_wrapper d-none" aria-hidden="true" data-category="' . esc_html($atts['category']) . '">';
-            $articleCard .= '<input type="hidden" class="newsevents_hidden_input" id="' . $post_id . '" value="' . esc_attr($tag_names_str) . '">';
-            $articleCard .= '<div class="news_card_image">';
-            $articleCard .= '<a href="' . esc_url($post_url) . '" aria-label="' . esc_attr($post_title) . ' " title="Go to ' . esc_attr($post_title) . '" rel="noopener noreferrer" target="_blank">';
-            $articleCard .= '<img src="' . esc_url($post_feat_img) . '" alt="' . esc_attr($post_title) . '" width="320" height="320" loading="lazy" class="border-1">';
-            $articleCard .= '</a>';
-            $articleCard .= '</div>';
-            $articleCard .= '<div class="news_card_content">';
-            $articleCard .= '<div class="newsevents__post_date">' . esc_html($post_date) . '</div>';
-            $articleCard .= '<a href="' . esc_url($post_url) . '" aria-label="' . esc_attr($post_title) . ' " title="Go to ' . esc_attr($post_title) . '" rel="noopener noreferrer" target="_blank">';
-            $articleCard .= '<h2 class="newsevents__post_title fw-medium">' . esc_html($post_title) . '</h2>';
-            $articleCard .= '</a>';
-            $articleCard .= '</div>';
-            $articleCard .= '</article>';
-        }
-        wp_reset_postdata();
-    }
-
-    // Return the HTML string
-    return $articleCard;
-}
-
 function insights_presentations_sc($atts)
 {
     // Extract shortcode attributes
@@ -1457,7 +1385,6 @@ function register_custom_shortcodes()
     add_shortcode('custom_search_form', 'custom_search_form_shortcode');
     add_shortcode('get_recent_news_posts', 'get_recent_news_posts');
     add_shortcode('get_post_with_offset', 'getRecentPostWithOffset');
-    add_shortcode('content_posts', 'getNewsEventsPosts_sc');
     add_shortcode('insights_presentations', 'insights_presentations_sc');
     add_shortcode('store_all_posts', 'storeAllPost');
     add_shortcode('getNewsletterPostTitle', 'getNewsletterPostTitle');
