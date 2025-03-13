@@ -255,6 +255,7 @@ document.addEventListener("readystatechange", (e) => {
     showAwardImageFunc();
     // showNewsEvents();
     getNewsAndEventsPosts(["awards-and-rankings", "news"]);
+    getPodcastsAndWebinars();
     getNewsletterPosts();
     initNewsletterPage();
     getAwardPosts();
@@ -1189,184 +1190,105 @@ async function fetchPostsFromDB(dbName, storeName, filterCallback) {
 }
 
 /**
- * Creates a card UI element for a given post.
+ * Creates an article card element based on the provided post data and type.
  *
- * @param {Object} post - The post object containing data for the card.
- * @param {string} [type="award"] - The type of card to create ("award" or "newsletter").
- * @param {boolean} [isInitial=false] - Flag indicating if the card is part of the initial load.
+ * @param {Object} post - The post data object.
+ * @param {string} [type="award"] - The type of the post (e.g., "award", "newsletter", "news").
+ * @param {boolean} [isInitial=false] - Flag indicating if this is an initial card creation.
  * @returns {HTMLElement} The created article card element.
- *
- * This function generates an article card element based on the provided post data.
- * It supports two types of cards: "award" and "newsletter". The card includes an image,
- * title, and date, and is linked to the post URL. The function also handles lazy loading
- * for images that are not part of the initial load.
  */
 function createCardUI(post, type = "award", isInitial = false) {
   const articleCard = document.createElement("article");
-  articleCard.className =
-    type === "award" ? "awards_card_item" : "newsletter_post_item flex-col";
+  articleCard.className = getClassName(type);
+  articleCard.setAttribute("data-category", post.categories);
   articleCard.setAttribute("data-tags", post.tags);
 
-  const link = document.createElement("a");
-  link.href = post.url;
-  link.rel = "noopener noreferrer";
-  link.setAttribute(
-    "aria-label",
-    `Read more about ${decodeHTMLEntities(post.title)}`
-  );
-
-  function createImageElement(post, className, width, height, isInitial) {
-    const img = document.createElement("img");
-    img.setAttribute("decoding", "async");
-    img.width = width;
-    img.height = height;
-    img.className = className;
-
-    const defaultImage = post.featured_image;
-    img.src = defaultImage;
-    img.srcset = `
-        ${post.featured_image_small || defaultImage} 300w,
-        ${post.featured_image_medium || defaultImage} 768w,
-        ${post.featured_image_large || defaultImage} 1024w
-    `;
-
-    img.sizes = "(max-width: 300px) 300px, (max-width: 768px) 768px, 1024px";
-    img.alt = decodeHTMLEntities(post.title);
-
-
-    if (!isInitial) {
-      img.loading = "lazy";
-    }
-
-    return img;
-  }
-
-  function createDateElement(post) {
-    const time = document.createElement("time");
-    time.className = "post-date";
-    const date = parseDate(post.post_date);
-    if (!date || isNaN(date.getTime())) {
-      time.textContent = "Invalid Date";
-    } else {
-      const options = { day: "numeric", month: "short", year: "numeric" };
-      const formattedDate = date.toLocaleDateString("en-GB", options);
-      time.textContent = formattedDate;
-      time.setAttribute("datetime", formattedDate);
-    }
-    return time;
-  }
-
-  function createTitleElement(post) {
-    const title = document.createElement("h2");
-    title.className = "post-title";
-    title.title = decodeHTMLEntities(post.title);
-    title.textContent = decodeHTMLEntities(post.title);
-    return title;
-  }
+  const postDate = formatDate(post.post_date);
 
   if (type === "newsletter") {
     articleCard.setAttribute("data-nl_date", post.post_date);
-    articleCard.setAttribute("data-category", post.category_names);
-
-    const postThumbnail = document.createElement("div");
-    postThumbnail.className = "post-thumbnail";
-
-    const img = createImageElement(post, "", 286, 286, isInitial);
-    const time = createDateElement(post);
-    const title = createTitleElement(post);
-
-    postThumbnail.appendChild(img);
-    postThumbnail.appendChild(time);
-    postThumbnail.appendChild(title);
-    link.appendChild(postThumbnail);
+    articleCard.innerHTML = getNewsletterHTML(post, postDate);
   } else if (type === "news") {
-    articleCard.className = "news_article_wrapper";
-    articleCard.setAttribute("data-category", post.categories);
-    articleCard.setAttribute("data-tags", post.tags);
-
-    const newsCardImage = document.createElement("div");
-    newsCardImage.className = "news_card_image";
-
-    const imageLink = document.createElement("a");
-    imageLink.href = post.url;
-    imageLink.rel = "noopener noreferrer";
-    imageLink.setAttribute("aria-label", decodeHTMLEntities(post.title));
-    imageLink.title = decodeHTMLEntities(post.title);
-
-    const img = createImageElement(post, "border-1", 320, 320, isInitial);
-    imageLink.appendChild(img);
-    newsCardImage.appendChild(imageLink);
-
-    const newsCardContent = document.createElement("div");
-    newsCardContent.className = "news_card_content";
-
-    const postDate = document.createElement("div");
-    postDate.className = "newsevents__post_date";
-    const date = parseDate(post.post_date);
-    postDate.textContent = date && !isNaN(date.getTime())
-      ? date.toLocaleDateString("en-GB", { month: "short", year: "numeric" })
-      : "Invalid Date";
-
-    const titleLink = document.createElement("a");
-    titleLink.href = post.url;
-    titleLink.rel = "noopener noreferrer";
-    titleLink.setAttribute("aria-label", decodeHTMLEntities(post.title));
-    titleLink.title = decodeHTMLEntities(post.title);
-
-    const title = document.createElement("h2");
-    title.className = "newsevents__post_title fw-medium";
-    title.textContent = decodeHTMLEntities(post.title);
-    titleLink.appendChild(title);
-
-    newsCardContent.appendChild(postDate);
-    newsCardContent.appendChild(titleLink);
-
-    articleCard.appendChild(newsCardImage);
-    articleCard.appendChild(newsCardContent);
-  }
-  else {
-    const img = createImageElement(
-      post,
-      "awards_card_img",
-      300,
-      300,
-      isInitial
-    );
-
-    const div = document.createElement("div");
-
-    const flexDiv = document.createElement("div");
-    flexDiv.className = "categ_date flex";
-
-    const categLbl = document.createElement("div");
-    categLbl.className = "categ_lbl capitalize pr-2";
-    categLbl.textContent = decodeHTMLEntities(post.category_names);
-
-    const datePosted = document.createElement("div");
-    datePosted.className = "date_posted text-gray-700 fw-light";
-    const date = parseDate(post.post_date);
-    if (!date || isNaN(date.getTime())) {
-      datePosted.textContent = "Invalid Date";
-    } else {
-      const options = { day: "numeric", month: "short", year: "numeric" };
-      const formattedDate = date.toLocaleDateString("en-GB", options);
-      datePosted.textContent = formattedDate;
-    }
-
-    const titleDiv = document.createElement("div");
-    titleDiv.className = "title";
-    titleDiv.textContent = decodeHTMLEntities(post.title);
-
-    flexDiv.appendChild(categLbl);
-    flexDiv.appendChild(datePosted);
-    div.appendChild(flexDiv);
-    div.appendChild(titleDiv);
-    link.appendChild(img);
-    link.appendChild(div);
+    articleCard.innerHTML = getNewsHTML(post, postDate);
+  } else {
+    articleCard.innerHTML = getAwardHTML(post, postDate);
   }
 
-  articleCard.appendChild(link);
   return articleCard;
+}
+
+function getClassName(type) {
+  switch (type) {
+    case "award":
+      return "awards_card_item";
+    case "newsletter":
+      return "newsletter_post_item flex-col";
+    case "news":
+      return "news_article_wrapper";
+    default:
+      return "";
+  }
+}
+
+function formatDate(dateString) {
+  const date = parseDate(dateString);
+  return date && !isNaN(date.getTime())
+    ? date.toLocaleDateString("en-GB", { month: "short", year: "numeric" })
+    : "Invalid Date";
+}
+
+function getImageHTML(post, width, height, className) {
+  return `
+    <img decoding="async" width="${width}" height="${height}" class="${className}"
+      src="${sanitizeHTML(post.featured_image)}"
+      srcset="${sanitizeHTML(post.featured_image_small || post.featured_image)} 300w,
+              ${sanitizeHTML(post.featured_image_medium || post.featured_image)} 768w,
+              ${sanitizeHTML(post.featured_image_large || post.featured_image)} 1024w"
+      alt="${sanitizeHTML(decodeHTMLEntities(post.title))}">
+  `;
+}
+
+function getNewsletterHTML(post, postDate) {
+  return `
+    <a href="${sanitizeHTML(post.url)}" rel="noopener noreferrer" aria-label="${sanitizeHTML(decodeHTMLEntities(post.title))}">
+      <div class="post-thumbnail">
+        ${getImageHTML(post, 286, 286, "")}
+        <time class="post-date" datetime="${sanitizeHTML(post.post_date)}">${postDate}</time>
+        <h2 class="post-title" title="${sanitizeHTML(decodeHTMLEntities(post.title))}">${sanitizeHTML(decodeHTMLEntities(post.title))}</h2>
+      </div>
+    </a>
+  `;
+}
+
+function getNewsHTML(post, postDate) {
+  return `
+    <div class="news_card_image">
+      <a href="${sanitizeHTML(post.url)}" rel="noopener noreferrer" aria-label="${sanitizeHTML(decodeHTMLEntities(post.title))}" title="${sanitizeHTML(decodeHTMLEntities(post.title))}">
+        ${getImageHTML(post, 320, 320, "border-1")}
+      </a>
+    </div>
+    <div class="news_card_content">
+      <div class="newsevents__post_date">${postDate}</div>
+      <a href="${sanitizeHTML(post.url)}" rel="noopener noreferrer" aria-label="${sanitizeHTML(decodeHTMLEntities(post.title))}" title="${sanitizeHTML(decodeHTMLEntities(post.title))}">
+        <h2 class="newsevents__post_title fw-medium">${sanitizeHTML(decodeHTMLEntities(post.title))}</h2>
+      </a>
+    </div>
+  `;
+}
+
+function getAwardHTML(post, postDate) {
+  return `
+    <a href="${sanitizeHTML(post.url)}" rel="noopener noreferrer" aria-label="${sanitizeHTML(decodeHTMLEntities(post.title))}">
+      ${getImageHTML(post, 300, 300, "awards_card_img")}
+      <div>
+        <div class="categ_date flex">
+          <div class="categ_lbl capitalize pr-2">${sanitizeHTML(decodeHTMLEntities(post.category_names))}</div>
+          <div class="date_posted text-gray-700 fw-light">${postDate}</div>
+        </div>
+        <div class="title">${sanitizeHTML(decodeHTMLEntities(post.title))}</div>
+      </div>
+    </a>
+  `;
 }
 
 function sanitizeHTML(html) {
@@ -1794,6 +1716,110 @@ buttonSVG.forEach(button => {
 //  NEWS & EVENTS PAGE JS CODE : REFACTORED
 // =======================================
 
+function renderPosts(posts, page, postsPerPage = 15, elementID = "all_news_posts") {
+  const awardNewsPostContainer = document?.getElementById(elementID);
+
+  awardNewsPostContainer ? awardNewsPostContainer.innerHTML = "" : null;
+
+  const start = (page - 1) * postsPerPage;
+  const end = start + postsPerPage;
+  const postsToRender = posts.slice(start, end);
+
+  postsToRender.forEach((post) => {
+    const article = createCardUI(post, "news", true);
+    awardNewsPostContainer?.appendChild(article);
+  });
+}
+
+function renderPagination(posts, postsPerPage = 15) {
+  const paginationWrapper = document?.getElementById("news_pagination_btns_wrapper");
+  const prevBtn = document?.getElementById("prev_post_btn");
+  const nextBtn = document?.getElementById("next_post_btn");
+  const firstBtn = document?.getElementById("first_post_btn");
+  const lastBtn = document?.getElementById("last_post_btn");
+  const paginationDotsFirst = document?.getElementById("ne_pagination_dots_first");
+  const paginationDotsLast = document?.getElementById("ne_pagination_dots");
+
+  let currentPage = 1;
+  const totalPages = Math.ceil(posts.length / postsPerPage);
+
+  function updatePagination() {
+
+    paginationWrapper ? paginationWrapper.innerHTML = "" : null;
+    let startPage = Math.floor((currentPage - 1) / 5) * 5 + 1;
+    let endPage = startPage + 4;
+
+    for (let i = 1; i <= totalPages; i++) {
+      const pageButton = document.createElement("button");
+      pageButton.textContent = i;
+      pageButton.className = "pagination_btn";
+
+      if (i < startPage || i > endPage) {
+        pageButton.classList.add("d-none");
+      }
+
+      if (i === currentPage) {
+        pageButton.classList.add("active");
+      }
+
+      pageButton.addEventListener("click", () => {
+        currentPage = i;
+        renderPosts(posts, currentPage);
+        updatePagination();
+      });
+      paginationWrapper?.appendChild(pageButton);
+    }
+
+    firstBtn ? firstBtn.classList.add("d-none") : null;
+    prevBtn ? prevBtn.classList.add("d-none") : null;
+
+    nextBtn ? nextBtn.classList.toggle("d-none", currentPage === totalPages) : null;
+    lastBtn ? lastBtn.classList.toggle("d-none", currentPage === totalPages) : null;
+    paginationDotsFirst ? paginationDotsFirst.classList.toggle("d-none", currentPage <= 5) : null;
+    paginationDotsLast ? paginationDotsLast.classList.toggle("d-none", currentPage >= totalPages - 2) : null;
+
+    if (currentPage >= 6) {
+      prevBtn ? prevBtn.classList.remove("d-none") : null;
+      firstBtn ? firstBtn.classList.remove("d-none") : null;
+      firstBtn ? firstBtn.textContent = "1" : null;
+    }
+
+    if (currentPage < totalPages) {
+      lastBtn ? lastBtn.textContent = totalPages : null;
+    }
+  }
+
+  prevBtn?.addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPosts(posts, currentPage);
+      updatePagination();
+    }
+  });
+
+  nextBtn?.addEventListener("click", () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderPosts(posts, currentPage);
+      updatePagination();
+    }
+  });
+
+  firstBtn?.addEventListener("click", () => {
+    currentPage = 1;
+    renderPosts(posts, currentPage);
+    updatePagination();
+  });
+
+  lastBtn?.addEventListener("click", () => {
+    currentPage = totalPages;
+    renderPosts(posts, currentPage);
+    updatePagination();
+  });
+
+  updatePagination();
+}
+
 async function getNewsAndEventsPosts(categories = [], filterID = null) {
   const dbName = "PostsDatabase";
   const storeName = "posts";
@@ -1822,110 +1848,39 @@ async function getNewsAndEventsPosts(categories = [], filterID = null) {
   renderPagination(sortedPosts);
 }
 
-function renderPosts(posts, page, postsPerPage = 15) {
-  const awardNewsPostContainer = document?.getElementById("all_news_posts");
-  awardNewsPostContainer.innerHTML = "";
-  const start = (page - 1) * postsPerPage;
-  const end = start + postsPerPage;
-  const postsToRender = posts.slice(start, end);
-
-  postsToRender.forEach((post) => {
-    const article = createCardUI(post, "news", true);
-    awardNewsPostContainer?.appendChild(article);
-  });
-}
-
-function renderPagination(posts, postsPerPage = 15) {
-  const paginationWrapper = document?.getElementById("news_pagination_btns_wrapper");
-  const prevBtn = document?.getElementById("prev_post_btn");
-  const nextBtn = document?.getElementById("next_post_btn");
-  const firstBtn = document?.getElementById("first_post_btn");
-  const lastBtn = document?.getElementById("last_post_btn");
-  const paginationDotsFirst = document?.getElementById("ne_pagination_dots_first");
-  const paginationDotsLast = document?.getElementById("ne_pagination_dots");
-
-  let currentPage = 1;
-  const totalPages = Math.ceil(posts.length / postsPerPage);
-
-  function updatePagination() {
-    paginationWrapper.innerHTML = "";
-    let startPage = Math.floor((currentPage - 1) / 5) * 5 + 1;
-    let endPage = startPage + 4;
-
-    for (let i = 1; i <= totalPages; i++) {
-      const pageButton = document.createElement("button");
-      pageButton.textContent = i;
-      pageButton.className = "pagination_btn";
-
-      if (i < startPage || i > endPage) {
-        pageButton.classList.add("d-none");
-      }
-
-      if (i === currentPage) {
-        pageButton.classList.add("active");
-      }
-
-      pageButton.addEventListener("click", () => {
-        currentPage = i;
-        renderPosts(posts, currentPage);
-        updatePagination();
-      });
-      paginationWrapper.appendChild(pageButton);
-    }
-
-    firstBtn.classList.add("d-none");
-    prevBtn.classList.add("d-none");
-
-    nextBtn.classList.toggle("d-none", currentPage === totalPages);
-    lastBtn.classList.toggle("d-none", endPage >= totalPages);
-    paginationDotsFirst.classList.toggle("d-none", currentPage <= 5);
-    paginationDotsLast.classList.toggle("d-none", currentPage >= totalPages - 2);
-
-    if (currentPage >= 6) {
-      prevBtn.classList.remove("d-none");
-      firstBtn.classList.remove("d-none");
-      firstBtn.textContent = "1";
-    }
-
-    if (currentPage < totalPages) {
-      lastBtn.textContent = totalPages;
-    }
-  }
-
-  prevBtn.addEventListener("click", () => {
-    if (currentPage > 1) {
-      currentPage--;
-      renderPosts(posts, currentPage);
-      updatePagination();
-    }
-  });
-
-  nextBtn.addEventListener("click", () => {
-    if (currentPage < totalPages) {
-      currentPage++;
-      renderPosts(posts, currentPage);
-      updatePagination();
-    }
-  });
-
-  firstBtn.addEventListener("click", () => {
-    currentPage = 1;
-    renderPosts(posts, currentPage);
-    updatePagination();
-  });
-
-  lastBtn.addEventListener("click", () => {
-    currentPage = totalPages;
-    renderPosts(posts, currentPage);
-    updatePagination();
-  });
-
-  updatePagination();
-}
-
 // Initialize the filter buttons
 FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
   currentFilterID = filterID === "all" ? null : filterID;
-  console.log(currentFilterID);
   getNewsAndEventsPosts(["awards-and-rankings", "news"], currentFilterID);
 });
+
+// Also Get the Custom Post Type
+async function getPodcastsAndWebinars(categories = [], filterID = null) {
+  const dbName = "PostsDatabase";
+  const storeName = "posts";
+
+  // get all posts from db that matches the categories
+  const awardsOrNews = await fetchPostsFromDB(dbName, storeName, (post) => {
+    const postCategories = post.categories.toLowerCase().split(", ");
+    const matchesCategory = postCategories.some((category) => categories.includes(category));
+    return matchesCategory;
+  });
+
+  let filteredPosts = awardsOrNews;
+
+
+  // Filter posts by tag if filterID is provided
+  if (filterID) {
+    filteredPosts = awardsOrNews.filter((post) => {
+      const postTags = post.tags.toLowerCase().split(", ");
+      return postTags.includes(filterID);
+    });
+  }
+
+  const sortedPosts = sortPostsByDate(filteredPosts);
+
+  // Initial render
+  renderPosts(sortedPosts, 1, 15, "pod-and-web");
+  renderPagination(sortedPosts);
+}
+
