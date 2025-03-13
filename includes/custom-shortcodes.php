@@ -882,6 +882,98 @@ function cache_all_posts($atts = [], $cache_duration = MINUTE_IN_SECONDS)
     return $cached_data;
 }
 
+function cache_custom_posts($atts = [], $cache_duration = MINUTE_IN_SECONDS)
+{
+    // Extract shortcode attributes with default values
+    $atts = shortcode_atts([
+        'post_type' => 'project',  // Default to custom post type 'project'
+        'posts_per_page' => -1,
+        'category' => '',  // Add category attribute
+        'tags' => '',  // Add tags attribute
+    ], $atts, 'cache_custom_posts');
+
+    // Generate the transient key based on the query parameters
+    $transient_key = 'cached_custom_post_data_' . md5(serialize($atts));
+
+    // Attempt to fetch the cached data
+    if (false === ($cached_data = get_transient($transient_key))) {
+        // Prepare query arguments
+        $query_args = [
+            'post_type' => $atts['post_type'],
+            'posts_per_page' => $atts['posts_per_page'],
+            'post_status' => 'publish',
+            'has_password' => false,
+            'orderby' => 'date',
+        ];
+
+        // Add category to query arguments if provided
+        if (!empty($atts['category'])) {
+            $query_args['tax_query'][] = [
+                'taxonomy' => 'project_category',
+                'field' => 'slug',
+                'terms' => explode(',', $atts['category']),
+            ];
+        }
+
+        // Add tags to query arguments if provided
+        if (!empty($atts['tags'])) {
+            $query_args['tax_query'][] = [
+                'taxonomy' => 'post_tag',
+                'field' => 'slug',
+                'terms' => explode(',', $atts['tags']),
+            ];
+        }
+
+        // Execute the query
+        $query = new WP_Query($query_args);
+
+        $cached_data = [];
+
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+
+                // Ensure the post has a featured image
+                if (has_post_thumbnail()) {
+                    // Fetch and format categories and tags
+                    $categories = get_the_terms(get_the_ID(), 'project_category');
+                    $tags = get_the_tags();
+
+                    $category_slugs = $categories ? array_map(function ($cat) {
+                        return $cat->slug;
+                    }, $categories) : [];
+
+                    $category_names = $categories ? array_map(function ($cat) {
+                        return $cat->name;
+                    }, $categories) : [];
+
+                    $tag_slugs = $tags ? array_map(function ($tag) {
+                        return $tag->slug;
+                    }, $tags) : [];
+
+                    $cached_data[] = [
+                        'id' => get_the_ID(),
+                        'title' => get_the_title(),
+                        'post_date' => get_the_date('d-m-Y'),
+                        'categories' => implode(', ', $category_slugs),
+                        'category_names' => implode(', ', $category_names),
+                        'tags' => implode(', ', $tag_slugs),
+                        'excerpt' => wp_strip_all_tags(get_the_excerpt()),
+                        'url' => get_permalink(),
+                        'featured_image' => get_the_post_thumbnail_url(get_the_ID(), 'medium_large'),
+                    ];
+                }
+            }
+            wp_reset_postdata();
+
+            // Cache the retrieved data
+            set_transient($transient_key, $cached_data, $cache_duration);
+        }
+    }
+
+    return $cached_data;
+}
+
 function storeAllPost($atts)
 {
     $data = cache_all_posts($atts);
@@ -944,6 +1036,82 @@ function storeAllPost($atts)
                     const objectStore = transaction.objectStore("posts");
 
                     posts.forEach((post) => {
+                        objectStore.put(post);
+                    });
+
+                    transaction.oncomplete = () => resolve();
+                    transaction.onerror = () => reject(transaction.error);
+                });
+            }
+        })();
+        </script>
+        EOT;
+
+    return $script;
+}
+
+function storeCustomAllPost($atts)
+{
+    $data = cache_custom_posts($atts);
+    $json_data = json_encode($data);
+
+    $script = <<<EOT
+        <script>
+        (async () => {
+            const data = $json_data;
+
+            if (!window.indexedDB) {
+                console.log("Your browser doesn't support a stable version of IndexedDB.");
+                return;
+            }            
+
+            const dbName = "CustomPostsDatabase";
+
+            try {
+                await deleteDatabase(dbName);
+               // console.log("Existing database deleted successfully.");
+            } catch (error) {
+                console.log("Error deleting database: ", error);
+            }
+
+            try {
+                const db = await openDatabase(dbName, 1);
+                await storePosts(db, data);
+                //console.log("All custom posts have been added to the IndexedDB.");
+            } catch (error) {
+                console.log("Database error: ", error);
+            }
+
+            async function deleteDatabase(name) {
+                return new Promise((resolve, reject) => {
+                    const deleteRequest = indexedDB.deleteDatabase(name);
+
+                    deleteRequest.onsuccess = () => resolve();
+                    deleteRequest.onerror = (event) => reject(event.target.errorCode);
+                    deleteRequest.onblocked = () => console.log("Database deletion blocked.");
+                });
+            }
+
+            async function openDatabase(name, version) {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(name, version);
+
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        db.createObjectStore("custom_posts", { keyPath: "id" });
+                    };
+
+                    request.onsuccess = (event) => resolve(event.target.result);
+                    request.onerror = (event) => reject(event.target.errorCode);
+                });
+            }
+
+            async function storePosts(db, custom_posts) {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction(["custom_posts"], "readwrite");
+                    const objectStore = transaction.objectStore("custom_posts");
+
+                    custom_posts.forEach((post) => {
                         objectStore.put(post);
                     });
 
@@ -1386,7 +1554,12 @@ function register_custom_shortcodes()
     add_shortcode('get_recent_news_posts', 'get_recent_news_posts');
     add_shortcode('get_post_with_offset', 'getRecentPostWithOffset');
     add_shortcode('insights_presentations', 'insights_presentations_sc');
+
+    // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : START
     add_shortcode('store_all_posts', 'storeAllPost');
+    add_shortcode('store_all_custom_posts', 'storeCustomAllPost');
+    // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : END
+
     add_shortcode('getNewsletterPostTitle', 'getNewsletterPostTitle');
     add_shortcode('getPostTitleAndCategory', 'getPostTitleAndCategory');
     add_shortcode('newsletter_scf_custom_fields', 'newsletter_scf_custom_fields');

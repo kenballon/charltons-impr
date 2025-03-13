@@ -253,9 +253,8 @@ document.addEventListener("readystatechange", (e) => {
     customHeaderNavigation();
     tabFunc();
     showAwardImageFunc();
-    // showNewsEvents();
     getNewsAndEventsPosts(["awards-and-rankings", "news"]);
-    getPodcastsAndWebinars();
+    getPodcastsAndWebinars(["podcasts", "webinars"]);
     getNewsletterPosts();
     initNewsletterPage();
     getAwardPosts();
@@ -1716,7 +1715,9 @@ buttonSVG.forEach(button => {
 //  NEWS & EVENTS PAGE JS CODE : REFACTORED
 // =======================================
 
-function renderPosts(posts, page, postsPerPage = 15, elementID = "all_news_posts") {
+function renderPosts(posts, page, postsPerPage = 15, elementID) {
+  console.log(elementID);
+
   const awardNewsPostContainer = document?.getElementById(elementID);
 
   awardNewsPostContainer ? awardNewsPostContainer.innerHTML = "" : null;
@@ -1731,7 +1732,7 @@ function renderPosts(posts, page, postsPerPage = 15, elementID = "all_news_posts
   });
 }
 
-function renderPagination(posts, postsPerPage = 15) {
+function renderPagination(posts, postsPerPage = 15, elementID) {
   const paginationWrapper = document?.getElementById("news_pagination_btns_wrapper");
   const prevBtn = document?.getElementById("prev_post_btn");
   const nextBtn = document?.getElementById("next_post_btn");
@@ -1744,7 +1745,6 @@ function renderPagination(posts, postsPerPage = 15) {
   const totalPages = Math.ceil(posts.length / postsPerPage);
 
   function updatePagination() {
-
     paginationWrapper ? paginationWrapper.innerHTML = "" : null;
     let startPage = Math.floor((currentPage - 1) / 5) * 5 + 1;
     let endPage = startPage + 4;
@@ -1764,7 +1764,7 @@ function renderPagination(posts, postsPerPage = 15) {
 
       pageButton.addEventListener("click", () => {
         currentPage = i;
-        renderPosts(posts, currentPage);
+        renderPosts(posts, currentPage, postsPerPage, elementID);
         updatePagination();
       });
       paginationWrapper?.appendChild(pageButton);
@@ -1792,7 +1792,7 @@ function renderPagination(posts, postsPerPage = 15) {
   prevBtn?.addEventListener("click", () => {
     if (currentPage > 1) {
       currentPage--;
-      renderPosts(posts, currentPage);
+      renderPosts(posts, currentPage, postsPerPage, elementID);
       updatePagination();
     }
   });
@@ -1800,20 +1800,20 @@ function renderPagination(posts, postsPerPage = 15) {
   nextBtn?.addEventListener("click", () => {
     if (currentPage < totalPages) {
       currentPage++;
-      renderPosts(posts, currentPage);
+      renderPosts(posts, currentPage, postsPerPage, elementID);
       updatePagination();
     }
   });
 
   firstBtn?.addEventListener("click", () => {
     currentPage = 1;
-    renderPosts(posts, currentPage);
+    renderPosts(posts, currentPage, postsPerPage, elementID);
     updatePagination();
   });
 
   lastBtn?.addEventListener("click", () => {
     currentPage = totalPages;
-    renderPosts(posts, currentPage);
+    renderPosts(posts, currentPage, postsPerPage, elementID);
     updatePagination();
   });
 
@@ -1844,8 +1844,8 @@ async function getNewsAndEventsPosts(categories = [], filterID = null) {
   const sortedPosts = sortPostsByDate(filteredPosts);
 
   // Initial render
-  renderPosts(sortedPosts, 1);
-  renderPagination(sortedPosts);
+  renderPosts(sortedPosts, 1, 15, "all_news_posts");
+  renderPagination(sortedPosts, 15, "all_news_posts");
 }
 
 // Initialize the filter buttons
@@ -1855,32 +1855,39 @@ FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
 });
 
 // Also Get the Custom Post Type
-async function getPodcastsAndWebinars(categories = [], filterID = null) {
+async function getPodcastsAndWebinars(tags = []) {
   const dbName = "PostsDatabase";
   const storeName = "posts";
 
-  // get all posts from db that matches the categories
+  const dbNameCustomPost = "CustomPostsDatabase";
+  const storeNameCustomPost = "custom_posts";
+
+  // Fetch posts from the first database
   const awardsOrNews = await fetchPostsFromDB(dbName, storeName, (post) => {
-    const postCategories = post.categories.toLowerCase().split(", ");
-    const matchesCategory = postCategories.some((category) => categories.includes(category));
-    return matchesCategory;
+    return post;
   });
 
-  let filteredPosts = awardsOrNews;
+  // Fetch posts from the second database
+  const customPosts = await fetchPostsFromDB(dbNameCustomPost, storeNameCustomPost, (post) => {
+    return post;
+  });
 
+  // Combine posts from both databases
+  let combinedPosts = [...awardsOrNews, ...customPosts];
 
-  // Filter posts by tag if filterID is provided
-  if (filterID) {
-    filteredPosts = awardsOrNews.filter((post) => {
+  // Filter posts by tags if tags are provided
+  if (tags.length) {
+    combinedPosts = combinedPosts.filter((post) => {
       const postTags = post.tags.toLowerCase().split(", ");
-      return postTags.includes(filterID);
+      return tags.some((tag) => postTags.includes(tag));
     });
   }
 
-  const sortedPosts = sortPostsByDate(filteredPosts);
+  // Sort the combined posts by date
+  const sortedPosts = sortPostsByDate(combinedPosts);
 
   // Initial render
-  renderPosts(sortedPosts, 1, 15, "pod-and-web");
-  renderPagination(sortedPosts);
+  renderPosts(sortedPosts, 1, 10, "pod-and-web");
+  renderPagination(sortedPosts, 10, "pod-and-web");
 }
 

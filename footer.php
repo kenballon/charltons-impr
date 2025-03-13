@@ -45,7 +45,7 @@ if (!is_page_template('page-template-blank.php')):
                 ));
                 ?>
                 <span class="ftr_copyright">
-                    ©Copyright Charltons 2024. All rights reserved.
+                    ©Copyright Charltons <?= date('Y') ?>. All rights reserved.
                 </span>
             </div>
             <div class="ftr_right_col ml-auto">
@@ -79,10 +79,12 @@ if (!is_page_template('page-template-blank.php')):
                         </a>
                     </div>
                     <div class="social-networks__item">
-                        <a class="social-networks__link" href="https://anchor.fm/charltons" target="_blank"
-                            rel="noopener" aria-label="link goes to Anchor">
-                            <img style="max-width: 24px" src="/media/icons/social-media/anchor.svg" alt="youtube" />
-                        </a>
+                        <a class="social-networks__link" href="https://creators.spotify.com/pod/show/charltons"
+                            target="_blank" rel="noopener noreferrer nofollow"
+                            aria-label="link goes to Spotify for Creators"
+                            title="Spotify for Creators - Charltons Law Podcasts"><img style="max-width: 24px"
+                                src="/media/icons/social-media/spotify.svg"
+                                alt="Spotify for Creators - Charltons Law Podcasts" /></a>
                     </div>
                     <div class="social-networks__item">
                         <a class="social-networks__link" href="https://rumble.com/c/c-1647355" target="_blank"
@@ -97,6 +99,7 @@ if (!is_page_template('page-template-blank.php')):
 
     <?php endif; ?>
     <?php echo do_shortcode('[store_all_posts]'); ?>
+    <?php echo do_shortcode('[store_all_custom_posts]'); ?>
 </footer> <!-- #main-footer -->
 </div> <!-- #et-main-area -->
 
