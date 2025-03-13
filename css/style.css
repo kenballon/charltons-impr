@@ -10604,45 +10604,6 @@ subpage MENU
   }
 }
 
-.newsletters_post.list_view {
-  grid-template-columns: 1fr;
-  row-gap: 0.5rem;
-
-  .newsletter_post_item {
-    display: grid;
-
-    padding-block: 1rem;
-
-    &:first-child {
-      border-top: 1px solid var(--chr-text-gray-300);
-    }
-  }
-
-  .newsletter_post_item:not(.d-none):last-child {
-    border-bottom: 1px solid var(--chr-text-gray-300);
-  }
-
-  .newsletter_post_item.d-none {
-    display: none;
-  }
-
-  .newsletter_post_item+.newsletter_post_item {
-    border-top: 1px solid var(--chr-text-gray-300);
-  }
-
-  .post-thumbnail img {
-    display: none;
-  }
-
-  .post-excerpt {
-    display: block;
-  }
-
-  .nl_list_view__post-thumbnail {
-    display: block;
-  }
-}
-
 /* ================================================= */
 /* #endregion NEWSLETTERS 2024 STYLING::END  */
 /* ================================================= */
