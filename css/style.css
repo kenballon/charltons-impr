@@ -10517,7 +10517,7 @@ subpage MENU
   }
 }
 
-.newsletters_post {
+.newsletters_post, .podcasts_and_webinars {
   display: grid;
   column-gap: 2.5rem;
   row-gap: 2.5rem;
