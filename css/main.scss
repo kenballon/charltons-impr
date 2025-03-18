@@ -12047,3 +12047,16 @@ subpage MENU
     font-weight: 400;
   }
 }
+
+.fullwidth {
+  .webinars_podcasts_text_wrapper {
+    .podcasts_and_webinars {
+      .news_card_image {
+        img {
+          aspect-ratio: 16/9;
+          object-fit: cover;
+        }
+      }
+    }
+  }
+}

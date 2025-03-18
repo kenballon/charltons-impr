@@ -10975,4 +10975,10 @@ subpage MENU
 .hero_about_us .hero_text {
   font-size: 18px;
   font-weight: 400;
+}
+
+.fullwidth .webinars_podcasts_text_wrapper .podcasts_and_webinars .news_card_image img {
+  aspect-ratio: 16/9;
+  -o-object-fit: cover;
+     object-fit: cover;
 }/*# sourceMappingURL=main.css.map */
