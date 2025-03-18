@@ -618,101 +618,6 @@ function getRecentPostWithOffset($atts)
     return $output;
 }
 
-function insights_presentations_sc($atts)
-{
-    // Extract shortcode attributes
-    $atts = shortcode_atts([
-        'offset' => 0,
-        'category' => '',
-        'tags' => ''
-    ], $atts, 'insights_presentations_sc');
-
-    // Prepare query arguments
-    $query_args = [
-        'post_type' => 'project',
-        'posts_per_page' => -1,
-        'post_status' => 'publish',
-        'has_password' => false,
-        'offset' => $atts['offset'],
-    ];
-
-    // Add tax_query for category filter if provided
-    if (!empty($atts['category'])) {
-        $query_args['tax_query'][] = [
-            'taxonomy' => 'project_category',
-            'field' => 'slug',
-            'terms' => explode(',', $atts['category']),
-        ];
-    }
-
-    // Add tax_query for tags filter if provided
-    if (!empty($atts['tags'])) {
-        $query_args['tax_query'][] = [
-            'taxonomy' => 'post_tag',
-            'field' => 'slug',
-            'terms' => explode(',', $atts['tags']),
-        ];
-    }
-
-    // Query the posts
-    $query = new WP_Query($query_args);
-
-    // Format the posts into HTML
-    $output = '<div class="insights_allposts_wrapper">';
-    $current_year = null;
-    if ($query->have_posts()) {
-        while ($query->have_posts()) {
-            $query->the_post();
-            $post_id = get_the_ID();
-            $getDate = get_the_date('Y-m-d');
-            $year = get_the_date('Y');
-            $month_n_date = get_the_date('M Y');
-            $terms = wp_get_post_terms($post_id, 'project_category');
-
-            $tags = wp_get_post_tags($post_id);
-            $category_name = '';
-            $category_slug = '';
-            $category_id = '';
-
-            if (!empty($terms) && !is_wp_error($terms)) {
-                $category_name = $terms[0]->name;
-                $category_slug = $terms[0]->slug;
-                $category_id = $terms[0]->term_id;
-            }
-
-            $tag_names = [];
-            foreach ($tags as $tag) {
-                $tag_names[] = strtolower($tag->name);
-            }
-
-            // If the year has changed, close the current div and start a new one
-            if ($year !== $current_year) {
-                if ($current_year !== null) {
-                    $output .= '</div></div>';  // Close the previous year's div and articles_wrapper
-                }
-                $output .= '<div class="insights_yearly_wrapper flex">';  // Start a new div for the new year
-                $output .= '<div  class="year_wrapper"><small class="insights_year_lbl_sm">YEAR</small><h2 class="insights_year_lbl">' . esc_attr($year) . '</h2></div>';  // Year wrapper
-                $output .= '<div id="year_' . esc_attr($year) . '" class="articles_wrapper flex justify-center flex-col">';  // Start articles wrapper
-                $current_year = $year;
-            }
-
-            $output .= '<article class="insights_post_title_wrapper" data-year="year_' . esc_attr($year) . '"  data-category="' . esc_html($category_slug) . '" data-tags="' . esc_attr(implode(', ', $tag_names)) . '">';
-            $output .= '<time datetime="' . esc_attr($getDate) . '" class="insights_sm_date">' . esc_attr($month_n_date) . '</time>';
-            $output .= '<h1 class="insights_post_title"><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h1>';
-            $output .= '</article>';
-        }
-        if ($current_year !== null) {
-            $output .= '</div></div>';  // Close the last year's div and articles_wrapper
-        }
-        wp_reset_postdata();
-    } else {
-        $output .= '<p>No projects found.</p>';
-    }
-    $output .= '</div>';
-
-    return $output;
-}
-
 function homepage_recent_webinar_sc($atts)
 {
     // Extract the attributes and set default value for 'tag'
@@ -882,31 +787,141 @@ function cache_all_posts($atts = [], $cache_duration = MINUTE_IN_SECONDS)
     return $cached_data;
 }
 
+function insights_presentations_sc($atts)
+{
+    // Extract shortcode attributes
+    $atts = shortcode_atts([
+        'offset' => 0,
+        'category' => '',
+        'tags' => ''
+    ], $atts, 'insights_presentations_sc');
+
+    // Prepare query arguments
+    $query_args = [
+        'post_type' => 'project',
+        'posts_per_page' => -1,
+        'post_status' => 'publish',
+        'has_password' => false,
+        'offset' => $atts['offset'],
+    ];
+
+    // Add tax_query for category filter if provided
+    if (!empty($atts['category'])) {
+        $query_args['tax_query'][] = [
+            'taxonomy' => 'project_category',
+            'field' => 'slug',
+            'terms' => explode(',', $atts['category']),
+        ];
+    }
+
+    // Add tax_query for tags filter if provided
+    if (!empty($atts['tags'])) {
+        $query_args['tax_query'][] = [
+            'taxonomy' => 'post_tag',
+            'field' => 'slug',
+            'terms' => explode(',', $atts['tags']),
+        ];
+    }
+
+    // Query the posts
+    $query = new WP_Query($query_args);
+
+    // Format the posts into HTML
+    $output = '<div class="insights_allposts_wrapper">';
+    $current_year = null;
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            $post_id = get_the_ID();
+            $getDate = get_the_date('Y-m-d');
+            $year = get_the_date('Y');
+            $month_n_date = get_the_date('M Y');
+            $terms = wp_get_post_terms($post_id, 'project_category');
+
+            $tags = wp_get_post_tags($post_id);
+            $category_slugs = [];
+
+            if (!empty($terms) && !is_wp_error($terms)) {
+                foreach ($terms as $term) {
+                    $category_slugs[] = $term->slug;
+                }
+            }
+
+            $tag_names = [];
+            foreach ($tags as $tag) {
+                $tag_names[] = strtolower($tag->name);
+            }
+
+            // If the year has changed, close the current div and start a new one
+            if ($year !== $current_year) {
+                if ($current_year !== null) {
+                    $output .= '</div></div>';  // Close the previous year's div and articles_wrapper
+                }
+                $output .= '<div class="insights_yearly_wrapper flex">';  // Start a new div for the new year
+                $output .= '<div  class="year_wrapper"><small class="insights_year_lbl_sm">YEAR</small><h2 class="insights_year_lbl">' . esc_attr($year) . '</h2></div>';  // Year wrapper
+                $output .= '<div id="year_' . esc_attr($year) . '" class="articles_wrapper flex justify-center flex-col">';  // Start articles wrapper
+                $current_year = $year;
+            }
+
+            $output .= '<article class="insights_post_title_wrapper" data-year="year_' . esc_attr($year) . '"  data-category="' . esc_html(implode(', ', $category_slugs)) . '" data-tags="' . esc_attr(implode(', ', $tag_names)) . '">';
+            $output .= '<time datetime="' . esc_attr($getDate) . '" class="insights_sm_date">' . esc_attr($month_n_date) . '</time>';
+            $output .= '<h1 class="insights_post_title"><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h1>';
+            $output .= '</article>';
+        }
+        if ($current_year !== null) {
+            $output .= '</div></div>';  // Close the last year's div and articles_wrapper
+        }
+        wp_reset_postdata();
+    } else {
+        $output .= '<p>No projects found.</p>';
+    }
+    $output .= '</div>';
+
+    return $output;
+}
+
+function clear_custom_posts_cache($atts = [])
+{
+    // Generate the transient key based on the attributes
+    $transient_key = 'cached_custom_posts_' . md5(serialize($atts));
+
+    // Delete the transient cache
+    delete_transient($transient_key);
+}
+
+// Call this function to clear the cache
+clear_custom_posts_cache([
+    'offset' => 0,
+    'category' => '',
+    'tags' => ''
+]);
+
 function cache_custom_posts($atts = [], $cache_duration = MINUTE_IN_SECONDS)
 {
-    // Extract shortcode attributes with default values
+    // Extract shortcode attributes
     $atts = shortcode_atts([
-        'post_type' => 'project',  // Default to custom post type 'project'
-        'posts_per_page' => -1,
-        'category' => '',  // Add category attribute
-        'tags' => '',  // Add tags attribute
-    ], $atts, 'cache_custom_posts');
+        'offset' => 0,
+        'category' => '',
+        'tags' => ''
+    ], $atts, 'insights_presentations_sc');
 
-    // Generate the transient key based on the query parameters
-    $transient_key = 'cached_custom_post_data_' . md5(serialize($atts));
+    // Generate a unique transient key based on the attributes
+    $transient_key = 'cached_custom_posts_' . md5(serialize($atts));
 
     // Attempt to fetch the cached data
-    if (false === ($cached_data = get_transient($transient_key))) {
+    $data = get_transient($transient_key);
+
+    if ($data === false) {
         // Prepare query arguments
         $query_args = [
-            'post_type' => $atts['post_type'],
-            'posts_per_page' => $atts['posts_per_page'],
+            'post_type' => 'project',
+            'posts_per_page' => -1,
             'post_status' => 'publish',
             'has_password' => false,
-            'orderby' => 'date',
+            'offset' => $atts['offset'],
         ];
 
-        // Add category to query arguments if provided
+        // Add tax_query for category filter if provided
         if (!empty($atts['category'])) {
             $query_args['tax_query'][] = [
                 'taxonomy' => 'project_category',
@@ -915,7 +930,7 @@ function cache_custom_posts($atts = [], $cache_duration = MINUTE_IN_SECONDS)
             ];
         }
 
-        // Add tags to query arguments if provided
+        // Add tax_query for tags filter if provided
         if (!empty($atts['tags'])) {
             $query_args['tax_query'][] = [
                 'taxonomy' => 'post_tag',
@@ -924,15 +939,14 @@ function cache_custom_posts($atts = [], $cache_duration = MINUTE_IN_SECONDS)
             ];
         }
 
-        // Execute the query
+        // Query the posts
         $query = new WP_Query($query_args);
 
-        $cached_data = [];
+        $data = [];
 
         if ($query->have_posts()) {
             while ($query->have_posts()) {
                 $query->the_post();
-
                 // Ensure the post has a featured image
                 if (has_post_thumbnail()) {
                     // Fetch and format categories and tags
@@ -951,7 +965,7 @@ function cache_custom_posts($atts = [], $cache_duration = MINUTE_IN_SECONDS)
                         return $tag->slug;
                     }, $tags) : [];
 
-                    $cached_data[] = [
+                    $data[] = [
                         'id' => get_the_ID(),
                         'title' => get_the_title(),
                         'post_date' => get_the_date('d-m-Y'),
@@ -965,89 +979,13 @@ function cache_custom_posts($atts = [], $cache_duration = MINUTE_IN_SECONDS)
                 }
             }
             wp_reset_postdata();
-
-            // Cache the retrieved data
-            set_transient($transient_key, $cached_data, $cache_duration);
         }
+
+        // Cache the data for 2 minutes
+        set_transient($transient_key, $data, $cache_duration);
     }
 
-    return $cached_data;
-}
-
-function storeAllPost($atts)
-{
-    $data = cache_all_posts($atts);
-    $json_data = json_encode($data);
-
-    $script = <<<EOT
-        <script>
-        (async () => {
-            const data = $json_data;
-
-            if (!window.indexedDB) {
-                console.log("Your browser doesn't support a stable version of IndexedDB.");
-                return;
-            }            
-
-            const dbName = "PostsDatabase";
-
-            try {
-                await deleteDatabase(dbName);
-               // console.log("Existing database deleted successfully.");
-            } catch (error) {
-                console.log("Error deleting database: ", error);
-            }
-
-            try {
-                const db = await openDatabase(dbName, 1);
-                await storePosts(db, data);
-                //console.log("All posts have been added to the IndexedDB.");
-            } catch (error) {
-                console.log("Database error: ", error);
-            }
-
-            async function deleteDatabase(name) {
-                return new Promise((resolve, reject) => {
-                    const deleteRequest = indexedDB.deleteDatabase(name);
-
-                    deleteRequest.onsuccess = () => resolve();
-                    deleteRequest.onerror = (event) => reject(event.target.errorCode);
-                    deleteRequest.onblocked = () => console.log("Database deletion blocked.");
-                });
-            }
-
-            async function openDatabase(name, version) {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open(name, version);
-
-                    request.onupgradeneeded = (event) => {
-                        const db = event.target.result;
-                        db.createObjectStore("posts", { keyPath: "id" });
-                    };
-
-                    request.onsuccess = (event) => resolve(event.target.result);
-                    request.onerror = (event) => reject(event.target.errorCode);
-                });
-            }
-
-            async function storePosts(db, posts) {
-                return new Promise((resolve, reject) => {
-                    const transaction = db.transaction(["posts"], "readwrite");
-                    const objectStore = transaction.objectStore("posts");
-
-                    posts.forEach((post) => {
-                        objectStore.put(post);
-                    });
-
-                    transaction.oncomplete = () => resolve();
-                    transaction.onerror = () => reject(transaction.error);
-                });
-            }
-        })();
-        </script>
-        EOT;
-
-    return $script;
+    return $data;
 }
 
 function storeCustomAllPost($atts)
@@ -1063,7 +1001,7 @@ function storeCustomAllPost($atts)
             if (!window.indexedDB) {
                 console.log("Your browser doesn't support a stable version of IndexedDB.");
                 return;
-            }            
+            }
 
             const dbName = "CustomPostsDatabase";
 
@@ -1076,7 +1014,7 @@ function storeCustomAllPost($atts)
 
             try {
                 const db = await openDatabase(dbName, 1);
-                await storePosts(db, data);
+                await storePosts(db, data);                            
                 //console.log("All custom posts have been added to the IndexedDB.");
             } catch (error) {
                 console.log("Database error: ", error);
@@ -1112,6 +1050,82 @@ function storeCustomAllPost($atts)
                     const objectStore = transaction.objectStore("custom_posts");
 
                     custom_posts.forEach((post) => {
+                        objectStore.put(post);
+                    });
+
+                    transaction.oncomplete = () => resolve();
+                    transaction.onerror = () => reject(transaction.error);
+                });
+            }
+        })();
+        </script>
+        EOT;
+
+    return $script;
+}
+
+function storeAllPost($atts)
+{
+    $data = cache_all_posts($atts);
+    $json_data = json_encode($data);
+
+    $script = <<<EOT
+        <script>
+        (async () => {
+            const data = $json_data;
+
+            if (!window.indexedDB) {
+                console.log("Your browser doesn't support a stable version of IndexedDB.");
+                return;
+            }            
+
+            const dbName = "PostsDatabase";
+
+            try {
+                await deleteDatabase(dbName);
+               // console.log("Existing database deleted successfully.");
+            } catch (error) {
+                console.log("Error deleting database: ", error);
+            }
+
+            try {
+                const db = await openDatabase(dbName, 1);
+                await storePosts(db, data);                
+                //console.log("All posts have been added to the IndexedDB.");
+            } catch (error) {
+                console.log("Database error: ", error);
+            }
+
+            async function deleteDatabase(name) {
+                return new Promise((resolve, reject) => {
+                    const deleteRequest = indexedDB.deleteDatabase(name);
+
+                    deleteRequest.onsuccess = () => resolve();
+                    deleteRequest.onerror = (event) => reject(event.target.errorCode);
+                    deleteRequest.onblocked = () => console.log("Database deletion blocked.");
+                });
+            }
+
+            async function openDatabase(name, version) {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(name, version);
+
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        db.createObjectStore("posts", { keyPath: "id" });
+                    };
+
+                    request.onsuccess = (event) => resolve(event.target.result);
+                    request.onerror = (event) => reject(event.target.errorCode);
+                });
+            }
+
+            async function storePosts(db, posts) {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction(["posts"], "readwrite");
+                    const objectStore = transaction.objectStore("posts");
+
+                    posts.forEach((post) => {
                         objectStore.put(post);
                     });
 

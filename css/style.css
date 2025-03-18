@@ -9746,45 +9746,7 @@ subpage MENU
     row-gap: 5rem;
     min-height: 600px;
 
-    .news_article_wrapper {
-      .news_card_image {
-        img {
-          width: 100%;
-          object-fit: contain;
-        }
-      }
 
-      .newsevents__post_date {
-        font-weight: 400;
-        font-size: 14px;
-        color: var(--chr-text-gray-400);
-      }
-
-      .newsevents__post_title {
-        font-size: clamp(0.875rem, 0.224vw + 0.732rem, 1rem);
-        text-wrap: pretty;
-        line-height: 150%;
-
-        display: -webkit-box;
-        -webkit-line-clamp: 4;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-
-        @media (min-width: 768px) {
-          -webkit-line-clamp: 3;
-        }
-      }
-
-      a {
-        &:hover {
-          .newsevents__post_title {
-            color: var(--chr-primary-color-500) !important;
-            text-decoration: underline;
-          }
-        }
-      }
-    }
 
     @media (min-width: 768px) {
       grid-template-columns: repeat(3, 1fr);
@@ -9799,6 +9761,62 @@ subpage MENU
     }
   }
 
+}
+
+.news_article_wrapper {
+  .news_card_image {
+    img {
+      width: 100%;
+      object-fit: contain;
+    }
+  }
+
+  .newsevents__post_date {
+    font-weight: 400;
+    font-size: 14px;
+    color: var(--chr-text-gray-400);
+  }
+
+  .newsevents__post_title {
+    font-size: clamp(0.875rem, 0.224vw + 0.732rem, 1rem);
+    text-wrap: pretty;
+    line-height: 150%;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @media (min-width: 768px) {
+      -webkit-line-clamp: 3;
+    }
+  }
+
+  a {
+    &:hover {
+      .newsevents__post_title {
+        color: var(--chr-primary-color-500) !important;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.newsevents__post_title {
+  font-size: clamp(0.875rem, 0.224vw + 0.732rem, 1rem);
+  text-wrap: pretty;
+  line-height: 150%;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (min-width: 768px) {
+    -webkit-line-clamp: 3;
+  }
 }
 
 .pagination_container {
@@ -9850,7 +9868,8 @@ subpage MENU
   .ppw_category_filter,
   .awards_btn_filter,
   .awards_btn_yrfilter,
-  .newsletter_category_filter {
+  .newsletter_category_filter,
+  .pod_web_btn_filter {
     padding: 0.5rem 1.5rem;
     background-color: var(--chr-text-gray-100);
     border-radius: 50px;
@@ -10597,8 +10616,8 @@ subpage MENU
   }
 }
 
-.podcasts_and_webinars{
-  
+.podcasts_and_webinars {
+
   .post-title {
     padding: 0;
     font-family: var(--ff-primary);
@@ -10625,6 +10644,7 @@ subpage MENU
       }
     }
   }
+
   @media (min-width:1024px) {
     grid-template-columns: repeat(5, 1fr);
   }
@@ -11931,59 +11951,8 @@ subpage MENU
 }
 
 #all_awards_wrapper {
-  display: grid;  
+  display: grid;
   gap: 1rem;
-
-  .awards_card_item {
-    border: 1px solid var(--chr-text-gray-200);
-
-    a {
-      display: flex;
-      flex-direction: column;
-      overflow: clip;
-
-      .awards_card_img{
-        transition: all 0.3s cubic-bezier(0.69, 0, 0, 0.99);          
-      }
-
-      >div {
-        padding: 1rem;
-
-        .categ_lbl {
-          font-weight: 600;
-          color: var(--chr-text-gray-600);
-        }
-
-        .categ_date {
-          margin-bottom: 1rem;
-
-          @media (max-width:1024px) {            
-            flex-direction: column;
-          }
-        }
-
-       
-
-        .title {
-          font-size: clamp(0.875rem, 0.224vw + 0.732rem, 1rem);
-          font-weight: 600;
-          text-align: left;
-          line-height: 1.2em;
-          color: var(--chr-text-gray-600) !important;
-        }
-      }
-
-      &:hover {
-        .awards_card_img{
-          opacity: 0.8;
-          transform:scale(1.03);
-        }
-        .title {
-          color: var(--chr-primary-color) !important;
-        }
-      }
-    }
-  }
 
   @media (min-width: 768px) {
     grid-template-columns: repeat(3, 1fr);
@@ -11995,6 +11964,58 @@ subpage MENU
 
   @media (min-width: 1366px) {
     grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.awards_card_item {
+  border: 1px solid var(--chr-text-gray-200);
+
+  a {
+    display: flex;
+    flex-direction: column;
+    overflow: clip;
+
+    .awards_card_img {
+      transition: all 0.3s cubic-bezier(0.69, 0, 0, 0.99);
+    }
+
+    >div {
+      padding: 1rem;
+
+      .categ_lbl {
+        font-weight: 600;
+        color: var(--chr-text-gray-600);
+      }
+
+      .categ_date {
+        margin-bottom: 1rem;
+
+        @media (max-width:1024px) {
+          flex-direction: column;
+        }
+      }
+
+
+
+      .title {
+        font-size: clamp(0.875rem, 0.224vw + 0.732rem, 1rem);
+        font-weight: 600;
+        text-align: left;
+        line-height: 1.2em;
+        color: var(--chr-text-gray-600) !important;
+      }
+    }
+
+    &:hover {
+      .awards_card_img {
+        opacity: 0.8;
+        transform: scale(1.03);
+      }
+
+      .title {
+        color: var(--chr-primary-color) !important;
+      }
+    }
   }
 }
 

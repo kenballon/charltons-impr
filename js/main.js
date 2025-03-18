@@ -254,7 +254,7 @@ document.addEventListener("readystatechange", (e) => {
     tabFunc();
     showAwardImageFunc();
     getNewsAndEventsPosts(["awards-and-rankings", "news"]);
-    getPodcastsAndWebinars(["podcasts", "webinars"]);
+    getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], null);
     getNewsletterPosts();
     initNewsletterPage();
     getAwardPosts();
@@ -823,6 +823,7 @@ const SELECTORS = {
   TagsPPWFilterButtons: ".ppw_tag_btn_filter",
   paginationdots_first: "#ne_pagination_dots_first",
   paginationdots_last: "#ne_pagination_dots",
+  podAndWebinarFilterButtons: ".pod_web_btn_filter",
 };
 
 // ============================================================
@@ -1716,7 +1717,6 @@ buttonSVG.forEach(button => {
 // =======================================
 
 function renderPosts(posts, page, postsPerPage = 15, elementID) {
-  console.log(elementID);
 
   const awardNewsPostContainer = document?.getElementById(elementID);
 
@@ -1848,14 +1848,14 @@ async function getNewsAndEventsPosts(categories = [], filterID = null) {
   renderPagination(sortedPosts, 15, "all_news_posts");
 }
 
-// Initialize the filter buttons
+// filter for awards 
 FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
   currentFilterID = filterID === "all" ? null : filterID;
   getNewsAndEventsPosts(["awards-and-rankings", "news"], currentFilterID);
 });
 
 // Also Get the Custom Post Type
-async function getPodcastsAndWebinars(tags = []) {
+async function getPodcastsAndWebinars(categories = [], tag = null) {
   const dbName = "PostsDatabase";
   const storeName = "posts";
 
@@ -1875,11 +1875,19 @@ async function getPodcastsAndWebinars(tags = []) {
   // Combine posts from both databases
   let combinedPosts = [...awardsOrNews, ...customPosts];
 
-  // Filter posts by tags if tags are provided
-  if (tags.length) {
+  if (categories.length) {
+    combinedPosts = combinedPosts.filter((post) => {
+      const postCategories = post.categories.toLowerCase().split(", ");
+      const filteredMatches = categories.some((category) => postCategories.includes(category));
+      return filteredMatches;
+    });
+  }
+
+  // Filter posts by tag if tags are provided
+  if (tag) {
     combinedPosts = combinedPosts.filter((post) => {
       const postTags = post.tags.toLowerCase().split(", ");
-      return tags.some((tag) => postTags.includes(tag));
+      return postTags.includes(tag);
     });
   }
 
@@ -1887,7 +1895,12 @@ async function getPodcastsAndWebinars(tags = []) {
   const sortedPosts = sortPostsByDate(combinedPosts);
 
   // Initial render
-  renderPosts(sortedPosts, 1, 10, "pod-and-web");
+  renderPosts(sortedPosts, 1, 15, "pod-and-web");
   renderPagination(sortedPosts, 10, "pod-and-web");
 }
+
+FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
+  currentFilterID = filterID === "all" ? null : filterID;
+  getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], currentFilterID);
+});
 

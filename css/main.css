@@ -9014,35 +9014,6 @@ subpage MENU
   row-gap: 5rem;
   min-height: 600px;
 }
-.all_newsevents_container .news_posts_container .news_article_wrapper .news_card_image img {
-  width: 100%;
-  -o-object-fit: contain;
-     object-fit: contain;
-}
-.all_newsevents_container .news_posts_container .news_article_wrapper .newsevents__post_date {
-  font-weight: 400;
-  font-size: 14px;
-  color: var(--chr-text-gray-400);
-}
-.all_newsevents_container .news_posts_container .news_article_wrapper .newsevents__post_title {
-  font-size: clamp(0.875rem, 0.224vw + 0.732rem, 1rem);
-  text-wrap: pretty;
-  line-height: 150%;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-@media (min-width: 768px) {
-  .all_newsevents_container .news_posts_container .news_article_wrapper .newsevents__post_title {
-    -webkit-line-clamp: 3;
-  }
-}
-.all_newsevents_container .news_posts_container .news_article_wrapper a:hover .newsevents__post_title {
-  color: var(--chr-primary-color-500) !important;
-  text-decoration: underline;
-}
 @media (min-width: 768px) {
   .all_newsevents_container .news_posts_container {
     grid-template-columns: repeat(3, 1fr);
@@ -9056,6 +9027,52 @@ subpage MENU
 @media (min-width: 1280px) {
   .all_newsevents_container .news_posts_container {
     grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.news_article_wrapper .news_card_image img {
+  width: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+.news_article_wrapper .newsevents__post_date {
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--chr-text-gray-400);
+}
+.news_article_wrapper .newsevents__post_title {
+  font-size: clamp(0.875rem, 0.224vw + 0.732rem, 1rem);
+  text-wrap: pretty;
+  line-height: 150%;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (min-width: 768px) {
+  .news_article_wrapper .newsevents__post_title {
+    -webkit-line-clamp: 3;
+  }
+}
+.news_article_wrapper a:hover .newsevents__post_title {
+  color: var(--chr-primary-color-500) !important;
+  text-decoration: underline;
+}
+
+.newsevents__post_title {
+  font-size: clamp(0.875rem, 0.224vw + 0.732rem, 1rem);
+  text-wrap: pretty;
+  line-height: 150%;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (min-width: 768px) {
+  .newsevents__post_title {
+    -webkit-line-clamp: 3;
   }
 }
 
@@ -9102,7 +9119,8 @@ subpage MENU
 .btn_tag_filter_wrapper .ppw_category_filter,
 .btn_tag_filter_wrapper .awards_btn_filter,
 .btn_tag_filter_wrapper .awards_btn_yrfilter,
-.btn_tag_filter_wrapper .newsletter_category_filter {
+.btn_tag_filter_wrapper .newsletter_category_filter,
+.btn_tag_filter_wrapper .pod_web_btn_filter {
   padding: 0.5rem 1.5rem;
   background-color: var(--chr-text-gray-100);
   border-radius: 50px;
@@ -9113,7 +9131,8 @@ subpage MENU
 .btn_tag_filter_wrapper .ppw_category_filter:hover,
 .btn_tag_filter_wrapper .awards_btn_filter:hover,
 .btn_tag_filter_wrapper .awards_btn_yrfilter:hover,
-.btn_tag_filter_wrapper .newsletter_category_filter:hover {
+.btn_tag_filter_wrapper .newsletter_category_filter:hover,
+.btn_tag_filter_wrapper .pod_web_btn_filter:hover {
   background-color: var(--chr-primary-color-500);
   color: white;
   border: 1px solid var(--chr-primary-color-500);
@@ -9122,7 +9141,8 @@ subpage MENU
 .btn_tag_filter_wrapper .ppw_category_filter.active,
 .btn_tag_filter_wrapper .awards_btn_filter.active,
 .btn_tag_filter_wrapper .awards_btn_yrfilter.active,
-.btn_tag_filter_wrapper .newsletter_category_filter.active {
+.btn_tag_filter_wrapper .newsletter_category_filter.active,
+.btn_tag_filter_wrapper .pod_web_btn_filter.active {
   background-color: var(--chr-primary-color-500);
   color: white;
   border: 1px solid var(--chr-primary-color-500);
@@ -10873,46 +10893,6 @@ subpage MENU
   display: grid;
   gap: 1rem;
 }
-#all_awards_wrapper .awards_card_item {
-  border: 1px solid var(--chr-text-gray-200);
-}
-#all_awards_wrapper .awards_card_item a {
-  display: flex;
-  flex-direction: column;
-  overflow: clip;
-}
-#all_awards_wrapper .awards_card_item a .awards_card_img {
-  transition: all 0.3s cubic-bezier(0.69, 0, 0, 0.99);
-}
-#all_awards_wrapper .awards_card_item a > div {
-  padding: 1rem;
-}
-#all_awards_wrapper .awards_card_item a > div .categ_lbl {
-  font-weight: 600;
-  color: var(--chr-text-gray-600);
-}
-#all_awards_wrapper .awards_card_item a > div .categ_date {
-  margin-bottom: 1rem;
-}
-@media (max-width: 1024px) {
-  #all_awards_wrapper .awards_card_item a > div .categ_date {
-    flex-direction: column;
-  }
-}
-#all_awards_wrapper .awards_card_item a > div .title {
-  font-size: clamp(0.875rem, 0.224vw + 0.732rem, 1rem);
-  font-weight: 600;
-  text-align: left;
-  line-height: 1.2em;
-  color: var(--chr-text-gray-600) !important;
-}
-#all_awards_wrapper .awards_card_item a:hover .awards_card_img {
-  opacity: 0.8;
-  transform: scale(1.03);
-}
-#all_awards_wrapper .awards_card_item a:hover .title {
-  color: var(--chr-primary-color) !important;
-}
 @media (min-width: 768px) {
   #all_awards_wrapper {
     grid-template-columns: repeat(3, 1fr);
@@ -10927,6 +10907,47 @@ subpage MENU
   #all_awards_wrapper {
     grid-template-columns: repeat(5, 1fr);
   }
+}
+
+.awards_card_item {
+  border: 1px solid var(--chr-text-gray-200);
+}
+.awards_card_item a {
+  display: flex;
+  flex-direction: column;
+  overflow: clip;
+}
+.awards_card_item a .awards_card_img {
+  transition: all 0.3s cubic-bezier(0.69, 0, 0, 0.99);
+}
+.awards_card_item a > div {
+  padding: 1rem;
+}
+.awards_card_item a > div .categ_lbl {
+  font-weight: 600;
+  color: var(--chr-text-gray-600);
+}
+.awards_card_item a > div .categ_date {
+  margin-bottom: 1rem;
+}
+@media (max-width: 1024px) {
+  .awards_card_item a > div .categ_date {
+    flex-direction: column;
+  }
+}
+.awards_card_item a > div .title {
+  font-size: clamp(0.875rem, 0.224vw + 0.732rem, 1rem);
+  font-weight: 600;
+  text-align: left;
+  line-height: 1.2em;
+  color: var(--chr-text-gray-600) !important;
+}
+.awards_card_item a:hover .awards_card_img {
+  opacity: 0.8;
+  transform: scale(1.03);
+}
+.awards_card_item a:hover .title {
+  color: var(--chr-primary-color) !important;
 }
 
 .btn_tag_group {
