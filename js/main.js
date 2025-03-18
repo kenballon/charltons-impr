@@ -253,8 +253,6 @@ document.addEventListener("readystatechange", (e) => {
     customHeaderNavigation();
     tabFunc();
     showAwardImageFunc();
-    getNewsAndEventsPosts(["awards-and-rankings", "news"]);
-    getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], null);
     getNewsletterPosts();
     initNewsletterPage();
     getAwardPosts();
@@ -266,6 +264,11 @@ document.addEventListener("readystatechange", (e) => {
 
     const defaultFilterdBtn = document?.getElementById("hong-kong-law");
     defaultFilterdBtn?.classList.add("active");
+
+    const newseventsWrapper = document.querySelector('#all_news_posts');
+    const awardsWrapper = document.querySelector('#pod-and-web');
+    newseventsWrapper && getNewsAndEventsPosts(["awards-and-rankings", "news"]);
+    awardsWrapper && getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], null);
   }
 });
 
@@ -1903,4 +1906,3 @@ FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
   currentFilterID = filterID === "all" ? null : filterID;
   getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], currentFilterID);
 });
-
