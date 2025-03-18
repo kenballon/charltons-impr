@@ -1896,7 +1896,7 @@ async function getPodcastsAndWebinars(categories = [], tag = null) {
 
   // Initial render
   renderPosts(sortedPosts, 1, 15, "pod-and-web");
-  renderPagination(sortedPosts, 10, "pod-and-web");
+  renderPagination(sortedPosts, 15, "pod-and-web");
 }
 
 FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
