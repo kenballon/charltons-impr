@@ -1774,7 +1774,7 @@ function renderPagination(posts, postsPerPage = 15, elementID) {
     prevBtn ? prevBtn.classList.add("d-none") : null;
 
     nextBtn ? nextBtn.classList.toggle("d-none", currentPage === totalPages) : null;
-    lastBtn ? lastBtn.classList.toggle("d-none", currentPage === totalPages) : null;
+    lastBtn ? lastBtn.classList.toggle("d-none", currentPage === totalPages || totalPages <= 5) : null;
     paginationDotsFirst ? paginationDotsFirst.classList.toggle("d-none", currentPage <= 5) : null;
     paginationDotsLast ? paginationDotsLast.classList.toggle("d-none", currentPage >= totalPages - 2) : null;
 
