@@ -10830,7 +10830,7 @@ subpage MENU
 }
 @media (min-width: 1366px) {
   .award_card_contact_people {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 .award_card_contact_people .award_card_people_item .people_image img {
@@ -10856,7 +10856,7 @@ subpage MENU
 }
 .award_card_contact_people .award_card_people_item .practice_areas h3 {
   font-weight: 700;
-  font-size: 0.94rem;
+  font-size: 12px;
   text-transform: uppercase;
   color: var(--chr-text-gray-600) !important;
 }
@@ -10869,6 +10869,8 @@ subpage MENU
 }
 .award_card_contact_people .award_card_people_item .practice_areas .practice_areas_links a {
   color: var(--chr-text-gray-500);
+  text-align: left !important;
+  font-size: 10px !important;
 }
 .award_card_contact_people .award_card_people_item .practice_areas .practice_areas_links a::after {
   content: ",";
@@ -10981,4 +10983,25 @@ subpage MENU
   aspect-ratio: 16/9;
   -o-object-fit: cover;
      object-fit: cover;
+}
+
+.web_pod_post_title_wrapper .award_post_title {
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--chr-text-gray-300);
+}
+.web_pod_post_title_wrapper .pod-web-img-logo-wrapper h2 {
+  font-size: 0.875rem;
+  color: var(--chr-text-gray-500) !important;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+}
+.web_pod_post_title_wrapper .pod-web-img-logo-wrapper a img {
+  max-width: 100px !important;
+  padding: 0.5rem;
+  border: 1px solid var(--chr-text-gray-200);
+}
+.web_pod_post_title_wrapper .pod-web-img-logo-wrapper a:hover {
+  background-size: 0 !important;
 }/*# sourceMappingURL=main.css.map */
