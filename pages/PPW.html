@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPW</title>
+</head>
+
+<body>
+    <div class="header_label_filter_buttons">
+        <div class="headline_filter flex items-center space-between">
+            <div class="insights_headline_lbl flex gap-2">
+                <div class="ppw_tag_btn_filter" id="publications">
+                    <h2>
+                        <span class="btn-label">Publications</span>
+                        <span class="insights_svg_wrapper">
+                            <svg width="24" height="25" viewBox="0 0 24 25" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M17.0788 13.4707H5V12.4707H17.0788L11.2865 6.67845L12 5.9707L19 12.9707L12 19.9707L11.2865 19.263L17.0788 13.4707Z"
+                                    fill="white"></path>
+                            </svg>
+                        </span>
+                    </h2>
+                </div>
+                <div class="ppw_tag_btn_filter" id="presentations">
+                    <h2>
+                        <span class="btn-label">Presentations</span>
+                        <span class="insights_svg_wrapper">
+                            <svg width="24" height="25" viewBox="0 0 24 25" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M17.0788 13.4707H5V12.4707H17.0788L11.2865 6.67845L12 5.9707L19 12.9707L12 19.9707L11.2865 19.263L17.0788 13.4707Z"
+                                    fill="white"></path>
+                            </svg>
+                        </span>
+                    </h2>
+                </div>
+                <!-- <div class="ppw_tag_btn_filter" id="webinars">
+                    <h2>
+                        <span class="btn-label">Webinars</span>
+                        <span class="insights_svg_wrapper">
+                            <svg width="24" height="25" viewBox="0 0 24 25" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M17.0788 13.4707H5V12.4707H17.0788L11.2865 6.67845L12 5.9707L19 12.9707L12 19.9707L11.2865 19.263L17.0788 13.4707Z"
+                                    fill="white"></path>
+                            </svg>
+                        </span>
+                    </h2>
+                </div> -->
+            </div>
+            <div class="filter_label_wrapper flex items-center gap-1" role="button" id="insights_filter_toggle"
+                data-state="false">
+                <div class="f-lbl uppercase text-white">Filter</div>
+                <div class="svg_filter_icon flex items-center" id="insights_filter_icon">
+                    <svg width="40" height="41" viewBox="0 0 40 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M17.5966 28.7585V27.348H22.372V28.7585H17.5966ZM11.3466 21.1301V19.7201H28.622V21.1301H11.3466ZM6.66699 13.5022V12.0918H33.3337V13.5022H6.66699Z"
+                            fill="white"></path>
+                    </svg>
+                </div>
+                <div class="svg_filter_icon flex items-center hidden" id="insights_filter_close_icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px"
+                        fill="white">
+                        <path
+                            d="m253.9-229.79-24.11-24.11L455.9-480 229.79-706.1l24.11-24.11L480-504.1l226.1-226.11 24.11 24.11L504.1-480l226.11 226.1-24.11 24.11L480-455.9 253.9-229.79Z">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="insights_page btn_tag_filter_wrapper flex gap-1 hidden">
+            <button id="all" class="ppw_category_filter" type="button">All</button>
+            <button id="ipo" class="ppw_category_filter" type="button">IPO</button>
+            <button id="hong-kong-regulatory-compliance" class="ppw_category_filter" type="button">HK Regulatory
+                Compliance</button>
+            <button id="hong-kong-company-law" class="ppw_category_filter" type="button">HK Company Law</button>
+            <button id="china" class="ppw_category_filter" type="button">China</button>
+        </div>
+    </div>
+</body>
+
+</html>
