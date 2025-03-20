@@ -1857,8 +1857,8 @@ FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
   getNewsAndEventsPosts(["awards-and-rankings", "news"], currentFilterID);
 });
 
-// Also Get the Custom Post Type
-async function getPodcastsAndWebinars(categories = [], tag = null) {
+// Updated getPodcastsAndWebinars function
+async function getPodcastsAndWebinars(categories = [], filterID = null) {
   const dbName = "PostsDatabase";
   const storeName = "posts";
 
@@ -1878,20 +1878,17 @@ async function getPodcastsAndWebinars(categories = [], tag = null) {
   // Combine posts from both databases
   let combinedPosts = [...awardsOrNews, ...customPosts];
 
+  // Filter posts by categories
   if (categories.length) {
     combinedPosts = combinedPosts.filter((post) => {
       const postCategories = post.categories.toLowerCase().split(", ");
-      const filteredMatches = categories.some((category) => postCategories.includes(category));
-      return filteredMatches;
+      return categories.some((category) => postCategories.includes(category));
     });
   }
 
-  // Filter posts by tag if tags are provided
-  if (tag) {
-    combinedPosts = combinedPosts.filter((post) => {
-      const postTags = post.tags.toLowerCase().split(", ");
-      return postTags.includes(tag);
-    });
+  // Filter posts by filterID (category or tag)
+  if (filterID) {
+    combinedPosts = filterPostsByCategoryAndTag(combinedPosts, filterID);
   }
 
   // Sort the combined posts by date
@@ -1902,7 +1899,26 @@ async function getPodcastsAndWebinars(categories = [], tag = null) {
   renderPagination(sortedPosts, 15, "pod-and-web");
 }
 
+function filterPostsByCategoryAndTag(posts, filterID) {
+  return posts.filter((post) => {
+    const postCategories = post.categories.toLowerCase().split(", ");
+    const postTags = post.tags.toLowerCase().split(", ");
+
+    // Check if the filterID matches either a category or a tag
+    const matchesCategory = postCategories.includes(filterID);
+    const matchesTag = postTags.includes(filterID);
+
+    return matchesCategory || matchesTag;
+  });
+}
+
+// Updated FilterButton initialization
 FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
   currentFilterID = filterID === "all" ? null : filterID;
+
+  // Fetch and filter posts
   getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], currentFilterID);
 });
+
+
+
