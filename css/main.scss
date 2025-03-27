@@ -11811,8 +11811,7 @@ subpage MENU
         padding-block: 2rem;
         margin-bottom: 0;
 
-        p,
-        ul {
+        p {
           font-size: 1rem;
           font-weight: 400;
           line-height: 140%;
@@ -11822,7 +11821,11 @@ subpage MENU
           margin-bottom: 1rem;
         }
 
-        ul {
+        ul,
+        ol {
+          font-size: .85rem;
+          font-weight: 400;
+          line-height: 120%;
           padding-left: 2rem !important;
         }
       }
