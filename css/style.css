@@ -8570,7 +8570,7 @@ subpage MENU
 
 /* #region ABOUT SECTION - New June 2024 */
 
-.about_us_section {
+.et_pb_section.about_us_section {
   color: white;
 
   .about_us_block {
@@ -8624,6 +8624,15 @@ subpage MENU
 
     @media (max-width: 992px) {
       padding-inline: 24px;
+    }
+  }
+
+  @media (max-width: 992px) {
+    height: 600px;
+    max-height: 600px;
+
+    .hero_about_us{
+      padding-inline:24px !important;
     }
   }
 }

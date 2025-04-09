@@ -8068,15 +8068,15 @@ subpage MENU
 
 /* #endregion OUR WORK SECTION - New June 2024 */
 /* #region ABOUT SECTION - New June 2024 */
-.about_us_section {
+.et_pb_section.about_us_section {
   color: white;
 }
-.about_us_section .about_us_block .ul li {
+.et_pb_section.about_us_section .about_us_block .ul li {
   border-bottom: 1px dotted white;
   position: relative;
   transition: all 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955);
 }
-.about_us_section .about_us_block .ul li::after {
+.et_pb_section.about_us_section .about_us_block .ul li::after {
   content: "";
   display: block;
   width: 10px;
@@ -8090,26 +8090,35 @@ subpage MENU
   top: 50%;
   transform-origin: right top;
 }
-.about_us_section .about_us_block .ul li a article {
+.et_pb_section.about_us_section .about_us_block .ul li a article {
   display: flex;
   justify-content: center;
   flex-direction: column;
   height: 100%;
 }
-.about_us_section .about_us_block .ul li a article h3 {
+.et_pb_section.about_us_section .about_us_block .ul li a article h3 {
   padding: 0;
   color: white !important;
 }
-.about_us_section .about_us_block .ul li a:hover {
+.et_pb_section.about_us_section .about_us_block .ul li a:hover {
   color: var(--chr-primary-color) !important;
 }
-.about_us_section .about_us_block .ul li a:hover article h3 {
+.et_pb_section.about_us_section .about_us_block .ul li a:hover article h3 {
   padding: 0;
   color: var(--chr-primary-color) !important;
 }
 @media (max-width: 992px) {
-  .about_us_section .about_us_block {
+  .et_pb_section.about_us_section .about_us_block {
     padding-inline: 24px;
+  }
+}
+@media (max-width: 992px) {
+  .et_pb_section.about_us_section {
+    height: 600px;
+    max-height: 600px;
+  }
+  .et_pb_section.about_us_section .hero_about_us {
+    padding-inline: 24px !important;
   }
 }
 
