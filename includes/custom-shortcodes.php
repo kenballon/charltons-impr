@@ -1238,6 +1238,8 @@ function getNewsletterPostTitle($atts)
             </button>
             <div id="nlDowloadOptions" aria-hidden="true">
                 <ul>
+
+                    <?php if (!empty($pdf_url)): ?>
                     <li>
                         <button aria-label="Share on twitter" class="flex gap-1 items-center" id="dl_pdf">
                             <svg width="24" height="30" viewBox="0 0 24 30" fill="none"
@@ -1251,6 +1253,8 @@ function getNewsletterPostTitle($atts)
                             <div>PDF Version</div>
                         </button>
                     </li>
+                    <?php endif; ?>
+                    <?php if (!empty($word_url)): ?>
                     <li>
                         <button aria-label="Share on facebook" class="flex gap-1 items-center" id="dl_word">
 
@@ -1264,6 +1268,7 @@ function getNewsletterPostTitle($atts)
                             <div>Word Version</div>
                         </button>
                     </li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </div>

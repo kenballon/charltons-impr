@@ -935,11 +935,6 @@ function initNewsletterPage() {
     }
   };
 
-  if (!inputPdfVal)
-    downloadPDF.classList.add("d-none");
-  if (!inputWordVal)
-    openWordUrl.classList.add("d-none");
-
   downloadPDF?.addEventListener("click", () => {
     openDownloadURL(
       inputPdfVal,
