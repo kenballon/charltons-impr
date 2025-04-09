@@ -949,10 +949,12 @@ function initNewsletterPage() {
     document.body.removeChild(link);
   };
 
-  const openDownloadOptions = document.getElementById("open_dl_options");
-  const downloadDialog = document.getElementById("nlDowloadOptions");
-  const downloadPDF = document.getElementById("dl_pdf");
-  const openWordUrl = document.getElementById("dl_word");
+  const openDownloadOptions = document?.getElementById("open_dl_options");
+  const downloadDialog = document?.getElementById("nlDowloadOptions");
+  const downloadPDF = document?.getElementById("dl_pdf");
+  const openWordUrl = document?.getElementById("dl_word");
+  const inputPdfVal = document?.getElementById("pdf_url_hidden_input").value;
+  const inputWordVal = document?.getElementById("word_url_hidden_input").value;
 
   openDownloadOptions?.addEventListener("click", () =>
     toggleDownloadDialog(downloadDialog)
@@ -980,16 +982,21 @@ function initNewsletterPage() {
     }
   };
 
+  if (!inputPdfVal)
+    downloadPDF.classList.add("d-none");
+  if (!inputWordVal)
+    openWordUrl.classList.add("d-none");
+
   downloadPDF?.addEventListener("click", () => {
     openDownloadURL(
-      document.getElementById("pdf_url_hidden_input")?.value,
+      inputPdfVal,
       "PDF URL is not available."
     );
     downloadDialog.classList.remove("open");
   });
   openWordUrl?.addEventListener("click", () => {
     openDownloadURL(
-      document.getElementById("word_url_hidden_input")?.value,
+      inputWordVal,
       "Word URL is not available."
     );
     downloadDialog.classList.remove("open");
@@ -1919,6 +1926,3 @@ FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
   // Fetch and filter posts
   getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], currentFilterID);
 });
-
-
-
