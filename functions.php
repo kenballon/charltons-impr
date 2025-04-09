@@ -41,7 +41,7 @@ function mainjs_script()
 		'mainjs',
 		get_stylesheet_directory_uri() . '/js/main.min.js',
 		['jquery'],
-		null,
+		filemtime(get_stylesheet_directory() . '/js/main.min.js'),  // Dynamic version based on file modification time
 		true  // Load the script in the footer
 	);
 
