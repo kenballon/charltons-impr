@@ -304,53 +304,6 @@ function customHeaderNavigation() {
       ".nav_child_list_item button"
     );
 
-    parentLinkItem.addEventListener("mouseenter", () => {
-      if (navLinkId === subMenuWrapperActive?.id) {
-        const listItem = subMenuWrapperActive.querySelectorAll(
-          ".nav_child_list_item"
-        );
-
-        const links = subMenuWrapperActive.querySelectorAll(".link_wrapper");
-        links.forEach((link, index) => {
-          const timeoutId = setTimeout(() => {
-            requestAnimationFrame(() => {
-              link.style.transform = "translate(0, 0)";
-            });
-          }, index * 20);
-          animationTimeouts.push(timeoutId);
-        });
-
-        listItem.forEach((item) => {
-          item.style.opacity = 1;
-        });
-      }
-    });
-
-    parentLinkItem.addEventListener("mouseleave", (e) => {
-      const anchorParent = e.target.closest(".nav_parent_list_item");
-      const anchorParentId = anchorParent.getAttribute("data-parentlistid");
-      animationTimeouts.forEach((timeoutId) => clearTimeout(timeoutId));
-      animationTimeouts = [];
-
-      if (anchorParentId === subMenuWrapperActive?.id) {
-        const listItem = subMenuWrapperActive.querySelectorAll(
-          ".nav_child_list_item"
-        );
-        const links = subMenuWrapperActive.querySelectorAll(".link_wrapper");
-
-        subMenuWrapperActive.classList.remove("active-hover");
-        anchorParent.classList.remove("active-nav");
-
-        links.forEach((link) => {
-          link.style.transform = "translate3d(0, 40px, 0)";
-        });
-
-        listItem.forEach((item) => {
-          item.style.opacity = 0;
-        });
-      }
-    });
-
     // add active class on hover for parent link
     subMenuWrapperActive?.addEventListener("mouseenter", () => {
       parentLinkItem.classList.add("active-hovered");
