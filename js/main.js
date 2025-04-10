@@ -906,8 +906,12 @@ function initNewsletterPage() {
   const downloadDialog = document?.getElementById("nlDowloadOptions");
   const downloadPDF = document?.getElementById("dl_pdf");
   const openWordUrl = document?.getElementById("dl_word");
-  const inputPdfVal = document?.getElementById("pdf_url_hidden_input").value;
-  const inputWordVal = document?.getElementById("word_url_hidden_input").value;
+
+  const inputPdfElement = document?.getElementById("pdf_url_hidden_input");
+  const inputWordElement = document?.getElementById("word_url_hidden_input");
+
+  const inputPdfVal = inputPdfElement ? inputPdfElement.value : null;
+  const inputWordVal = inputWordElement ? inputWordElement.value : null;
 
   openDownloadOptions?.addEventListener("click", () =>
     toggleDownloadDialog(downloadDialog)
