@@ -896,7 +896,7 @@ clear_custom_posts_cache([
     'tags' => ''
 ]);
 
-function cache_custom_posts($atts = [], $cache_duration = MINUTE_IN_SECONDS)
+function cache_custom_posts($atts = [], $cache_duration = 5 * MINUTE_IN_SECONDS)
 {
     // Extract shortcode attributes
     $atts = shortcode_atts([
@@ -992,32 +992,45 @@ function storeCustomAllPost($atts)
 {
     $data = cache_custom_posts($atts);
     $json_data = json_encode($data);
+    $data_hash = md5($json_data);  // Generate a hash for the data
 
     $script = <<<EOT
         <script>
         (async () => {
             const data = $json_data;
+            const dataHash = "$data_hash"; // Current hash of the data
+            const dbName = "CustomPostsDatabase";
+            const hashKey = "CustomPostsDatabaseHash"; // Key for storing the hash in localStorage
 
             if (!window.indexedDB) {
                 console.log("Your browser doesn't support a stable version of IndexedDB.");
                 return;
             }
 
-            const dbName = "CustomPostsDatabase";
+            // Get the stored hash from localStorage
+            const storedHash = localStorage.getItem(hashKey);
 
-            try {
-                await deleteDatabase(dbName);
-               // console.log("Existing database deleted successfully.");
-            } catch (error) {
-                console.log("Error deleting database: ", error);
-            }
+            // Check if the hash has changed
+            if (storedHash !== dataHash) {
+                try {
+                    await deleteDatabase(dbName);
+                    console.log("Existing database deleted successfully. | CustomPostsDatabase");
+                } catch (error) {
+                    console.log("Error deleting database: ", error);
+                }
 
-            try {
-                const db = await openDatabase(dbName, 1);
-                await storePosts(db, data);                            
-                //console.log("All custom posts have been added to the IndexedDB.");
-            } catch (error) {
-                console.log("Database error: ", error);
+                try {
+                    const db = await openDatabase(dbName, 1);
+                    await storePosts(db, data);
+                    console.log("All custom posts have been added to the IndexedDB. | CustomPostsDatabase");
+
+                    // Update the hash in localStorage
+                    localStorage.setItem(hashKey, dataHash);
+                } catch (error) {
+                    console.log("Database error: ", error);
+                }
+            } else {
+                // console.log("No changes detected. Database not updated.");
             }
 
             async function deleteDatabase(name) {
@@ -1026,7 +1039,10 @@ function storeCustomAllPost($atts)
 
                     deleteRequest.onsuccess = () => resolve();
                     deleteRequest.onerror = (event) => reject(event.target.errorCode);
-                    deleteRequest.onblocked = () => console.log("Database deletion blocked.");
+                    deleteRequest.onblocked = () => {
+                        console.log("Database deletion blocked. Retrying in 1 second...");
+                        setTimeout(() => deleteDatabase(name).then(resolve).catch(reject), 1000);
+                    };
                 });
             }
 
@@ -1068,32 +1084,45 @@ function storeAllPost($atts)
 {
     $data = cache_all_posts($atts);
     $json_data = json_encode($data);
+    $data_hash = md5($json_data);  // Generate a hash for the data
 
     $script = <<<EOT
         <script>
         (async () => {
             const data = $json_data;
+            const dataHash = "$data_hash"; // Current hash of the data
+            const dbName = "PostsDatabase";
+            const hashKey = "PostsDatabaseHash"; // Key for storing the hash in localStorage
 
             if (!window.indexedDB) {
                 console.log("Your browser doesn't support a stable version of IndexedDB.");
                 return;
-            }            
-
-            const dbName = "PostsDatabase";
-
-            try {
-                await deleteDatabase(dbName);
-               // console.log("Existing database deleted successfully.");
-            } catch (error) {
-                console.log("Error deleting database: ", error);
             }
 
-            try {
-                const db = await openDatabase(dbName, 1);
-                await storePosts(db, data);                
-                //console.log("All posts have been added to the IndexedDB.");
-            } catch (error) {
-                console.log("Database error: ", error);
+            // Get the stored hash from localStorage
+            const storedHash = localStorage.getItem(hashKey);
+
+            // Check if the hash has changed
+            if (storedHash !== dataHash) {
+                try {
+                    await deleteDatabase(dbName);
+                    console.log("Existing database deleted successfully. | PostsDatabase");
+                } catch (error) {
+                    console.log("Error deleting database: ", error);
+                }
+
+                try {
+                    const db = await openDatabase(dbName, 1);
+                    await storePosts(db, data);
+                    console.log("All posts have been added to the IndexedDB. | PostsDatabase");
+
+                    // Update the hash in localStorage
+                    localStorage.setItem(hashKey, dataHash);
+                } catch (error) {
+                    console.log("Database error: ", error);
+                }
+            } else {
+                // console.log("No changes detected. Database not updated.");
             }
 
             async function deleteDatabase(name) {
@@ -1102,7 +1131,10 @@ function storeAllPost($atts)
 
                     deleteRequest.onsuccess = () => resolve();
                     deleteRequest.onerror = (event) => reject(event.target.errorCode);
-                    deleteRequest.onblocked = () => console.log("Database deletion blocked.");
+                    deleteRequest.onblocked = () => {
+                        console.log("Database deletion blocked. Retrying in 1 second...");
+                        setTimeout(() => deleteDatabase(name).then(resolve).catch(reject), 1000);
+                    };
                 });
             }
 
