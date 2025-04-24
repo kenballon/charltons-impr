@@ -1706,30 +1706,15 @@ function renderPagination(posts, postsPerPage = 15, elementID) {
   let currentPage = 1;
   const totalPages = Math.ceil(posts.length / postsPerPage);
 
-  if (totalPages <= 1) {
-    togglePaginationVisibility(false);
-    return;
-  }
-
-  togglePaginationVisibility(true);
-
   function togglePaginationVisibility(isVisible) {
-    const elements = [
-      paginationWrapper,
-      prevBtn,
-      nextBtn,
-      firstBtn,
-      lastBtn,
-      paginationDotsFirst,
-      paginationDotsLast,
-    ];
-    elements.forEach((el) => el?.classList.toggle("d-none", !isVisible));
+    document?.querySelector('.pagination_container').classList.toggle('d-none', !isVisible);
   }
 
   function createPageButton(page) {
     const button = document.createElement("button");
     button.textContent = page;
     button.className = "pagination_btn";
+    button.setAttribute("type", "button");
     button.setAttribute("aria-label", `Go to page ${page}`);
     button.addEventListener("click", () => {
       currentPage = page;
@@ -1797,6 +1782,13 @@ function renderPagination(posts, postsPerPage = 15, elementID) {
     renderPosts(posts, currentPage, postsPerPage, elementID);
     updatePagination();
   });
+
+  if (totalPages <= 1) {
+    togglePaginationVisibility(false);
+    return;
+  }
+
+  togglePaginationVisibility(true);
 
   updatePagination();
 }
