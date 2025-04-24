@@ -1762,8 +1762,8 @@ function renderPagination(posts, postsPerPage = 15, elementID) {
     nextBtn?.classList.toggle("d-none", isLastPage);
     firstBtn?.classList.toggle("d-none", isFirstPage || currentPage <= 5);
     lastBtn?.classList.toggle("d-none", isLastPage || currentPage >= totalPages - 1);
-    paginationDotsFirst?.classList.toggle("d-none", currentPage <= 5);
-    paginationDotsLast?.classList.toggle("d-none", currentPage >= totalPages - 1);
+    paginationDotsFirst?.classList.toggle("d-none", isFirstPage || currentPage <= 5);
+    paginationDotsLast?.classList.toggle("d-none", isLastPage || currentPage >= totalPages - 1);
 
     firstBtn.textContent = "1";
     lastBtn.textContent = totalPages;
