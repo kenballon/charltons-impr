@@ -1706,49 +1706,67 @@ function renderPagination(posts, postsPerPage = 15, elementID) {
   let currentPage = 1;
   const totalPages = Math.ceil(posts.length / postsPerPage);
 
+  if (totalPages <= 1) {
+    togglePaginationVisibility(false);
+    return;
+  }
+
+  togglePaginationVisibility(true);
+
+  function togglePaginationVisibility(isVisible) {
+    const elements = [
+      paginationWrapper,
+      prevBtn,
+      nextBtn,
+      firstBtn,
+      lastBtn,
+      paginationDotsFirst,
+      paginationDotsLast,
+    ];
+    elements.forEach((el) => el?.classList.toggle("d-none", !isVisible));
+  }
+
+  function createPageButton(page) {
+    const button = document.createElement("button");
+    button.textContent = page;
+    button.className = "pagination_btn";
+    button.setAttribute("aria-label", `Go to page ${page}`);
+    button.addEventListener("click", () => {
+      currentPage = page;
+      renderPosts(posts, currentPage, postsPerPage, elementID);
+      updatePagination();
+    });
+    return button;
+  }
+
   function updatePagination() {
-    paginationWrapper ? paginationWrapper.innerHTML = "" : null;
-    let startPage = Math.floor((currentPage - 1) / 5) * 5 + 1;
-    let endPage = startPage + 4;
+    paginationWrapper.innerHTML = "";
 
-    for (let i = 1; i <= totalPages; i++) {
-      const pageButton = document.createElement("button");
-      pageButton.textContent = i;
-      pageButton.className = "pagination_btn";
+    const startPage = Math.floor((currentPage - 1) / 5) * 5 + 1;
+    const endPage = Math.min(startPage + 4, totalPages);
 
-      if (i < startPage || i > endPage) {
-        pageButton.classList.add("d-none");
-      }
-
-      if (i === currentPage) {
-        pageButton.classList.add("active");
-      }
-
-      pageButton.addEventListener("click", () => {
-        currentPage = i;
-        renderPosts(posts, currentPage, postsPerPage, elementID);
-        updatePagination();
-      });
-      paginationWrapper?.appendChild(pageButton);
+    for (let i = startPage; i <= endPage; i++) {
+      const pageButton = createPageButton(i);
+      if (i === currentPage) pageButton.classList.add("active");
+      paginationWrapper.appendChild(pageButton);
     }
 
-    firstBtn ? firstBtn.classList.add("d-none") : null;
-    prevBtn ? prevBtn.classList.add("d-none") : null;
+    updateButtonStates();
+  }
 
-    nextBtn ? nextBtn.classList.toggle("d-none", currentPage === totalPages) : null;
-    lastBtn ? lastBtn.classList.toggle("d-none", currentPage === totalPages || totalPages <= 5) : null;
-    paginationDotsFirst ? paginationDotsFirst.classList.toggle("d-none", currentPage <= 5) : null;
-    paginationDotsLast ? paginationDotsLast.classList.toggle("d-none", currentPage >= totalPages - 2) : null;
+  function updateButtonStates() {
+    const isFirstPage = currentPage === 1;
+    const isLastPage = currentPage === totalPages;
 
-    if (currentPage >= 6) {
-      prevBtn ? prevBtn.classList.remove("d-none") : null;
-      firstBtn ? firstBtn.classList.remove("d-none") : null;
-      firstBtn ? firstBtn.textContent = "1" : null;
-    }
+    prevBtn?.classList.toggle("d-none", isFirstPage);
+    nextBtn?.classList.toggle("d-none", isLastPage);
+    firstBtn?.classList.toggle("d-none", isFirstPage || currentPage <= 5);
+    lastBtn?.classList.toggle("d-none", isLastPage || currentPage >= totalPages - 1);
+    paginationDotsFirst?.classList.toggle("d-none", currentPage <= 5);
+    paginationDotsLast?.classList.toggle("d-none", currentPage >= totalPages - 1);
 
-    if (currentPage < totalPages) {
-      lastBtn ? lastBtn.textContent = totalPages : null;
-    }
+    firstBtn.textContent = "1";
+    lastBtn.textContent = totalPages;
   }
 
   prevBtn?.addEventListener("click", () => {
