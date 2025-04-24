@@ -1748,22 +1748,23 @@ function renderPagination(posts, postsPerPage = 15, elementID) {
     for (let i = startPage; i <= endPage; i++) {
       const pageButton = createPageButton(i);
       if (i === currentPage) pageButton.classList.add("active");
+
       paginationWrapper.appendChild(pageButton);
     }
 
-    updateButtonStates();
+    updateButtonStates(endPage);
   }
 
-  function updateButtonStates() {
+  function updateButtonStates(endPage) {
     const isFirstPage = currentPage === 1;
     const isLastPage = currentPage === totalPages;
 
     prevBtn?.classList.toggle("d-none", isFirstPage);
     nextBtn?.classList.toggle("d-none", isLastPage);
     firstBtn?.classList.toggle("d-none", isFirstPage || currentPage <= 5);
-    lastBtn?.classList.toggle("d-none", isLastPage || currentPage >= totalPages - 1);
+    lastBtn?.classList.toggle("d-none", isLastPage || endPage === totalPages);
     paginationDotsFirst?.classList.toggle("d-none", isFirstPage || currentPage <= 5);
-    paginationDotsLast?.classList.toggle("d-none", isLastPage || currentPage >= totalPages - 1);
+    paginationDotsLast?.classList.toggle("d-none", isLastPage || endPage === totalPages);
 
     firstBtn.textContent = "1";
     lastBtn.textContent = totalPages;

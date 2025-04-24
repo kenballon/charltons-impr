@@ -11,7 +11,7 @@ function enqueue_load_fa()
 
 function chr_theme_enqueue_styles()
 {
-	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.37', 'all');
+	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.38', 'all');
 	wp_enqueue_style('custom-style');
 }
 
@@ -39,9 +39,9 @@ function mainjs_script()
 	// Enqueue the main.js script
 	wp_enqueue_script(
 		'mainjs',
-		get_stylesheet_directory_uri() . '/js/main.js',
+		get_stylesheet_directory_uri() . '/js/main.min.js',
 		['jquery'],
-		null,  // Removed dynamic version based on file modification time
+		filemtime(get_stylesheet_directory() . '/js/main.min.js'),  // Dynamic version based on file modification time
 		true  // Load the script in the footer
 	);
 
