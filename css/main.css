@@ -10,7 +10,7 @@ in our server */
 /* ============================================ */
 @import url("_utility.css");
 :root {
-  --ff-primary: "Inter", "SF Pro Display", system-ui, -apple-system,
+  --ff-primary: "Graphik", "Inter", system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
     "Helvetica Neue", sans-serif;
   --chr-primary-color: #e71d24;
@@ -72,6 +72,20 @@ input,
 p,
 a {
   font-family: var(--ff-primary);
+}
+
+a.default_link {
+  font-family: var(--ff-primary);
+  color: var(--chr-primary-color);
+  background-image: linear-gradient(transparent, transparent), linear-gradient(currentColor, currentColor);
+  background-size: 100% 0.0625rem, 0 0.0625rem;
+  background-position: 100% 100%, 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.2s ease;
+  text-decoration: none;
+}
+a.default_link:hover {
+  background-size: 0 0.0625rem, 100% 0.0625rem;
 }
 
 blockquote {
@@ -8122,6 +8136,117 @@ subpage MENU
   }
 }
 
+.et_pb_section.new_about_us_section .et_pb_text_inner {
+  /* ul {
+    margin-inline-start: 1.25rem;
+  } */
+}
+.et_pb_section.new_about_us_section .et_pb_text_inner div,
+.et_pb_section.new_about_us_section .et_pb_text_inner a,
+.et_pb_section.new_about_us_section .et_pb_text_inner p,
+.et_pb_section.new_about_us_section .et_pb_text_inner span,
+.et_pb_section.new_about_us_section .et_pb_text_inner li {
+  font-weight: 400;
+  font-size: 1rem;
+  text-align: left;
+  line-height: 160%;
+}
+.et_pb_section.new_about_us_section .et_pb_text_inner h2 {
+  font-size: 1.25rem;
+  margin-block: 1rem;
+}
+.et_pb_section.new_about_us_section .et_pb_text_inner h3 {
+  font-size: 1rem;
+  margin-block: 1rem;
+}
+.et_pb_section.new_about_us_section .new_about_us_row {
+  height: 100%;
+  padding-block-end: 0;
+}
+.et_pb_section.new_about_us_section .new_about_us_row > div {
+  height: 100%;
+}
+.et_pb_section.new_about_us_section .new_about_us_row > div > div.new_about_us_nav_container {
+  height: 100%;
+  display: flex;
+}
+.et_pb_section.new_about_us_section .new_about_us_row > div > div.new_about_us_nav_container > div {
+  width: 100%;
+}
+.et_pb_section.new_about_us_section .new_about_us_row > div > div.new_about_us_nav_container > div nav {
+  width: 100%;
+  margin-top: auto;
+}
+.et_pb_section.new_about_us_section .new_about_us_row > div > div.new_about_us_nav_container > div nav ul {
+  width: 100%;
+  list-style: none;
+  padding: 0;
+  background-color: var(--chr-text-gray-900);
+}
+.et_pb_section.new_about_us_section .new_about_us_row > div > div.new_about_us_nav_container > div nav ul li {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  flex-grow: 1;
+  text-align: center;
+  position: relative;
+}
+.et_pb_section.new_about_us_section .new_about_us_row > div > div.new_about_us_nav_container > div nav ul li a {
+  color: inherit !important;
+}
+.et_pb_section.new_about_us_section .new_about_us_row > div > div.new_about_us_nav_container > div nav ul li:hover {
+  background-color: var(--chr-text-gray-700);
+}
+.et_pb_section.new_about_us_section .nav_trail.active {
+  background-color: var(--chr-primary-color);
+}
+.et_pb_section.new_about_us_section .nav_trail.active:hover {
+  background-color: var(--chr-primary-color-800) !important;
+}
+@media (max-width: 994px) {
+  .et_pb_section.new_about_us_section .about_us_nav_link_wrapper {
+    display: none;
+  }
+  .et_pb_section.new_about_us_section .about_us_nav_link_wrapper.nav_trail.active {
+    display: flex;
+  }
+  .et_pb_section.new_about_us_section .about_us_nav_link_wrapper.nav_trail.active a {
+    text-align: left;
+    display: block;
+  }
+  .et_pb_section.new_about_us_section .nav_trail.active .hamburger {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    z-index: 1;
+  }
+  .et_pb_section.new_about_us_section .nav_trail.active .hamburger::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 17px;
+    width: 22px;
+    border-style: solid;
+    border-width: 2px 0;
+    border-color: #fff;
+    height: 14px;
+    right: 15px;
+  }
+  .et_pb_section.new_about_us_section .nav_trail.active .hamburger::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 25px;
+    width: 22px;
+    background-color: #fff;
+    height: 2px;
+    right: 15px;
+  }
+}
+
 /* #endregion ABOUT SECTION - New June 2024 */
 /* #region RECEN PUBLICATION HOMEPAGE */
 .home-our-thinking .home-our-thinking__content {
@@ -8972,6 +9097,16 @@ subpage MENU
 .newsevents_hero .featured_newsevents_left-col .featured_new_post .featured_new_post_content a:hover h2 {
   color: var(--chr-primary-color-500) !important;
   text-decoration: underline;
+}
+.newsevents_hero .featured_newsevents_left-col .featured_new_post .cta_wrapper a {
+  gap: 0.5rem;
+}
+.newsevents_hero .featured_newsevents_left-col .featured_new_post .cta_wrapper a span.material-symbols-outlined {
+  transition: all 0.1s ease-in;
+}
+.newsevents_hero .featured_newsevents_left-col .featured_new_post .cta_wrapper a:hover span.material-symbols-outlined {
+  transform: rotate(-45deg);
+  transform-origin: center;
 }
 @media (max-width: 992px) {
   .newsevents_hero .featured_newsevents_left-col .featured_new_post {

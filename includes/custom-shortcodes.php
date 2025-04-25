@@ -561,10 +561,14 @@ function get_recent_news_posts($atts)
             $output .= '</div>';
             $output .= '<div class="featured_new_post_content flex flex-col justify-center">';
             $output .= '<div class="date_container fw-regular">' . esc_html($post_date) . '</div>';
-            $output .= '<a href="' . esc_url($post_url) . '" aria-label="' . esc_attr($post_title) . '">';
+            $output .= '<a href="' . esc_url($post_url) . '" aria-label="' . esc_attr($post_title) . '" target="_blank">';
             $output .= '<h2>' . esc_html($post_title) . '</h2>';
             $output .= '</a>';
             $output .= '<p class="fw-regular">' . esc_html($post_excerpt) . '</p>';
+            // read more button
+            $output .= '<div class="cta_wrapper mt-2"><a href="' . esc_url($post_url) . '" target="_blank" class="w-max-content default_link flex items-center"  aria-label="Read full article on ' . esc_attr($post_title) . '">Read full article <span class="material-symbols-outlined">
+arrow_forward
+</span></a></div>';
             $output .= '</div>';
             $output .= '</article>';
         }

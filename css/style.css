@@ -12,7 +12,7 @@ in our server */
 @import url("_utility.css");
 
 :root {
-  --ff-primary: "Inter", "SF Pro Display", system-ui, -apple-system,
+  --ff-primary: "Graphik", "Inter", system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
     "Helvetica Neue", sans-serif;
 
@@ -75,6 +75,22 @@ input,
 p,
 a {
   font-family: var(--ff-primary);
+}
+
+a.default_link {
+  font-family: var(--ff-primary);
+  color: var(--chr-primary-color);
+  background-image: linear-gradient(transparent, transparent),
+    linear-gradient(currentColor, currentColor);
+  background-size: 100% 0.0625rem, 0 0.0625rem;
+  background-position: 100% 100%, 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.2s ease;
+  text-decoration: none;
+
+  &:hover {
+    background-size: 0 0.0625rem, 100% 0.0625rem;
+  }
 }
 
 blockquote {
@@ -537,12 +553,13 @@ header#main-header {
             }
           }
 
-          .nav_parent_list_item:hover{
-            .submenu_wrapper{
-              .submenu_ul_group_wrapper.children{
-                .nav_child_list_item{
+          .nav_parent_list_item:hover {
+            .submenu_wrapper {
+              .submenu_ul_group_wrapper.children {
+                .nav_child_list_item {
                   opacity: 1;
-                  .link_wrapper{
+
+                  .link_wrapper {
                     transform: translate3d(0, 0, 0);
                   }
                 }
@@ -8631,8 +8648,148 @@ subpage MENU
     height: 600px;
     max-height: 600px;
 
-    .hero_about_us{
-      padding-inline:24px !important;
+    .hero_about_us {
+      padding-inline: 24px !important;
+    }
+  }
+}
+
+.et_pb_section.new_about_us_section {
+
+  .et_pb_text_inner {
+
+    div,
+    a,
+    p,
+    span,
+    li {
+      font-weight: 400;
+      font-size: 1rem;
+      text-align: left;
+      line-height: 160%;
+    }
+
+    /* ul {
+      margin-inline-start: 1.25rem;
+    } */
+
+    h2 {
+      font-size: 1.25rem;
+      margin-block: 1rem;
+    }
+
+    h3 {
+      font-size: 1rem;
+      margin-block: 1rem;
+    }
+  }
+
+  .new_about_us_row {
+    height: 100%;
+    padding-block-end: 0;
+
+    >div {
+      height: 100%;
+
+      >div.new_about_us_nav_container {
+        height: 100%;
+        display: flex;
+
+        >div {
+          width: 100%;
+
+
+          nav {
+            width: 100%;
+            margin-top: auto;
+
+            ul {
+              width: 100%;
+              list-style: none;
+              padding: 0;
+              background-color: var(--chr-text-gray-900);
+
+              li {
+                padding: .5rem 1rem;
+                cursor: pointer;
+                flex-grow: 1;
+                text-align: center;
+                position: relative;
+
+                a {
+                  color: inherit !important;
+                }
+
+                &:hover {
+                  background-color: var(--chr-text-gray-700);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .nav_trail.active {
+    background-color: var(--chr-primary-color);
+
+    &:hover {
+      background-color: var(--chr-primary-color-800) !important;
+    }
+  }
+
+  @media (max-width: 994px) {
+
+    .about_us_nav_link_wrapper {
+      display: none;
+    }
+
+    .about_us_nav_link_wrapper.nav_trail.active {
+      display: flex;
+
+      a {
+        text-align: left;
+        display: block;
+      }
+    }
+
+    .nav_trail.active {
+
+      .hamburger {
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50px;
+        height: 50px;
+        cursor: pointer;
+        z-index: 1;
+
+        &::before {
+          content: "";
+          display: block;
+          position: absolute;
+          top: 17px;
+          width: 22px;
+          border-style: solid;
+          border-width: 2px 0;
+          border-color: #fff;
+          height: 14px;
+          right: 15px;
+        }
+
+        &::after {
+          content: "";
+          display: block;
+          position: absolute;
+          top: 25px;
+          width: 22px;
+          background-color: #fff;
+          height: 2px;
+          right: 15px;
+        }
+      }
     }
   }
 }
@@ -9695,6 +9852,21 @@ subpage MENU
               color: var(--chr-primary-color-500) !important;
               text-decoration: underline;
             }
+          }
+        }
+      }
+
+      .cta_wrapper a {
+        gap: .5rem;
+
+        span.material-symbols-outlined {
+          transition: all 0.1s ease-in;
+        }
+
+        &:hover {
+          span.material-symbols-outlined {
+            transform: rotate(-45deg);
+            transform-origin: center;
           }
         }
       }
