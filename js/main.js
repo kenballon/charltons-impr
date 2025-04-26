@@ -815,14 +815,18 @@ function filterByCategoryOrTag(filterName, type) {
 
   // Filter posts
   ppwArticlesPost.forEach((post) => {
-    const postCategory = post.dataset.category;
-    const postTags = post.dataset.tags ? post.dataset.tags.split(",") : [];
+    const postCategory = post.dataset.category
+      ? post.dataset.category.split(",").map((cat) => cat.trim())
+      : [];
+    const postTags = post.dataset.tags
+      ? post.dataset.tags.split(",").map((tag) => tag.trim())
+      : [];
     const postYear = post.dataset.year;
 
     const shouldAppend =
       type === "category"
-        ? !filterName || postCategory === filterName
-        : !filterName || postTags.some((tag) => tag.trim() === filterName);
+        ? !filterName || postCategory.includes(filterName)
+        : !filterName || postTags.includes(filterName);
 
     if (shouldAppend) {
       articlePostContainers.forEach((container) => {
