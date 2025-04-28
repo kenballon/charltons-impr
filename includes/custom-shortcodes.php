@@ -566,7 +566,7 @@ function get_recent_news_posts($atts)
             $output .= '</a>';
             $output .= '<p class="fw-regular">' . esc_html($post_excerpt) . '</p>';
             // read more button
-            $output .= '<div class="cta_wrapper mt-2"><a href="' . esc_url($post_url) . '" target="_blank" class="w-max-content default_link flex items-center"  aria-label="Read full article on ' . esc_attr($post_title) . '">Read full article <span class="material-symbols-outlined">
+            $output .= '<div class="cta_wrapper mt-2"><a href="' . esc_url($post_url) . '" target="_blank" class="w-max-content default_link flex items-center"  aria-label="Read full article on ' . esc_attr($post_title) . '">Read more <span class="material-symbols-outlined">
 arrow_forward
 </span></a></div>';
             $output .= '</div>';

@@ -271,7 +271,7 @@ div.home-our-work .home-our-work__content-test {
     font-size: 18px;
     line-height: 20px;
     font-weight: 500;
-    font-family: 'Public Sans', Helvetica, Arial, Lucida, sans-serif !important;
+    font-family: 'Graphik','Inter', Helvetica, Arial, Lucida, sans-serif !important;
     color: #2b2b2b;
     transition: color 0.2s;
 
@@ -430,7 +430,7 @@ div.home-our-work .home-our-work__content-test {
 
     background-color: rgba(0, 0, 0, 0.7);
     color: #fff !important;
-    font-family: 'Public Sans', Helvetica, Arial, Lucida, sans-serif !important;
+    font-family: 'Graphik','Inter', Helvetica, Arial, Lucida, sans-serif !important;
     font-size: 20px;
     line-height: 24px;
     font-weight: 600;
@@ -525,7 +525,7 @@ div.home-our-work .home-our-work__content-test {
     font-size: 18px;
     line-height: 20px;
     font-weight: 500;
-    font-family: 'Public Sans', Helvetica, Arial, Lucida, sans-serif !important;
+    font-family: 'Graphik','Inter', Helvetica, Arial, Lucida, sans-serif !important;
     color: #2b2b2b;
     transition: color 0.2s;
 
@@ -1060,4 +1060,8 @@ h2.entry-title>a:hover {
     .et_pb_gutters2.et_pb_row .et_pb_column_3_4 .et_pb_module {
         margin-bottom: 0px;
     }
+}
+
+.ne_singlepost_content_wrapper .et_pb_text_inner ul {
+	font-weight: 400;
 }
