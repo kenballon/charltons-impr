@@ -8143,7 +8143,6 @@ subpage MENU
 /* #region ABOUT SECTION - New June 2024 */
 .et_pb_section.about_us_section {
   color: white;
-  background-image: linear-gradient(15deg, #000000 10%, rgba(0, 0, 0, 0) 100%), url(https://www.charltonslaw.com/wp-content/uploads/2024/03/hero_section_2-scaled.webp);
 }
 .et_pb_section.about_us_section .about_us_block .ul li {
   border-bottom: 1px dotted white;
@@ -11219,18 +11218,19 @@ subpage MENU
   background-size: 0 !important;
 }
 
-.et_pb_section.about_us_section {
+.et_pb_section.what_we_do_section {
   background-size: cover;
+  background-image: linear-gradient(15deg, #000000 10%, rgba(0, 0, 0, 0) 100%), url(https://www.charltonslaw.com/wp-content/uploads/2024/03/hero_section_2-scaled.webp);
 }
-.et_pb_section.about_us_section .et_pb_module.about_us_code_wrapper {
+.et_pb_section.what_we_do_section .et_pb_module.about_us_code_wrapper {
   height: 100%;
 }
-.et_pb_section.about_us_section .et_pb_module.about_us_code_wrapper .et_pb_code_inner {
+.et_pb_section.what_we_do_section .et_pb_module.about_us_code_wrapper .et_pb_code_inner {
   height: 100%;
   max-width: 1180px;
   margin-inline: auto;
 }
-.et_pb_section.about_us_section .et_pb_module.about_us_code_wrapper .hero_about_us {
+.et_pb_section.what_we_do_section .et_pb_module.about_us_code_wrapper .hero_about_us {
   height: 100%;
   max-width: 650px;
   display: flex;

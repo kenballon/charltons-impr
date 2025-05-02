@@ -8675,8 +8675,6 @@ subpage MENU
 .et_pb_section.about_us_section {
   color: white;
 
-  background-image: linear-gradient(15deg, #000000 10%, rgb(0 0 0 / 0) 100%), url(https://www.charltonslaw.com/wp-content/uploads/2024/03/hero_section_2-scaled.webp);
-
   .about_us_block {
     .ul {
       li {
@@ -12394,8 +12392,9 @@ subpage MENU
   }
 }
 
-.et_pb_section.about_us_section {
+.et_pb_section.what_we_do_section {
   background-size: cover;
+  background-image: linear-gradient(15deg, #000000 10%, rgb(0 0 0 / 0) 100%), url(https://www.charltonslaw.com/wp-content/uploads/2024/03/hero_section_2-scaled.webp);
 
   .et_pb_module.about_us_code_wrapper {
     height: 100%;
