@@ -4870,6 +4870,91 @@ img.img-display-block {
   display: flex;
 }
 
+.contact_us_section {
+
+  >div.et_pb_row {
+    max-width: 100% !important;
+  }
+
+  .et_pb_row.contact_us_hero_container {
+    display: flex;
+    align-items: center;
+
+    >div.et_pb_column {
+      margin-top: auto;
+      padding-bottom: 3rem;
+    }
+  }
+
+  .et_pb_row.main-content1 {
+    padding-block: 2rem;
+  }
+
+  .contact_us_wrapper .et_pb_text_inner {
+    padding: 24px;
+    background: #d6d6d6;
+    background: linear-gradient(322deg, rgba(230, 230, 230, 1) 0%, rgba(242, 242, 242, 1) 50%, rgba(242, 242, 242, 1) 100%);
+
+    @media (max-width:992px) {
+      .contacts.h-card.vcard {
+        flex-direction: column;
+      }
+    }
+  }
+
+  .location_contact_us {
+
+    flex-wrap: wrap;
+
+    .location_card_cu {
+      flex: 1;
+      padding: 24px;
+      /* background-color: var(--chr-text-gray-100); */
+      background: #d6d6d6;
+      background: linear-gradient(322deg, rgba(230, 230, 230, 1) 0%, rgba(242, 242, 242, 1) 50%, rgba(242, 242, 242, 1) 100%);
+      margin: .5rem;
+      min-height: 500px;
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        margin: 0;
+      }
+
+      .org_office_headline>* {
+        font-size: 24px;
+        font-weight: 400;
+      }
+
+      .org_address {
+
+        >div>div {
+          span {
+            display: block;
+            font-size: 14px;
+          }
+
+          a>span.material-symbols-outlined {
+            font-size: 18px;
+          }
+        }
+      }
+
+      .org_contacts {
+
+        >*,
+        >div>*,
+        >div a>* {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+
+}
+
 .profile-contact-col1 {
   width: 100%;
 }
@@ -8590,6 +8675,8 @@ subpage MENU
 .et_pb_section.about_us_section {
   color: white;
 
+  background-image: linear-gradient(15deg, #000000 10%, rgb(0 0 0 / 0) 100%), url(https://www.charltonslaw.com/wp-content/uploads/2024/03/hero_section_2-scaled.webp);
+
   .about_us_block {
     .ul {
       li {
@@ -8647,6 +8734,7 @@ subpage MENU
   @media (max-width: 992px) {
     height: 600px;
     max-height: 600px;
+    background-image: linear-gradient(5deg, #000000 20%, rgb(0 0 0 / 60%) 100%) !important;
 
     .hero_about_us {
       padding-inline: 24px !important;
@@ -8654,7 +8742,32 @@ subpage MENU
   }
 }
 
+.et_pb_text_inner {
+
+  div,
+  a,
+  p,
+  span,
+  li {
+    font-weight: 400;
+    font-size: 1rem;
+    text-align: left;
+    line-height: 160%;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    margin-block: 1rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+    margin-block: 1rem;
+  }
+}
+
 .et_pb_section.new_about_us_section {
+  z-index: 10;
 
   .et_pb_text_inner {
 
@@ -8668,10 +8781,6 @@ subpage MENU
       text-align: left;
       line-height: 160%;
     }
-
-    /* ul {
-      margin-inline-start: 1.25rem;
-    } */
 
     h2 {
       font-size: 1.25rem;
@@ -8703,27 +8812,88 @@ subpage MENU
             width: 100%;
             margin-top: auto;
 
-            ul {
+            ul.about_us_ul_nav_lg {
               width: 100%;
               list-style: none;
               padding: 0;
               background-color: var(--chr-text-gray-900);
+              align-items: center;
 
               li {
+                flex: 1;
+                height: 100%;
+                display: flex;
+                align-items: center;
                 padding: .5rem 1rem;
                 cursor: pointer;
-                flex-grow: 1;
-                text-align: center;
                 position: relative;
+
 
                 a {
                   color: inherit !important;
                 }
 
-                &:hover {
+                &:not(.nav_trail_active):hover {
                   background-color: var(--chr-text-gray-700);
                 }
+
+                @media (max-width:992px) {
+                  &:not(.nav_trail_active) {
+                    display: none;
+                  }
+                }
               }
+
+            }
+
+            ul.about_us_ul_nav_mobile {
+              display: none;
+
+
+            }
+
+            ul.about_us_ul_nav_mobile.dropdown_active {
+              @media (max-width:992px) {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                z-index: 10;
+                width: 100%;
+                background-color: var(--chr-text-gray-900);
+                padding: 20px;
+                list-style: none;
+                margin: 0;
+                bottom: -205px;
+
+                li {
+                  padding-block: .5rem;
+                  color: var(--chr-text-gray-100);
+
+                  a {
+                    color: inherit !important;
+                  }
+                }
+              }
+
+            }
+
+          }
+
+
+        }
+
+        @media (max-width:992px) {
+          >div.et_pb_text_inner {
+            margin-top: auto;
+
+            >div {
+              >div {
+                margin-bottom: 2rem;
+              }
+            }
+
+            >nav {
+              margin-top: unset;
             }
           }
         }
@@ -8731,38 +8901,18 @@ subpage MENU
     }
   }
 
-  .nav_trail.active {
+  .nav_trail_active {
     background-color: var(--chr-primary-color);
-
-    &:hover {
-      background-color: var(--chr-primary-color-800) !important;
-    }
   }
 
   @media (max-width: 994px) {
 
-    .about_us_nav_link_wrapper {
-      display: none;
-    }
-
-    .about_us_nav_link_wrapper.nav_trail.active {
-      display: flex;
-
-      a {
-        text-align: left;
-        display: block;
-      }
-    }
-
-    .nav_trail.active {
+    .nav_trail_active {
 
       .hamburger {
         display: block;
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 50px;
-        height: 50px;
+        width: max-content;
+        height: max-content;
         cursor: pointer;
         z-index: 1;
 
@@ -8770,7 +8920,7 @@ subpage MENU
           content: "";
           display: block;
           position: absolute;
-          top: 17px;
+          top: 12px;
           width: 22px;
           border-style: solid;
           border-width: 2px 0;
@@ -8783,7 +8933,7 @@ subpage MENU
           content: "";
           display: block;
           position: absolute;
-          top: 25px;
+          top: 20px;
           width: 22px;
           background-color: #fff;
           height: 2px;
