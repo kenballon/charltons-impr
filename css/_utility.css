@@ -60,6 +60,10 @@
     display: flex;
 }
 
+.flex-w-full {
+    flex: 1;
+}
+
 .grid {
     display: grid;
 }
@@ -593,6 +597,22 @@
 .border-block-1 {
     border-block: 1px solid #cdcdcd;
     margin-block: 1rem;
+}
+
+.border-top-1 {
+    border-top: 1px solid var(--chr-text-gray-900);
+}
+
+.border-bottom-1 {
+    border-bottom: 1px solid var(--chr-text-gray-900);
+}
+
+.border-left-1 {
+    border-left: 1px solid var(--chr-text-gray-900);
+}
+
+.border-right-1 {
+    border-right: 1px solid var(--chr-text-gray-900);
 }
 
 .text-gray-800 {
