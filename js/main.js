@@ -1893,3 +1893,18 @@ FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
   // Fetch and filter posts
   getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], currentFilterID);
 });
+
+const hamburgerMenuBtn = document?.querySelector('.nav_trail_active .hamburger');
+const aboutUsUlNav = document?.getElementById('about_us_nav');
+const aboutUsNavUlMobile = document?.getElementById('about_us_ul_nav_mobile');
+
+hamburgerMenuBtn?.addEventListener('click', () => {
+  const toggleClass = (element, className) => element?.classList.toggle(className);
+
+  toggleClass(aboutUsUlNav, 'about_us_active');
+  toggleClass(aboutUsNavUlMobile, 'dropdown_active');
+  toggleClass(hamburgerMenuBtn, 'active');
+
+  const ariaHiddenValue = aboutUsNavUlMobile?.classList.contains('dropdown_active') ? 'false' : 'true';
+  aboutUsNavUlMobile?.setAttribute('aria-hidden', ariaHiddenValue);
+});
