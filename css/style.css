@@ -983,6 +983,12 @@ h2.n2-ss-item-content {
   margin-right: 5% !important;
 }
 
+.et_pb_text_inner {
+  p {
+    font-weight: 400;
+  }
+}
+
 .divi-fonts .et_pb_column .et_pb_module.et_pb_text .et_pb_text_inner div h2 {
   font-size: 32px;
   margin-top: 20px;
@@ -4909,11 +4915,10 @@ img.img-display-block {
     .location_card_cu {
       flex: 1;
       padding: 24px;
-      /* background-color: var(--chr-text-gray-100); */
       background: #d6d6d6;
       background: linear-gradient(322deg, rgba(230, 230, 230, 1) 0%, rgba(242, 242, 242, 1) 50%, rgba(242, 242, 242, 1) 100%);
       margin: .5rem;
-      min-height: 500px;
+      min-height: 600px;
 
       h1,
       h2,
@@ -4922,23 +4927,48 @@ img.img-display-block {
         margin: 0;
       }
 
+      .location_image img {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+      }
+
+
       .org_office_headline>* {
         font-size: 24px;
-        font-weight: 400;
+        font-weight: 600;
+        text-wrap-style: pretty;
+        opacity: 0.9;
+        width: 15ch;
+
+        @media (max-width:992px) {
+          width: 100%;
+        }
       }
 
       .org_address {
+        a {
+          color: var(--chr-text-gray-800);
+          text-align: left;
 
-        >div>div {
-          span {
-            display: block;
-            font-size: 14px;
+          >div>div {
+            span {
+              display: block;
+              font-size: 14px;
+            }
+
+            span.material-symbols-outlined {
+              font-size: 18px;
+            }
           }
 
-          a>span.material-symbols-outlined {
-            font-size: 18px;
+          &:hover {
+            color: var(--chr-primary-color) !important;
           }
         }
+
+
       }
 
       .org_contacts {
@@ -4951,8 +4981,10 @@ img.img-display-block {
       }
     }
   }
+}
 
-
+.contact_us_wrapper.subscription-wrapper {
+  margin-block: 0 !important;
 }
 
 .profile-contact-col1 {
@@ -8673,7 +8705,7 @@ subpage MENU
 /* #region ABOUT SECTION - New June 2024 */
 
 .et_pb_section.about_us_section {
-  color: white;  
+  color: white;
 
   .about_us_block {
     .ul {
@@ -8741,12 +8773,12 @@ subpage MENU
       text-align: left;
       line-height: 160%;
     }
-  
+
     h2 {
       font-size: 1.25rem;
       margin-block: 1rem;
     }
-  
+
     h3 {
       font-size: 1rem;
       margin-block: 1rem;
@@ -8941,6 +8973,26 @@ subpage MENU
     }
   }
 }
+
+.et_pb_section.new_about_us_content {
+  .retrospectives_wrapper {
+    .retro_yt_card {
+      article {
+        iframe {
+          box-sizing: border-box;
+          width: 100% !important;
+          height: 310px !important;
+
+          @media (max-width:600px) {
+            height: 250px !important;
+          }
+        }
+      }
+
+    }
+  }
+}
+
 
 /* #endregion ABOUT SECTION - New June 2024 */
 
@@ -12394,7 +12446,7 @@ subpage MENU
 
 .et_pb_section.what_we_do_section {
   background-size: cover;
-  background-image: linear-gradient(15deg,#000 8%,rgba(0,0,0,0) 100%),url(https://www.charltonslaw.com/wp-content/uploads/2024/03/hero_section_2-scaled.webp);
+  background-image: linear-gradient(15deg, #000 8%, rgba(0, 0, 0, 0) 100%), url(https://www.charltonslaw.com/wp-content/uploads/2024/03/hero_section_2-scaled.webp);
 
 
   .et_pb_module.about_us_code_wrapper {
@@ -12417,7 +12469,14 @@ subpage MENU
   }
 
   @media (max-width:992px) {
-    background-image: linear-gradient(15deg,#000 20%,rgba(0,0,0,0) 100%),url(https://www.charltonslaw.com/wp-content/uploads/2024/03/hero_section_2-scaled.webp);
+    background-image: linear-gradient(15deg, #000 20%, rgba(0, 0, 0, 0) 100%), url(https://www.charltonslaw.com/wp-content/uploads/2024/03/hero_section_2-scaled.webp);
+    height: 100%;
+    max-height: 100%;
+    padding-block: 3rem !important;
+
+    .et_pb_module.about_us_code_wrapper .hero_about_us {
+      padding-inline: 24px;
+    }
   }
 }
 
