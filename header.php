@@ -479,8 +479,7 @@
                                     <a class="social-networks__link d-block"
                                         href="https://www.linkedin.com/company/charltons-law/mycompany/" target="_blank"
                                         rel="noopener">
-                                        <img style="max-width: 24px;"
-                                            src="https://dev2.charltonslaw.com/static/images/icons/social-media/in.svg"
+                                        <img style="max-width: 24px;" src="/media/icons/social-media/linkedin.svg"
                                             alt="linkedin">
                                     </a>
                                     <a class="social-networks__link d-block"
