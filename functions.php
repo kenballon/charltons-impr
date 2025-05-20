@@ -13,6 +13,13 @@ function chr_theme_enqueue_styles()
 {
 	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.46', 'all');
 	wp_enqueue_style('custom-style');
+
+	// Material Symbols
+	wp_enqueue_style(
+		'material-symbols',
+		'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200',
+		false
+	);
 }
 
 add_action('wp_enqueue_scripts', 'chr_theme_enqueue_styles');
