@@ -24,14 +24,14 @@
     <script type="text/javascript">
     document.documentElement.className = 'js';
     </script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200" />
 
     <?php wp_head(); ?>
 </head>
 
 <body <?php body_class(); ?>>
-
     <?php
+    wp_body_open();
+
     $product_tour_enabled = et_builder_is_product_tour_enabled();
     $page_container_style = $product_tour_enabled ? ' style="padding-top: 0px;"' : '';
     ?>
@@ -56,6 +56,8 @@
         $et_top_info_defined = $et_secondary_nav_items->top_info_defined;
 
         $et_slide_header = 'slide' === et_get_option('header_style', 'left') || 'fullscreen' === et_get_option('header_style', 'left') ? true : false;
+
+        $show_search_icon = (false !== et_get_option('show_search_icon', true) && !$et_slide_header) || is_customize_preview();
         ?>
 
         <?php if ($et_top_info_defined && !$et_slide_header || is_customize_preview()): ?>
@@ -66,12 +68,12 @@
                 <?php if ($et_contact_info_defined): ?>
 
                 <div id="et-info">
-                    <?php if ('' !== ($et_phone_number = et_get_option('phone_number'))): ?>
+                    <?php if (!empty($et_phone_number = et_get_option('phone_number'))): ?>
                     <span
-                        id="et-info-phone"><?php echo et_core_esc_previously(et_sanitize_html_input_text($et_phone_number)); ?></span>
+                        id="et-info-phone"><?php echo et_core_esc_previously(et_sanitize_html_input_text(strval($et_phone_number))); ?></span>
                     <?php endif; ?>
 
-                    <?php if ('' !== ($et_email = et_get_option('header_email'))): ?>
+                    <?php if (!empty($et_email = et_get_option('header_email'))): ?>
                     <a href="<?php echo esc_attr('mailto:' . $et_email); ?>"><span
                             id="et-info-email"><?php echo esc_html($et_email); ?></span></a>
                     <?php endif; ?>
@@ -81,7 +83,7 @@
                         get_template_part('includes/social_icons', 'header');
                     }
                     ?>
-                </div> <!-- #et-info -->
+                </div>
 
                 <?php endif; // true === $et_contact_info_defined ?>
 
@@ -112,10 +114,10 @@
 
                     et_show_cart_total();
                     ?>
-                </div> <!-- #et-secondary-menu -->
+                </div>
 
-            </div> <!-- .container -->
-        </div> <!-- #top-header -->
+            </div>
+        </div>
         <?php
         $top_header = ob_get_clean();
 
@@ -161,9 +163,7 @@
                     <form role="search" method="get" class="et-search-form"
                         action="<?php echo esc_url(home_url('/')); ?>">
                         <?php
-                        printf("<input type=\"search\" class=\"et-search-field\" placeholder=\"%1\$s\" value=\"%2\$s\" name=\"s\" title=\"%3\$s\" />
-\t\t\t\t\t\t\t<input type=\"hidden\" name=\"section\" value=\"site\" />
-\t\t\t\t\t\t",
+                        printf('<input type="search" class="et-search-field" placeholder="%1$s" value="%2$s" name="s" title="%3$s" />',
                             esc_attr__('Search &hellip;', 'Divi'),
                             get_search_query(),
                             esc_attr__('Search for:', 'Divi'));
@@ -182,24 +182,24 @@
                     <?php if ($et_contact_info_defined): ?>
 
                     <div id="et-info">
-                        <?php if ('' !== ($et_phone_number = et_get_option('phone_number'))): ?>
+                        <?php if (!empty($et_phone_number = et_get_option('phone_number'))): ?>
                         <span
-                            id="et-info-phone"><?php echo et_core_esc_previously(et_sanitize_html_input_text($et_phone_number)); ?></span>
+                            id="et-info-phone"><?php echo et_core_esc_previously(et_sanitize_html_input_text(strval($et_phone_number))); ?></span>
                         <?php endif; ?>
 
-                        <?php if ('' !== ($et_email = et_get_option('header_email'))): ?>
+                        <?php if (!empty($et_email = et_get_option('header_email'))): ?>
                         <a href="<?php echo esc_attr('mailto:' . $et_email); ?>"><span
                                 id="et-info-email"><?php echo esc_html($et_email); ?></span></a>
                         <?php endif; ?>
-                    </div> <!-- #et-info -->
+                    </div>
 
                     <?php endif; // true === $et_contact_info_defined ?>
                     <?php if ($et_contact_info_defined || true === $show_header_social_icons || false !== et_get_option('show_search_icon', true) || class_exists('woocommerce') || is_customize_preview()) { ?>
                     <?php if ('fullscreen' === et_get_option('header_style', 'left')) { ?>
-                </div> <!-- .et_pb_top_menu_inner -->
+                </div>
                 <?php } ?>
 
-            </div> <!-- .et_slide_menu_top -->
+            </div>
             <?php } ?>
 
             <div class="et_pb_fullscreen_nav_container">
@@ -207,20 +207,8 @@
                 $slide_nav = '';
                 $slide_menu_class = 'et_mobile_menu';
 
-                $slide_nav = wp_nav_menu(array(
-                    'theme_location' => 'primary-menu',
-                    'container' => '',
-                    'fallback_cb' => '',
-                    'echo' => false,
-                    'items_wrap' => '%3$s'
-                ));
-                $slide_nav .= wp_nav_menu(array(
-                    'theme_location' => 'secondary-menu',
-                    'container' => '',
-                    'fallback_cb' => '',
-                    'echo' => false,
-                    'items_wrap' => '%3$s'
-                ));
+                $slide_nav = wp_nav_menu(array('theme_location' => 'primary-menu', 'container' => '', 'fallback_cb' => '', 'echo' => false, 'items_wrap' => '%3$s'));
+                $slide_nav .= wp_nav_menu(array('theme_location' => 'secondary-menu', 'container' => '', 'fallback_cb' => '', 'echo' => false, 'items_wrap' => '%3$s'));
                 ?>
 
                 <ul id="mobile_menu_slide" class="<?php echo esc_attr($slide_menu_class); ?>">
@@ -230,8 +218,7 @@
                         ?>
                     <?php if ('on' === et_get_option('divi_home_link')) { ?>
                     <li <?php if (is_home()) echo ('class="current_page_item"'); ?>><a
-                            href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('Home', 'Divi'); ?></a>
-                    </li>
+                            href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('Home', 'Divi'); ?></a></li>
                     <?php }; ?>
 
                     <?php show_page_menu($slide_menu_class, false, false); ?>
@@ -260,7 +247,6 @@
         <?php endif; // true ==== $et_slide_header ?>
 
         <?php ob_start(); ?>
-
         <header id="main-header" class="flex align-items-center gap-4">
             <!-- charltons customizations : 2024 -->
             <?php
@@ -526,8 +512,7 @@
                                 <a class="social-networks__link d-block"
                                     href="https://www.linkedin.com/company/charltons-law/mycompany/" target="_blank"
                                     rel="noopener">
-                                    <img style="max-width: 24px;"
-                                        src="https://dev2.charltonslaw.com/static/images/icons/social-media/in.svg"
+                                    <img style="max-width: 24px;" src="/media/icons/social-media/linkedin.svg"
                                         alt="linkedin">
                                 </a>
                                 <a class="social-networks__link d-block" href="https://www.instagram.com/charltonslaw/"
@@ -593,8 +578,8 @@
                 </div>
                 <?php echo do_shortcode('[custom_search_form]'); ?>
             </div>
-        </header> <!-- #main-header -->
-
+        </header>
+        <!-- #main-header -->
         <?php
         $main_header = ob_get_clean();
 
