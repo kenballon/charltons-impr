@@ -1199,7 +1199,11 @@ function getClassName(type) {
 function formatDate(dateString) {
   const date = parseDate(dateString);
   return date && !isNaN(date.getTime())
-    ? date.toLocaleDateString("en-GB", { month: "short", year: "numeric" })
+    ? date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    })
     : "Invalid Date";
 }
 
