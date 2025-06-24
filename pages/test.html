@@ -4,7 +4,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>TEST PAGES</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+            border: 0 solid transparent;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f6f8f2;
+        }
+
+        .mb-1 {
+            margin-bottom: 0.25rem;
+        }
+
+        .my-5 {
+            margin-block: 4rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+
+            th {
+                --pebble-color: 239 242 232;
+                background-color: rgb(var(--pebble-color));
+                border-bottom-width: 1px;
+                border-top-width: 1px;
+                border-style: dashed;
+                border-color: #ccc;
+                padding: 8px;
+                text-align: left;
+                font-weight: 600;
+                font-size: 1rem;
+                text-transform: capitalize;
+                color: rgb(65, 71, 52);
+
+                >div {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.25rem;
+                }
+            }
+
+            tr {
+
+                border-left-width: 1px;
+                border-right-width: 1px;
+                border-style: dashed;
+                border-color: #ccc;
+
+                td {
+                    border-left-width: 1px;
+                    border-bottom-width: 1px;
+                    border-style: dashed;
+                    border-color: #ccc;
+                    padding: 8px;
+                    font-size: 12px;
+                    color: #504e4e;
+
+                    &:first-child {
+                        border-left-width: 0;
+                    }
+
+                    &:last-child {
+                        border-right-width: 0;
+
+                    }
+
+                    a {
+                        color: inherit;
+                    }
+                }
+            }
+        }
+    </style>
+
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 </head>
 
 <body>
@@ -281,6 +363,48 @@
         </div>
     </div>
 
+
+    <section class="new_table my-5">
+        <h2 class="mb-1">Charltons Law Firm Archive</h2>
+        <table>
+            <tbody data-archiveyear="2025">
+                <th colspan="2">
+                    <div>
+                        <span class="material-symbols-outlined">
+                            calendar_month
+                        </span>
+                        <span class="label_thead">2025 | Archive List</span>
+                    </div>
+                </th>
+                <tr>
+                    <td>26 April</td>
+                    <td>HKEX Disciplinary Actions in Q1 2024</td>
+                </tr>
+                <tr>
+                    <td>25 April</td>
+                    <td>HKEX Listing Rule Amendments Allowing Treasury Shares Effective 11 June 2024</td>
+                </tr>
+            </tbody>
+            <tbody data-archiveyear="2024">
+                <th colspan="2">
+                    <div>
+                        <span class="material-symbols-outlined">
+                            calendar_month
+                        </span>
+                        <span class="label_thead">2024 | Archive List</span>
+                    </div>
+                </th>
+                <tr>
+                    <td>26 April</td>
+                    <td>HKEX Disciplinary Actions in Q1 2024</td>
+                </tr>
+                <tr>
+                    <td>25 April</td>
+                    <td>HKEX Listing Rule Amendments Allowing Treasury Shares Effective 11 June 2024</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
 </body>
 
 </html>
