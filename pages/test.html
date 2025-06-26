@@ -195,6 +195,19 @@
             </tbody>
         </table>
     </section>
+
+    <script>
+        const obj = { a: 1, b: 2, c: 3, d: 4, e: 5, f: 6, g: 7, h: 8, i: 9, j: 10 };
+
+        const noA = ({ a, f, ...rest }) => rest;
+
+        console.log(noA(obj))
+
+        for (let k = 0; k < 5; k++) {
+            setTimeout(() => console.log(k), 1000);
+        }
+
+    </script>
 </body>
 
 </html>
