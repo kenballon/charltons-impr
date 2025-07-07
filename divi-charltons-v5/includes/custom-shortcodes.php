@@ -1,4 +1,94 @@
 <?php
+
+/**
+ * Retrieves all posts data for specified post types and query arguments.
+ *
+ * This function queries posts of the given post types and returns an array of post data,
+ * including title, content, excerpt, date, type, permalink, meta, thumbnail, categories, and tags.
+ *
+ * @param array $post_types Array of post types to query. Default is ['post'].
+ * @param array $args       Additional WP_Query arguments to override defaults.
+ *
+ * @return array Array of associative arrays, each containing post data:
+ *               - ID (int): Post ID.
+ *               - post_title (string): Post title.
+ *               - post_content (string): Full post content.
+ *               - post_excerpt (string): Post excerpt.
+ *               - post_date (string): Post date in 'd-m-Y' format.
+ *               - post_type (string): Post type.
+ *               - permalink (string): Post permalink URL.
+ *               - meta (array): Post meta key-value pairs.
+ *               - thumbnail (string): URL of the post's featured image (full size).
+ *               - category_slugs (array): Array of category slugs.
+ *               - category_names (array): Array of category names.
+ *               - tag_slugs (array): Array of tag slugs.
+ *               - tag_names (array): Array of tag names.
+ *
+ * @example
+ * // Get all published posts
+ * $posts = get_all_posts_data();
+ *
+ * // Get all 'news' custom post type, limit to 5
+ * $posts = get_all_posts_data(['news'], ['posts_per_page' => 5]);
+ *
+ * // Get all posts in 'events' category
+ * $posts = get_all_posts_data(['post'], ['category_name' => 'events']);
+ */
+function get_all_posts_data($post_types = ['post'], $args = [])
+{
+    $defaults = array(
+        'post_type' => $post_types,
+        'post_status' => 'publish',
+        'posts_per_page' => -1,
+        'has_password' => false,
+        'orderby' => 'date',
+        'order' => 'DESC',
+    );
+
+    $query_args = wp_parse_args($args, $defaults);
+    $query = new WP_Query($query_args);
+    $posts_data = array();
+
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            global $post;
+
+            // Get categories and tags
+            $categories = get_the_category($post->ID);
+            $category_slugs = $categories ? array_map(function ($cat) {
+                return $cat->slug;
+            }, $categories) : [];
+            $category_names = $categories ? array_map(function ($cat) {
+                return $cat->name;
+            }, $categories) : [];
+
+            $tags = get_the_tags($post->ID);
+            $tag_slugs = $tags ? array_map(function ($tag) {
+                return $tag->slug;
+            }, $tags) : [];
+            $tag_names = $tags ? array_map(function ($tag) {
+                return $tag->name;
+            }, $tags) : [];
+
+            $posts_data[] = array(
+                'ID' => $post->ID,
+                'post_title' => get_the_title(),
+                'post_content' => get_the_content(),
+                'post_excerpt' => get_the_excerpt(),
+                'post_date' => get_the_date('d-m-Y'),
+                'post_type' => get_post_type(),
+                'permalink' => get_permalink(),
+                'meta' => get_post_meta($post->ID),
+                'thumbnail' => get_the_post_thumbnail_url($post->ID, 'full'),
+                // Add more fields as needed
+            );
+        }
+        wp_reset_postdata();
+    }
+    return $posts_data;
+}
+
 function get_title_shortcode($atts, $content = null)
 {
     global $post;
