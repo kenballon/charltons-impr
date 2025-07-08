@@ -36,18 +36,18 @@
  */
 function get_all_posts_data($post_types = ['post'], $args = [])
 {
-    $defaults = array(
+    $defaults = [
         'post_type' => $post_types,
         'post_status' => 'publish',
         'posts_per_page' => -1,
         'has_password' => false,
         'orderby' => 'date',
         'order' => 'DESC',
-    );
+    ];
 
     $query_args = wp_parse_args($args, $defaults);
     $query = new WP_Query($query_args);
-    $posts_data = array();
+    $posts_data = [];
 
     if ($query->have_posts()) {
         while ($query->have_posts()) {
@@ -1545,7 +1545,10 @@ function cache_all_posts($atts = [], $cache_duration = 15)
 
 function storeAllPost($atts)
 {
-    $data = cache_all_posts($atts);
+    // Get both 'post' and 'project' post types
+    $post_types = ['post', 'project'];
+    $args = $atts;
+    $data = get_all_posts_data($post_types, $args);
     $json_data = json_encode($data);
     $data_hash = md5($json_data);  // Generate a hash for the data
 
@@ -1607,7 +1610,7 @@ function storeAllPost($atts)
 
                     request.onupgradeneeded = (event) => {
                         const db = event.target.result;
-                        db.createObjectStore("posts", { keyPath: "id" });
+                        db.createObjectStore("posts", { keyPath: "ID" });
                     };
 
                     request.onsuccess = (event) => resolve(event.target.result);
@@ -2102,6 +2105,61 @@ function get_recent_news_homepage_shortcode()
     return $output;
 }
 
+/**
+ * Shortcode to display a table of all posts (default and custom) with post date, title, and link.
+ * Usage: [simple_posts_table custom_type="your_custom_type"]
+ */
+function simple_posts_table_shortcode($atts = [])
+{
+    // Allow user to specify the custom post type via shortcode attribute
+    $atts = shortcode_atts([
+        'custom_type' => 'project',  // Change 'project' to your default custom post type if needed
+    ], $atts, 'simple_posts_table');
+
+    $custom_type = sanitize_text_field($atts['custom_type']);
+
+    // Fetch posts from both 'post' and the specified custom post type
+    $all_posts = get_all_posts_data(['post', $custom_type]);
+
+    // Separate counts
+    $default_posts_count = 0;
+    $custom_posts_count = 0;
+    foreach ($all_posts as $post) {
+        if ($post['post_type'] === 'post') {
+            $default_posts_count++;
+        } elseif ($post['post_type'] === $custom_type) {
+            $custom_posts_count++;
+        }
+    }
+
+    ob_start();
+    ?>
+<table border="1" style="border-collapse:collapse;width:100%">
+    <caption>
+        Total Custom Post Type (<?php echo esc_html($custom_type); ?>): <?php echo $custom_posts_count; ?> |
+        Total Default Post Type: <?php echo $default_posts_count; ?>
+    </caption>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Title</th>
+            <th>Post Link</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($all_posts as $post): ?>
+        <tr>
+            <td><?php echo esc_html($post['post_date']); ?></td>
+            <td><?php echo esc_html($post['post_title']); ?></td>
+            <td><a href="<?php echo esc_url($post['permalink']); ?>" target="_blank">View Post</a></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+<?php
+    return ob_get_clean();
+}
+
 // Register custom shortcodes.
 function register_custom_shortcodes()
 {
@@ -2141,7 +2199,7 @@ function register_custom_shortcodes()
 
     // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : START
     add_shortcode('store_all_posts', 'storeAllPost');
-    add_shortcode('store_all_custom_posts', 'storeCustomAllPost');
+    // add_shortcode('store_all_custom_posts', 'storeCustomAllPost');
     // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : END
 
     add_shortcode('getNewsletterPostTitle', 'getNewsletterPostTitle');
@@ -2152,4 +2210,5 @@ function register_custom_shortcodes()
 
     add_shortcode('display_categories', 'get_all_categories_with_children');
     add_shortcode('get_recent_news_homepage', 'get_recent_news_homepage_shortcode');
+    add_shortcode('all_posts_table', 'simple_posts_table_shortcode');
 }
