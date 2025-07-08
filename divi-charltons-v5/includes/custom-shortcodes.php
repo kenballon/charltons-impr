@@ -4,25 +4,21 @@
  * Retrieves all posts data for specified post types and query arguments.
  *
  * This function queries posts of the given post types and returns an array of post data,
- * including title, content, excerpt, date, type, permalink, meta, thumbnail, categories, and tags.
+ * including id, title, post_date, categories, category_names, tags, excerpt, url, and featured_image.
  *
  * @param array $post_types Array of post types to query. Default is ['post'].
  * @param array $args       Additional WP_Query arguments to override defaults.
  *
  * @return array Array of associative arrays, each containing post data:
- *               - ID (int): Post ID.
- *               - post_title (string): Post title.
- *               - post_content (string): Full post content.
- *               - post_excerpt (string): Post excerpt.
+ *               - id (int): Post ID.
+ *               - title (string): Post title.
  *               - post_date (string): Post date in 'd-m-Y' format.
- *               - post_type (string): Post type.
- *               - permalink (string): Post permalink URL.
- *               - meta (array): Post meta key-value pairs.
- *               - thumbnail (string): URL of the post's featured image (full size).
- *               - category_slugs (array): Array of category slugs.
- *               - category_names (array): Array of category names.
- *               - tag_slugs (array): Array of tag slugs.
- *               - tag_names (array): Array of tag names.
+ *               - categories (string): Comma-separated list of category slugs.
+ *               - category_names (string): Comma-separated list of category names.
+ *               - tags (string): Comma-separated list of tag names.
+ *               - excerpt (string): Post excerpt with HTML tags stripped.
+ *               - url (string): Post permalink URL.
+ *               - featured_image (string): URL of the post's featured image (full size).
  *
  * @example
  * // Get all published posts
@@ -64,25 +60,21 @@ function get_all_posts_data($post_types = ['post'], $args = [])
             }, $categories) : [];
 
             $tags = get_the_tags($post->ID);
-            $tag_slugs = $tags ? array_map(function ($tag) {
-                return $tag->slug;
-            }, $tags) : [];
-            $tag_names = $tags ? array_map(function ($tag) {
+            $tag_names = $tags && !is_wp_error($tags) ? array_map(function ($tag) {
                 return $tag->name;
             }, $tags) : [];
 
-            $posts_data[] = array(
-                'ID' => $post->ID,
-                'post_title' => get_the_title(),
-                'post_content' => get_the_content(),
-                'post_excerpt' => get_the_excerpt(),
+            $posts_data[] = [
+                'id' => $post->ID,
+                'title' => get_the_title(),
                 'post_date' => get_the_date('d-m-Y'),
-                'post_type' => get_post_type(),
-                'permalink' => get_permalink(),
-                'meta' => get_post_meta($post->ID),
-                'thumbnail' => get_the_post_thumbnail_url($post->ID, 'full'),
-                // Add more fields as needed
-            );
+                'categories' => implode(', ', $category_slugs),
+                'category_names' => implode(', ', $category_names),
+                'tags' => implode(', ', $tag_names),
+                'excerpt' => wp_strip_all_tags(get_the_excerpt()),
+                'url' => get_permalink(),
+                'featured_image' => get_the_post_thumbnail_url($post->ID, 'full'),
+            ];
         }
         wp_reset_postdata();
     }
@@ -2096,7 +2088,7 @@ function get_recent_news_homepage_shortcode()
 }
 
 /**
- * Shortcode to display a table of all posts (default and custom) with post date, title, and link.
+ * Shortcode to display a div-based layout of all posts (default and custom) with post date, title, categories, tags, and link.
  * Usage: [simple_posts_table custom_type="your_custom_type"]
  */
 function simple_posts_table_shortcode($atts = [])
@@ -2111,16 +2103,12 @@ function simple_posts_table_shortcode($atts = [])
     // Fetch posts from both 'post' and the specified custom post type
     $all_posts = get_all_posts_data(['post', $custom_type]);
 
-    // Separate counts
-    $default_posts_count = 0;
-    $custom_posts_count = 0;
-    foreach ($all_posts as $post) {
-        if ($post['post_type'] === 'post') {
-            $default_posts_count++;
-        } elseif ($post['post_type'] === $custom_type) {
-            $custom_posts_count++;
-        }
-    }
+    // Since get_all_posts_data no longer returns post_type, we'll count based on the query
+    // Get separate counts by querying each type individually
+    $default_posts = get_all_posts_data(['post']);
+    $custom_posts = get_all_posts_data([$custom_type]);
+    $default_posts_count = count($default_posts);
+    $custom_posts_count = count($custom_posts);
 
     ob_start();
     ?>
@@ -2140,23 +2128,12 @@ function simple_posts_table_shortcode($atts = [])
     </div>
     <div class="simple-posts-table-body">
         <?php foreach ($all_posts as $post): ?>
-        <?php
-        $post_id = isset($post['ID']) ? $post['ID'] : 0;
-        $categories = $post_id ? get_the_category($post_id) : [];
-        $category_names = $categories ? implode(', ', array_map(function ($cat) {
-            return esc_html($cat->name);
-        }, $categories)) : '';
-        $tags = $post_id ? get_the_tags($post_id) : [];
-        $tag_names = $tags && !is_wp_error($tags) ? implode(', ', array_map(function ($tag) {
-            return esc_html($tag->name);
-        }, $tags)) : '';
-        ?>
         <div class="simple-posts-table-row" style="display:flex;border-bottom:1px solid #eee;padding:8px 0">
             <div style="flex:1"><?php echo esc_html($post['post_date']); ?></div>
-            <div style="flex:2"><?php echo esc_html($post['post_title']); ?></div>
-            <div style="flex:2"><?php echo $category_names; ?></div>
-            <div style="flex:2"><?php echo $tag_names; ?></div>
-            <div style="flex:1"><a href="<?php echo esc_url($post['permalink']); ?>" target="_blank">View Post</a></div>
+            <div style="flex:2"><?php echo esc_html($post['title']); ?></div>
+            <div style="flex:2"><?php echo esc_html($post['category_names']); ?></div>
+            <div style="flex:2"><?php echo esc_html($post['tags']); ?></div>
+            <div style="flex:1"><a href="<?php echo esc_url($post['url']); ?>" target="_blank">View Post</a></div>
         </div>
         <?php endforeach; ?>
     </div>
@@ -2204,7 +2181,7 @@ function register_custom_shortcodes()
 
     // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : START
     add_shortcode('store_all_posts', 'storeAllPost');
-    // add_shortcode('store_all_custom_posts', 'storeCustomAllPost');
+    add_shortcode('store_all_custom_posts', 'storeCustomAllPost');
     // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : END
 
     add_shortcode('getNewsletterPostTitle', 'getNewsletterPostTitle');
