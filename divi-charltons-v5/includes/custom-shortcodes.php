@@ -1545,10 +1545,7 @@ function cache_all_posts($atts = [], $cache_duration = 15)
 
 function storeAllPost($atts)
 {
-    // Get both 'post' and 'project' post types
-    $post_types = ['post', 'project'];
-    $args = $atts;
-    $data = get_all_posts_data($post_types, $args);
+    $data = cache_all_posts($atts);
     $json_data = json_encode($data);
     $data_hash = md5($json_data);  // Generate a hash for the data
 
@@ -1559,6 +1556,8 @@ function storeAllPost($atts)
             const dataHash = "$data_hash"; // Current hash of the data
             const dbName = "PostsDatabase";
             const hashKey = "PostsDatabaseHash"; // Key for storing the hash in localStorage
+
+            console.table(data);
 
             if (!window.indexedDB) {
                 console.log("Your browser doesn't support a stable version of IndexedDB.");
@@ -1610,7 +1609,7 @@ function storeAllPost($atts)
 
                     request.onupgradeneeded = (event) => {
                         const db = event.target.result;
-                        db.createObjectStore("posts", { keyPath: "ID" });
+                        db.createObjectStore("posts", { keyPath: "id" });
                     };
 
                     request.onsuccess = (event) => resolve(event.target.result);
@@ -2065,15 +2064,6 @@ function get_insights_ipos_breadcrumb_shortcode()
     return $output;
 }
 
-add_action('init', 'register_custom_shortcodes');
-add_action('wp_ajax_ajax_search', 'ajax_search');
-add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
-add_action('wp_ajax_ajax_latest_posts', 'ajax_latest_posts');
-add_action('wp_ajax_nopriv_ajax_latest_posts', 'ajax_latest_posts');
-
-add_action('wp_ajax_get_newsletters_posts', 'get_newsletters_posts');
-add_action('wp_ajax_nopriv_get_newsletters_posts', 'get_newsletters_posts');
-
 function get_recent_news_homepage_shortcode()
 {
     $count = 4;
@@ -2134,28 +2124,43 @@ function simple_posts_table_shortcode($atts = [])
 
     ob_start();
     ?>
-<table border="1" style="border-collapse:collapse;width:100%">
-    <caption>
-        Total Custom Post Type (<?php echo esc_html($custom_type); ?>): <?php echo $custom_posts_count; ?> |
-        Total Default Post Type: <?php echo $default_posts_count; ?>
-    </caption>
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Title</th>
-            <th>Post Link</th>
-        </tr>
-    </thead>
-    <tbody>
+<div class="simple-posts-table-wrapper" style="width:100%">
+    <div class="simple-posts-table-caption">
+        <strong>Total Custom Post Type (<?php echo esc_html($custom_type); ?>):</strong>
+        <?php echo $custom_posts_count; ?> |
+        <strong>Total Default Post Type:</strong> <?php echo $default_posts_count; ?>
+    </div>
+    <div class="simple-posts-table-header"
+        style="display:flex;font-weight:bold;border-bottom:1px solid #ccc;padding:8px 0">
+        <div style="flex:1">Date</div>
+        <div style="flex:2">Title</div>
+        <div style="flex:2">Categories</div>
+        <div style="flex:2">Tags</div>
+        <div style="flex:1">Post Link</div>
+    </div>
+    <div class="simple-posts-table-body">
         <?php foreach ($all_posts as $post): ?>
-        <tr>
-            <td><?php echo esc_html($post['post_date']); ?></td>
-            <td><?php echo esc_html($post['post_title']); ?></td>
-            <td><a href="<?php echo esc_url($post['permalink']); ?>" target="_blank">View Post</a></td>
-        </tr>
+        <?php
+        $post_id = isset($post['ID']) ? $post['ID'] : 0;
+        $categories = $post_id ? get_the_category($post_id) : [];
+        $category_names = $categories ? implode(', ', array_map(function ($cat) {
+            return esc_html($cat->name);
+        }, $categories)) : '';
+        $tags = $post_id ? get_the_tags($post_id) : [];
+        $tag_names = $tags && !is_wp_error($tags) ? implode(', ', array_map(function ($tag) {
+            return esc_html($tag->name);
+        }, $tags)) : '';
+        ?>
+        <div class="simple-posts-table-row" style="display:flex;border-bottom:1px solid #eee;padding:8px 0">
+            <div style="flex:1"><?php echo esc_html($post['post_date']); ?></div>
+            <div style="flex:2"><?php echo esc_html($post['post_title']); ?></div>
+            <div style="flex:2"><?php echo $category_names; ?></div>
+            <div style="flex:2"><?php echo $tag_names; ?></div>
+            <div style="flex:1"><a href="<?php echo esc_url($post['permalink']); ?>" target="_blank">View Post</a></div>
+        </div>
         <?php endforeach; ?>
-    </tbody>
-</table>
+    </div>
+</div>
 <?php
     return ob_get_clean();
 }
@@ -2212,3 +2217,12 @@ function register_custom_shortcodes()
     add_shortcode('get_recent_news_homepage', 'get_recent_news_homepage_shortcode');
     add_shortcode('all_posts_table', 'simple_posts_table_shortcode');
 }
+
+add_action('init', 'register_custom_shortcodes');
+add_action('wp_ajax_ajax_search', 'ajax_search');
+add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
+add_action('wp_ajax_ajax_latest_posts', 'ajax_latest_posts');
+add_action('wp_ajax_nopriv_ajax_latest_posts', 'ajax_latest_posts');
+
+add_action('wp_ajax_get_newsletters_posts', 'get_newsletters_posts');
+add_action('wp_ajax_nopriv_get_newsletters_posts', 'get_newsletters_posts');
