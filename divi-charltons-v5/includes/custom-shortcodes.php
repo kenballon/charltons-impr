@@ -67,7 +67,7 @@ function get_all_posts_data($post_types = ['post'], $args = [])
             $posts_data[] = [
                 'id' => $post->ID,
                 'title' => get_the_title(),
-                'post_date' => get_the_date('d-m-Y'),
+                'post_date' => get_the_date('d M Y'),
                 'categories' => implode(', ', $category_slugs),
                 'category_names' => implode(', ', $category_names),
                 'tags' => implode(', ', $tag_names),
@@ -1547,9 +1547,7 @@ function storeAllPost($atts)
             const data = $json_data;
             const dataHash = "$data_hash"; // Current hash of the data
             const dbName = "PostsDatabase";
-            const hashKey = "PostsDatabaseHash"; // Key for storing the hash in localStorage
-
-            console.table(data);
+            const hashKey = "PostsDatabaseHash"; // Key for storing the hash in localStorage            
 
             if (!window.indexedDB) {
                 console.log("Your browser doesn't support a stable version of IndexedDB.");
@@ -2142,6 +2140,85 @@ function simple_posts_table_shortcode($atts = [])
     return ob_get_clean();
 }
 
+function getNewslettersPosts($atts = [])
+{
+    $atts = shortcode_atts([
+        'post_type' => 'project',
+        'posts_per_page' => -1,
+        'filter_category' => '',
+    ], $atts, 'get_newsletter_posts');
+
+    $post_type = sanitize_text_field($atts['post_type']);
+    $posts_per_page = intval($atts['posts_per_page']);
+    $filter_category = sanitize_text_field($atts['filter_category']);
+
+    $query_args = [
+        'posts_per_page' => $posts_per_page,
+        'post_status' => 'publish',
+        // Remove meta_query so we don't filter out posts with only plugin images
+    ];
+
+    if (!empty($filter_category)) {
+        $categories = array_map('trim', explode(',', $filter_category));
+        if ($post_type === 'post') {
+            $query_args['category_name'] = $filter_category;
+        } else {
+            $taxonomy = $post_type . '_category';
+            if (!taxonomy_exists($taxonomy)) {
+                $taxonomy = 'category';
+            }
+            $query_args['tax_query'] = [
+                [
+                    'taxonomy' => $taxonomy,
+                    'field' => 'slug',
+                    'terms' => $categories,
+                    'operator' => 'IN'
+                ]
+            ];
+        }
+    }
+
+    $custom_posts = get_all_posts_data([$post_type], $query_args);
+
+    // Filter out posts without any kind of featured image (native or plugin)
+    $custom_posts = array_filter($custom_posts, function ($post) {
+        $native_img = !empty($post['featured_image']);
+        $plugin_img = !empty(get_post_meta($post['id'], 'fiuw_image_url', true));
+        return $native_img || $plugin_img;
+    });
+
+    if (empty($custom_posts)) {
+        return '<p>No posts found for the specified post type.</p>';
+    }
+
+    ob_start();
+    foreach ($custom_posts as $post):
+        // Prefer plugin image if present, otherwise use native
+        $plugin_img_url = get_post_meta($post['id'], 'fiuw_image_url', true);
+        $img_url = !empty($plugin_img_url) ? $plugin_img_url : $post['featured_image'];
+        ?>
+<article class="newsletter_post_item flex-col" data-category="<?php echo esc_attr($post['categories']); ?>"
+    data-tags="<?php echo esc_attr($post['tags']); ?>" data-nl_date="<?php echo esc_attr($post['post_date']); ?>"
+    data-post-id="<?php echo esc_attr($post['id']); ?>">
+    <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
+        aria-label="<?php echo esc_attr($post['title']); ?>">
+        <div class="post-thumbnail">
+            <img decoding="async" width="286" height="286" class="" src="<?php echo esc_url($img_url); ?>"
+                alt="<?php echo esc_attr($post['title']); ?>">
+            <time class="post-date" datetime="<?php echo esc_attr($post['post_date']); ?>">
+                <?php echo esc_html($post['post_date']); ?>
+            </time>
+            <h2 class="post-title" title="<?php echo esc_attr($post['title']); ?>">
+                <?php echo esc_html($post['title']); ?>
+            </h2>
+        </div>
+    </a>
+</article>
+<?php
+    endforeach;
+    return ob_get_clean();
+}
+
 // Register custom shortcodes.
 function register_custom_shortcodes()
 {
@@ -2182,6 +2259,7 @@ function register_custom_shortcodes()
     // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : START
     add_shortcode('store_all_posts', 'storeAllPost');
     add_shortcode('store_all_custom_posts', 'storeCustomAllPost');
+    add_shortcode('get_newsletter_posts', 'getNewslettersPosts');
     // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : END
 
     add_shortcode('getNewsletterPostTitle', 'getNewsletterPostTitle');

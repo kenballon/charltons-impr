@@ -9,7 +9,7 @@ const origin = window.location.origin;
 document.addEventListener("readystatechange", (e) => {
     if (e.target.readyState === "complete") {
         customHeaderNavigation();
-        getNewsletterPosts();
+        // getNewsletterPosts();
         initNewsletterPage();
         getAwardPosts();
 
