@@ -10,6 +10,7 @@ document.addEventListener("readystatechange", (e) => {
     if (e.target.readyState === "complete") {
         customHeaderNavigation();
         // getNewsletterPosts();
+        maybeShowLoadMoreButton("hong-kong-law");
         initNewsletterPage();
         getAwardPosts();
 
@@ -196,6 +197,42 @@ function customHeaderNavigation() {
     revealSearch();
 }
 
+// =====================
+// Utility Functions
+// =====================
+
+/**
+ * Debounce a function by a given delay.
+ * @param {Function} func - The function to debounce.
+ * @param {number} delay - Delay in milliseconds.
+ * @returns {Function}
+ */
+function debounce(func, delay) {
+    let timer;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+/**
+ * Fetch data via POST request (AJAX helper).
+ * @param {string} url - The endpoint URL.
+ * @param {object} bodyObj - The body as a key-value object.
+ * @returns {Promise<string>} - The response text.
+ */
+async function fetchPostData(url, bodyObj) {
+    const body = Object.entries(bodyObj)
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join('&');
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body
+    });
+    return response.text();
+}
+
 function customSearch() {
     const searchInput = document?.getElementById("search-input");
     const searchMatchesWrapper = document.querySelector(
@@ -211,28 +248,14 @@ function customSearch() {
     // Cache for storing previous search results
     const searchCache = {};
 
-    function debounce(func, delay) {
-        let timer;
-        return function (...args) {
-            clearTimeout(timer);
-            timer = setTimeout(() => func.apply(this, args), delay);
-        };
-    }
-
-    function fetchLatestPosts() {
-        fetch(ajax_object.ajax_url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: "action=ajax_latest_posts",
-        })
-            .then((response) => response.text())
-            .then((data) => {
-                searchResultsList.innerHTML = data;
-                searchMatchesWrapper.style.display = "block";
-            })
-            .catch((error) => console.error("Error:", error));
+    async function fetchLatestPosts() {
+        try {
+            const data = await fetchPostData(ajax_object.ajax_url, { action: 'ajax_latest_posts' });
+            searchResultsList.innerHTML = data;
+            searchMatchesWrapper.style.display = "block";
+        } catch (error) {
+            console.error("Error:", error);
+        }
     }
 
     function handleClickOutside(event) {
@@ -251,7 +274,7 @@ function customSearch() {
 
         searchInput.addEventListener(
             "input",
-            debounce(function () {
+            debounce(async function () {
                 let searchQuery = this.value.trim();
 
                 if (searchQuery.length > 2) {
@@ -260,24 +283,19 @@ function customSearch() {
                         searchMatchesWrapper.style.display = "block";
                     } else {
                         loadingIndicator.style.display = "block";
-                        fetch(ajax_object.ajax_url, {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/x-www-form-urlencoded",
-                            },
-                            body:
-                                "action=ajax_search&search=" + encodeURIComponent(searchQuery),
-                        })
-                            .then((response) => response.text())
-                            .then((data) => {
-                                searchCache[searchQuery] = data; // Cache the results
-                                searchResultsList.innerHTML = data;
-                                searchMatchesWrapper.style.display = "block";
-                            })
-                            .catch((error) => console.error("Error:", error))
-                            .finally(() => {
-                                loadingIndicator.style.display = "none";
+                        try {
+                            const data = await fetchPostData(ajax_object.ajax_url, {
+                                action: 'ajax_search',
+                                search: searchQuery
                             });
+                            searchCache[searchQuery] = data; // Cache the results
+                            searchResultsList.innerHTML = data;
+                            searchMatchesWrapper.style.display = "block";
+                        } catch (error) {
+                            console.error("Error:", error);
+                        } finally {
+                            loadingIndicator.style.display = "none";
+                        }
                     }
                 } else {
                     searchResultsList.innerHTML = ""; // Clear search results
@@ -813,6 +831,7 @@ function createCardUI(post, type = "award", isInitial = false) {
     articleCard.className = getClassName(type);
     articleCard.setAttribute("data-category", post.categories);
     articleCard.setAttribute("data-tags", post.tags);
+    articleCard.setAttribute("data-post-id", post.id);
 
     const postDate = formatDate(post.post_date);
 
@@ -1158,42 +1177,42 @@ const searchInput = document?.getElementById("newsletterSearch");
 const showCloseButton = document?.getElementById("nl_close_search");
 const nlSearchIcon = document?.getElementById("nl_search_icon");
 
-async function getNewsletterPosts(category = "hong-kong-law") {
-    const dbName = "PostsDatabase";
-    const storeName = "posts";
-    const maxInitialPosts = 16;
-    let currentPostIndex = 0;
+// async function getNewsletterPosts(category = "hong-kong-law") {
+//     const dbName = "PostsDatabase";
+//     const storeName = "posts";
+//     const maxInitialPosts = 16;
+//     let currentPostIndex = 0;
 
-    const newsletterPosts = await fetchPostsFromDB(dbName, storeName, (post) => {
-        const categories = post.categories.toLowerCase().split(", ");
-        return categories.includes(category);
-    });
+//     const newsletterPosts = await fetchPostsFromDB(dbName, storeName, (post) => {
+//         const categories = post.categories.toLowerCase().split(", ");
+//         return categories.includes(category);
+//     });
 
-    const sortedNewsletterPosts = sortPostsByDate(newsletterPosts);
+//     const sortedNewsletterPosts = sortPostsByDate(newsletterPosts);
 
-    const newsletterContainer = document?.getElementById("newsletters_post");
-    const loadMoreContainer = document?.getElementById("btn_load_more_wrapper");
+//     const newsletterContainer = document?.getElementById("newsletters_post");
+//     const loadMoreContainer = document?.getElementById("btn_load_more_wrapper");
 
-    const initialPosts = sortedNewsletterPosts.slice(0, maxInitialPosts);
-    initialPosts.forEach((post) => {
-        const article = createCardUI(post, "newsletter", true);
-        newsletterContainer?.appendChild(article);
-    });
+//     const initialPosts = sortedNewsletterPosts.slice(0, maxInitialPosts);
+//     initialPosts.forEach((post) => {
+//         const article = createCardUI(post, "newsletter", true);
+//         newsletterContainer?.appendChild(article);
+//     });
 
-    currentPostIndex = maxInitialPosts;
+//     currentPostIndex = maxInitialPosts;
 
-    if (sortedNewsletterPosts.length > maxInitialPosts) {
-        addLoadMoreButton(
-            loadMoreContainer,
-            newsletterContainer,
-            sortedNewsletterPosts,
-            currentPostIndex,
-            maxInitialPosts,
-            createCardUI,
-            "newsletter"
-        );
-    }
-}
+//     if (sortedNewsletterPosts.length > maxInitialPosts) {
+//         addLoadMoreButton(
+//             loadMoreContainer,
+//             newsletterContainer,
+//             sortedNewsletterPosts,
+//             currentPostIndex,
+//             maxInitialPosts,
+//             createCardUI,
+//             "newsletter"
+//         );
+//     }
+// }
 
 FilterButton.initializeAll(SELECTORS.NewslettersFilterButtons, (filterID) => {
     currentFilterID = filterID === "all" ? null : filterID;
@@ -1709,3 +1728,38 @@ FilterButton.initializeAll(SELECTORS.NewsletterAchiveFilter, (filterID) => {
 
     getArchivedAllPosts([currentFilterID]);
 });
+
+
+function getRenderedPostIds() {
+    return Array.from(document.querySelectorAll('.newsletter_post_item'))
+        .map(el => el.getAttribute('data-post-id'));
+}
+
+async function getAllNewsletterPostsFromDB(category) {
+    const dbName = "PostsDatabase";
+    const storeName = "posts";
+    const posts = await fetchPostsFromDB(dbName, storeName, (post) => {
+        const categories = post.categories.toLowerCase().split(", ");
+        return categories.includes(category);
+    });
+    return sortPostsByDate(posts);
+}
+
+async function maybeShowLoadMoreButton(category) {
+    const renderedIds = getRenderedPostIds();
+    const allPosts = await getAllNewsletterPostsFromDB(category);
+
+    if (allPosts.length > renderedIds.length) {
+        // Show the Load More button
+        addLoadMoreButton(
+            document.getElementById("btn_load_more_wrapper"),
+            document.getElementById("newsletters_post"),
+            allPosts,
+            renderedIds.length,
+            16, // or whatever your batch size is
+            createCardUI,
+            "newsletter"
+        );
+    }
+}
+
