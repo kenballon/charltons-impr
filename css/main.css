@@ -11387,4 +11387,124 @@ ul.services_list .sub_services_list.active {
 .services_select_headline {
   margin-bottom: 1rem;
   font-size: clamp(1.625rem, 1.119vw + 0.908rem, 2.25rem);
-}/*# sourceMappingURL=main.css.map */
+}
+
+/* ================================================= */
+/* #region HOME PAGE |  REDOMICILE SECTION */
+/* ================================================= */
+.home_redomicile {
+  max-width: 100%;
+  padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.1411764706);
+  -webkit-backdrop-filter: blur(15px);
+          backdrop-filter: blur(15px);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37), 0 4px 16px 0 rgba(255, 255, 255, 0.1) inset, 0 -4px 16px 0 rgba(0, 0, 0, 0.1) inset;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.home_redomicile h2,
+.home_redomicile h3,
+.home_redomicile h4,
+.home_redomicile h5,
+.home_redomicile h6 {
+  font-size: clamp(1.125rem, 0.9688rem + 0.5vw, 1.25rem);
+  margin-block-start: 2rem;
+}
+.home_redomicile h1,
+.home_redomicile h2,
+.home_redomicile h3,
+.home_redomicile div,
+.home_redomicile a,
+.home_redomicile p {
+  color: var(--chr-text-gray-100);
+}
+.home_redomicile p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.home_redomicile .home_redomicile_default_list .home_redomicile_default_list_item {
+  color: var(--chr-text-gray-100);
+}
+@media (min-width: 1280px) {
+  .home_redomicile {
+    max-width: 75%;
+  }
+}
+
+ul.home_redomicile_default_list {
+  padding-inline-start: 1.25rem;
+  list-style: none !important;
+  padding-left: 0;
+  margin-block: 2rem;
+}
+ul.home_redomicile_default_list .home_redomicile_default_list_item {
+  padding-block: 0.85rem;
+  border-bottom: 1px dotted var(--chr-text-gray-300);
+  padding-inline-start: 0.5rem;
+}
+ul.home_redomicile_default_list .home_redomicile_default_list_item:first-child {
+  border-top: 1px dotted var(--chr-text-gray-300);
+}
+
+.redomicile_text_content h2,
+.redomicile_text_content h3,
+.redomicile_text_content h4,
+.redomicile_text_content h5,
+.redomicile_text_content h6 {
+  font-size: clamp(1.125rem, 0.9688rem + 0.5vw, 1.25rem);
+  margin-block-start: 2rem;
+}
+.redomicile_text_content p {
+  text-align: left;
+}
+@media (min-width: 768px) {
+  .redomicile_text_content p {
+    text-align: justify;
+  }
+}
+.redomicile_text_content ul {
+  padding-inline-start: 1.25rem;
+}
+
+.cta {
+  margin-top: 40px;
+}
+
+.cta-button {
+  margin-top: 2rem;
+  display: inline-block;
+  padding: 14px 28px;
+  background-color: #ffffff;
+  color: var(--chr-text-gray-900) !important;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: var(--chr-primary-color-600);
+  color: var(--chr-text-gray-100) !important;
+}
+
+.content_copy_redomicile h2:first-child {
+  margin-top: 0;
+}
+@media (min-width: 1280px) {
+  .content_copy_redomicile {
+    padding-top: 2rem;
+    -moz-column-count: 2;
+         column-count: 2;
+    -moz-column-gap: 2rem;
+         column-gap: 2rem;
+  }
+}
+
+.cta_button_redomicile {
+  padding-block-end: 40px;
+  margin-block-start: auto;
+}
+
+/* ================================================= */
+/* #endregion HOME PAGE |  REDOMICILE SECTION */
+/* ================================================= *//*# sourceMappingURL=main.css.map */

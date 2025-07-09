@@ -12613,3 +12613,138 @@ ul.services_list {
   margin-bottom: 1rem;
   font-size: clamp(1.625rem, 1.119vw + 0.908rem, 2.25rem);
 }
+
+/* ================================================= */
+/* #region HOME PAGE |  REDOMICILE SECTION */
+/* ================================================= */
+
+.home_redomicile {
+  max-width: 100%;
+  padding: 2rem;
+  background-color: #ffffff24;
+  backdrop-filter: blur(15px);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37),
+    0 4px 16px 0 rgba(255, 255, 255, 0.1) inset,
+    0 -4px 16px 0 rgba(0, 0, 0, 0.1) inset;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: clamp(1.125rem, 0.9688rem + 0.5vw, 1.25rem);
+    margin-block-start: 2rem;
+  }
+
+  h1,
+  h2,
+  h3,
+  div,
+  a,
+  p {
+    color: var(--chr-text-gray-100);
+  }
+
+  p {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .home_redomicile_default_list {
+    .home_redomicile_default_list_item {
+      color: var(--chr-text-gray-100);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    max-width: 75%;
+  }
+}
+
+ul.home_redomicile_default_list {
+  padding-inline-start: 1.25rem;
+  list-style: none !important;
+  padding-left: 0;
+  margin-block: 2rem;
+
+  .home_redomicile_default_list_item {
+    padding-block: 0.85rem;
+    border-bottom: 1px dotted var(--chr-text-gray-300);
+    padding-inline-start: 0.5rem;
+
+    &:first-child {
+      border-top: 1px dotted var(--chr-text-gray-300);
+    }
+  }
+}
+
+.redomicile_text_content {
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: clamp(1.125rem, 0.9688rem + 0.5vw, 1.25rem);
+    margin-block-start: 2rem;
+  }
+
+  p {
+    text-align: left;
+
+    @media (min-width: 768px) {
+      text-align: justify;
+    }
+  }
+
+  ul {
+    padding-inline-start: 1.25rem;
+  }
+}
+
+.cta {
+  margin-top: 40px;
+}
+
+.cta-button {
+  margin-top: 2rem;
+  display: inline-block;
+  padding: 14px 28px;
+  background-color: #ffffff;
+  color: var(--chr-text-gray-900) !important;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: var(--chr-primary-color-600);
+  color: var(--chr-text-gray-100) !important;
+}
+
+.content_copy_redomicile {
+  h2 {
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    padding-top: 2rem;
+    column-count: 2;
+    column-gap: 2rem;
+
+  }
+}
+
+.cta_button_redomicile {
+  padding-block-end: 40px;
+  margin-block-start: auto;
+}
+
+/* ================================================= */
+/* #endregion HOME PAGE |  REDOMICILE SECTION */
+/* ================================================= */
