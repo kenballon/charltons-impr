@@ -11,7 +11,7 @@ function enqueue_load_fa()
 
 function chr_theme_enqueue_styles()
 {
-	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.48', 'all');
+	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.49', 'all');
 	wp_enqueue_style('custom-style');
 
 	// Material Symbols
@@ -258,6 +258,25 @@ function show_parent_menu_shortcode($atts, $content = null)
 
 add_shortcode('show_parent_menu', 'show_parent_menu_shortcode');
 
+class Custom_Tab_Menu_Walker extends Walker_Page
+{
+	function start_el(&$output, $page, $depth = 0, $args = array(), $current_page = 0)
+	{
+		if ($page->post_title == '')
+			return;
+
+		// Get page link and title
+		$link = get_permalink($page->ID);
+		$title = apply_filters('the_title', $page->post_title, $page->ID);
+
+		$output .= '<li class="page_item page-item-' . $page->ID . '">';
+		$output .= '<div class="tab_menu_link_div flex items-center space-between">';
+		$output .= '<a href="' . esc_url($link) . '" title="' . esc_attr($title) . '" class="flex-w-full">' . esc_html($title) . '</a>';
+		$output .= '<div type="button" class="arrow_right_svg flex items-center"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368"><path d="m547.69-267.69-28.31-28.77L682.92-460H200v-40h482.92L519.38-663.54l28.31-28.77L760-480 547.69-267.69Z"></path></svg></div>';
+		$output .= '</div>';
+	}
+}
+
 function show_current_page_children_menu_shortcode($atts, $content = null)
 {
 	global $post;
@@ -281,7 +300,8 @@ function show_current_page_children_menu_shortcode($atts, $content = null)
 		'title_li' => '',
 		'depth' => $depth,
 		'exclude' => $post->ID,
-		'echo' => 0
+		'echo' => 0,
+		'walker' => new Custom_Tab_Menu_Walker()
 	);
 	$output .= wp_list_pages($args);
 	$output .= '</ul>';
@@ -310,7 +330,8 @@ function show_current_page_sibling_menu_shortcode($atts, $content = null)
 		'depth' => $depth,
 		'exclude' => $post->ID,
 		'depth' => 1,
-		'echo' => 0
+		'echo' => 0,
+		'walker' => new Custom_Tab_Menu_Walker()
 	);
 
 	$output .= wp_list_pages($args);
@@ -331,13 +352,14 @@ function show_current_page_parent_menu_shortcode($atts, $content = null)
 	if ($include_parent_title == 'yes') {  // include heading if yes
 		$output .= '<h2>' . $menu_title . '</h2>';
 	}
-	$output .= '<ul>';
+	$output .= '<ul class="in_page_tab_menu">';
 	$args = array(
 		'child_of' => wp_get_post_parent_id(wp_get_post_parent_id($post->ID)),
 		'title_li' => '',
+		'exclude' => $post->ID,
 		'depth' => 1,
 		'echo' => 0,
-		'exclude' => $post->ID,
+		'walker' => new Custom_Tab_Menu_Walker(),
 	);
 
 	$output .= wp_list_pages($args);

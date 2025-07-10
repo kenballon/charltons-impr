@@ -8296,6 +8296,7 @@ subpage MENU
   position: relative;
 }
 .et_pb_section.new_about_us_section .new_about_us_row > div > div.new_about_us_nav_container > div nav ul.about_us_ul_nav_lg li a {
+  width: 100%;
   color: inherit !important;
 }
 .et_pb_section.new_about_us_section .new_about_us_row > div > div.new_about_us_nav_container > div nav ul.about_us_ul_nav_lg li:not(.nav_trail_active):hover {

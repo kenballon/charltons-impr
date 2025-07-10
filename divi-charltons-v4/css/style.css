@@ -8860,6 +8860,7 @@ subpage MENU
 
 
                 a {
+                  width: 100%;
                   color: inherit !important;
                 }
 
