@@ -2415,10 +2415,10 @@ ul.indent-inside {
   margin-left: 0px !important;
 }
 
-.entry-content .main-content1 .page-submenu ul,
+/* .entry-content .main-content1 .page-submenu ul,
 .entry-content .main-content1 .pagination__controls ul {
   margin-left: 0px !important;
-}
+} */
 
 .entry-content .main-content1 ol {
   margin-left: 30px;
@@ -3087,7 +3087,7 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
   font-size: 16px;
 }
 
-.page-submenu {
+/* .page-submenu {
   margin: 40px 0;
 }
 
@@ -3143,12 +3143,12 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
 .page-submenu li a:hover,
 .page-submenu li.current_page_item a {
   color: #e71d24 !important;
-}
+} */
 
 /* parent links color red*/
 /* .page-submenu li.current_page_parent a {color:#e71d24 !important; font-weight:600;} */
 
-.page-submenu li a:after {
+/* .page-submenu li a:after {
   border-color: #e71d24;
 }
 
@@ -3168,7 +3168,7 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
   top: 50%;
   -ms-transform-origin: right top;
   transform-origin: right top;
-}
+} */
 
 .bottom-page-link a {
   display: block;
@@ -3186,7 +3186,7 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
   font-weight: 700;
 }
 
-.page-submenu2 {
+/* .page-submenu2 {
   margin-left: -15px;
   margin-bottom: 20px;
   margin-top: 20px;
@@ -3219,7 +3219,7 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
 
 .page-submenu2 li.current_page_item a:before {
   color: #808285;
-}
+} */
 
 div.content1-insights {
   margin-top: 20px;
@@ -3307,9 +3307,9 @@ div.content1-insights {
   min-height: 930px;
 }
 
-.content-wrapper2 .page-submenu ul {
+/* .content-wrapper2 .page-submenu ul {
   margin-left: 0px !important;
-}
+} */
 
 .content-2cols {
   display: flex;
@@ -3444,9 +3444,9 @@ div.content1-insights {
   text-decoration: none;
 }
 
-.entry-content .content-wrapper2 .main-content2 .page-submenu ul {
+/* .entry-content .content-wrapper2 .main-content2 .page-submenu ul {
   margin-left: 0px !important;
-}
+} */
 
 /*content2 page thumb*/
 
@@ -5572,12 +5572,12 @@ ol li ol,
 
 /* remove company law from top/side menu of services */
 
-.menulist-box .page-item-221953,
+/* .menulist-box .page-item-221953,
 .submenu_top .page-item-221953,
 .side-submenu .page-item-221953,
 .page-submenu .page-item-221953 {
   display: none;
-}
+} */
 
 /*right column*/
 .right-column-insight-title h2 {
@@ -12749,6 +12749,52 @@ ul.home_redomicile_default_list {
 /* #endregion HOME PAGE |  REDOMICILE SECTION */
 /* ================================================= */
 
+ul.in_page_tab_menu {
+  list-style: none;
+  padding: 0;
+
+  margin-top: 20px;
+
+  li {
+    padding: 0;
+    padding-inline: 0.8rem;
+    border-bottom: 1.1px dotted #a7a9ac;
+
+    .tab_menu_link_div {
+      a {
+        color: var(--chr-text-gray-400);
+        display: block;
+        position: relative;
+        padding: 1rem;
+        padding-left: 0;
+      }
+
+      .arrow_right_svg {
+        will-change: transform;
+        transition: transform 0.3s ease;
+      }
+    }
+
+    &:hover {
+      background-color: var(--chr-text-gray-100);
+
+      .tab_menu_link_div {
+        a {
+          color: var(--chr-primary-color);
+        }
+
+        .arrow_right_svg {
+          transform: rotate(-45deg);
+
+          svg {
+            fill: var(--chr-primary-color);
+          }
+        }
+      }
+    }
+  }
+}
+
 .et_pb_row.row_container.col-3 {
   display: flex;
   padding: 0;
@@ -12765,6 +12811,33 @@ ul.home_redomicile_default_list {
       width: 100% !important;
       margin-top: 2rem !important;
       padding-block: 1rem;
+    }
+  }
+}
+
+.et_pb_module.side-hero-wrapper {
+  position: fixed;
+}
+
+.side-hero-wrapper {
+  display: none;
+
+
+  @media (min-width: 1024px) {
+    display: block;
+    height: 100%;
+    margin: 0;
+
+    .et_pb_image_wrap {
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+
+      img {
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+      }
     }
   }
 }

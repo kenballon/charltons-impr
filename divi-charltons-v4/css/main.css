@@ -2246,11 +2246,10 @@ ul.indent-inside {
   margin-left: 0px !important;
 }
 
-.entry-content .main-content1 .page-submenu ul,
+/* .entry-content .main-content1 .page-submenu ul,
 .entry-content .main-content1 .pagination__controls ul {
   margin-left: 0px !important;
-}
-
+} */
 .entry-content .main-content1 ol {
   margin-left: 30px;
 }
@@ -2908,7 +2907,7 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
   font-size: 16px;
 }
 
-.page-submenu {
+/* .page-submenu {
   margin: 40px 0;
 }
 
@@ -2923,11 +2922,11 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
   margin-left: 0px !important;
 }
 
-.page-submenu ul li.page_item_has_children > ul {
+.page-submenu ul li.page_item_has_children>ul {
   border-top: 1px solid #a7a9ac;
 }
 
-.page-submenu ul > li,
+.page-submenu ul>li,
 .page-submenu ul li.page_item_has_children li {
   border-bottom: 1px solid #a7a9ac;
 }
@@ -2943,7 +2942,7 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
   padding: 15px 25px 15px 0;
 }
 
-.page-submenu li.page_item_has_children > ul > li > a {
+.page-submenu li.page_item_has_children>ul>li>a {
   display: block;
   color: #656565;
   position: relative;
@@ -2952,7 +2951,7 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
   position: relative;
 }
 
-.page-submenu li.page_item_has_children > ul > li > a:before {
+.page-submenu li.page_item_has_children>ul>li>a:before {
   content: "-";
   position: absolute;
   left: 7px;
@@ -2964,11 +2963,10 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
 .page-submenu li a:hover,
 .page-submenu li.current_page_item a {
   color: #e71d24 !important;
-}
-
+} */
 /* parent links color red*/
 /* .page-submenu li.current_page_parent a {color:#e71d24 !important; font-weight:600;} */
-.page-submenu li a:after {
+/* .page-submenu li a:after {
   border-color: #e71d24;
 }
 
@@ -2981,13 +2979,14 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
   border-width: 2px 2px 0 0;
   border-color: #808285;
   border-style: solid;
+  -ms-transform: rotate(45deg);
   transform: rotate(45deg);
   position: absolute;
   right: 0;
   top: 50%;
+  -ms-transform-origin: right top;
   transform-origin: right top;
-}
-
+} */
 .bottom-page-link a {
   display: block;
   border-bottom: 1px dotted #a7a9ac;
@@ -3004,7 +3003,7 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
   font-weight: 700;
 }
 
-.page-submenu2 {
+/* .page-submenu2 {
   margin-left: -15px;
   margin-bottom: 20px;
   margin-top: 20px;
@@ -3016,6 +3015,8 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
   padding-left: 0px !important;
 }
 
+.page-submenu2 li {}
+
 .page-submenu2 li.current_page_item a {
   color: #808285 !important;
 }
@@ -3025,7 +3026,7 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
 }
 
 .page-submenu2 li a:before {
-  content: " ›";
+  content: " \203A";
   color: #e71d24;
   font-size: 24px;
   font-weight: 400;
@@ -3035,8 +3036,7 @@ div.et_pb_module.et_pb_tabs.achive-tabs ul.et_pb_tabs_controls li.et_pb_tab_acti
 
 .page-submenu2 li.current_page_item a:before {
   color: #808285;
-}
-
+} */
 div.content1-insights {
   margin-top: 20px;
 }
@@ -3121,10 +3121,9 @@ div.content1-insights {
   min-height: 930px;
 }
 
-.content-wrapper2 .page-submenu ul {
+/* .content-wrapper2 .page-submenu ul {
   margin-left: 0px !important;
-}
-
+} */
 .content-2cols {
   display: flex;
   flex-wrap: wrap !important;
@@ -3257,10 +3256,9 @@ div.content1-insights {
   text-decoration: none;
 }
 
-.entry-content .content-wrapper2 .main-content2 .page-submenu ul {
+/* .entry-content .content-wrapper2 .main-content2 .page-submenu ul {
   margin-left: 0px !important;
-}
-
+} */
 /*content2 page thumb*/
 .page-thumb {
   display: flex;
@@ -5328,13 +5326,12 @@ ol li ol,
 }
 
 /* remove company law from top/side menu of services */
-.menulist-box .page-item-221953,
+/* .menulist-box .page-item-221953,
 .submenu_top .page-item-221953,
 .side-submenu .page-item-221953,
 .page-submenu .page-item-221953 {
   display: none;
-}
-
+} */
 /*right column*/
 .right-column-insight-title h2 {
   background-color: #2b2b2b !important;
@@ -11508,6 +11505,40 @@ ul.home_redomicile_default_list .home_redomicile_default_list_item:first-child {
 /* ================================================= */
 /* #endregion HOME PAGE |  REDOMICILE SECTION */
 /* ================================================= */
+ul.in_page_tab_menu {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+ul.in_page_tab_menu li {
+  padding: 0;
+  padding-inline: 0.8rem;
+  border-bottom: 1.1px dotted #a7a9ac;
+}
+ul.in_page_tab_menu li .tab_menu_link_div a {
+  color: var(--chr-text-gray-400);
+  display: block;
+  position: relative;
+  padding: 1rem;
+  padding-left: 0;
+}
+ul.in_page_tab_menu li .tab_menu_link_div .arrow_right_svg {
+  will-change: transform;
+  transition: transform 0.3s ease;
+}
+ul.in_page_tab_menu li:hover {
+  background-color: var(--chr-text-gray-100);
+}
+ul.in_page_tab_menu li:hover .tab_menu_link_div a {
+  color: var(--chr-primary-color);
+}
+ul.in_page_tab_menu li:hover .tab_menu_link_div .arrow_right_svg {
+  transform: rotate(-45deg);
+}
+ul.in_page_tab_menu li:hover .tab_menu_link_div .arrow_right_svg svg {
+  fill: var(--chr-primary-color);
+}
+
 .et_pb_row.row_container.col-3 {
   display: flex;
   padding: 0;
@@ -11524,5 +11555,31 @@ ul.home_redomicile_default_list .home_redomicile_default_list_item:first-child {
     width: 100% !important;
     margin-top: 2rem !important;
     padding-block: 1rem;
+  }
+}
+
+.et_pb_module.side-hero-wrapper {
+  position: fixed;
+}
+
+.side-hero-wrapper {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .side-hero-wrapper {
+    display: block;
+    height: 100%;
+    margin: 0;
+  }
+  .side-hero-wrapper .et_pb_image_wrap {
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+  }
+  .side-hero-wrapper .et_pb_image_wrap img {
+    -o-object-fit: cover;
+       object-fit: cover;
+    width: 100%;
+    height: 100%;
   }
 }/*# sourceMappingURL=main.css.map */
