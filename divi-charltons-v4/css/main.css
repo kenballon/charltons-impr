@@ -11582,4 +11582,8 @@ ul.in_page_tab_menu li:hover .tab_menu_link_div .arrow_right_svg svg {
     width: 100%;
     height: 100%;
   }
+}
+
+.et_pb_section.et_pb_section_0.et_section_regular {
+  padding-block-start: 0;
 }/*# sourceMappingURL=main.css.map */

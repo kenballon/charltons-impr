@@ -11,7 +11,7 @@ function enqueue_load_fa()
 
 function chr_theme_enqueue_styles()
 {
-	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.47', 'all');
+	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.48', 'all');
 	wp_enqueue_style('custom-style');
 
 	// Material Symbols
@@ -132,7 +132,7 @@ function get_recent_news_homepage_shortcode()
 		$query->the_post();
 		$output = $output
 			. '<div class="news-list__item">'
-			. '<div class="news-list-item__date">' . get_the_date() . '</div>'
+			. '<div class="news-list-item__date">' . get_the_date('d M Y') . '</div>'
 			. '<div class="news-list-item__text">'
 			. '<a href="' . get_permalink() . '">' . $query->post->post_title
 			. '</a>'
@@ -275,7 +275,7 @@ function show_current_page_children_menu_shortcode($atts, $content = null)
 		$parent_id = $menu_id;
 	}
 
-	$output .= '<ul>';
+	$output .= '<ul class="in_page_tab_menu">';
 	$args = array(
 		'child_of' => $parent_id,
 		'title_li' => '',
@@ -302,7 +302,7 @@ function show_current_page_sibling_menu_shortcode($atts, $content = null)
 	if ($include_parent_title == 'yes') {  // include heading if yes
 		$output .= '<h2>' . $menu_title . '</h2>';
 	}
-	$output .= '<ul>';
+	$output .= '<ul class="in_page_tab_menu">';
 	// $exclude_id = 221749;
 	$args = array(
 		'child_of' => wp_get_post_parent_id($post->ID),
@@ -1603,9 +1603,38 @@ add_filter('body_class', 'category_id_class');
 
 // Custom Shortcodes Functions
 require_once get_stylesheet_directory() . '/includes/custom-shortcodes.php';
+// =============================================
+// Custom Display Tags Sorting
+// =============================================
+// get post tags sorted by ID
+
+function get_tags_html()
+{
+	$tags = get_terms([
+		'taxonomy' => 'post_tag',
+		'orderby' => 'term_id',
+		'order' => 'DESC',
+		'hide_empty' => false,
+	]);
+
+	$html = '<div style="display: none;">';
+
+	if ($tags) {
+		$tag_html = array_map(function ($tag) {
+			return '<div>(' . esc_html($tag->term_id) . ') ' . esc_html($tag->name) . '</div>';
+		}, $tags);
+		$html .= implode('', $tag_html);
+	} else {
+		$html .= 'no tags, issue';
+	}
+
+	$html .= '</div>';
+
+	return $html;
+}
 
 // =============================================
-// Custom Nav Menu
+// Custom Main Navigation Menu
 // =============================================
 
 function get_menu_id($location)
@@ -1660,30 +1689,4 @@ function get_custom_nav_menu($location)
 	}
 
 	return $menu_array;
-}
-
-// get post tags sorted by ID
-function get_tags_html()
-{
-	$tags = get_terms([
-		'taxonomy' => 'post_tag',
-		'orderby' => 'term_id',
-		'order' => 'DESC',
-		'hide_empty' => false,
-	]);
-
-	$html = '<div style="display: none;">';
-
-	if ($tags) {
-		$tag_html = array_map(function ($tag) {
-			return '<div>(' . esc_html($tag->term_id) . ') ' . esc_html($tag->name) . '</div>';
-		}, $tags);
-		$html .= implode('', $tag_html);
-	} else {
-		$html .= 'no tags, issue';
-	}
-
-	$html .= '</div>';
-
-	return $html;
 }
