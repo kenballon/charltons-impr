@@ -12748,3 +12748,23 @@ ul.home_redomicile_default_list {
 /* ================================================= */
 /* #endregion HOME PAGE |  REDOMICILE SECTION */
 /* ================================================= */
+
+.et_pb_row.row_container.col-3 {
+  display: flex;
+  padding: 0;
+  max-width: 100%;
+
+  .et_pb_column:nth-child(1) {
+    padding-inline: 2rem;
+  }
+
+  .et_pb_column:nth-child(2) {
+    padding: 2rem;
+
+    @media (max-width: 992px) {
+      width: 100% !important;
+      margin-top: 2rem !important;
+      padding-block: 1rem;
+    }
+  }
+}
