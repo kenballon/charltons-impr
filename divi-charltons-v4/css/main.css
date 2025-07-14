@@ -3078,7 +3078,7 @@ div.content1-insights {
   padding: 0 !important;
 }
 
-.content-wrapper2 h2.section-title {
+.content-wrapper2 .section-title {
   font-size: 45px;
   font-weight: bold;
 }
@@ -4272,7 +4272,7 @@ img.img-display-block {
   display: flex;
 }
 
-.content-wrapper5 h2.section-title {
+.content-wrapper5 .section-title {
   font-size: 46px;
   font-weight: bold;
   margin-bottom: 30px;
@@ -4473,19 +4473,19 @@ img.img-display-block {
 }
 
 /*Content 7*/
-.content-wrapper7 h2.section-title {
+.content-wrapper7 .section-title {
   font-size: 46px;
   font-weight: bold;
   margin-bottom: 30px;
 }
 
-.content-wrapper7 h2.section-title span {
+.content-wrapper7 .section-title span {
   font-size: 14px;
   font-weight: normal;
   margin-left: 15px;
 }
 
-.content-wrapper7 h2.section-title span a {
+.content-wrapper7 .section-title span a {
   display: inline-block;
   margin-left: 10px;
   color: #2b2b2b !important;
@@ -4493,7 +4493,7 @@ img.img-display-block {
   line-height: 18px;
 }
 
-.content-wrapper7 h2.section-title span a.current_page_item {
+.content-wrapper7 .section-title span a.current_page_item {
   color: #808285 !important;
   text-decoration: none;
 }
@@ -7312,7 +7312,7 @@ div.webinar-parts.red a.active {
   }
   /*Section title*/
   .subscription-wrapper .signup-banner h1,
-  .content-wrapper7 h2.section-title,
+  .content-wrapper7 .section-title,
   .insight-title p.h1 {
     font-size: 30px;
     line-height: 32px;
@@ -7366,11 +7366,7 @@ div.webinar-parts.red a.active {
   .content-thumb-item .cti-desc h2 {
     margin: 0 !important;
   }
-  /* .content-wrapper7 .et_pb_row {
-        padding-left: 15px !important;
-        padding-right: 15px !important;
-    } */
-  .content-wrapper7 h2.section-title span {
+  .content-wrapper7 .section-title span {
     margin-left: 0px;
     display: block;
   }
@@ -7728,7 +7724,7 @@ subpage MENU
     max-width: none !important;
     max-height: none !important;
   }
-  .content-wrapper2 h2.section-title {
+  .content-wrapper2 .section-title {
     display: none;
   }
   .content-wrapper2 h1,
