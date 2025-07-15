@@ -2085,6 +2085,8 @@ function get_recent_news_homepage_shortcode()
     return $output;
 }
 
+// TODO: Remove this soon as this is a temporary solution
+
 /**
  * Shortcode to display a div-based layout of all posts (default and custom) with post date, title, categories, tags, and link.
  * Usage: [simple_posts_table custom_type="your_custom_type"]
