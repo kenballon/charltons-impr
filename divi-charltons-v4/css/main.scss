@@ -208,7 +208,14 @@ strong {
 
 ol,
 ul {
+  list-style: unset;
+  list-style-type: initial;
   padding-left: 1rem;
+  padding-top:.25rem;
+
+  li{
+    font-weight: 400;
+  }
 }
 
 .default_text_link {
