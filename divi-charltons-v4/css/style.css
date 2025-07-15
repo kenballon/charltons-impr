@@ -12718,8 +12718,7 @@ ul.home_redomicile_default_list {
   background-color: #ffffff;
   color: var(--chr-text-gray-900) !important;
   text-decoration: none;
-  font-weight: bold;
-  border-radius: 6px;
+  font-weight: bold;  
   transition: background-color 0.3s ease;
 }
 

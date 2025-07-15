@@ -11479,7 +11479,6 @@ ul.home_redomicile_default_list .home_redomicile_default_list_item:first-child {
   color: var(--chr-text-gray-900) !important;
   text-decoration: none;
   font-weight: bold;
-  border-radius: 6px;
   transition: background-color 0.3s ease;
 }
 
