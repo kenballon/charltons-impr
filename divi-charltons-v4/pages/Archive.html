@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive Page</title>
+
+    <style>
+        table:not(.archive_table) {
+            border-collapse: collapse;
+            width: 100%;
+            margin-block: 1.25rem !important;
+
+            thead {
+                tr {
+                    th {
+                        border-width: 1px;
+                        border-style: solid !important;
+                        border-color: #ccc;
+                        color: rgb(65, 71, 52);
+                    }
+                }
+            }
+
+            tbody {
+
+                tr,
+                td {
+                    vertical-align: top;
+                }
+
+                tr {
+                    th {
+                        border-width: 1px;
+                        border-style: solid !important;
+                        border-color: #ccc;
+                        color: rgb(65, 71, 52);
+                        padding: 0.5rem;
+                    }
+
+                    td {
+                        border-width: 1px;
+                        border-style: solid;
+                    }
+                }
+            }
+        }
+
+        table.archive_table {
+            margin-block: 1.5rem !important;
+
+            thead {
+                height: 40px;
+                min-height: 40px;
+
+                tr {
+                    border-width: 1px !important;
+                    border-style: dashed !important;
+                    border-color: #ccc;
+
+                    th {
+                        padding: 8px;
+                        text-align: left;
+                        font-size: 1rem;
+                        text-transform: capitalize;
+                        background-color: var(--pebble-color);
+
+                        >div {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.25rem;
+
+                            >span {
+                                display: block;
+                                font-size: inherit;
+                                font-weight: 600 !important;
+                                color: inherit;
+                                line-height: 0;
+                            }
+                        }
+                    }
+                }
+            }
+
+            tbody {
+                tr {
+                    td {
+                        color: #504e4e;
+                        font-size: 12px;
+                        border-width: 1px !important;
+                        border-style: dashed;
+                        border-color: #ccc;
+                        color: white;
+
+                        &:first-child {
+                            width: 15%;
+                        }
+
+                        a {
+                            color: inherit;
+
+                            &:hover {
+                                color: #e2afb1;
+                            }
+                        }
+                    }
+
+                    &:nth-of-type(even) {
+                        background-color: var(--chr-text-gray-800);
+                    }
+                }
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="archived_posts_container">
+        <table class="archive_table" data-archive-category="myanmar">
+            <thead data-archive-year-head="2020">
+                <tr>
+                    <th colspan="2">
+                        <div>
+                            <span class="material-symbols-outlined">calendar_month</span>
+                            <span class="label_thead">2020</span>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody data-archive-year-body="2020">
+                <tr data-archive-post-content="23-11-2020" data-archive-post-category="myanmar">
+                    <td>23 Nov</td>
+                    <td><a href="https://dev2.charltonslaw.com/project/force-majeure-concept-under-russian-civil-law-and-myanmar-common-law/"
+                            class="default_link" target="_blank">Force majeure concept under Russian civil law and
+                            Myanmar common law</a></td>
+                </tr>
+                <tr data-archive-post-content="01-07-2020" data-archive-post-category="myanmar">
+                    <td>1 Jul</td>
+                    <td><a href="https://dev2.charltonslaw.com/project/webinar-on-exchange-listings-of-myanmar-business-the-options/"
+                            class="default_link" target="_blank">Webinar on Exchange Listings of Myanmar Business: the
+                            Options</a></td>
+                </tr>
+                <tr data-archive-post-content="01-05-2020" data-archive-post-category="myanmar">
+                    <td>1 May</td>
+                    <td><a href="https://dev2.charltonslaw.com/project/may-2020-webinar-on-the-impact-of-covid-19-on-labour-intensive-industry-in-myanmar/"
+                            class="default_link" target="_blank">Webinar on the Impact of COVID-19 on Labour-intensive
+                            Industry in Myanmar</a></td>
+                </tr>
+            </tbody>
+            <thead data-archive-year-head="2016">
+                <tr>
+                    <th colspan="2">
+                        <div>
+                            <span class="material-symbols-outlined">calendar_month</span>
+                            <span class="label_thead">2016</span>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody data-archive-year-body="2016">
+                <tr data-archive-post-content="18-10-2016" data-archive-post-category="myanmar">
+                    <td>18 Oct</td>
+                    <td><a href="https://dev2.charltonslaw.com/project/international-capital-raising-myanmars-mining-sector/"
+                            class="default_link" target="_blank">International capital raising and Myanmar’s mining
+                            sector</a></td>
+                </tr>
+                <tr data-archive-post-content="30-01-2016"
+                    data-archive-post-category="myanmar, publications-and-presentations">
+                    <td>30 Jan</td>
+                    <td><a href="https://dev2.charltonslaw.com/project/developing-sustainable-strategic-partnerships-in-myanmar-mining-industry/"
+                            class="default_link" target="_blank">Developing sustainable strategic partnerships in
+                            Myanmar mining industry</a></td>
+                </tr>
+                <tr data-archive-post-content="17-01-2016" data-archive-post-category="myanmar">
+                    <td>17 Jan</td>
+                    <td><a href="https://dev2.charltonslaw.com/project/2015-myanmar-mines-law/" class="default_link"
+                            target="_blank">2015 Myanmar Mines Law</a></td>
+                </tr>
+            </tbody>
+            <thead data-archive-year-head="2013">
+                <tr>
+                    <th colspan="2">
+                        <div>
+                            <span class="material-symbols-outlined">calendar_month</span>
+                            <span class="label_thead">2013</span>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody data-archive-year-body="2013">
+                <tr data-archive-post-content="14-07-2013" data-archive-post-category="myanmar">
+                    <td>14 Jul</td>
+                    <td><a href="https://dev2.charltonslaw.com/project/introduction-to-doing-business-in-myanmar/"
+                            class="default_link" target="_blank">Introduction to doing business in Myanmar</a></td>
+                </tr>
+                <tr data-archive-post-content="16-03-2013" data-archive-post-category="myanmar">
+                    <td>16 Mar</td>
+                    <td><a href="https://dev2.charltonslaw.com/project/advising-mining-companies-in-myanmar/"
+                            class="default_link" target="_blank">Advising mining companies in Myanmar</a></td>
+                </tr>
+                <tr data-archive-post-content="16-03-2013" data-archive-post-category="myanmar">
+                    <td>16 Mar</td>
+                    <td><a href="https://dev2.charltonslaw.com/project/advising-oil-and-gas-companies-in-myanmar/"
+                            class="default_link" target="_blank">Advising oil and gas companies in Myanmar</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
