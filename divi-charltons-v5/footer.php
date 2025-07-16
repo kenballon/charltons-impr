@@ -103,7 +103,7 @@ if (!is_page_template('page-template-blank.php')): ?>
 </div>
 
 <?php wp_footer(); ?>
-<!--<script>
+<script>
 (function(i, s, o, g, r, a, m) {
     i['GoogleAnalyticsObject'] = r;
     i[r] = i[r] || function() {
@@ -118,10 +118,10 @@ if (!is_page_template('page-template-blank.php')): ?>
 ga('create', 'UA-58524536-2', 'auto');
 ga('set', 'anonymizeIp', true);
 ga('send', 'pageview');
-</script>-->
+</script>
 
 <!-- Yandex.Metrika counter -->
-<!--
+
 <script type="text/javascript">
 (function(m, e, t, r, i, k, a) {
     m[i] = m[i] || function() {
@@ -138,7 +138,7 @@ ym(57540187, "init", {
     trackLinks: true,
     accurateTrackBounce: true
 });
-</script>-->
+</script>
 </body>
 
 </html>
