@@ -1,4 +1,86 @@
 <?php
+
+/**
+ * Retrieves all posts data for specified post types and query arguments.
+ *
+ * This function queries posts of the given post types and returns an array of post data,
+ * including id, title, post_date, categories, category_names, tags, excerpt, url, and featured_image.
+ *
+ * @param array $post_types Array of post types to query. Default is ['post'].
+ * @param array $args       Additional WP_Query arguments to override defaults.
+ *
+ * @return array Array of associative arrays, each containing post data:
+ *               - id (int): Post ID.
+ *               - title (string): Post title.
+ *               - post_date (string): Post date in 'd-m-Y' format.
+ *               - categories (string): Comma-separated list of category slugs.
+ *               - category_names (string): Comma-separated list of category names.
+ *               - tags (string): Comma-separated list of tag names.
+ *               - excerpt (string): Post excerpt with HTML tags stripped.
+ *               - url (string): Post permalink URL.
+ *               - featured_image (string): URL of the post's featured image (full size).
+ *
+ * @example
+ * // Get all published posts
+ * $posts = get_all_posts_data();
+ *
+ * // Get all 'news' custom post type, limit to 5
+ * $posts = get_all_posts_data(['news'], ['posts_per_page' => 5]);
+ *
+ * // Get all posts in 'events' category
+ * $posts = get_all_posts_data(['post'], ['category_name' => 'events']);
+ */
+function get_all_posts_data($post_types = ['post'], $args = [])
+{
+    $defaults = [
+        'post_type' => $post_types,
+        'post_status' => 'publish',
+        'posts_per_page' => -1,
+        'has_password' => false,
+        'orderby' => 'date',
+        'order' => 'DESC',
+    ];
+
+    $query_args = wp_parse_args($args, $defaults);
+    $query = new WP_Query($query_args);
+    $posts_data = [];
+
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            global $post;
+
+            // Get categories and tags
+            $categories = get_the_category($post->ID);
+            $category_slugs = $categories ? array_map(function ($cat) {
+                return $cat->slug;
+            }, $categories) : [];
+            $category_names = $categories ? array_map(function ($cat) {
+                return $cat->name;
+            }, $categories) : [];
+
+            $tags = get_the_tags($post->ID);
+            $tag_names = $tags && !is_wp_error($tags) ? array_map(function ($tag) {
+                return $tag->name;
+            }, $tags) : [];
+
+            $posts_data[] = [
+                'id' => $post->ID,
+                'title' => get_the_title(),
+                'post_date' => get_the_date('d M Y'),
+                'categories' => implode(', ', $category_slugs),
+                'category_names' => implode(', ', $category_names),
+                'tags' => implode(', ', $tag_names),
+                'excerpt' => wp_strip_all_tags(get_the_excerpt()),
+                'url' => get_permalink(),
+                'featured_image' => get_the_post_thumbnail_url($post->ID, 'full'),
+            ];
+        }
+        wp_reset_postdata();
+    }
+    return $posts_data;
+}
+
 function get_custom_excerpt($content, $word_count)
 {
     $trimmed_content = wp_trim_words($content, $word_count);
@@ -1589,14 +1671,154 @@ function getPostTitleAndCategory($atts)
     return '';
 }
 
-add_action('init', 'register_custom_shortcodes');
-add_action('wp_ajax_ajax_search', 'ajax_search');
-add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
-add_action('wp_ajax_ajax_latest_posts', 'ajax_latest_posts');
-add_action('wp_ajax_nopriv_ajax_latest_posts', 'ajax_latest_posts');
+function getNewslettersPosts($atts = [])
+{
+    $atts = shortcode_atts([
+        'post_type' => 'project',
+        'posts_per_page' => -1,
+        'filter_category' => '',
+    ], $atts, 'get_newsletter_posts');
 
-add_action('wp_ajax_get_newsletters_posts', 'get_newsletters_posts');
-add_action('wp_ajax_nopriv_get_newsletters_posts', 'get_newsletters_posts');
+    $post_type = sanitize_text_field($atts['post_type']);
+    $posts_per_page = intval($atts['posts_per_page']);
+    $filter_category = sanitize_text_field($atts['filter_category']);
+
+    $query_args = [
+        'posts_per_page' => $posts_per_page,
+        'post_status' => 'publish',
+        // Remove meta_query so we don't filter out posts with only plugin images
+    ];
+
+    if (!empty($filter_category)) {
+        $categories = array_map('trim', explode(',', $filter_category));
+        if ($post_type === 'post') {
+            $query_args['category_name'] = $filter_category;
+        } else {
+            $taxonomy = $post_type . '_category';
+            if (!taxonomy_exists($taxonomy)) {
+                $taxonomy = 'category';
+            }
+            $query_args['tax_query'] = [
+                [
+                    'taxonomy' => $taxonomy,
+                    'field' => 'slug',
+                    'terms' => $categories,
+                    'operator' => 'IN'
+                ]
+            ];
+        }
+    }
+
+    $custom_posts = get_all_posts_data([$post_type], $query_args);
+
+    // Filter out posts without any kind of featured image (native or plugin)
+    $custom_posts = array_filter($custom_posts, function ($post) {
+        $native_img = !empty($post['featured_image']);
+        $plugin_img = !empty(get_post_meta($post['id'], 'fiuw_image_url', true));
+        return $native_img || $plugin_img;
+    });
+
+    if (empty($custom_posts)) {
+        return '<p>No posts found for the specified post type.</p>';
+    }
+
+    // Sort posts by date and time (including hours)
+    usort($custom_posts, function ($a, $b) {
+        // Try to get the full datetime if available, fallback to post_date
+        $a_datetime = !empty($a['post_datetime']) ? $a['post_datetime'] : $a['post_date'];
+        $b_datetime = !empty($b['post_datetime']) ? $b['post_datetime'] : $b['post_date'];
+        // Convert to timestamps for comparison
+        $a_ts = strtotime($a_datetime);
+        $b_ts = strtotime($b_datetime);
+        // Descending order (latest first)
+        return $b_ts <=> $a_ts;
+    });
+
+    ob_start();
+    foreach ($custom_posts as $post):
+        // Prefer plugin image if present, otherwise use native
+        $plugin_img_url = get_post_meta($post['id'], 'fiuw_image_url', true);
+        $img_url = !empty($plugin_img_url) ? $plugin_img_url : $post['featured_image'];
+?>
+<article class="newsletter_post_item flex-col" data-category="<?php echo esc_attr($post['categories']); ?>"
+    data-tags="<?php echo esc_attr($post['tags']); ?>" data-nl_date="<?php echo esc_attr($post['post_date']); ?>"
+    data-post-id="<?php echo esc_attr($post['id']); ?>">
+    <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
+        aria-label="<?php echo esc_attr($post['title']); ?>">
+        <div class="post-thumbnail">
+            <img decoding="async" width="286" height="286" class="" src="<?php echo esc_url($img_url); ?>"
+                alt="<?php echo esc_attr($post['title']); ?>">
+            <time class="post-date" datetime="<?php echo esc_attr($post['post_date']); ?>">
+                <?php echo esc_html($post['post_date']); ?>
+            </time>
+            <h2 class="post-title" title="<?php echo esc_attr($post['title']); ?>">
+                <?php echo esc_html($post['title']); ?>
+            </h2>
+        </div>
+    </a>
+</article>
+<?php
+    endforeach;
+    return ob_get_clean();
+}
+
+function getAwardPostItems($atts = [])
+{
+    $atts = shortcode_atts([
+        'category' => '',  // Comma-separated slugs
+        'tag' => 'awards',  // Comma-separated slugs
+        'limit' => 10,  // Number of posts to show
+    ], $atts, 'get_award_post_items');
+
+    $args = [
+        'post_type' => 'post',
+        'posts_per_page' => intval($atts['limit']),
+        'post_status' => 'publish',
+    ];
+
+    if (!empty($atts['category'])) {
+        $args['category_name'] = $atts['category'];
+    }
+
+    if (!empty($atts['tag'])) {
+        $args['tag'] = $atts['tag'];
+    }
+
+    $posts = get_all_posts_data(['post'], $args);
+
+    if (empty($posts)) {
+        return '<p>No posts found.</p>';
+    }
+
+    ob_start();
+    foreach ($posts as $post) {
+        $img_url = !empty($post['featured_image']) ? $post['featured_image'] : '';
+        // Lowercase categories and tags for rendering
+        $categories_lower = strtolower($post['categories']);
+        $tags_lower = strtolower($post['tags']);
+        $category_names_lower = strtolower($post['category_names']);
+?>
+<article class="awards_card_item" data-category="<?php echo esc_attr($categories_lower); ?>"
+    data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr($post['id']); ?>">
+    <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
+        aria-label="<?php echo esc_attr($post['title']); ?>">
+        <?php if ($img_url): ?>
+        <img decoding="async" width="300" height="300" class="awards_card_img" src="<?php echo esc_url($img_url); ?>"
+            alt="<?php echo esc_attr($post['title']); ?>">
+        <?php endif; ?>
+        <div>
+            <div class="categ_date flex">
+                <div class="categ_lbl capitalize pr-2"><?php echo esc_html($category_names_lower); ?></div>
+                <div class="date_posted text-gray-700 fw-light"><?php echo esc_html($post['post_date']); ?></div>
+            </div>
+            <div class="title"><?php echo esc_html($post['title']); ?></div>
+        </div>
+    </a>
+</article>
+<?php
+    }
+    return ob_get_clean();
+}
 
 // Register custom shortcodes.
 function register_custom_shortcodes()
@@ -1622,4 +1844,15 @@ function register_custom_shortcodes()
     add_shortcode('share_download', 'share_download_sc');
 
     add_shortcode('display_categories', 'get_all_categories_with_children');
+    add_shortcode('get_newsletter_posts', 'getNewslettersPosts');
+    add_shortcode('get_award_post_items', 'getAwardPostItems');
 }
+
+add_action('init', 'register_custom_shortcodes');
+add_action('wp_ajax_ajax_search', 'ajax_search');
+add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
+add_action('wp_ajax_ajax_latest_posts', 'ajax_latest_posts');
+add_action('wp_ajax_nopriv_ajax_latest_posts', 'ajax_latest_posts');
+
+add_action('wp_ajax_get_newsletters_posts', 'get_newsletters_posts');
+add_action('wp_ajax_nopriv_get_newsletters_posts', 'get_newsletters_posts');

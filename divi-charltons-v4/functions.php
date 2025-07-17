@@ -11,7 +11,7 @@ function enqueue_load_fa()
 
 function chr_theme_enqueue_styles()
 {
-	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.49', 'all');
+	wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.50', 'all');
 	wp_enqueue_style('custom-style');
 
 	// Material Symbols

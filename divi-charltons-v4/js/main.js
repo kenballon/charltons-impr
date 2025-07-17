@@ -253,9 +253,9 @@ document.addEventListener("readystatechange", (e) => {
     customHeaderNavigation();
     tabFunc();
     showAwardImageFunc();
-    getNewsletterPosts();
     initNewsletterPage();
-    getAwardPosts();
+    // getNewsletterPosts();
+    // getAwardPosts();
 
     const buttonAllActive = document.getElementById("all");
     currentUrl.startsWith(origin + "/news")
@@ -269,6 +269,30 @@ document.addEventListener("readystatechange", (e) => {
     const awardsWrapper = document.querySelector('#pod-and-web');
     newseventsWrapper && getNewsAndEventsPosts(["awards-and-rankings", "news"]);
     awardsWrapper && getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], null);
+
+    if (window.location.pathname.includes("/news/newsletters/hong-kong-law-3/")) {
+      maybeShowLoadMoreButton({
+        filterCategories: ["hong-kong-law"],
+        containerSelector: "#newsletters_post",
+        itemClass: "newsletter_post_item",
+        loadMoreWrapperSelector: "#btn_load_more_wrapper",
+        batchSize: 16,
+        createCardUI: createCardUI,
+        cardType: "newsletter"
+      });
+    }
+
+    if (window.location.pathname.includes("/our-firm/awards-2/")) {
+      maybeShowLoadMoreButton({
+        filterTags: ["awards"],
+        containerSelector: "#all_awards_wrapper",
+        itemClass: "awards_card_item",
+        loadMoreWrapperSelector: "#btn_load_more_wrapper",
+        batchSize: 15,
+        createCardUI: createCardUI,
+        cardType: "award"
+      });
+    }
   }
 });
 
@@ -1339,44 +1363,6 @@ function addLoadMoreButton(
   });
 }
 
-async function getAwardPosts() {
-  const dbName = "PostsDatabase";
-  const storeName = "posts";
-  const tagValue = "awards";
-  const maxInitialPosts = 25;
-  let currentPostIndex = 0;
-
-  const awardPosts = await fetchPostsFromDB(dbName, storeName, (post) => {
-    const postTags = post.tags.toLowerCase().split(", ");
-    return postTags.includes(tagValue);
-  });
-
-  const sortedAwardPosts = sortPostsByDate(awardPosts);
-
-  const awardsContainer = document?.getElementById("all_awards_wrapper");
-  const loadMoreContainer = document?.getElementById("load_more_container");
-  // Load only the first 16 posts initially
-  const initialPosts = sortedAwardPosts.slice(0, maxInitialPosts);
-  initialPosts.forEach((post) => {
-    const article = createCardUI(post, "award", true);
-    awardsContainer?.appendChild(article);
-  });
-
-  currentPostIndex = maxInitialPosts;
-
-  // Add a "Load More" button if there are more than 16 posts
-  if (sortedAwardPosts.length > maxInitialPosts) {
-    addLoadMoreButton(
-      loadMoreContainer,
-      awardsContainer,
-      sortedAwardPosts,
-      currentPostIndex,
-      maxInitialPosts,
-      createCardUI
-    );
-  }
-}
-
 async function showFilteredAwards(filterID) {
   const dbName = "PostsDatabase";
   const storeName = "posts";
@@ -1392,7 +1378,7 @@ async function showFilteredAwards(filterID) {
   const sortedAwardPosts = sortPostsByDate(awardPosts);
 
   const awardsContainer = document?.getElementById("all_awards_wrapper");
-  const loadMoreContainer = document?.getElementById("load_more_container");
+  const loadMoreContainer = document?.getElementById("btn_load_more_wrapper");
   loadMoreContainer.innerHTML = "";
   awardsContainer.innerHTML = ""; // Clear existing posts
 
@@ -1438,7 +1424,7 @@ async function showFilteredAwardsByYear(filterID) {
   const sortedAwardPosts = sortPostsByDate(awardPosts);
 
   const awardsContainer = document?.getElementById("all_awards_wrapper");
-  const loadMoreContainer = document?.getElementById("load_more_container");
+  const loadMoreContainer = document?.getElementById("btn_load_more_wrapper");
   loadMoreContainer.innerHTML = "";
   awardsContainer.innerHTML = ""; // Clear existing posts
 
@@ -1912,3 +1898,63 @@ hamburgerMenuBtn?.addEventListener('click', () => {
   const ariaHiddenValue = aboutUsNavUlMobile?.classList.contains('dropdown_active') ? 'false' : 'true';
   aboutUsNavUlMobile?.setAttribute('aria-hidden', ariaHiddenValue);
 });
+
+
+function getRenderedPostIds(containerSelector, itemClass) {
+  return Array.from(document.querySelectorAll(`${containerSelector} .${itemClass}`))
+    .map(el => el.getAttribute('data-post-id'));
+}
+
+async function getAllPostsFromDB({ dbName, storeName, filterCategories = [], filterTags = [] }) {
+  const posts = await fetchPostsFromDB(dbName, storeName, (post) => {
+    const categories = post.categories?.toLowerCase().split(", ").map(s => s.trim()) || [];
+    const tags = post.tags?.toLowerCase().split(", ").map(s => s.trim()) || [];
+    const catMatch = !filterCategories.length || filterCategories.some(cat => categories.includes(cat));
+    const tagMatch = !filterTags.length || filterTags.some(tag => tags.includes(tag));
+    return catMatch && tagMatch;
+  });
+  return sortPostsByDate(posts);
+}
+
+async function maybeShowLoadMoreButton({
+  dbName = "PostsDatabase",
+  storeName = "posts",
+  filterCategories = [],
+  filterTags = [],
+  containerSelector,
+  itemClass,
+  loadMoreWrapperSelector,
+  batchSize = 16,
+  createCardUI,
+  cardType = ""
+}) {
+  const postsContainer = document.querySelector(containerSelector);
+  const buttonContainer = document.querySelector(loadMoreWrapperSelector);
+
+
+  if (!postsContainer) {
+    console.warn(`maybeShowLoadMoreButton: Container selector "${containerSelector}" not found in DOM.`);
+    return;
+  }
+  if (!buttonContainer) {
+    console.warn(`maybeShowLoadMoreButton: Load more wrapper selector "${loadMoreWrapperSelector}" not found in DOM.`);
+    return;
+  }
+
+  if (!postsContainer || !buttonContainer) return; // Exit if containers are missing
+
+  const renderedIds = getRenderedPostIds(containerSelector, itemClass);
+  const allPosts = await getAllPostsFromDB({ dbName, storeName, filterCategories, filterTags });
+
+  if (allPosts.length > renderedIds.length) {
+    addLoadMoreButton(
+      buttonContainer,
+      postsContainer,
+      allPosts,
+      renderedIds.length,
+      batchSize,
+      createCardUI,
+      cardType
+    );
+  }
+}
