@@ -251,11 +251,8 @@ const origin = window.location.origin;
 document.addEventListener("readystatechange", (e) => {
   if (e.target.readyState === "complete") {
     customHeaderNavigation();
-    tabFunc();
     showAwardImageFunc();
     initNewsletterPage();
-    // getNewsletterPosts();
-    // getAwardPosts();
 
     const buttonAllActive = document.getElementById("all");
     currentUrl.startsWith(origin + "/news")
@@ -668,117 +665,6 @@ function toggleClass(element, removeClass, addClass) {
     element.classList.add(addClass);
   }
 }
-
-// =======================================
-//  Awards Page JS
-// =======================================
-
-const tabFunc = () => {
-  const awardSectionComponent = document.querySelectorAll(
-    ".awards_section_component"
-  );
-
-  awardSectionComponent.forEach((section) => {
-    const nextBtn = section.querySelector(".next_tab_btn");
-    const prevBtn = section.querySelector(".prev_tab_btn");
-
-    const tabWrapper = section.querySelector(".award_tabs");
-    const tabBtns = section.querySelectorAll(".tab_btn");
-
-    let tabWidth = 0;
-    tabBtns.forEach((btn) => {
-      tabWidth += btn.getBoundingClientRect().width;
-    });
-
-    let tabContainerWrapper = section.querySelector(".award_tabs_container");
-    if (window.innerWidth <= 1023) {
-      tabContainerWrapper.style.maxWidth = `${(tabWidth / tabBtns.length) * 3
-        }px`;
-    } else {
-      tabContainerWrapper.style.maxWidth = `${(tabWidth / tabBtns.length) * 5
-        }px`;
-    }
-
-    const containerWidth = section
-      .querySelector(".award_tabs_container")
-      .getBoundingClientRect().width;
-
-    let totalTranslation = 0;
-    const maxTranslation =
-      tabWidth - tabContainerWrapper.getBoundingClientRect().width;
-
-    if (tabWidth <= containerWidth) {
-      nextBtn.disabled = true;
-    }
-
-    nextBtn.addEventListener("click", () => {
-      totalTranslation -= tabBtns[0].getBoundingClientRect().width;
-      if (totalTranslation <= -maxTranslation) {
-        totalTranslation = -maxTranslation;
-        nextBtn.disabled = true;
-      } else {
-        prevBtn.disabled = false;
-      }
-      tabWrapper.style.transform = `translateX(${totalTranslation}px)`;
-    });
-
-    prevBtn.addEventListener("click", () => {
-      totalTranslation += tabBtns[0].getBoundingClientRect().width;
-      if (totalTranslation >= 0) {
-        totalTranslation = 0;
-        prevBtn.disabled = true;
-      } else {
-        nextBtn.disabled = false;
-      }
-      tabWrapper.style.transform = `translateX(${totalTranslation}px)`;
-    });
-
-    const tabContents = section.querySelectorAll(".tab_content");
-
-    tabBtns.forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const targetTab = e.currentTarget.dataset.tab;
-
-        tabBtns.forEach((btn) => {
-          btn.classList.remove("active");
-        });
-
-        e.currentTarget.classList.add("active");
-
-        tabContents.forEach((content) => {
-          if (content.id === targetTab) {
-            content.classList.add("active");
-          } else {
-            content.classList.remove("active");
-          }
-        });
-      });
-    });
-  });
-};
-
-const showAwardImageFunc = () => {
-  const awardComponentWrapper = document.querySelectorAll(".component_wrapper");
-
-  awardComponentWrapper.forEach((component) => {
-    const images = component.querySelectorAll(".award_img_wrapper img");
-    const listItems = component.querySelectorAll(".award_list_wrapper > li"); // Select only direct children
-
-    listItems.forEach((listItem) => {
-      listItem.addEventListener("mouseenter", (e) => {
-        e.stopPropagation(); // Prevent event from bubbling up
-        const targetId = e.currentTarget.id;
-        images.forEach((image) => {
-          if (image.dataset.awardimageid === targetId) {
-            image.classList.add("active");
-          } else {
-            image.classList.remove("active");
-          }
-        });
-      });
-    });
-  });
-};
 
 // =======================================
 //  News and Events JS
@@ -1490,43 +1376,6 @@ FilterButton.initializeAll(".awards_btn_yrfilter", (filterID) => {
 const searchInput = document?.getElementById("newsletterSearch");
 const showCloseButton = document?.getElementById("nl_close_search");
 const nlSearchIcon = document?.getElementById("nl_search_icon");
-
-async function getNewsletterPosts(category = "hong-kong-law") {
-  const dbName = "PostsDatabase";
-  const storeName = "posts";
-  const maxInitialPosts = 16;
-  let currentPostIndex = 0;
-
-  const newsletterPosts = await fetchPostsFromDB(dbName, storeName, (post) => {
-    const categories = post.categories.toLowerCase().split(", ");
-    return categories.includes(category);
-  });
-
-  const sortedNewsletterPosts = sortPostsByDate(newsletterPosts);
-
-  const newsletterContainer = document?.getElementById("newsletters_post");
-  const loadMoreContainer = document?.getElementById("btn_load_more_wrapper");
-
-  const initialPosts = sortedNewsletterPosts.slice(0, maxInitialPosts);
-  initialPosts.forEach((post) => {
-    const article = createCardUI(post, "newsletter", true);
-    newsletterContainer?.appendChild(article);
-  });
-
-  currentPostIndex = maxInitialPosts;
-
-  if (sortedNewsletterPosts.length > maxInitialPosts) {
-    addLoadMoreButton(
-      loadMoreContainer,
-      newsletterContainer,
-      sortedNewsletterPosts,
-      currentPostIndex,
-      maxInitialPosts,
-      createCardUI,
-      "newsletter"
-    );
-  }
-}
 
 FilterButton.initializeAll(SELECTORS.NewslettersFilterButtons, (filterID) => {
   currentFilterID = filterID === "all" ? null : filterID;
