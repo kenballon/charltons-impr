@@ -251,7 +251,6 @@ const origin = window.location.origin;
 document.addEventListener("readystatechange", (e) => {
   if (e.target.readyState === "complete") {
     customHeaderNavigation();
-    showAwardImageFunc();
     initNewsletterPage();
 
     const buttonAllActive = document.getElementById("all");
