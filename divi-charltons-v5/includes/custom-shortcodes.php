@@ -2085,63 +2085,6 @@ function get_recent_news_homepage_shortcode()
     return $output;
 }
 
-// TODO: Remove this soon as this is a temporary solution
-
-/**
- * Shortcode to display a div-based layout of all posts (default and custom) with post date, title, categories, tags, and link.
- * Usage: [simple_posts_table custom_type="your_custom_type"]
- */
-function simple_posts_table_shortcode($atts = [])
-{
-    // Allow user to specify the custom post type via shortcode attribute
-    $atts = shortcode_atts([
-        'custom_type' => 'project',  // Change 'project' to your default custom post type if needed
-    ], $atts, 'simple_posts_table');
-
-    $custom_type = sanitize_text_field($atts['custom_type']);
-
-    // Fetch posts from both 'post' and the specified custom post type
-    $all_posts = get_all_posts_data(['post', $custom_type]);
-
-    // Since get_all_posts_data no longer returns post_type, we'll count based on the query
-    // Get separate counts by querying each type individually
-    $default_posts = get_all_posts_data(['post']);
-    $custom_posts = get_all_posts_data([$custom_type]);
-    $default_posts_count = count($default_posts);
-    $custom_posts_count = count($custom_posts);
-
-    ob_start();
-    ?>
-<div class="simple-posts-table-wrapper" style="width:100%">
-    <div class="simple-posts-table-caption">
-        <strong>Total Custom Post Type (<?php echo esc_html($custom_type); ?>):</strong>
-        <?php echo $custom_posts_count; ?> |
-        <strong>Total Default Post Type:</strong> <?php echo $default_posts_count; ?>
-    </div>
-    <div class="simple-posts-table-header"
-        style="display:flex;font-weight:bold;border-bottom:1px solid #ccc;padding:8px 0">
-        <div style="flex:1">Date</div>
-        <div style="flex:2">Title</div>
-        <div style="flex:2">Categories</div>
-        <div style="flex:2">Tags</div>
-        <div style="flex:1">Post Link</div>
-    </div>
-    <div class="simple-posts-table-body">
-        <?php foreach ($all_posts as $post): ?>
-        <div class="simple-posts-table-row" style="display:flex;border-bottom:1px solid #eee;padding:8px 0">
-            <div style="flex:1"><?php echo esc_html($post['post_date']); ?></div>
-            <div style="flex:2"><?php echo esc_html($post['title']); ?></div>
-            <div style="flex:2"><?php echo esc_html($post['category_names']); ?></div>
-            <div style="flex:2"><?php echo esc_html($post['tags']); ?></div>
-            <div style="flex:1"><a href="<?php echo esc_url($post['url']); ?>" target="_blank">View Post</a></div>
-        </div>
-        <?php endforeach; ?>
-    </div>
-</div>
-<?php
-    return ob_get_clean();
-}
-
 function getNewslettersPosts($atts = [])
 {
     $atts = shortcode_atts([
@@ -2193,12 +2136,24 @@ function getNewslettersPosts($atts = [])
         return '<p>No posts found for the specified post type.</p>';
     }
 
+    // Sort posts by date and time (including hours)
+    usort($custom_posts, function ($a, $b) {
+        // Try to get the full datetime if available, fallback to post_date
+        $a_datetime = !empty($a['post_datetime']) ? $a['post_datetime'] : $a['post_date'];
+        $b_datetime = !empty($b['post_datetime']) ? $b['post_datetime'] : $b['post_date'];
+        // Convert to timestamps for comparison
+        $a_ts = strtotime($a_datetime);
+        $b_ts = strtotime($b_datetime);
+        // Descending order (latest first)
+        return $b_ts <=> $a_ts;
+    });
+
     ob_start();
     foreach ($custom_posts as $post):
         // Prefer plugin image if present, otherwise use native
         $plugin_img_url = get_post_meta($post['id'], 'fiuw_image_url', true);
         $img_url = !empty($plugin_img_url) ? $plugin_img_url : $post['featured_image'];
-        ?>
+?>
 <article class="newsletter_post_item flex-col" data-category="<?php echo esc_attr($post['categories']); ?>"
     data-tags="<?php echo esc_attr($post['tags']); ?>" data-nl_date="<?php echo esc_attr($post['post_date']); ?>"
     data-post-id="<?php echo esc_attr($post['id']); ?>">
@@ -2218,6 +2173,64 @@ function getNewslettersPosts($atts = [])
 </article>
 <?php
     endforeach;
+    return ob_get_clean();
+}
+
+function getAwardPostItems($atts = [])
+{
+    $atts = shortcode_atts([
+        'category' => '',  // Comma-separated slugs
+        'tag' => 'awards',  // Comma-separated slugs
+        'limit' => 10,  // Number of posts to show
+    ], $atts, 'get_award_post_items');
+
+    $args = [
+        'post_type' => 'post',
+        'posts_per_page' => intval($atts['limit']),
+        'post_status' => 'publish',
+    ];
+
+    if (!empty($atts['category'])) {
+        $args['category_name'] = $atts['category'];
+    }
+
+    if (!empty($atts['tag'])) {
+        $args['tag'] = $atts['tag'];
+    }
+
+    $posts = get_all_posts_data(['post'], $args);
+
+    if (empty($posts)) {
+        return '<p>No posts found.</p>';
+    }
+
+    ob_start();
+    foreach ($posts as $post) {
+        $img_url = !empty($post['featured_image']) ? $post['featured_image'] : '';
+        // Lowercase categories and tags for rendering
+        $categories_lower = strtolower($post['categories']);
+        $tags_lower = strtolower($post['tags']);
+        $category_names_lower = strtolower($post['category_names']);
+?>
+<article class="awards_card_item" data-category="<?php echo esc_attr($categories_lower); ?>"
+    data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr($post['id']); ?>">
+    <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
+        aria-label="<?php echo esc_attr($post['title']); ?>">
+        <?php if ($img_url): ?>
+        <img decoding="async" width="300" height="300" class="awards_card_img" src="<?php echo esc_url($img_url); ?>"
+            alt="<?php echo esc_attr($post['title']); ?>">
+        <?php endif; ?>
+        <div>
+            <div class="categ_date flex">
+                <div class="categ_lbl capitalize pr-2"><?php echo esc_html($category_names_lower); ?></div>
+                <div class="date_posted text-gray-700 fw-light"><?php echo esc_html($post['post_date']); ?></div>
+            </div>
+            <div class="title"><?php echo esc_html($post['title']); ?></div>
+        </div>
+    </a>
+</article>
+<?php
+    }
     return ob_get_clean();
 }
 
@@ -2262,6 +2275,7 @@ function register_custom_shortcodes()
     add_shortcode('store_all_posts', 'storeAllPost');
     add_shortcode('store_all_custom_posts', 'storeCustomAllPost');
     add_shortcode('get_newsletter_posts', 'getNewslettersPosts');
+    add_shortcode('get_award_post_items', 'getAwardPostItems');
     // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : END
 
     add_shortcode('getNewsletterPostTitle', 'getNewsletterPostTitle');
@@ -2272,7 +2286,6 @@ function register_custom_shortcodes()
 
     add_shortcode('display_categories', 'get_all_categories_with_children');
     add_shortcode('get_recent_news_homepage', 'get_recent_news_homepage_shortcode');
-    add_shortcode('all_posts_table', 'simple_posts_table_shortcode');
 }
 
 add_action('init', 'register_custom_shortcodes');
