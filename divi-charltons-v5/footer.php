@@ -94,8 +94,7 @@ if (!is_page_template('page-template-blank.php')): ?>
     </div>
 
     <?php endif; ?>
-    <?php echo do_shortcode('[store_all_posts]'); ?>
-    <?php echo do_shortcode('[store_all_custom_posts]'); ?>
+    <?php echo do_shortcode('[get_all_post_type_data]'); ?>
 </footer>
 
 <?php endif; // ! is_page_template( 'page-template-blank.php' ) ?>
