@@ -21,9 +21,7 @@ document.addEventListener("readystatechange", (e) => {
         defaultFilterdBtn?.classList.add("active");
 
         const newseventsWrapper = document.querySelector('#all_news_posts');
-        const awardsWrapper = document.querySelector('#pod-and-web');
         newseventsWrapper && getNewsAndEventsPosts(["awards-and-rankings", "news"]);
-        // awardsWrapper && getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], null);
         getArchivedAllPosts(["hong-kong-law"]);
 
 
@@ -359,6 +357,19 @@ function revealSearch() {
             toggleClass(searchWrapper, "hide-animate", "d-none");
             toggleClass(navSearchWrapper, "hidden", "show");
         }, 200);
+    });
+}
+
+function filterPostsByCategoryAndTag(posts, filterID) {
+    return posts.filter((post) => {
+        const postCategories = post.categories.toLowerCase().split(", ");
+        const postTags = post.tags.toLowerCase().split(", ");
+
+        // Check if the filterID matches either a category or a tag
+        const matchesCategory = postCategories.includes(filterID);
+        const matchesTag = postTags.includes(filterID);
+
+        return matchesCategory || matchesTag;
     });
 }
 
@@ -1508,19 +1519,6 @@ async function getPodcastsAndWebinars(categories = [], filterID = null) {
     renderPosts(sortedPosts, 1, 15, "pod-and-web");
     renderPagination(sortedPosts, 15, "pod-and-web");
     hideSkeletonLoader();
-}
-
-function filterPostsByCategoryAndTag(posts, filterID) {
-    return posts.filter((post) => {
-        const postCategories = post.categories.toLowerCase().split(", ");
-        const postTags = post.tags.toLowerCase().split(", ");
-
-        // Check if the filterID matches either a category or a tag
-        const matchesCategory = postCategories.includes(filterID);
-        const matchesTag = postTags.includes(filterID);
-
-        return matchesCategory || matchesTag;
-    });
 }
 
 // Updated FilterButton initialization
