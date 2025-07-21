@@ -2234,6 +2234,97 @@ function getAwardPostItems($atts = [])
     return ob_get_clean();
 }
 
+function getWebinarsPodcasts($atts = [])
+{
+    $atts = shortcode_atts([
+        'custom_type' => 'project',
+        'category' => 'webinars-and-podcasts, webinars',
+        'limit' => 15,
+    ], $atts, 'get_webinar_podcasts');
+
+    $custom_type = sanitize_text_field($atts['custom_type']);
+    $category = sanitize_text_field($atts['category']);
+    $limit = intval($atts['limit']);
+
+    // Prepare query args for both post types
+    $args_post = [
+        'post_type' => 'post',
+        'posts_per_page' => $limit,
+        'post_status' => 'publish',
+    ];
+    if (!empty($category)) {
+        $args_post['category_name'] = $category;
+    }
+
+    $args_project = [
+        'post_type' => $custom_type,
+        'posts_per_page' => $limit,
+        'post_status' => 'publish',
+    ];
+    if (!empty($category)) {
+        $args_project['tax_query'] = [
+            [
+                'taxonomy' => $custom_type . '_category',
+                'field' => 'slug',
+                'terms' => explode(',', $category),
+            ]
+        ];
+    }
+
+    // Get posts for both types
+    $posts = get_all_posts_data(['post'], $args_post);
+    $projects = get_all_posts_data([$custom_type], $args_project);
+
+    // Merge and sort by date (latest first)
+    $all_posts = array_merge($posts, $projects);
+    usort($all_posts, function ($a, $b) {
+        $a_ts = strtotime($a['post_date']);
+        $b_ts = strtotime($b['post_date']);
+        return $b_ts <=> $a_ts;
+    });
+
+    $all_posts = array_filter($all_posts, function ($post) {
+        $native_img = !empty($post['featured_image']);
+        $plugin_img = !empty(get_post_meta($post['id'], 'fiuw_image_url', true));
+        return $native_img || $plugin_img;
+    });
+
+    ob_start();
+    foreach ($all_posts as $post) {
+        $plugin_img_url = get_post_meta($post['id'], 'fiuw_image_url', true);
+        $img_url = !empty($plugin_img_url) ? $plugin_img_url : (!empty($post['featured_image']) ? $post['featured_image'] : '');
+        $categories_lower = strtolower($post['categories']);
+        $tags_lower = strtolower($post['tags']);
+        $category_slugs_lower = !empty($post['categories']) ? strtolower($post['categories']) : '';
+?>
+<article class="news_article_wrapper" data-category="<?php echo esc_attr($categories_lower); ?>"
+    data-tags="<?php echo esc_attr($tags_lower); ?>"
+    data-category-names="<?php echo esc_attr($category_slugs_lower); ?>"
+    data-post-id="<?php echo esc_attr($post['id']); ?>">
+    <div class="news_card_image">
+        <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
+            aria-label="<?php echo esc_attr($post['title']); ?>" title="<?php echo esc_attr($post['title']); ?>">
+            <?php if ($img_url): ?>
+            <img decoding="async" width="320" height="320" class="border-1" src="<?php echo esc_url($img_url); ?>"
+                alt="<?php echo esc_attr($post['title']); ?>">
+            <?php endif; ?>
+        </a>
+    </div>
+    <div class="news_card_content">
+        <?php if (!empty($post['post_date'])): ?>
+        <div class="newsevents__post_date"><?php echo esc_html($post['post_date']); ?></div>
+        <?php endif; ?>
+        <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
+            aria-label="<?php echo esc_attr($post['title']); ?>" title="<?php echo esc_attr($post['title']); ?>">
+            <h2 class="newsevents__post_title fw-medium"><?php echo esc_html($post['title']); ?></h2>
+        </a>
+    </div>
+</article>
+<?php
+    }
+    return ob_get_clean();
+}
+
 // Register custom shortcodes.
 function register_custom_shortcodes()
 {
@@ -2286,6 +2377,8 @@ function register_custom_shortcodes()
 
     add_shortcode('display_categories', 'get_all_categories_with_children');
     add_shortcode('get_recent_news_homepage', 'get_recent_news_homepage_shortcode');
+
+    add_shortcode('get_webinar_podcasts', 'getWebinarsPodcasts');
 }
 
 add_action('init', 'register_custom_shortcodes');
