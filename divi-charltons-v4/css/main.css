@@ -10,9 +10,8 @@ in our server */
 /* ============================================ */
 @import url("_utility.css");
 :root {
-  --ff-primary: "Graphik", "Inter", system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
-    "Helvetica Neue", sans-serif;
+  --ff-primary: "Graphik", "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   --chr-primary-color: #e71d24;
   --chr-primary-color-900: #6f0c0f;
   --chr-primary-color-800: #931015;
@@ -339,8 +338,7 @@ header#main-header .header_nav_div_wrapper .nav_search_wrapper .header_navigatio
   fill: var(--chr-primary-color);
 }
 header#main-header .header_nav_div_wrapper .nav_search_wrapper .header_navigation .parent_ul .nav_parent_list_item:hover .submenu_wrapper {
-  -webkit-clip-path: inset(0 0 0 0);
-          clip-path: inset(0 0 0 0);
+  clip-path: inset(0 0 0 0);
   visibility: visible;
 }
 header#main-header .header_nav_div_wrapper .nav_search_wrapper .header_navigation .parent_ul .nav_parent_list_item .submenu_wrapper {
@@ -352,8 +350,7 @@ header#main-header .header_nav_div_wrapper .nav_search_wrapper .header_navigatio
   border-bottom: 4px solid var(--chr-primary-color);
   background-color: var(--chr-text-gray-900);
   visibility: hidden;
-  -webkit-clip-path: inset(0 0 100% 0);
-          clip-path: inset(0 0 100% 0);
+  clip-path: inset(0 0 100% 0);
   transition: all 0.2s cubic-bezier(0.69, 0, 0, 0.99);
 }
 header#main-header .header_nav_div_wrapper .nav_search_wrapper .header_navigation .parent_ul .nav_parent_list_item .submenu_wrapper .submenu_ul_group_wrapper.children {
@@ -435,6 +432,9 @@ header#main-header .header_nav_div_wrapper .nav_search_wrapper .header_navigatio
 }
 header#main-header .header_nav_div_wrapper .nav_search_wrapper .header_navigation .parent_ul .nav_parent_list_item .submenu_wrapper .submenu_ul_group_wrapper.grand_children .grandchild_ul.active-hover {
   display: block;
+}
+header#main-header .header_nav_div_wrapper .nav_search_wrapper .header_navigation .parent_ul .nav_parent_list_item .submenu_wrapper .submenu_ul_group_wrapper.grand_children .grandchild_ul.active-hover .grandchild_list_item {
+  list-style: none !important;
 }
 header#main-header .header_nav_div_wrapper .nav_search_wrapper .header_navigation .parent_ul .nav_parent_list_item .submenu_wrapper .card-post {
   border-left: 1px solid var(--chr-text-gray-800);
