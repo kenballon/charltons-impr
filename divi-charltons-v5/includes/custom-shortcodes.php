@@ -2234,7 +2234,7 @@ function getAwardPostItems($atts = [])
     return ob_get_clean();
 }
 
-function getWebinarsPodcasts($atts = [])
+function getWebinarsPodcasts(array $atts = []): string
 {
     $atts = shortcode_atts([
         'custom_type' => 'project',
@@ -2252,6 +2252,7 @@ function getWebinarsPodcasts($atts = [])
         'posts_per_page' => $limit,
         'post_status' => 'publish',
     ];
+
     if (!empty($category)) {
         $args_post['category_name'] = $category;
     }
@@ -2261,6 +2262,7 @@ function getWebinarsPodcasts($atts = [])
         'posts_per_page' => $limit,
         'post_status' => 'publish',
     ];
+
     if (!empty($category)) {
         $args_project['tax_query'] = [
             [
@@ -2275,11 +2277,10 @@ function getWebinarsPodcasts($atts = [])
     $posts = get_all_posts_data(['post'], $args_post);
     $projects = get_all_posts_data([$custom_type], $args_project);
 
-    // Merge and sort by date (latest first)
-    $all_posts = array_merge($posts, $projects);
+    $all_posts = [...$posts, ...$projects];
     usort($all_posts, function ($a, $b) {
-        $a_ts = strtotime($a['post_date']);
-        $b_ts = strtotime($b['post_date']);
+        $a_ts = strtotime($a['post_date'] ?? '');
+        $b_ts = strtotime($b['post_date'] ?? '');
         return $b_ts <=> $a_ts;
     });
 
@@ -2292,10 +2293,9 @@ function getWebinarsPodcasts($atts = [])
     ob_start();
     foreach ($all_posts as $post) {
         $plugin_img_url = get_post_meta($post['id'], 'fiuw_image_url', true);
-        $img_url = !empty($plugin_img_url) ? $plugin_img_url : (!empty($post['featured_image']) ? $post['featured_image'] : '');
-        $categories_lower = strtolower($post['categories']);
-        $tags_lower = strtolower($post['tags']);
-        $category_slugs_lower = !empty($post['categories']) ? strtolower($post['categories']) : '';
+        $img_url = !empty($plugin_img_url) ? $plugin_img_url : ($post['featured_image'] ?? '');
+        $categories_lower = strtolower($post['categories'] ?? '');
+        $tags_lower = strtolower($post['tags'] ?? '');
 ?>
 <article class="news_article_wrapper" data-category="<?php echo esc_attr($categories_lower); ?>"
     data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr($post['id']); ?>">
