@@ -856,7 +856,7 @@ function createCardUI(post, type = "award", isInitial = false) {
     articleCard.setAttribute("data-tags", post.tags);
     articleCard.setAttribute("data-post-id", post.id);
 
-    const postDate = formatDate(post.post_date);
+    const postDate = post.post_date;
 
     if (type === "newsletter") {
         articleCard.setAttribute("data-nl_date", post.post_date);
@@ -880,17 +880,6 @@ function getClassName(type) {
         default:
             return "";
     }
-}
-
-function formatDate(dateString) {
-    const date = parseDate(dateString);
-    return date && !isNaN(date.getTime())
-        ? date.toLocaleDateString("en-GB", {
-            day: "numeric",
-            month: "short",
-            year: "numeric"
-        })
-        : "Invalid Date";
 }
 
 function getImageHTML(post, width, height, className) {

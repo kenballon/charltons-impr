@@ -2394,14 +2394,12 @@ function getStoreAllPostType($atts = [])
                 const data = JSON.parse('$escaped_json');           
                 const dataHash = "$data_hash";
                 const dbName = "PostsDatabase";
-                const hashKey = "PostsDatabaseHash";
-
-                console.log("PostsDatabase data:", data);
+                const hashKey = "PostsDatabaseHash";                
 
                 if (!window.indexedDB) {
                     console.log("Your browser doesn't support IndexedDB.");
                     return;
-                }                
+                }                                         
 
                 // Check hash to avoid unnecessary updates
                 const storedHash = localStorage.getItem(hashKey);
