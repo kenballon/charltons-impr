@@ -23,7 +23,7 @@ document.addEventListener("readystatechange", (e) => {
         const newseventsWrapper = document.querySelector('#all_news_posts');
         const awardsWrapper = document.querySelector('#pod-and-web');
         newseventsWrapper && getNewsAndEventsPosts(["awards-and-rankings", "news"]);
-        awardsWrapper && getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], null);
+        // awardsWrapper && getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], null);
         getArchivedAllPosts(["hong-kong-law"]);
 
 
@@ -1490,20 +1490,13 @@ async function getPodcastsAndWebinars(categories = [], filterID = null) {
     const dbName = "PostsDatabase";
     const storeName = "posts";
 
-    const dbNameCustomPost = "CustomPostsDatabase";
-    const storeNameCustomPost = "custom_posts";
+    const allPosts = await fetchPostsFromDB(dbName, storeName, (post) => post);
 
-    const [awardsOrNews, customPosts] = await Promise.all([
-        fetchPostsFromDB(dbName, storeName, (post) => post),
-        fetchPostsFromDB(dbNameCustomPost, storeNameCustomPost, (post) => post)
-    ]);
-
-    // Combine posts from both databases
-    let combinedPosts = [...awardsOrNews, ...customPosts];
+    let filteredPosts = allPosts;
 
     // Filter posts by categories
     if (categories.length) {
-        combinedPosts = combinedPosts.filter((post) => {
+        filteredPosts = filteredPosts.filter((post) => {
             const postCategories = post.categories.toLowerCase().split(", ");
             return categories.some((category) => postCategories.includes(category));
         });
@@ -1511,16 +1504,16 @@ async function getPodcastsAndWebinars(categories = [], filterID = null) {
 
     // Filter posts by filterID (category or tag)
     if (filterID) {
-        combinedPosts = filterPostsByCategoryAndTag(combinedPosts, filterID);
+        filteredPosts = filterPostsByCategoryAndTag(filteredPosts, filterID);
     }
 
     // Filter posts to only include those with featured images
-    combinedPosts = combinedPosts.filter((post) => {
+    filteredPosts = filteredPosts.filter((post) => {
         return post.featured_image && post.featured_image.trim() !== '';
     });
 
-    // Sort the combined posts by date
-    const sortedPosts = sortPostsByDate(combinedPosts);
+    // Sort the filtered posts by date
+    const sortedPosts = sortPostsByDate(filteredPosts);
 
     // Initial render
     renderPosts(sortedPosts, 1, 15, "pod-and-web");
@@ -1566,21 +1559,15 @@ hamburgerMenuBtn?.addEventListener('click', () => {
 });
 
 async function getArchivedAllPosts(categories = []) {
-    const dbPostName = "PostsDatabase";
+    const dbName = "PostsDatabase";
     const storeName = "posts";
-    const dbCustomPostName = "CustomPostsDatabase";
-    const storeCustomPostName = "custom_posts";
 
-    const [posts, customPosts] = await Promise.all([
-        fetchPostsFromDB(dbPostName, storeName, (post) => post),
-        fetchPostsFromDB(dbCustomPostName, storeCustomPostName, (post) => post)
-    ]);
+    const allPosts = await fetchPostsFromDB(dbName, storeName, (post) => post);
 
-    let combinedPosts = [...posts, ...customPosts];
+    let filteredPosts = allPosts;
 
     if (categories.length) {
-        combinedPosts = combinedPosts.filter((post) => {
-
+        filteredPosts = filteredPosts.filter((post) => {
             // Split categories by comma and trim whitespace
             const postCategories = post.categories
                 .split(",")
@@ -1589,8 +1576,7 @@ async function getArchivedAllPosts(categories = []) {
         });
     }
 
-    const sortedPosts = sortPostsByDate(combinedPosts);
-
+    const sortedPosts = sortPostsByDate(filteredPosts);
 
     // Group posts by year
     const postsByYear = {};
