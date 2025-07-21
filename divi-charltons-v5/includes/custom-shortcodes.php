@@ -2298,9 +2298,7 @@ function getWebinarsPodcasts($atts = [])
         $category_slugs_lower = !empty($post['categories']) ? strtolower($post['categories']) : '';
 ?>
 <article class="news_article_wrapper" data-category="<?php echo esc_attr($categories_lower); ?>"
-    data-tags="<?php echo esc_attr($tags_lower); ?>"
-    data-category-names="<?php echo esc_attr($category_slugs_lower); ?>"
-    data-post-id="<?php echo esc_attr($post['id']); ?>">
+    data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr($post['id']); ?>">
     <div class="news_card_image">
         <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
             aria-label="<?php echo esc_attr($post['title']); ?>" title="<?php echo esc_attr($post['title']); ?>">
