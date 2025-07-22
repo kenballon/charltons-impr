@@ -68,6 +68,7 @@ function get_all_posts_data($post_types = ['post'], $args = [])
             }, $tags) : [];
 
             $posts_data[] = [
+                'post_type' => $post->post_type,
                 'id' => $post->ID,
                 'title' => get_the_title(),
                 'post_date' => get_the_date('d M Y'),
@@ -2418,9 +2419,7 @@ function getStoreAllPostType($atts = [])
                 if (!window.indexedDB) {
                     console.log("Your browser doesn't support IndexedDB.");
                     return;
-                }     
-                    
-                console.table(data.slice(0, 50));
+                }                                         
 
                 // Check hash to avoid unnecessary updates
                 const storedHash = localStorage.getItem(hashKey);
