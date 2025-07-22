@@ -1482,7 +1482,7 @@ FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
 });
 
 
-async function getPodcastsAndWebinars(filterID = null) {
+async function getPodcastsAndWebinars(categories = [], tagFilter = null) {
     showSkeletonLoader(15);
 
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -1494,24 +1494,33 @@ async function getPodcastsAndWebinars(filterID = null) {
 
     let filteredPosts = posts;
 
-    // Filter by specific filterID (can be either a category or tag)
-    if (filterID) {
+    // Filter by categories if provided
+    if (categories && categories.length > 0) {
         filteredPosts = filteredPosts.filter((post) => {
-            // Split categories and tags, trim whitespace, and convert to lowercase
+            // Split categories, trim whitespace, and convert to lowercase
             const postCategories = post.categories
                 .toLowerCase()
                 .split(",")
                 .map(cat => cat.trim());
+
+            // Check if any of the provided categories match the post categories
+            return categories.some(category =>
+                postCategories.includes(category.toLowerCase())
+            );
+        });
+    }
+
+    // Filter by tag if tagFilter is provided
+    if (tagFilter) {
+        filteredPosts = filteredPosts.filter((post) => {
+            // Split tags, trim whitespace, and convert to lowercase
             const postTags = post.tags
                 .toLowerCase()
                 .split(",")
                 .map(tag => tag.trim());
 
-            // Check if the filterID matches either a category or a tag
-            const matchesCategory = postCategories.includes(filterID.toLowerCase());
-            const matchesTag = postTags.includes(filterID.toLowerCase());
-
-            return matchesCategory || matchesTag;
+            // Check if the tagFilter matches any of the post tags
+            return postTags.includes(tagFilter.toLowerCase());
         });
     }
 
@@ -1532,11 +1541,12 @@ async function getPodcastsAndWebinars(filterID = null) {
 }
 
 FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
-    console.log(filterID);
     currentFilterID = filterID === "all" ? null : filterID;
+    const categories = ["webinars-and-podcasts", "webinars"];
+    const tagFilter = currentFilterID;
 
-    // Fetch and filter by category or tag
-    getPodcastsAndWebinars(currentFilterID);
+    // Fetch and filter by category and tag
+    getPodcastsAndWebinars(categories, tagFilter);
 });
 
 const hamburgerMenuBtn = document?.querySelector('.nav_trail_active .hamburger');
