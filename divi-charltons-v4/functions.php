@@ -1082,13 +1082,17 @@ function next_post_shortcode($atts)
 
 	$output = '';
 	$next_post = get_next_post();
-	$next_post_id = $next_post->ID;
-	$output = '<div class="podcast-series-thumb">
+	if ($next_post && isset($next_post->ID)) {
+		$next_post_id = $next_post->ID;
+		$output = '<div class="podcast-series-thumb">
 	<a href="' . get_permalink($next_post_id) . '" target="_self" class="pst-next-thumb">
 	<div class="pst-post-thumb"><img src="' . get_the_post_thumbnail_url($next_post_id) . '" /></div>
 	<div class="pst-post-title">' . get_the_title($next_post_id) . '</div>
 	</a>
 	</div>';
+	} else {
+		$output = '';
+	}
 	return $output;
 }
 
@@ -1100,13 +1104,17 @@ function prev_post_shortcode($atts)
 
 	$output = '';
 	$prev_post = get_previous_post();
-	$prev_post_id = $prev_post->ID;
-	$output = '<div class="podcast-series-thumb">
+	if ($prev_post && isset($prev_post->ID)) {
+		$prev_post_id = $prev_post->ID;
+		$output = '<div class="podcast-series-thumb">
 	<a href="' . get_permalink($prev_post_id) . '" target="_self" class="pst-prev-thumb">
 	<div class="pst-post-thumb"><img src="' . get_the_post_thumbnail_url($prev_post_id) . '" /></div>
 	<div class="pst-post-title">' . get_the_title($prev_post_id) . '</div>
 	</a>
 	</div>';
+	} else {
+		$output = '';
+	}
 	return $output;
 }
 
