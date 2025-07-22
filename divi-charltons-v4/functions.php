@@ -541,6 +541,7 @@ add_shortcode('show_news_events_sitepath', 'show_news_events_sitepath_shortcode'
 
 function get_insights_ipos_breadcrumb_shortcode()
 {
+	$post = get_post();
 	$output = '';
 	$output .= '<ul>';
 	$output .= '<li><a href="/">Home</a></li>';
@@ -555,6 +556,7 @@ add_shortcode('get_insights_ipos_breadcrumb', 'get_insights_ipos_breadcrumb_shor
 
 function get_insights_publications_breadcrumb_shortcode()
 {
+	$post = get_post();
 	$output = '';
 	$output .= '<ul>';
 	$output .= '<li><a href="/">Home</a></li>';
@@ -569,6 +571,7 @@ add_shortcode('get_insights_publications_breadcrumb', 'get_insights_publications
 
 function get_insights_regulatory_breadcrumb_shortcode()
 {
+	$post = get_post();
 	$output = '';
 	$output .= '<ul>';
 	$output .= '<li><a href="/">Home</a></li>';
@@ -583,6 +586,7 @@ add_shortcode('get_insights_regulatory_breadcrumb', 'get_insights_regulatory_bre
 
 function get_insights_company_law_breadcrumb_shortcode()
 {
+	$post = get_post();
 	$output = '';
 	$output .= '<ul>';
 	$output .= '<li><a href="/">Home</a></li>';
@@ -597,6 +601,7 @@ add_shortcode('get_insights_company_law_breadcrumb', 'get_insights_company_law_b
 
 function get_insights_china_breadcrumb_shortcode()
 {
+	$post = get_post();
 	$output = '';
 	$output .= '<ul>';
 	$output .= '<li><a href="/">Home</a></li>';
@@ -611,6 +616,7 @@ add_shortcode('get_insights_china_breadcrumb', 'get_insights_china_breadcrumb_sh
 
 function get_insights_myanmar_breadcrumb_shortcode()
 {
+	$post = get_post();
 	$output = '';
 	$output .= '<ul>';
 	$output .= '<li><a href="/">Home</a></li>';
@@ -625,6 +631,7 @@ add_shortcode('get_insights_myanmar_breadcrumb', 'get_insights_myanmar_breadcrum
 
 function show_podcasts_series_sitepath_shortcode()
 {
+	$post = get_post();
 	$output = '';
 	$output .= '<ul>';
 	$output .= '<li><a href="/">Home</a></li>';
