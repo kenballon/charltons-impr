@@ -360,19 +360,6 @@ function revealSearch() {
     });
 }
 
-function filterPostsByCategoryAndTag(posts, filterID) {
-    return posts.filter((post) => {
-        const postCategories = post.categories.toLowerCase().split(", ");
-        const postTags = post.tags.toLowerCase().split(", ");
-
-        // Check if the filterID matches either a category or a tag
-        const matchesCategory = postCategories.includes(filterID);
-        const matchesTag = postTags.includes(filterID);
-
-        return matchesCategory || matchesTag;
-    });
-}
-
 // ==================================================
 // MOBILE ICON PLUS INTERACTIVITY
 // ==================================================
@@ -1481,6 +1468,19 @@ FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
     getNewsAndEventsPosts(["awards-and-rankings", "news"], currentFilterID);
 });
 
+
+function filterPostsByCategoryAndTag(posts, filterID) {
+    return posts.filter((post) => {
+        const postCategories = post.categories.toLowerCase().split(", ");
+        const postTags = post.tags.toLowerCase().split(", ");
+
+        // Check if the filterID matches either a category or a tag
+        const matchesCategory = postCategories.includes(filterID);
+        const matchesTag = postTags.includes(filterID);
+
+        return matchesCategory || matchesTag;
+    });
+}
 
 async function getPodcastsAndWebinars(categories = [], tagFilter = null) {
     showSkeletonLoader(15);
