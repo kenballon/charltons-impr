@@ -1292,28 +1292,6 @@ buttonSVG.forEach(button => {
 //  NEWS & EVENTS PAGE JS CODE : REFACTORED
 // =======================================
 
-function showSkeletonLoader(count = 6) {
-    const loader = document.getElementById("posts_skeleton_loader");
-
-    if (!loader) return;
-
-    loader.innerHTML = "";
-    loader.classList.remove("d-none");
-
-    for (let i = 0; i < count; i++) {
-        const skeleton = document.createElement("div");
-        skeleton.className = "skeleton-card";
-        loader.appendChild(skeleton);
-    }
-}
-
-function hideSkeletonLoader() {
-    const loader = document.getElementById("posts_skeleton_loader");
-    if (!loader) return;
-    loader.classList.add("d-none");
-    loader.innerHTML = "";
-}
-
 function renderPosts(posts, page, postsPerPage = 15, elementID) {
 
     const awardNewsPostContainer = document?.getElementById(elementID);
@@ -1483,9 +1461,6 @@ function filterPostsByCategoryAndTag(posts, filterID) {
 }
 
 async function getPodcastsAndWebinars(categories = [], filterID = null) {
-    showSkeletonLoader(15);
-
-    await new Promise(resolve => setTimeout(resolve, 500));
 
     const dbName = "PostsDatabase";
     const storeName = "posts";
@@ -1543,7 +1518,6 @@ async function getPodcastsAndWebinars(categories = [], filterID = null) {
     // Initial render
     renderPosts(sortedPosts, 1, 15, "pod-and-web");
     renderPagination(sortedPosts, 15, "pod-and-web");
-    hideSkeletonLoader();
 }
 
 FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
