@@ -1482,7 +1482,7 @@ function filterPostsByCategoryAndTag(posts, filterID) {
     });
 }
 
-async function getPodcastsAndWebinars(categories = [], tagFilter = null) {
+async function getPodcastsAndWebinars(categories = [], filterID = null) {
     showSkeletonLoader(15);
 
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -1495,32 +1495,38 @@ async function getPodcastsAndWebinars(categories = [], tagFilter = null) {
     let filteredPosts = posts;
 
     // Filter by categories if provided
-    if (categories && categories.length > 0) {
-        filteredPosts = filteredPosts.filter((post) => {
-            // Split categories, trim whitespace, and convert to lowercase
+    if (categories.length) {
+        filteredPosts = posts.filter((post) => {
             const postCategories = post.categories
                 .toLowerCase()
                 .split(",")
                 .map(cat => cat.trim());
 
-            // Check if any of the provided categories match the post categories
+
             return categories.some(category =>
                 postCategories.includes(category.toLowerCase())
             );
         });
     }
 
-    // Filter by tag if tagFilter is provided
-    if (tagFilter) {
-        filteredPosts = filteredPosts.filter((post) => {
-            // Split tags, trim whitespace, and convert to lowercase
+    // Filter by tag if filterdID is provided
+    if (filterID) {
+        filteredPosts = posts.filter((post) => {
+            // Check categories
+            const postCategories = post.categories
+                .toLowerCase()
+                .split(",")
+                .map(cat => cat.trim());
+
+            // Check tags
             const postTags = post.tags
                 .toLowerCase()
                 .split(",")
                 .map(tag => tag.trim());
 
-            // Check if the tagFilter matches any of the post tags
-            return postTags.includes(tagFilter.toLowerCase());
+            // Return true if filterID matches either a category or a tag
+            return postCategories.includes(filterID.toLowerCase()) ||
+                postTags.includes(filterID.toLowerCase());
         });
     }
 
@@ -1532,7 +1538,7 @@ async function getPodcastsAndWebinars(categories = [], tagFilter = null) {
     // Sort the filtered posts by date
     const sortedPosts = sortPostsByDate(filteredPosts);
 
-    console.log(sortedPosts);
+    console.table(sortedPosts)
 
     // Initial render
     renderPosts(sortedPosts, 1, 15, "pod-and-web");
@@ -1542,11 +1548,9 @@ async function getPodcastsAndWebinars(categories = [], tagFilter = null) {
 
 FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
     currentFilterID = filterID === "all" ? null : filterID;
-    const categories = ["webinars-and-podcasts", "webinars"];
-    const tagFilter = currentFilterID;
 
     // Fetch and filter by category and tag
-    getPodcastsAndWebinars(categories, tagFilter);
+    getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], currentFilterID);
 });
 
 const hamburgerMenuBtn = document?.querySelector('.nav_trail_active .hamburger');
