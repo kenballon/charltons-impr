@@ -1497,12 +1497,19 @@ async function getPodcastsAndWebinars(filterID = null) {
     // Filter by specific filterID (can be either a category or tag)
     if (filterID) {
         filteredPosts = filteredPosts.filter((post) => {
-            const postCategories = post.categories.toLowerCase().split(", ");
-            const postTags = post.tags.toLowerCase().split(", ");
+            // Split categories and tags, trim whitespace, and convert to lowercase
+            const postCategories = post.categories
+                .toLowerCase()
+                .split(",")
+                .map(cat => cat.trim());
+            const postTags = post.tags
+                .toLowerCase()
+                .split(",")
+                .map(tag => tag.trim());
 
             // Check if the filterID matches either a category or a tag
-            const matchesCategory = postCategories.includes(filterID);
-            const matchesTag = postTags.includes(filterID);
+            const matchesCategory = postCategories.includes(filterID.toLowerCase());
+            const matchesTag = postTags.includes(filterID.toLowerCase());
 
             return matchesCategory || matchesTag;
         });
