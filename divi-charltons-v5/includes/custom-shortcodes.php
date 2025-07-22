@@ -220,6 +220,18 @@ function show_news_events_sitepath_shortcode()
     return $output;
 }
 
+function show_nl_text_pdf_version_shortcode()
+{
+    $translation = get_text_translation_shortcode(['text' => 'PDF version']);
+    return $translation;
+}
+
+function show_nl_text_word_version_shortcode()
+{
+    $translation = get_text_translation_shortcode(['text' => 'Word version']);
+    return $translation;
+}
+
 function get_text_translation_shortcode($atts, $content = null)
 {
     extract(shortcode_atts(array('text' => ''), $atts));
@@ -2486,6 +2498,8 @@ function register_custom_shortcodes()
     add_shortcode('show_nl_disclaimer', 'show_nl_disclaimer_shortcode');
     add_shortcode('show_nl_award', 'show_nl_award_shortcode');
     add_shortcode('show_nl_address', 'show_nl_address_shortcode');
+    add_shortcode('show_nl_text_pdf_version', 'show_nl_text_pdf_version_shortcode');
+    add_shortcode('show_nl_text_word_version', 'show_nl_text_word_version_shortcode');
 
     add_shortcode('related_pages', 'related_post_sc');
     add_shortcode('related_page_item', 'related_pages_sc');
