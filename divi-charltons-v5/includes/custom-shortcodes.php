@@ -63,6 +63,9 @@ function get_all_posts_data($post_types = ['post'], $args = [])
             $tag_names = $tags && !is_wp_error($tags) ? array_map(function ($tag) {
                 return $tag->name;
             }, $tags) : [];
+            $tag_slugs = $tags && !is_wp_error($tags) ? array_map(function ($tag) {
+                return $tag->slug;
+            }, $tags) : [];
 
             $posts_data[] = [
                 'id' => $post->ID,
@@ -70,7 +73,8 @@ function get_all_posts_data($post_types = ['post'], $args = [])
                 'post_date' => get_the_date('d M Y'),
                 'categories' => implode(', ', $category_slugs),
                 'category_names' => implode(', ', $category_names),
-                'tags' => implode(', ', $tag_names),
+                'tags' => implode(', ', $tag_slugs),  // <-- now stores tag slugs
+                'tag_names' => implode(', ', $tag_names),  // <-- optionally keep tag names if needed
                 'excerpt' => wp_strip_all_tags(get_the_excerpt()),
                 'url' => get_permalink(),
                 'featured_image' => get_the_post_thumbnail_url($post->ID, 'full'),
@@ -2411,7 +2415,9 @@ function getStoreAllPostType($atts = [])
                 if (!window.indexedDB) {
                     console.log("Your browser doesn't support IndexedDB.");
                     return;
-                }                                         
+                }     
+                    
+                console.table(data.slice(0, 50));
 
                 // Check hash to avoid unnecessary updates
                 const storedHash = localStorage.getItem(hashKey);
