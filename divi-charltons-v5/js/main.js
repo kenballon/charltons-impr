@@ -1481,8 +1481,8 @@ FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
     getNewsAndEventsPosts(["awards-and-rankings", "news"], currentFilterID);
 });
 
-// Updated getPodcastsAndWebinars function
-async function getPodcastsAndWebinars(categories = [], filterID = null) {
+
+async function getPodcastsAndWebinars(filterID = null) {
     showSkeletonLoader(15);
 
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -1494,17 +1494,18 @@ async function getPodcastsAndWebinars(categories = [], filterID = null) {
 
     let filteredPosts = posts;
 
-    // Filter posts by categories
-    if (categories.length) {
+    // Filter by specific filterID (can be either a category or tag)
+    if (filterID) {
         filteredPosts = filteredPosts.filter((post) => {
             const postCategories = post.categories.toLowerCase().split(", ");
-            return categories.some((category) => postCategories.includes(category));
-        });
-    }
+            const postTags = post.tags.toLowerCase().split(", ");
 
-    // Filter posts by filterID (category or tag)
-    if (filterID) {
-        filteredPosts = filterPostsByCategoryAndTag(filteredPosts, filterID);
+            // Check if the filterID matches either a category or a tag
+            const matchesCategory = postCategories.includes(filterID);
+            const matchesTag = postTags.includes(filterID);
+
+            return matchesCategory || matchesTag;
+        });
     }
 
     // Filter posts to only include those with featured images
@@ -1523,13 +1524,12 @@ async function getPodcastsAndWebinars(categories = [], filterID = null) {
     hideSkeletonLoader();
 }
 
-// Updated FilterButton initialization
 FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
     console.log(filterID);
     currentFilterID = filterID === "all" ? null : filterID;
 
-    // Fetch and filter posts
-    getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], currentFilterID);
+    // Fetch and filter by category or tag
+    getPodcastsAndWebinars(currentFilterID);
 });
 
 const hamburgerMenuBtn = document?.querySelector('.nav_trail_active .hamburger');
