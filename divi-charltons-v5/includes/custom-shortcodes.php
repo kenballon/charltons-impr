@@ -2466,7 +2466,7 @@ function getStoreAllPostType($atts = [])
                     return;
                 }     
                     
-                console.table(data.filter(post => post.post_type === "post"));
+                // console.table(data.filter(post => post.post_type === "project"));
 
                 // Check hash to avoid unnecessary updates
                 const storedHash = localStorage.getItem(hashKey);
