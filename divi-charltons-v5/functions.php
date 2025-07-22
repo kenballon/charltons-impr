@@ -13,7 +13,7 @@ add_action('wp_enqueue_scripts', 'divi_child_enqueue_styles');
 
 function clf_theme_enqueue_styles()
 {
-    wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.02', 'all');
+    wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.01', 'all');
     wp_enqueue_style('custom-style');
 
     // Material Symbols
@@ -71,6 +71,25 @@ function mainjs_module($tag, $handle, $src)
 }
 
 add_filter('script_loader_tag', 'mainjs_module', 10, 3);
+
+function project_register_post_type()
+{
+    register_post_type(
+        'project',
+        [
+            'labels' => array(
+                'name' => __('Projects'),
+                'singular_name' => __('Project')
+            ),
+            'public' => true,
+            'has_archive' => true,
+            'rewrite' => ['slug' => 'hong-kong-law'],
+            'taxonomies' => ['post_tag'],
+        ]
+    );
+}
+
+add_action('init', 'project_register_post_type');
 
 // =============================================
 // Custom Shortcodes Functions
