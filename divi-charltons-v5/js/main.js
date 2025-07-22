@@ -1490,9 +1490,9 @@ async function getPodcastsAndWebinars(categories = [], filterID = null) {
     const dbName = "PostsDatabase";
     const storeName = "posts";
 
-    const allPosts = await fetchPostsFromDB(dbName, storeName, (post) => post);
+    const posts = await fetchPostsFromDB(dbName, storeName, (post) => post);
 
-    let filteredPosts = allPosts;
+    let filteredPosts = posts;
 
     // Filter posts by categories
     if (categories.length) {
@@ -1514,6 +1514,8 @@ async function getPodcastsAndWebinars(categories = [], filterID = null) {
 
     // Sort the filtered posts by date
     const sortedPosts = sortPostsByDate(filteredPosts);
+
+    console.log(sortedPosts);
 
     // Initial render
     renderPosts(sortedPosts, 1, 15, "pod-and-web");

@@ -2262,23 +2262,21 @@ function getWebinarsPodcasts(array $atts = []): string
     $category = sanitize_text_field($atts['category']);
     $limit = intval($atts['limit']);
 
-    // Prepare query args for both post types
+    // Prepare query args for both post types (no limit)
     $args_post = [
         'post_type' => 'post',
-        'posts_per_page' => $limit,
+        'posts_per_page' => -1,
         'post_status' => 'publish',
     ];
-
     if (!empty($category)) {
         $args_post['category_name'] = $category;
     }
 
     $args_project = [
         'post_type' => $custom_type,
-        'posts_per_page' => $limit,
+        'posts_per_page' => -1,
         'post_status' => 'publish',
     ];
-
     if (!empty($category)) {
         $args_project['tax_query'] = [
             [
@@ -2293,6 +2291,7 @@ function getWebinarsPodcasts(array $atts = []): string
     $posts = get_all_posts_data(['post'], $args_post);
     $projects = get_all_posts_data([$custom_type], $args_project);
 
+    // Merge, sort, then limit
     $all_posts = [...$posts, ...$projects];
     usort($all_posts, function ($a, $b) {
         $a_ts = strtotime($a['post_date'] ?? '');
@@ -2300,11 +2299,15 @@ function getWebinarsPodcasts(array $atts = []): string
         return $b_ts <=> $a_ts;
     });
 
+    // Filter out posts without images
     $all_posts = array_filter($all_posts, function ($post) {
         $native_img = !empty($post['featured_image']);
         $plugin_img = !empty(get_post_meta($post['id'], 'fiuw_image_url', true));
         return $native_img || $plugin_img;
     });
+
+    // Apply limit after sorting/filtering
+    $all_posts = array_slice($all_posts, 0, $limit);
 
     ob_start();
     foreach ($all_posts as $post) {
