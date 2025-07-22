@@ -2419,7 +2419,9 @@ function getStoreAllPostType($atts = [])
                 if (!window.indexedDB) {
                     console.log("Your browser doesn't support IndexedDB.");
                     return;
-                }                                         
+                }     
+                    
+                console.table(data.filter(post => post.post_type === "project"));
 
                 // Check hash to avoid unnecessary updates
                 const storedHash = localStorage.getItem(hashKey);
