@@ -92,8 +92,12 @@ function get_all_posts_data($post_types = ['post'], $args = [])
 
                 // Try to get tags from custom taxonomy
                 $tags = wp_get_post_terms($post->ID, $tag_taxonomy, array('fields' => 'all'));
-                if (is_wp_error($tags)) {
-                    $tags = [];
+                if (is_wp_error($tags) || empty($tags)) {
+                    // Fallback to default post_tag taxonomy if custom tags are empty
+                    $tags = get_the_tags($post->ID);
+                    if ($tags === false || is_wp_error($tags)) {
+                        $tags = [];
+                    }
                 }
             }
 
@@ -2466,7 +2470,7 @@ function getStoreAllPostType($atts = [])
                     return;
                 }     
                     
-                // console.table(data.filter(post => post.post_type === "project"));
+                console.table(data.filter(post => post.post_type === "project"));
 
                 // Check hash to avoid unnecessary updates
                 const storedHash = localStorage.getItem(hashKey);
