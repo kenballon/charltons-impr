@@ -4,21 +4,37 @@
  * Retrieves all posts data for specified post types and query arguments.
  *
  * This function queries posts of the given post types and returns an array of post data,
- * including id, title, post_date, categories, category_names, tags, excerpt, url, and featured_image.
+ * including post type, id, title, post dates, categories, tags, excerpt, url, and featured image.
+ * It handles both default WordPress post types and custom post types with their respective
+ * taxonomies. For default posts, it uses 'category' and 'post_tag' taxonomies. For custom
+ * post types, it attempts to use '{post_type}_category' and '{post_type}_tag' taxonomies.
+ *
+ * @since 1.0.0
  *
  * @param array $post_types Array of post types to query. Default is ['post'].
  * @param array $args       Additional WP_Query arguments to override defaults.
+ *                          Common arguments include:
+ *                          - posts_per_page (int): Number of posts to retrieve. Default -1 (all).
+ *                          - orderby (string): Field to order posts by. Default 'date'.
+ *                          - order (string): Sort order. Default 'DESC'.
+ *                          - category_name (string): Category slug to filter by.
+ *                          - post_status (string): Post status. Default 'publish'.
+ *                          - meta_key (string): Meta key for meta queries.
+ *                          - meta_value (string): Meta value for meta queries.
  *
  * @return array Array of associative arrays, each containing post data:
+ *               - post_type (string): The post type of the post.
  *               - id (int): Post ID.
  *               - title (string): Post title.
- *               - post_date (string): Post date in 'd-m-Y' format.
+ *               - post_date (string): Post date in 'd M Y' format (e.g., "22 Jul 2025").
+ *               - post_datetime (string): Post date in 'Y-m-d H:i:s' format for sorting/comparison.
  *               - categories (string): Comma-separated list of category slugs.
  *               - category_names (string): Comma-separated list of category names.
- *               - tags (string): Comma-separated list of tag names.
+ *               - tags (string): Comma-separated list of tag slugs.
+ *               - tag_names (string): Comma-separated list of tag names.
  *               - excerpt (string): Post excerpt with HTML tags stripped.
  *               - url (string): Post permalink URL.
- *               - featured_image (string): URL of the post's featured image (full size).
+ *               - featured_image (string): URL of the post's featured image (full size), or false if none.
  *
  * @example
  * // Get all published posts
@@ -29,6 +45,12 @@
  *
  * // Get all posts in 'events' category
  * $posts = get_all_posts_data(['post'], ['category_name' => 'events']);
+ *
+ * // Get posts ordered by title
+ * $posts = get_all_posts_data(['post'], ['orderby' => 'title', 'order' => 'ASC']);
+ *
+ * // Get posts from multiple post types
+ * $posts = get_all_posts_data(['post', 'page', 'project']);
  */
 function get_all_posts_data($post_types = ['post'], $args = [])
 {
@@ -40,7 +62,6 @@ function get_all_posts_data($post_types = ['post'], $args = [])
         'orderby' => 'date',
         'order' => 'DESC',
     ];
-
     $query_args = wp_parse_args($args, $defaults);
     $query = new WP_Query($query_args);
     $posts_data = [];
@@ -50,8 +71,32 @@ function get_all_posts_data($post_types = ['post'], $args = [])
             $query->the_post();
             global $post;
 
-            // Get categories and tags
-            $categories = get_the_category($post->ID);
+            // Get categories and tags - handle both default and custom post types
+            $categories = [];
+            $tags = [];
+
+            if ($post->post_type === 'post') {
+                // Default post type uses built-in category and post_tag taxonomies
+                $categories = get_the_category($post->ID);
+                $tags = get_the_tags($post->ID);
+            } else {
+                // Custom post types - get terms from custom taxonomies
+                $category_taxonomy = $post->post_type . '_category';
+                $tag_taxonomy = $post->post_type . '_tag';
+
+                // Try to get categories from custom taxonomy
+                $categories = wp_get_post_terms($post->ID, $category_taxonomy, array('fields' => 'all'));
+                if (is_wp_error($categories)) {
+                    $categories = [];
+                }
+
+                // Try to get tags from custom taxonomy
+                $tags = wp_get_post_terms($post->ID, $tag_taxonomy, array('fields' => 'all'));
+                if (is_wp_error($tags)) {
+                    $tags = [];
+                }
+            }
+
             $category_slugs = $categories ? array_map(function ($cat) {
                 return $cat->slug;
             }, $categories) : [];
@@ -59,12 +104,11 @@ function get_all_posts_data($post_types = ['post'], $args = [])
                 return $cat->name;
             }, $categories) : [];
 
-            $tags = get_the_tags($post->ID);
-            $tag_names = $tags && !is_wp_error($tags) ? array_map(function ($tag) {
-                return $tag->name;
-            }, $tags) : [];
             $tag_slugs = $tags && !is_wp_error($tags) ? array_map(function ($tag) {
                 return $tag->slug;
+            }, $tags) : [];
+            $tag_names = $tags && !is_wp_error($tags) ? array_map(function ($tag) {
+                return $tag->name;
             }, $tags) : [];
 
             $posts_data[] = [
@@ -72,10 +116,11 @@ function get_all_posts_data($post_types = ['post'], $args = [])
                 'id' => $post->ID,
                 'title' => get_the_title(),
                 'post_date' => get_the_date('d M Y'),
-                'categories' => implode(', ', $category_slugs),
-                'category_names' => implode(', ', $category_names),
-                'tags' => implode(', ', $tag_slugs),  // <-- now stores tag slugs
-                'tag_names' => implode(', ', $tag_names),  // <-- optionally keep tag names if needed
+                'post_datetime' => get_the_date('Y-m-d H:i:s'),
+                'categories' => implode(',', $category_slugs),
+                'category_names' => implode(',', $category_names),
+                'tags' => implode(',', $tag_slugs),
+                'tag_names' => implode(',', $tag_names),
                 'excerpt' => wp_strip_all_tags(get_the_excerpt()),
                 'url' => get_permalink(),
                 'featured_image' => get_the_post_thumbnail_url($post->ID, 'full'),
@@ -2421,7 +2466,7 @@ function getStoreAllPostType($atts = [])
                     return;
                 }     
                     
-                console.table(data.filter(post => post.post_type === "project"));
+                console.table(data.filter(post => post.post_type === "post"));
 
                 // Check hash to avoid unnecessary updates
                 const storedHash = localStorage.getItem(hashKey);
