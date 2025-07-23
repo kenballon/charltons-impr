@@ -1024,108 +1024,51 @@ function addLoadMoreButton(
 }
 
 async function showFilteredAwards(filterID) {
-    const dbName = "PostsDatabase";
-    const storeName = "posts";
-    const tagValue = "awards";
-    const maxInitialPosts = 15;
-    let currentPostIndex = 0;
-
-    const awardPosts = await fetchPostsFromDB(dbName, storeName, (post) => {
-        const postTags = post.tags.toLowerCase().split(", ");
-        return postTags.includes(tagValue);
+    await filterAndRenderPosts({
+        dbName: "PostsDatabase",
+        storeName: "posts",
+        filterFn: (post) => {
+            const postTags = post.tags.toLowerCase().split(", ");
+            return postTags.includes("awards");
+        },
+        postFilter: (post) => {
+            const postTags = post.tags.toLowerCase().split(", ");
+            return !filterID || postTags.includes(filterID);
+        },
+        renderType: "award",
+        maxInitialPosts: 15,
+        containerId: "all_awards_wrapper",
+        loadMoreId: "btn_load_more_wrapper"
     });
-
-    const sortedAwardPosts = sortPostsByDate(awardPosts);
-
-    const awardsContainer = document?.getElementById("all_awards_wrapper");
-    const loadMoreContainer = document?.getElementById("btn_load_more_wrapper");
-    if (!awardsContainer || !loadMoreContainer) return;
-    loadMoreContainer.innerHTML = "";
-    awardsContainer.innerHTML = ""; // Clear existing posts
-
-    const filteredPosts = sortedAwardPosts.filter((post) => {
-        const postTags = post.tags.toLowerCase().split(", ");
-        return !filterID || postTags.includes(filterID);
-    });
-
-    // Load only the first 16 posts initially
-    const initialPosts = filteredPosts.slice(0, maxInitialPosts);
-    initialPosts.forEach((post) => {
-        const article = createCardUI(post, "award", true);
-        awardsContainer?.appendChild(article);
-    });
-
-    currentPostIndex = maxInitialPosts;
-
-    // Add a "Load More" button if there are more than 16 posts
-    if (filteredPosts.length > maxInitialPosts) {
-        addLoadMoreButton(
-            loadMoreContainer,
-            awardsContainer,
-            filteredPosts,
-            currentPostIndex,
-            maxInitialPosts,
-            createCardUI
-        );
-    }
 }
 
 async function showFilteredAwardsByYear(filterID) {
-    const dbName = "PostsDatabase";
-    const storeName = "posts";
-    const tagValue = "awards";
-    const maxInitialPosts = 20;
-    let currentPostIndex = 0;
-
-    const awardPosts = await fetchPostsFromDB(dbName, storeName, (post) => {
-        const postTags = post.tags.toLowerCase().split(", ");
-        return postTags.includes(tagValue);
+    await filterAndRenderPosts({
+        dbName: "PostsDatabase",
+        storeName: "posts",
+        filterFn: (post) => {
+            const postTags = post.tags.toLowerCase().split(", ");
+            return postTags.includes("awards");
+        },
+        postFilter: (post) => {
+            const postYear = parseInt(post.post_date.split("-")[2], 10);
+            if (!filterID) return true;
+            const filterYear = parseInt(filterID, 10);
+            if (filterYear === 2020) {
+                return postYear >= 2020;
+            } else if (filterYear === 2010) {
+                return postYear >= 2010 && postYear <= 2019;
+            } else if (filterYear === 2000) {
+                return postYear >= 2000 && postYear <= 2009;
+            } else {
+                return postYear === filterYear;
+            }
+        },
+        renderType: "award",
+        maxInitialPosts: 20,
+        containerId: "all_awards_wrapper",
+        loadMoreId: "btn_load_more_wrapper"
     });
-
-    const sortedAwardPosts = sortPostsByDate(awardPosts);
-
-    const awardsContainer = document?.getElementById("all_awards_wrapper");
-    const loadMoreContainer = document?.getElementById("btn_load_more_wrapper");
-    if (!awardsContainer || !loadMoreContainer) return;
-    loadMoreContainer.innerHTML = "";
-    awardsContainer.innerHTML = ""; // Clear existing posts
-
-    const filteredPosts = sortedAwardPosts.filter((post) => {
-        const postYear = parseInt(post.post_date.split("-")[2], 10);
-        if (!filterID) return true;
-
-        const filterYear = parseInt(filterID, 10);
-        if (filterYear === 2020) {
-            return postYear >= 2020;
-        } else if (filterYear === 2010) {
-            return postYear >= 2010 && postYear <= 2019;
-        } else if (filterYear === 2000) {
-            return postYear >= 2000 && postYear <= 2009;
-        } else {
-            return postYear === filterYear;
-        }
-    });
-
-    // Load only the first 16 posts initially
-    const initialPosts = filteredPosts.slice(0, maxInitialPosts);
-    initialPosts.forEach((post) => {
-        const article = createCardUI(post, "award", true);
-        awardsContainer?.appendChild(article);
-    });
-
-    currentPostIndex = maxInitialPosts;
-
-    // Add a "Load More" button if there are more than 16 posts
-    if (filteredPosts.length > maxInitialPosts) {
-        addLoadMoreButton(
-            loadMoreContainer,
-            awardsContainer,
-            filteredPosts,
-            currentPostIndex,
-            maxInitialPosts,
-            createCardUI
-        );
-    }
 }
 
 FilterButton.initializeAll(SELECTORS.awardsFilterButton, (filterID) => {
@@ -1159,48 +1102,60 @@ FilterButton.initializeAll(SELECTORS.NewslettersFilterButtons, (filterID) => {
 });
 
 async function showFilteredNewsletters(filterCategoryID) {
-    const dbName = "PostsDatabase";
-    const storeName = "posts";
-    const maxInitialPosts = 16;
-    let currentPostIndex = 0;
-
-    const newsletterPosts = await fetchPostsFromDB(dbName, storeName, (post) => {
-        const categories = post.categories.toLowerCase().split(", ");
-        return categories.includes(filterCategoryID);
+    await filterAndRenderPosts({
+        dbName: "PostsDatabase",
+        storeName: "posts",
+        filterFn: (post) => {
+            const categories = post.categories.toLowerCase().split(", ");
+            return categories.includes(filterCategoryID);
+        },
+        postFilter: (post) => {
+            const categories = post.categories.toLowerCase().split(", ");
+            return !filterCategoryID || categories.includes(filterCategoryID);
+        },
+        renderType: "newsletter",
+        maxInitialPosts: 16,
+        containerId: "newsletters_post",
+        loadMoreId: "btn_load_more_wrapper"
     });
-
-    const sortedNewslettersPosts = sortPostsByDate(newsletterPosts);
-
-    const newsletterContainer = document?.getElementById("newsletters_post");
-    const loadMoreContainer = document?.getElementById("btn_load_more_wrapper");
-
-    if (!newsletterContainer || !loadMoreContainer) return;
-
+}
+// Generic utility to filter, sort, and render posts with optional load more
+async function filterAndRenderPosts({
+    dbName,
+    storeName,
+    filterFn,
+    postFilter = null,
+    renderType = "news",
+    maxInitialPosts = 15,
+    containerId,
+    loadMoreId
+}) {
+    const posts = await fetchPostsFromDB(dbName, storeName, filterFn);
+    const sortedPosts = sortPostsByDate(posts);
+    const container = document?.getElementById(containerId);
+    const loadMoreContainer = document?.getElementById(loadMoreId);
+    if (!container || !loadMoreContainer) return;
     loadMoreContainer.innerHTML = "";
-    newsletterContainer.innerHTML = "";
-
-    const filteredPosts = sortedNewslettersPosts.filter((post) => {
-        const categories = post.categories.toLowerCase().split(", ");
-        return !filterCategoryID || categories.includes(filterCategoryID);
-    });
-
+    container.innerHTML = "";
+    let filteredPosts = sortedPosts;
+    if (postFilter) {
+        filteredPosts = sortedPosts.filter(postFilter);
+    }
     const initialPosts = filteredPosts.slice(0, maxInitialPosts);
     initialPosts.forEach((post) => {
-        const article = createCardUI(post, "newsletter", true);
-        newsletterContainer?.appendChild(article);
+        const article = createCardUI(post, renderType, true);
+        container?.appendChild(article);
     });
-
-    currentPostIndex = maxInitialPosts;
-
+    let currentPostIndex = maxInitialPosts;
     if (filteredPosts.length > maxInitialPosts) {
         addLoadMoreButton(
             loadMoreContainer,
-            newsletterContainer,
+            container,
             filteredPosts,
             currentPostIndex,
             maxInitialPosts,
             createCardUI,
-            "newsletter"
+            renderType
         );
     }
 }
