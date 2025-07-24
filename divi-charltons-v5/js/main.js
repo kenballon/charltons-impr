@@ -1028,11 +1028,11 @@ async function showFilteredAwards(filterID) {
         dbName: "PostsDatabase",
         storeName: "posts",
         filterFn: (post) => {
-            const postTags = post.tags.toLowerCase().split(", ");
+            const postTags = post.tags.toLowerCase().split(",");
             return postTags.includes("awards");
         },
         postFilter: (post) => {
-            const postTags = post.tags.toLowerCase().split(", ");
+            const postTags = post.tags.toLowerCase().split(",");
             return !filterID || postTags.includes(filterID);
         },
         renderType: "award",
@@ -1047,11 +1047,11 @@ async function showFilteredAwardsByYear(filterID) {
         dbName: "PostsDatabase",
         storeName: "posts",
         filterFn: (post) => {
-            const postTags = post.tags.toLowerCase().split(", ");
+            const postTags = post.tags.toLowerCase().split(",");
             return postTags.includes("awards");
         },
         postFilter: (post) => {
-            const postYear = parseInt(post.post_date.split("-")[2], 10);
+            const postYear = parseInt(post.post_date.split(" ")[2], 10);
             if (!filterID) return true;
             const filterYear = parseInt(filterID, 10);
             if (filterYear === 2020) {
@@ -1378,7 +1378,7 @@ async function getNewsAndEventsPosts(categories = [], filterID = null) {
 
     // get all posts from db that matches the categories
     const awardsOrNews = await fetchPostsFromDB(dbName, storeName, (post) => {
-        const postCategories = post.categories.toLowerCase().split(", ");
+        const postCategories = post.categories.toLowerCase().split(",");
         const matchesCategory = postCategories.some((category) => categories.includes(category));
         return matchesCategory;
     });
@@ -1388,7 +1388,7 @@ async function getNewsAndEventsPosts(categories = [], filterID = null) {
     // Filter posts by tag if filterID is provided
     if (filterID) {
         filteredPosts = awardsOrNews.filter((post) => {
-            const postTags = post.tags.toLowerCase().split(", ");
+            const postTags = post.tags.toLowerCase().split(",");
             return postTags.includes(filterID);
         });
     }
@@ -1409,8 +1409,8 @@ FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
 
 function filterPostsByCategoryAndTag(posts, filterID) {
     return posts.filter((post) => {
-        const postCategories = post.categories.toLowerCase().split(", ");
-        const postTags = post.tags.toLowerCase().split(", ");
+        const postCategories = post.categories.toLowerCase().split(",");
+        const postTags = post.tags.toLowerCase().split(",");
 
         // Check if the filterID matches either a category or a tag
         const matchesCategory = postCategories.includes(filterID);
@@ -1632,8 +1632,8 @@ function getRenderedPostIds(containerSelector, itemClass) {
 
 async function getAllPostsFromDB({ dbName, storeName, filterCategories = [], filterTags = [] }) {
     const posts = await fetchPostsFromDB(dbName, storeName, (post) => {
-        const categories = post.categories?.toLowerCase().split(", ").map(s => s.trim()) || [];
-        const tags = post.tags?.toLowerCase().split(", ").map(s => s.trim()) || [];
+        const categories = post.categories?.toLowerCase().split(",").map(s => s.trim()) || [];
+        const tags = post.tags?.toLowerCase().split(",").map(s => s.trim()) || [];
         const catMatch = !filterCategories.length || filterCategories.some(cat => categories.includes(cat));
         const tagMatch = !filterTags.length || filterTags.some(tag => tags.includes(tag));
         return catMatch && tagMatch;
@@ -1670,6 +1670,8 @@ async function maybeShowLoadMoreButton({
 
     const renderedIds = getRenderedPostIds(containerSelector, itemClass);
     const allPosts = await getAllPostsFromDB({ dbName, storeName, filterCategories, filterTags });
+
+    // console.log(`All posts fetched: ${allPosts.length}, Rendered IDs: ${renderedIds.length}`);
 
     if (allPosts.length > renderedIds.length) {
         addLoadMoreButton(
