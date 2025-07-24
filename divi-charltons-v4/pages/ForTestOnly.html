@@ -5,18 +5,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Testing Purposes Only</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'SF Pro', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+    </style>
 </head>
 
 <body>
+    <main>
+        <section>
+            <H1>Testing Purposes Only</H1>
+        </section>
+    </main>
     <script>
         const arr1 = { a: 1, b: 2, c: 3, d: 4, e: 5 };
         const arr2 = { f: 6, g: 7, h: 8, i: 9, j: 10 };
 
-        const { a, ...arr } = arr1;
+        const { c, ...arr } = arr1;
 
         const spreadArr = { ...arr, ...arr2 };
 
-        console.log('spreadArr:', spreadArr);
+        function matchStringScrumble(str1, str2) {
+            const arr1 = str1.split('');
+            const arr2 = str2.split('');
+
+            const arr1Set = new Set(arr1);
+            const arr2Set = new Set(arr2);
+
+            if (arr1Set.size !== arr2Set.size) return false;
+
+            for (const char of arr1Set) {
+                if (arr2Set.has(char)) return true;
+            }
+            return false;
+        }
+
+        console.log(matchStringScrumble('Hello Wrld', 'dlroW loleH')); // true
 
     </script>
 </body>
