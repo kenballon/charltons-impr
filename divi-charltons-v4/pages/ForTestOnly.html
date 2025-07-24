@@ -9,6 +9,14 @@
 
 <body>
     <script>
+        const arr1 = { a: 1, b: 2, c: 3, d: 4, e: 5 };
+        const arr2 = { f: 6, g: 7, h: 8, i: 9, j: 10 };
+
+        const { a, ...arr } = arr1;
+
+        const spreadArr = { ...arr, ...arr2 };
+
+        console.log('spreadArr:', spreadArr);
 
     </script>
 </body>
