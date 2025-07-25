@@ -48,6 +48,17 @@
 
         console.log(matchStringScrumble('Hello Wrld', 'dlroW loleH')); // true
 
+
+        const months = ["Jan", "March", "April", "June"];
+        const restOfMMonths = ["July", "August", "September", "October", "November", "December"];
+
+        const monthFeb = months.splice(1, 0, "Feb");
+        const monthMay = months.splice(4, 0, "May");
+
+        const allMonths = [...months, ...restOfMMonths];
+
+        console.log(allMonths); // ["Jan", "Feb", "March", "April", "June"]
+
     </script>
 </body>
 
