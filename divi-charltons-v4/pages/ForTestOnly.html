@@ -5,48 +5,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Testing Purposes Only</title>
-    <style>
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'SF Pro', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
 <body>
-    <main>
-        <section>
-            <H1>Testing Purposes Only</H1>
+    <main class="container mx-auto p-4">
+        <section class="h-full">
+            <h1 class="text-4xl font-bold">Testing Purposes Only</h1>
         </section>
     </main>
     <script>
-        const arr1 = { a: 1, b: 2, c: 3, d: 4, e: 5 };
-        const arr2 = { f: 6, g: 7, h: 8, i: 9, j: 10 };
+        // const arr1 = { a: 1, b: 2, c: 3, d: 4, e: 5 };
+        // const arr2 = { f: 6, g: 7, h: 8, i: 9, j: 10 };
 
-        const { c, ...arr } = arr1;
+        // const { c, ...arr } = arr1;
 
-        const spreadArr = { ...arr, ...arr2 };
+        // const spreadArr = { ...arr, ...arr2 };
 
-        function matchStringScrumble(str1, str2) {
-            const arr1 = str1.split('');
-            const arr2 = str2.split('');
+        // function matchStringScrumble(str1, str2) {
+        //     const arr1 = str1.split('');
+        //     const arr2 = str2.split('');
 
-            const arr1Set = new Set(arr1);
-            const arr2Set = new Set(arr2);
+        //     const arr1Set = new Set(arr1);
+        //     const arr2Set = new Set(arr2);
 
-            if (arr1Set.size !== arr2Set.size) return false;
+        //     if (arr1Set.size !== arr2Set.size) return false;
 
-            for (const char of arr1Set) {
-                if (arr2Set.has(char)) return true;
+        //     for (const char of arr1Set) {
+        //         if (arr2Set.has(char)) return true;
+        //     }
+        //     return false;
+        // }
+
+        // console.log(matchStringScrumble('Hello Wrld', 'dlroW loleH')); 
+
+
+        // const arr = [1, 40, 32, 53, 3, 8, 38, 40, 9, 8];
+
+        // const sortedArr = arr.sort((a, b) => b - a);
+
+        // // remove duplicates
+        // const uniqueArr = [...new Set(sortedArr)];
+        // console.log(uniqueArr);
+
+        function removeDuplicates(nums) {
+            let i = 1;
+            for (let j = 1; j < nums.length; j++) {
+                if (nums[j] !== nums[i - 1]) {
+                    nums[i] = nums[j];
+                    i++;
+                }
             }
-            return false;
-        }
+            return i;
+        };
 
-        console.log(matchStringScrumble('Hello Wrld', 'dlroW loleH')); // true
+        const nums = [1, 1, 2];
+        const k = removeDuplicates(nums);
+        console.log(nums.slice(0, k));
 
     </script>
 </body>
