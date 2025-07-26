@@ -37,7 +37,7 @@
         //     return false;
         // }
 
-        // console.log(matchStringScrumble('Hello Wrld', 'dlroW loleH')); 
+        // console.log(matchStringScrumble('Hello Wrld', 'dlroW loleH'));
 
 
         // const arr = [1, 40, 32, 53, 3, 8, 38, 40, 9, 8];
@@ -48,20 +48,39 @@
         // const uniqueArr = [...new Set(sortedArr)];
         // console.log(uniqueArr);
 
-        function removeDuplicates(nums) {
-            let i = 1;
-            for (let j = 1; j < nums.length; j++) {
-                if (nums[j] !== nums[i - 1]) {
-                    nums[i] = nums[j];
-                    i++;
-                }
-            }
-            return i;
-        };
+        // function removeDuplicates(nums) {
+        //     let i = 1;
+        //     for (let j = 1; j < nums.length; j++) {
+        //         if (nums[j] !== nums[i - 1]) {
+        //             nums[i] = nums[j];
+        //             i++;
+        //         }
+        //     }
+        //     return i;
+        // };
 
-        const nums = [1, 1, 2];
-        const k = removeDuplicates(nums);
-        console.log(nums.slice(0, k));
+        // const nums = [1, 1, 2];
+        // const k = removeDuplicates(nums);
+        // console.log(nums.slice(0, k));
+
+        //Rotate an Array
+        // function rotateArray(arr, k) {
+        //     const n = arr.length;
+        //     k = k % n; 
+        //     return [...arr.slice(n - k), ...arr.slice(0, n - k)];
+        // }
+
+        function rotateArray(arr, k) {
+            const n = arr.length;
+            k = k % n;
+            arr.unshift(...arr.splice(n - k, k));
+            return arr;
+        }
+
+        nums = [1, 2, 3, 4, 5, 6, 7];
+        const k = 3;
+        const rotated = rotateArray(nums, k);
+        console.log(rotated);
 
     </script>
 </body>
