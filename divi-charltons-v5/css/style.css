@@ -2961,7 +2961,10 @@ ul.home_redomicile_default_list {
     }
   }
 
-  .services_container {
+ 
+}
+
+ .services_container {
     width: 100%;
 
     @media (min-width: 768px) {
@@ -3085,7 +3088,6 @@ ul.home_redomicile_default_list {
       }
     }
   }
-}
 
 /* ================================================= */
 /* #endregion SECONDARY PAGES | WHAT WE DO */
