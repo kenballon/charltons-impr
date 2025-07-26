@@ -9415,6 +9415,7 @@ subpage MENU
 
 .btn_tag_filter_wrapper .news_btn_tag_filter,
 .btn_tag_filter_wrapper .ppw_category_filter,
+.btn_tag_filter_wrapper .ppw_tag_btn_filter,
 .btn_tag_filter_wrapper .awards_btn_filter,
 .btn_tag_filter_wrapper .awards_btn_yrfilter,
 .btn_tag_filter_wrapper .newsletter_category_filter,
@@ -9427,6 +9428,7 @@ subpage MENU
 }
 .btn_tag_filter_wrapper .news_btn_tag_filter:hover,
 .btn_tag_filter_wrapper .ppw_category_filter:hover,
+.btn_tag_filter_wrapper .ppw_tag_btn_filter:hover,
 .btn_tag_filter_wrapper .awards_btn_filter:hover,
 .btn_tag_filter_wrapper .awards_btn_yrfilter:hover,
 .btn_tag_filter_wrapper .newsletter_category_filter:hover,
@@ -9437,6 +9439,7 @@ subpage MENU
 }
 .btn_tag_filter_wrapper .news_btn_tag_filter.active,
 .btn_tag_filter_wrapper .ppw_category_filter.active,
+.btn_tag_filter_wrapper .ppw_tag_btn_filter.active,
 .btn_tag_filter_wrapper .awards_btn_filter.active,
 .btn_tag_filter_wrapper .awards_btn_yrfilter.active,
 .btn_tag_filter_wrapper .newsletter_category_filter.active,
