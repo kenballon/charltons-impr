@@ -1,0 +1,34 @@
+/**
+* @license
+*
+* Font Family: Switzer Variable Fonts (Optimized)
+* Designed by: Jérémie Hornus
+* URL: https://www.fontshare.com/fonts/switzer
+* © 2025 Indian Type Foundry
+*
+* Using only variable fonts for optimal performance
+* Supports all weights from 100-900 with font-weight or font-variation-settings
+*
+*/
+
+/* Switzer Variable - Normal Style */
+@font-face {
+  font-family: 'Switzer';
+  src: url('../fonts/Switzer-Variable.woff2') format('woff2'),
+       url('../fonts/Switzer-Variable.woff') format('woff');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+/* Switzer Variable - Italic Style */
+@font-face {
+  font-family: 'Switzer';
+  src: url('../fonts/Switzer-VariableItalic.woff2') format('woff2'),
+       url('../fonts/Switzer-VariableItalic.woff') format('woff');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: italic;
+}
+
+
