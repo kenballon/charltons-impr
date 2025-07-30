@@ -1699,8 +1699,8 @@ function updateActiveNavItem() {
         const rect = section.getBoundingClientRect();
         const sectionTop = rect.top;
 
-        // If section is within 150px of the top and visible
-        if (sectionTop <= 150 && sectionTop + rect.height > 150) {
+        // If section is within 350px of the top and visible
+        if (sectionTop <= 350 && sectionTop + rect.height > 350) {
             activeSection = section;
         }
     });
