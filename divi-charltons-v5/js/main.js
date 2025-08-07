@@ -965,14 +965,14 @@ function parseDate(dateString) {
     const day = parseInt(parts[0], 10);
     const monthName = parts[1];
     const year = parseInt(parts[2], 10);
-    
+
     // Convert month name to month number
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const month = monthNames.indexOf(monthName);
-    
+
     if (month === -1) return null; // Invalid month name
-    
+
     return new Date(year, month, day);
 }
 

@@ -152,8 +152,21 @@ function get_featured_img_url_shortcode($atts, $content = null)
 
     extract(shortcode_atts(array('id' => ''), $atts));
 
+    // Determine which post ID to use
+    $post_id = '';
+    if (!empty($id)) {
+        $post_id = intval($id);
+    } elseif ($post && isset($post->ID)) {
+        $post_id = $post->ID;
+    } else {
+        // Fallback to current post ID if available
+        $post_id = get_the_ID();
+    }
+
     $output = '';
-    $output .= get_the_post_thumbnail_url($post->ID, 'full');
+    if ($post_id) {
+        $output .= get_the_post_thumbnail_url($post_id, 'full');
+    }
     return $output;
 }
 
@@ -259,6 +272,20 @@ function show_current_page_children_menu_shortcode($atts, $content = null)
     $output .= '</ul>';
 
     return $output;
+}
+
+function show_parent_title_shortcode($atts, $content = null)
+{
+    global $post;
+    if ($post->post_parent) {
+        $ancestors = get_post_ancestors($post->ID);
+        $root = count($ancestors) - 1;
+        $parent = $ancestors[$root];
+    } else {
+        $parent = $post->ID;
+    }
+
+    return get_the_title($parent);
 }
 
 function show_news_events_sitepath_shortcode()
@@ -2619,6 +2646,7 @@ function register_custom_shortcodes()
     add_shortcode('show_nl_breadcrumb', 'show_nl_breadcrumb_shortcode');
     add_shortcode('show_nl_text_hong_kong_law', 'show_nl_text_hong_kong_law_shortcode');
     add_shortcode('show_current_page_parent_menu', 'show_current_page_parent_menu_shortcode');
+    add_shortcode('show_parent_title', 'show_parent_title_shortcode');
 
     add_shortcode('related_pages', 'related_post_sc');
     add_shortcode('related_page_item', 'related_pages_sc');
