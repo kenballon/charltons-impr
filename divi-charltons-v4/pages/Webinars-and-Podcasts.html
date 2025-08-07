@@ -38,6 +38,31 @@
         </nav>
     </div>
 
+    <!-- DYNAMIC CARD CONTENT-->
+    <div class="podcasts_and_webinars grid gap-1" id="pod-and-web">[get_webinar_podcasts]</div>
+    <!-- PAGINATION -->
+    <div class="pagination_container flex justify-center">
+        <div class="news_previous_wrapper_div flex">
+            <button id="prev_post_btn" class="prev d-none" type="button">
+                Previous
+            </button>
+            <button id="first_post_btn" class="first d-none" type="button">
+                First
+            </button>
+            <div id="ne_pagination_dots_first" class="ne_pagination_dots_first d-none">
+                ...
+            </div>
+        </div>
+        <div id="news_pagination_btns_wrapper" class="news_pagination_btns_wrapper"></div>
+        <div class="news_next_wrapper_div flex">
+            <div id="ne_pagination_dots" class="ne_pagination_dots d-none">
+                ...
+            </div>
+            <button id="last_post_btn" class="last" type="button">Last</button>
+            <button id="next_post_btn" class="next" type="button">Next</button>
+        </div>
+    </div>
+
 </body>
 
 </html>
