@@ -958,13 +958,21 @@ function decodeHTMLEntities(text) {
 }
 
 function parseDate(dateString) {
-    const parts = dateString.split("-");
+    // Handle new date format "14 Jun 2014"
+    const parts = dateString.split(" ");
     if (parts.length !== 3) return null;
 
     const day = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1; // Month is zero-based in JavaScript Date
+    const monthName = parts[1];
     const year = parseInt(parts[2], 10);
-
+    
+    // Convert month name to month number
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = monthNames.indexOf(monthName);
+    
+    if (month === -1) return null; // Invalid month name
+    
     return new Date(year, month, day);
 }
 
@@ -972,8 +980,7 @@ function parseDate(dateString) {
 function sortPostsByDate(posts) {
     return posts.sort(
         (a, b) =>
-            new Date(b.post_date.split("-").reverse().join("-")) -
-            new Date(a.post_date.split("-").reverse().join("-"))
+            new Date(b.post_date) - new Date(a.post_date)
     );
 }
 
@@ -1546,8 +1553,9 @@ async function getArchivedAllPosts(categories = []) {
     // Group posts by year
     const postsByYear = {};
     sortedPosts.forEach((post) => {
-        const parts = post.post_date.split("-");
-        const year = parts[2];
+        // Handle new date format "14 Jun 2014"
+        const parts = post.post_date.split(" ");
+        const year = parts[2]; // Year is now the third part
         if (!postsByYear[year]) postsByYear[year] = [];
         postsByYear[year].push(post);
     });
@@ -1592,8 +1600,9 @@ function createUITable(postsByYear, categories) {
             tr.setAttribute("data-archive-post-content", post.post_date);
             tr.setAttribute("data-archive-post-category", post.categories.toLowerCase());
 
-            const [day, month, _year] = post.post_date.split("-");
-            const dateObj = new Date(`${_year}-${month}-${day}`);
+            // Handle new date format "14 Jun 2014"
+            const [day, month, _year] = post.post_date.split(" ");
+            const dateObj = new Date(`${day} ${month} ${_year}`);
             const formattedDate = `${dateObj.getDate()} ${dateObj.toLocaleString('en-US', { month: 'short' })}`;
 
             const tdDate = document.createElement("td");
@@ -1689,48 +1698,122 @@ async function maybeShowLoadMoreButton({
 // PROFILE SINGLE PAGE OBSERVER 
 const sectionTextContent = [...document.querySelectorAll('.profile_content_section')];
 
-// Function to check which section is near the top of the viewport (within 150px)
-function updateActiveNavItem() {
-    const navItems = document.querySelectorAll('.profile_bio_nav_item');
-    let activeSection = null;
 
-    // Check each section to see if it's within 150px of the viewport top
-    sectionTextContent.forEach(section => {
-        const rect = section.getBoundingClientRect();
-        const sectionTop = rect.top;
+let options = {
+    threshold: [0, 0.3],
+    rootMargin: '-250px 0px -70% 0px'
+}
 
-        // If section is within 350px of the top and visible
-        if (sectionTop <= 350 && sectionTop + rect.height > 350) {
-            activeSection = section;
+const handleIntersection = (entries, observer) => {
+    entries.forEach(entry => {
+        const section = entry.target;
+        const navItems = document.querySelectorAll('.profile_bio_nav_item .profile_bio_nav_item_label');
+        const isLastSection = section === sectionTextContent[sectionTextContent.length - 1];
+
+        const shouldActivate = isLastSection
+            ? entry.isIntersecting && entry.intersectionRatio > 0
+            : entry.isIntersecting;
+
+        if (shouldActivate) {
+            navItems.forEach(item => {
+                if (item.getAttribute('data-id') === section.id) {
+                    // item.classList.add('active');
+                    item.parentNode.classList.add('active');
+                } else {
+                    // item.classList.remove('active');
+                    item.parentNode.classList.remove('active');
+                }
+            }
+            );
         }
     });
+}
 
-    // Update nav items based on active section
-    navItems.forEach(item => {
-        if (activeSection && item.id === activeSection.id) {
-            item.classList.add('active');
-        } else {
-            item.classList.remove('active');
+const observeProfileContent = new IntersectionObserver(handleIntersection, options);
+
+sectionTextContent.forEach(section => {
+    observeProfileContent.observe(section);
+});
+
+
+
+const stickyNav = document?.querySelector('.lawyer_profile_section_nav');
+const navLinks = document?.querySelectorAll('.profile_bio_nav_item .profile_bio_nav_item_label');
+const dropdownShowLink = document?.querySelectorAll('.material-symbols-outlined');
+
+navLinks.forEach(link => {
+    link.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const targetId = this.getAttribute('data-id');
+        const targetElement = document.getElementById(targetId);
+
+        if (targetElement) {
+            const stickyNavHeight = stickyNav ? stickyNav.offsetHeight : 0;
+            const desiredOffset = 90; // Adjust this value as needed for your design
+            // Calculate the scroll position, accounting for sticky nav height and desired offset
+            // Use getBoundingClientRect().top to get the position relative to the viewport
+            // and then add the current scroll position to get the absolute position
+            // Also subtract the sticky nav height and desired offset
+            // to ensure the target element is positioned correctly below the sticky nav
+
+            const scrollToPosition = targetElement.getBoundingClientRect().top + window.scrollY - stickyNavHeight - desiredOffset;
+
+
+            window.scrollTo({
+                top: scrollToPosition,
+                behavior: 'smooth'
+            });
+
+            // Remove active class from all nav items
+            if (window.innerWidth <= 767) {
+                navLinks.forEach(item => {
+                    item.parentNode.classList.remove('active');
+                    item.parentNode.style.display = "none";
+
+                });
+                // Add active class to the clicked nav item
+                this.parentNode.classList.add('active');
+            }
         }
     });
-}
+});
 
-// Use scroll event with throttling for better performance
-let scrollTimeout;
-function throttledScrollHandler() {
-    if (scrollTimeout) {
-        return;
-    }
+dropdownShowLink.forEach(link => {
+    link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const parentItem = this.closest('.profile_bio_nav_item');
+        if (parentItem) {
 
-    scrollTimeout = setTimeout(() => {
-        updateActiveNavItem();
-        scrollTimeout = null;
-    }, 16); // ~60fps
-}
+            // Toggle the active class on the parent item
 
-// Initialize and add scroll listener
-if (sectionTextContent.length > 0) {
-    window.addEventListener('scroll', throttledScrollHandler);
-    // Call once on load to set initial state
-    updateActiveNavItem();
-}
+            const nextElement = parentItem.nextElementSibling;
+            const prevElement = parentItem.previousElementSibling;
+            if (nextElement) {
+                nextElement.style.display = nextElement.style.display === "flex" ? "none" : "flex";
+            }
+            if (prevElement) {
+                prevElement.style.display = prevElement.style.display === "flex" ? "none" : "flex";
+            }
+        }
+    });
+})
+
+
+const expandMoreBtn = document?.querySelectorAll('.expand_more .material-symbols-outlined');
+
+expandMoreBtn.forEach(btn => {
+    btn.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const parentItem = this.closest('details');
+
+        if (parentItem) {
+            if (parentItem.hasAttribute('open')) {
+                parentItem.removeAttribute('open');
+            } else {
+                parentItem.setAttribute('open', '');
+            }
+        }
+    })
+});
