@@ -52,29 +52,6 @@ function mainjs_script()
 
 add_action('wp_enqueue_scripts', 'mainjs_script');
 
-function theme_gsap_script()
-{
-    // The core GSAP library
-    wp_enqueue_script('gsap-js', 'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js', array(), false, true);
-    // ScrollTrigger
-    wp_enqueue_script('gsap-st', 'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js', array('gsap-js'), false, true);
-    // SplitText (local file)
-
-    wp_enqueue_script('gsap-splittext', 'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js', array('gsap-js'), false, true);
-
-    // Your animation code file - depends on gsap and SplitText
-    wp_enqueue_script('gsap-js2', get_stylesheet_directory_uri() . '/js/app-gsap.js', array('gsap-js', 'gsap-splittext'), false, true);
-}
-
-add_action('wp_enqueue_scripts', 'theme_gsap_script');
-
-function enqueue_load_fa()
-{
-    wp_enqueue_style('load-fa', 'https://use.fontawesome.com/releases/v5.11.2/css/all.css');
-}
-
-add_action('wp_enqueue_scripts', 'enqueue_load_fa');
-
 function mainjs_module($tag, $handle, $src)
 {
     // List of scripts to load as module
@@ -87,6 +64,23 @@ function mainjs_module($tag, $handle, $src)
 }
 
 add_filter('script_loader_tag', 'mainjs_module', 10, 3);
+
+function theme_gsap_script()
+{
+    wp_enqueue_script('gsap-js', 'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js', array(), false, true);
+    wp_enqueue_script('gsap-st', 'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js', array('gsap-js'), false, true);
+    wp_enqueue_script('gsap-splittext', 'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js', array('gsap-js'), false, true);
+    wp_enqueue_script('gsap-js2', get_stylesheet_directory_uri() . '/js/app-gsap.js', array('gsap-js', 'gsap-splittext'), false, true);
+}
+
+add_action('wp_enqueue_scripts', 'theme_gsap_script');
+
+function enqueue_load_fa()
+{
+    wp_enqueue_style('load-fa', 'https://use.fontawesome.com/releases/v5.11.2/css/all.css');
+}
+
+add_action('wp_enqueue_scripts', 'enqueue_load_fa');
 
 function project_register_post_type()
 {
