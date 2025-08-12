@@ -93,7 +93,7 @@ if (!is_page_template('page-template-blank.php')): ?>
         </div>
     </div>
     <?php endif; ?>
-    <!-- <?php echo do_shortcode('[get_all_post_type_data]'); ?> -->
+    <!-- Call this shortcode to get all post type data:-->
 
 </footer>
 

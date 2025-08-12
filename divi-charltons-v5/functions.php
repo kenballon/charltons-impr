@@ -169,26 +169,3 @@ remove_filter('the_excerpt', 'wpautop');
 // =============================================
 // Custom Main Navigation Menu | END:::
 // =============================================
-
-function clf_output_store_all_post_types_script()
-{
-    if (is_admin()) {
-        return;
-    }
-    // Skip on the front page (and posts index for safety)
-    if (is_front_page() || is_home()) {
-        return;
-    }
-    // Prevent duplicate output if something else prints it
-    if (defined('CLF_STORE_SCRIPT_PRINTED')) {
-        return;
-    }
-    define('CLF_STORE_SCRIPT_PRINTED', true);
-    echo getStoreAllPostType([
-        'custom_type' => 'project',
-        'limit' => -1,
-        'category' => '',
-    ]);
-}
-
-add_action('wp_footer', 'clf_output_store_all_post_types_script', 999);
