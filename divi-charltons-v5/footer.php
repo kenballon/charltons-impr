@@ -92,9 +92,9 @@ if (!is_page_template('page-template-blank.php')): ?>
             </div>
         </div>
     </div>
-
     <?php endif; ?>
     <?php echo do_shortcode('[get_all_post_type_data]'); ?>
+
 </footer>
 
 <?php endif; // ! is_page_template( 'page-template-blank.php' ) ?>
