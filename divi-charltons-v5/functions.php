@@ -46,8 +46,12 @@ function mainjs_script()
         true  // Load the script in the footer
     );
 
-    // Localize the script with the AJAX URL
-    wp_localize_script('mainjs', 'ajax_object', ['ajax_url' => admin_url('admin-ajax.php')]);
+    // Localize the script with the AJAX URL and REST API info
+    wp_localize_script('mainjs', 'ajax_object', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rest_url' => rest_url('wp/v2/'),
+        'nonce' => wp_create_nonce('wp_rest')
+    ]);
 }
 
 add_action('wp_enqueue_scripts', 'mainjs_script');
@@ -95,6 +99,8 @@ function project_register_post_type()
             'has_archive' => true,
             'rewrite' => ['slug' => 'hong-kong-law'],
             'taxonomies' => ['post_tag'],
+            'show_in_rest' => true,  // Enable REST API support
+            'rest_base' => 'projects',  // Optional: custom REST endpoint base
         ]
     );
 }
