@@ -2299,8 +2299,6 @@ function register_custom_shortcodes()
     add_shortcode('insights_presentations', 'insights_presentations_sc');
 
     // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : START
-    // add_shortcode('store_all_posts', 'storeAllPost');
-    // add_shortcode('store_all_custom_posts', 'storeCustomAllPost');
     add_shortcode('get_all_post_type_data', 'getStoreAllPostType');
     // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : END
 
