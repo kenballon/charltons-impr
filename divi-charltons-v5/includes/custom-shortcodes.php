@@ -2179,85 +2179,76 @@ function getStoreAllPostType($atts = [])
     $escaped_json = addslashes($json_data);
     $data_hash = md5($json_data);
 
-    // Output JS to store in IndexedDB, but defer until after full page load (lazy/background)
+    // Output JS to store in IndexedDB
     $script = <<<EOT
         <script>
-        window.addEventListener('load', () => {
-            const run = () => {
-                (async () => {
+        (async () => {
+            try {
+                // const data = $json_data;     
+                const data = JSON.parse('$escaped_json');           
+                const dataHash = "$data_hash";
+                const dbName = "PostsDatabase";
+                const hashKey = "PostsDatabaseHash";                
+
+                if (!window.indexedDB) {
+                    console.log("Your browser doesn't support IndexedDB.");
+                    return;
+                }     
+                    
+                // console.table(data.filter(post => post.post_type === "project"));
+
+                // Check hash to avoid unnecessary updates
+                const storedHash = localStorage.getItem(hashKey);
+                if (storedHash !== dataHash) {
                     try {
-                        // const data = $json_data;     
-                        const data = JSON.parse('$escaped_json');           
-                        const dataHash = "$data_hash";
-                        const dbName = "PostsDatabase";
-                        const hashKey = "PostsDatabaseHash";                
+                        await deleteDatabase(dbName);
+                        localStorage.setItem(hashKey, dataHash);
+                    } catch (e) { console.log("Delete DB error:", e); }
+                    try {
+                        const db = await openDatabase(dbName, 1);
+                        await storePosts(db, data);
+                        console.log("All posts stored in IndexedDB.");
+                    } catch (e) { console.log("Store DB error:", e); }
+                } else {
+                    // console.log("No changes detected. Database not updated.");
+                }
 
-                        if (!window.indexedDB) {
-                            console.log("Your browser doesn't support IndexedDB.");
-                            return;
-                        }     
-                            
-                        // Check hash to avoid unnecessary updates
-                        const storedHash = localStorage.getItem(hashKey);
-                        if (storedHash !== dataHash) {
-                            try {
-                                await deleteDatabase(dbName);
-                                localStorage.setItem(hashKey, dataHash);
-                            } catch (e) { console.log("Delete DB error:", e); }
-                            try {
-                                const db = await openDatabase(dbName, 1);
-                                await storePosts(db, data);
-                                console.log("All posts stored in IndexedDB.");
-                            } catch (e) { console.log("Store DB error:", e); }
-                        } else {
-                            // No changes detected. Database not updated.
-                        }
+                function deleteDatabase(name) {
+                    return new Promise((resolve, reject) => {
+                        const req = indexedDB.deleteDatabase(name);
+                        req.onsuccess = () => resolve();
+                        req.onerror = () => reject(req.error);
+                        req.onblocked = () => reject("Delete blocked");
+                    });
+                }
 
-                        function deleteDatabase(name) {
-                            return new Promise((resolve, reject) => {
-                                const req = indexedDB.deleteDatabase(name);
-                                req.onsuccess = () => resolve();
-                                req.onerror = () => reject(req.error);
-                                req.onblocked = () => reject("Delete blocked");
-                            });
-                        }
+                function openDatabase(name, version) {
+                    return new Promise((resolve, reject) => {
+                        const req = indexedDB.open(name, version);
+                        req.onupgradeneeded = (event) => {
+                            const db = event.target.result;
+                            if (!db.objectStoreNames.contains("posts")) {
+                                db.createObjectStore("posts", { keyPath: "id" });
+                            }
+                        };
+                        req.onsuccess = () => resolve(req.result);
+                        req.onerror = () => reject(req.error);
+                    });
+                }
 
-                        function openDatabase(name, version) {
-                            return new Promise((resolve, reject) => {
-                                const req = indexedDB.open(name, version);
-                                req.onupgradeneeded = (event) => {
-                                    const db = event.target.result;
-                                    if (!db.objectStoreNames.contains("posts")) {
-                                        db.createObjectStore("posts", { keyPath: "id" });
-                                    }
-                                };
-                                req.onsuccess = () => resolve(req.result);
-                                req.onerror = () => reject(req.error);
-                            });
-                        }
-
-                        function storePosts(db, posts) {
-                            return new Promise((resolve, reject) => {
-                                const tx = db.transaction("posts", "readwrite");
-                                const store = tx.objectStore("posts");
-                                posts.forEach(post => store.put(post));
-                                tx.oncomplete = () => resolve();
-                                tx.onerror = () => reject(tx.error);
-                            });
-                        }
-                    } catch (err) {
-                        console.error("Error parsing or storing posts:", err);
-                    }
-                })();
-            };
-            if ('requestIdleCallback' in window) {
-                // Let the browser schedule during idle time (with a reasonable timeout)
-                requestIdleCallback(run, { timeout: 3000 });
-            } else {
-                // Fallback to a micro-delay
-                setTimeout(run, 0);
+                function storePosts(db, posts) {
+                    return new Promise((resolve, reject) => {
+                        const tx = db.transaction("posts", "readwrite");
+                        const store = tx.objectStore("posts");
+                        posts.forEach(post => store.put(post));
+                        tx.oncomplete = () => resolve();
+                        tx.onerror = () => reject(tx.error);
+                    });
+                }
+            } catch (err) {
+                console.error("Error parsing or storing posts:", err);
             }
-        });
+        })();
         </script>
         EOT;
 
@@ -2308,7 +2299,9 @@ function register_custom_shortcodes()
     add_shortcode('insights_presentations', 'insights_presentations_sc');
 
     // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : START
-    // add_shortcode('get_all_post_type_data', 'getStoreAllPostType');
+    // add_shortcode('store_all_posts', 'storeAllPost');
+    // add_shortcode('store_all_custom_posts', 'storeCustomAllPost');
+    add_shortcode('get_all_post_type_data', 'getStoreAllPostType');
     // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : END
 
     add_shortcode('get_newsletter_posts', 'getNewslettersPosts');
@@ -2318,10 +2311,8 @@ function register_custom_shortcodes()
     add_shortcode('newsletter_scf_custom_fields', 'newsletter_scf_custom_fields');
     add_shortcode('recent_webinars', 'homepage_recent_webinar_sc');
     add_shortcode('share_download', 'share_download_sc');
-
     add_shortcode('display_categories', 'get_all_categories_with_children');
     add_shortcode('get_recent_news_homepage', 'get_recent_news_homepage_shortcode');
-
     add_shortcode('get_webinar_podcasts', 'getWebinarsPodcasts');
 }
 
