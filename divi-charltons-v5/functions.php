@@ -73,7 +73,7 @@ function theme_gsap_script()
     wp_enqueue_script('gsap-js2', get_stylesheet_directory_uri() . '/js/app-gsap.js', array('gsap-js', 'gsap-splittext'), false, true);
 }
 
-add_action('wp_enqueue_scripts', 'theme_gsap_script');
+// add_action('wp_enqueue_scripts', 'theme_gsap_script');
 
 function enqueue_load_fa()
 {
@@ -104,6 +104,7 @@ add_action('init', 'project_register_post_type');
 // =============================================
 // Custom Shortcodes Functions
 // =============================================
+
 require_once get_stylesheet_directory() . '/includes/custom-shortcodes.php';
 
 // =============================================
@@ -170,29 +171,16 @@ remove_filter('the_excerpt', 'wpautop');
 // Custom Main Navigation Menu | END:::
 // =============================================
 
-/**
- * Enqueues a script that loads post data into IndexedDB after page load
- * This function acts as a lazy-loading mechanism for post data storage
- */
-function enqueue_lazy_indexeddb_storage()
+function get_posts_for_indexeddb_ajax()
 {
-    // Register an empty script to use as a handle for our inline script
-    wp_register_script(
-        'lazy-indexeddb-posts',
-        '',  // Empty source
-        [],  // Depends on jQuery
-        null,
-        true  // Load in footer
-    );
+    check_ajax_referer('get_posts_for_indexeddb_nonce', 'nonce');
 
-    wp_enqueue_script('lazy-indexeddb-posts');
+    $hash_only = isset($_POST['hash_only']) && $_POST['hash_only'] === 'true';
 
-    // Get post data with the same logic as the shortcode
     $custom_type = 'project';
     $limit = -1;
     $category = '';
 
-    // Prepare query args for both post types
     $args_post = [
         'post_type' => 'post',
         'posts_per_page' => $limit,
@@ -202,6 +190,7 @@ function enqueue_lazy_indexeddb_storage()
         $args_post['category_name'] = $category;
     }
 
+    // Prepare query args for projects
     $args_project = [
         'post_type' => $custom_type,
         'posts_per_page' => $limit,
@@ -236,87 +225,55 @@ function enqueue_lazy_indexeddb_storage()
         return $native_img || $plugin_img;
     });
 
-    // Encode as JSON and prepare for JavaScript
+    // Generate hash for all posts
     $json_data = json_encode(array_values($all_posts));
-    $escaped_json = esc_js($json_data);
     $data_hash = md5($json_data);
 
-    // Create the script with a window.onload wrapper to ensure it runs after page load
-    $script = <<<EOT
-                jQuery(window).on('load', async function() {
-                    // Delay execution slightly to prioritize visible content
-                    setTimeout(async function() {
-                        try {
-                            const data = {$escaped_json};
-                            const dataHash = "{$data_hash}";
-                            const dbName = "PostsDatabase";
-                            const hashKey = "PostsDatabaseHash";                
+    // If this is a hash-only request, just return the hash
+    if ($hash_only) {
+        wp_send_json_success(['hash' => $data_hash]);
+        wp_die();
+    }
 
-                            if (!window.indexedDB) {
-                                console.log("Your browser doesn't support IndexedDB.");
-                                return;
-                            }     
-                                
-                            // console.log("Checking if posts data needs updating...");
+    // Otherwise return full post data with hash
+    $response = [
+        'hash' => $data_hash,
+        'posts' => array_values($all_posts),
+        'last_updated' => current_time('timestamp')
+    ];
 
-                            // Check hash to avoid unnecessary updates
-                            const storedHash = localStorage.getItem(hashKey);
-                            if (storedHash !== dataHash) {
-                                try {
-                                    await deleteDatabase(dbName);
-                                    localStorage.setItem(hashKey, dataHash);
-                                } catch (e) { console.log("Delete DB error:", e); }
-                                try {
-                                    const db = await openDatabase(dbName, 1);
-                                    await storePosts(db, data);
-                                    console.log("All posts stored in IndexedDB.");
-                                } catch (e) { console.log("Store DB error:", e); }
-                            } else {
-                                // console.log("No changes detected. Database not updated.");
-                            }
-
-                            function deleteDatabase(name) {
-                                return new Promise((resolve, reject) => {
-                                    const req = indexedDB.deleteDatabase(name);
-                                    req.onsuccess = () => resolve();
-                                    req.onerror = () => reject(req.error);
-                                    req.onblocked = () => reject("Delete blocked");
-                                });
-                            }
-
-                            function openDatabase(name, version) {
-                                return new Promise((resolve, reject) => {
-                                    const req = indexedDB.open(name, version);
-                                    req.onupgradeneeded = (event) => {
-                                        const db = event.target.result;
-                                        if (!db.objectStoreNames.contains("posts")) {
-                                            db.createObjectStore("posts", { keyPath: "id" });
-                                        }
-                                    };
-                                    req.onsuccess = () => resolve(req.result);
-                                    req.onerror = () => reject(req.error);
-                                });
-                            }
-
-                            function storePosts(db, posts) {
-                                return new Promise((resolve, reject) => {
-                                    const tx = db.transaction("posts", "readwrite");
-                                    const store = tx.objectStore("posts");
-                                    posts.forEach(post => store.put(post));
-                                    tx.oncomplete = () => resolve();
-                                    tx.onerror = () => reject(tx.error);
-                                });
-                            }
-                        } catch (err) {
-                            console.error("Error parsing or storing posts:", err);
-                        }
-                    }, 1000); // 1 second delay
-                });
-        EOT;
-
-    // Add the inline script
-    wp_add_inline_script('lazy-indexeddb-posts', $script);
+    wp_send_json_success($response);
+    wp_die();
 }
 
-// Hook the function to wp_enqueue_scripts
-// add_action('wp_enqueue_scripts', 'enqueue_lazy_indexeddb_storage');
+add_action('wp_ajax_get_posts_for_indexeddb', 'get_posts_for_indexeddb_ajax');
+add_action('wp_ajax_nopriv_get_posts_for_indexeddb', 'get_posts_for_indexeddb_ajax');
+
+function enqueue_lazy_indexeddb_storage()
+{
+    $script_path = get_stylesheet_directory() . '/js/indexeddb-loader.js';
+    $script_url = get_stylesheet_directory_uri() . '/js/indexeddb-loader.js';
+
+    // Check if file exists and get version safely
+    $version = file_exists($script_path) ? filemtime($script_path) : '1.0';
+
+    // Register and enqueue the script
+    wp_register_script(
+        'lazy-indexeddb-posts',
+        $script_url,
+        [],
+        $version,
+        true
+    );
+
+    wp_enqueue_script('lazy-indexeddb-posts');
+
+    // Create endpoint data for AJAX instead of embedding all data
+    wp_localize_script('lazy-indexeddb-posts', 'indexedDB_settings', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'action' => 'get_posts_for_indexeddb',
+        'nonce' => wp_create_nonce('get_posts_for_indexeddb_nonce')
+    ]);
+}
+
+add_action('wp_enqueue_scripts', 'enqueue_lazy_indexeddb_storage');
