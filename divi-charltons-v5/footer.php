@@ -94,7 +94,7 @@ if (!is_page_template('page-template-blank.php')): ?>
     </div>
     <?php endif; ?>
     <!-- Call this shortcode to get all post type data:-->
-    <?php echo do_shortcode('[get_all_post_type_data]'); ?>
+    <!-- <?php echo do_shortcode('[get_all_post_type_data]'); ?> -->
 </footer>
 
 <?php endif; // ! is_page_template( 'page-template-blank.php' ) ?>

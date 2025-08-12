@@ -169,3 +169,154 @@ remove_filter('the_excerpt', 'wpautop');
 // =============================================
 // Custom Main Navigation Menu | END:::
 // =============================================
+
+/**
+ * Enqueues a script that loads post data into IndexedDB after page load
+ * This function acts as a lazy-loading mechanism for post data storage
+ */
+function enqueue_lazy_indexeddb_storage()
+{
+    // Register an empty script to use as a handle for our inline script
+    wp_register_script(
+        'lazy-indexeddb-posts',
+        '',  // Empty source
+        [],  // Depends on jQuery
+        null,
+        true  // Load in footer
+    );
+
+    wp_enqueue_script('lazy-indexeddb-posts');
+
+    // Get post data with the same logic as the shortcode
+    $custom_type = 'project';
+    $limit = -1;
+    $category = '';
+
+    // Prepare query args for both post types
+    $args_post = [
+        'post_type' => 'post',
+        'posts_per_page' => $limit,
+        'post_status' => 'publish',
+    ];
+    if (!empty($category)) {
+        $args_post['category_name'] = $category;
+    }
+
+    $args_project = [
+        'post_type' => $custom_type,
+        'posts_per_page' => $limit,
+        'post_status' => 'publish',
+    ];
+    if (!empty($category)) {
+        $args_project['tax_query'] = [
+            [
+                'taxonomy' => $custom_type . '_category',
+                'field' => 'slug',
+                'terms' => explode(',', $category),
+            ]
+        ];
+    }
+
+    // Get posts for both types
+    $posts = function_exists('get_all_posts_data') ? get_all_posts_data(['post'], $args_post) : [];
+    $projects = function_exists('get_all_posts_data') ? get_all_posts_data([$custom_type], $args_project) : [];
+
+    // Merge and sort by date (latest first)
+    $all_posts = array_merge($posts, $projects);
+    usort($all_posts, function ($a, $b) {
+        $a_ts = strtotime($a['post_date'] ?? '');
+        $b_ts = strtotime($b['post_date'] ?? '');
+        return $b_ts <=> $a_ts;
+    });
+
+    // Filter out posts without any image
+    $all_posts = array_filter($all_posts, function ($post) {
+        $native_img = !empty($post['featured_image']);
+        $plugin_img = !empty(get_post_meta($post['id'], 'fiuw_image_url', true));
+        return $native_img || $plugin_img;
+    });
+
+    // Encode as JSON and prepare for JavaScript
+    $json_data = json_encode(array_values($all_posts));
+    $escaped_json = esc_js($json_data);
+    $data_hash = md5($json_data);
+
+    // Create the script with a window.onload wrapper to ensure it runs after page load
+    $script = <<<EOT
+                jQuery(window).on('load', async function() {
+                    // Delay execution slightly to prioritize visible content
+                    setTimeout(async function() {
+                        try {
+                            const data = {$escaped_json};
+                            const dataHash = "{$data_hash}";
+                            const dbName = "PostsDatabase";
+                            const hashKey = "PostsDatabaseHash";                
+
+                            if (!window.indexedDB) {
+                                console.log("Your browser doesn't support IndexedDB.");
+                                return;
+                            }     
+                                
+                            // console.log("Checking if posts data needs updating...");
+
+                            // Check hash to avoid unnecessary updates
+                            const storedHash = localStorage.getItem(hashKey);
+                            if (storedHash !== dataHash) {
+                                try {
+                                    await deleteDatabase(dbName);
+                                    localStorage.setItem(hashKey, dataHash);
+                                } catch (e) { console.log("Delete DB error:", e); }
+                                try {
+                                    const db = await openDatabase(dbName, 1);
+                                    await storePosts(db, data);
+                                    console.log("All posts stored in IndexedDB.");
+                                } catch (e) { console.log("Store DB error:", e); }
+                            } else {
+                                // console.log("No changes detected. Database not updated.");
+                            }
+
+                            function deleteDatabase(name) {
+                                return new Promise((resolve, reject) => {
+                                    const req = indexedDB.deleteDatabase(name);
+                                    req.onsuccess = () => resolve();
+                                    req.onerror = () => reject(req.error);
+                                    req.onblocked = () => reject("Delete blocked");
+                                });
+                            }
+
+                            function openDatabase(name, version) {
+                                return new Promise((resolve, reject) => {
+                                    const req = indexedDB.open(name, version);
+                                    req.onupgradeneeded = (event) => {
+                                        const db = event.target.result;
+                                        if (!db.objectStoreNames.contains("posts")) {
+                                            db.createObjectStore("posts", { keyPath: "id" });
+                                        }
+                                    };
+                                    req.onsuccess = () => resolve(req.result);
+                                    req.onerror = () => reject(req.error);
+                                });
+                            }
+
+                            function storePosts(db, posts) {
+                                return new Promise((resolve, reject) => {
+                                    const tx = db.transaction("posts", "readwrite");
+                                    const store = tx.objectStore("posts");
+                                    posts.forEach(post => store.put(post));
+                                    tx.oncomplete = () => resolve();
+                                    tx.onerror = () => reject(tx.error);
+                                });
+                            }
+                        } catch (err) {
+                            console.error("Error parsing or storing posts:", err);
+                        }
+                    }, 1000); // 1 second delay
+                });
+        EOT;
+
+    // Add the inline script
+    wp_add_inline_script('lazy-indexeddb-posts', $script);
+}
+
+// Hook the function to wp_enqueue_scripts
+// add_action('wp_enqueue_scripts', 'enqueue_lazy_indexeddb_storage');

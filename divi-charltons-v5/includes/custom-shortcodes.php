@@ -2299,7 +2299,7 @@ function register_custom_shortcodes()
     add_shortcode('insights_presentations', 'insights_presentations_sc');
 
     // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : START
-    add_shortcode('get_all_post_type_data', 'getStoreAllPostType');
+    // add_shortcode('get_all_post_type_data', 'getStoreAllPostType');
     // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : END
 
     add_shortcode('get_newsletter_posts', 'getNewslettersPosts');
