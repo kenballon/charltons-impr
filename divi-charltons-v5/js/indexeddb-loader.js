@@ -1,19 +1,10 @@
-// Global flag to track database readiness
-window.indexedDBReady = false;
-window.indexedDBReadyPromise = null;
-
 // Ensure the settings object exists
 if (typeof indexedDB_settings !== 'undefined') {
     let updateInterval;
 
     // Initial load and setup periodic checking
     (async function initializePostsDatabase() {
-        // Create a promise that resolves when the database is ready
-        window.indexedDBReadyPromise = checkAndUpdatePosts();
-        await window.indexedDBReadyPromise;
-
-        // Mark as ready
-        window.indexedDBReady = true;
+        await checkAndUpdatePosts();
 
         // Set up interval to check for updates every 30 minutes (1800000 ms)
         updateInterval = setInterval(checkAndUpdatePosts, 30 * 60 * 1000);
@@ -84,38 +75,8 @@ if (typeof indexedDB_settings !== 'undefined') {
     // Function to manually trigger an update (can be called from console)
     window.updatePostsDatabase = checkAndUpdatePosts;
 
-    // Function to wait for database readiness
-    window.waitForIndexedDB = async function () {
-        if (window.indexedDBReady) {
-            return Promise.resolve();
-        }
-        if (window.indexedDBReadyPromise) {
-            await window.indexedDBReadyPromise;
-            return Promise.resolve();
-        }
-        // Fallback: wait for the global flag to be set
-        return new Promise((resolve) => {
-            const checkReady = () => {
-                if (window.indexedDBReady) {
-                    resolve();
-                } else {
-                    setTimeout(checkReady, 100);
-                }
-            };
-            checkReady();
-        });
-    };
-
 } else {
     console.error('indexedDB_settings is not defined.');
-    // Set ready to true so other functions don't wait indefinitely
-    window.indexedDBReady = true;
-    window.indexedDBReadyPromise = Promise.resolve();
-
-    // Provide a no-op wait function
-    window.waitForIndexedDB = async function () {
-        return Promise.resolve();
-    };
 }
 
 // Async function to store posts in IndexedDB
@@ -177,9 +138,6 @@ async function storePostsInIndexedDB(posts) {
             const firstBatch = posts.slice(0, batchSize);
             await addPostsBatch(db, firstBatch);
             console.log(`First batch of ${firstBatch.length} posts stored immediately for quick access`);
-
-            // Mark the database as ready after the first batch is stored
-            window.indexedDBReady = true;
         }
 
         // Process remaining posts in background with delay
