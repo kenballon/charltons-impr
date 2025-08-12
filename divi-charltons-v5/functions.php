@@ -165,3 +165,7 @@ function get_custom_nav_menu($location)
 
 remove_filter('the_content', 'wpautop');
 remove_filter('the_excerpt', 'wpautop');
+
+// =============================================
+// Custom Main Navigation Menu | END:::
+// =============================================
