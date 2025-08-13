@@ -1880,10 +1880,10 @@ function getNewslettersPosts($atts = [])
 {
     $atts = shortcode_atts([
         'post_type' => 'project',
-        'posts_per_page' => 20,  // Changed default to 20 for pagination
-        'filter_category' => '',
-        'offset' => 0,  // Added offset for pagination
-        'load_more' => false,  // Added flag for load more requests
+        'posts_per_page' => 20,
+        'filter_category' => 'hong-kong-law',  // Set default category
+        'offset' => 0,
+        'load_more' => false,
     ], $atts, 'get_newsletter_posts');
 
     $post_type = sanitize_text_field($atts['post_type']);
@@ -1896,26 +1896,40 @@ function getNewslettersPosts($atts = [])
         'posts_per_page' => $posts_per_page,
         'post_status' => 'publish',
         'offset' => $offset,
-        // Remove meta_query so we don't filter out posts with only plugin images
     ];
 
+    // Enhanced category filtering logic
     if (!empty($filter_category)) {
         $categories = array_map('trim', explode(',', $filter_category));
+
         if ($post_type === 'post') {
+            // For default post type, use category_name
             $query_args['category_name'] = $filter_category;
         } else {
-            $taxonomy = $post_type . '_category';
-            if (!taxonomy_exists($taxonomy)) {
-                $taxonomy = 'category';
+            // For custom post types, try custom taxonomy first
+            $custom_taxonomy = $post_type . '_category';
+
+            if (taxonomy_exists($custom_taxonomy)) {
+                // Custom taxonomy exists, use it
+                $query_args['tax_query'] = [
+                    [
+                        'taxonomy' => $custom_taxonomy,
+                        'field' => 'slug',
+                        'terms' => $categories,
+                        'operator' => 'IN'
+                    ]
+                ];
+            } else {
+                // Fall back to default category taxonomy
+                $query_args['tax_query'] = [
+                    [
+                        'taxonomy' => 'category',
+                        'field' => 'slug',
+                        'terms' => $categories,
+                        'operator' => 'IN'
+                    ]
+                ];
             }
-            $query_args['tax_query'] = [
-                [
-                    'taxonomy' => $taxonomy,
-                    'field' => 'slug',
-                    'terms' => $categories,
-                    'operator' => 'IN'
-                ]
-            ];
         }
     }
 
@@ -1932,24 +1946,20 @@ function getNewslettersPosts($atts = [])
         if ($load_more) {
             wp_send_json_error('No more posts found');
         }
-        return '<p>No posts found for the specified post type.</p>';
+        return '<p>No posts found for the specified category.</p>';
     }
 
     // Sort posts by date and time (including hours)
     usort($custom_posts, function ($a, $b) {
-        // Try to get the full datetime if available, fallback to post_date
         $a_datetime = !empty($a['post_datetime']) ? $a['post_datetime'] : $a['post_date'];
         $b_datetime = !empty($b['post_datetime']) ? $b['post_datetime'] : $b['post_date'];
-        // Convert to timestamps for comparison
         $a_ts = strtotime($a_datetime);
         $b_ts = strtotime($b_datetime);
-        // Descending order (latest first)
         return $b_ts <=> $a_ts;
     });
 
     ob_start();
     foreach ($custom_posts as $post):
-        // Prefer plugin image if present, otherwise use native
         $plugin_img_url = get_post_meta($post['id'], 'fiuw_image_url', true);
         $img_url = !empty($plugin_img_url) ? $plugin_img_url : $post['featured_image'];
 ?>
@@ -1990,7 +2000,7 @@ function getNewslettersPosts($atts = [])
         // Wrap articles in the grid container
         $full_content = '<div class="newsletters_post" id="newsletters_post">' . $content . '</div>';
 
-        // Add load more button outside the grid container
+        // Add load more button with default category
         $full_content .= '<div class="newsletter-load-more-container">
             <button id="newsletter-load-more-btn" class="load-more-btn" data-offset="' . $posts_per_page . '" data-post-type="' . esc_attr($post_type) . '" data-category="' . esc_attr($filter_category) . '">
                 Load More

@@ -1727,13 +1727,55 @@ expandMoreBtn.forEach(btn => {
 });
 
 // loadmore button for Newsletters
-function initNewsletterLoadMore() {
-    const loadMoreBtn = document.getElementById("newsletter-load-more-btn");
-    const loadingSpinner = document.querySelector(".loading-spinner");
-    const postsContainer = document.getElementById("newsletters_post");
 
-    if (!loadMoreBtn) return;
+function initLoadMoreWithFilters(config) {
+    const {
+        loadMoreBtnId,
+        loadingSpinnerId = ".loading-spinner",
+        postsContainerId,
+        categoryButtonsSelector,
+        ajaxAction,
+        defaultCategory = null,
+        postsPerPage = 20
+    } = config;
 
+    const loadMoreBtn = document.getElementById(loadMoreBtnId);
+    const loadingSpinner = document.querySelector(loadingSpinnerId);
+    const postsContainer = document.getElementById(postsContainerId);
+    const categoryButtons = document.querySelectorAll(categoryButtonsSelector);
+
+    if (!loadMoreBtn || !postsContainer) {
+        console.warn(`Load more functionality not initialized: missing elements`);
+        return;
+    }
+
+    // Category filter functionality
+    categoryButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            // Update active button
+            categoryButtons.forEach(btn => btn.classList.remove("active"));
+            this.classList.add("active");
+
+            // Get category from button ID
+            const category = this.id;
+
+            // Reset offset and update button data
+            loadMoreBtn.dataset.offset = postsPerPage.toString();
+            loadMoreBtn.dataset.category = category;
+
+            // Clear current posts
+            postsContainer.innerHTML = "";
+
+            // Show loading state
+            loadMoreBtn.style.display = "none";
+            if (loadingSpinner) loadingSpinner.style.display = "block";
+
+            // Load posts for selected category
+            loadCategoryPosts(category, 0);
+        });
+    });
+
+    // Load more functionality
     loadMoreBtn.addEventListener("click", function () {
         const offset = parseInt(this.dataset.offset);
         const postType = this.dataset.postType;
@@ -1741,20 +1783,26 @@ function initNewsletterLoadMore() {
 
         // Show loading state
         loadMoreBtn.style.display = "none";
-        loadingSpinner.style.display = "block";
+        if (loadingSpinner) loadingSpinner.style.display = "block";
 
         // Make AJAX request
+        loadCategoryPosts(category, offset);
+    });
+
+    function loadCategoryPosts(category, offset) {
+        const postType = loadMoreBtn.dataset.postType || "project";
+
         fetch(ajax_object.ajax_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
             body: new URLSearchParams({
-                action: "load_more_newsletters",
+                action: ajaxAction,
                 offset: offset,
                 post_type: postType,
                 filter_category: category,
-                posts_per_page: 20
+                posts_per_page: postsPerPage
             })
         })
             .then(response => response.json())
@@ -1776,12 +1824,37 @@ function initNewsletterLoadMore() {
                     console.error("Error:", data.data);
                     loadMoreBtn.style.display = "none";
                 }
-                loadingSpinner.style.display = "none";
+                if (loadingSpinner) loadingSpinner.style.display = "none";
             })
             .catch(error => {
                 console.error("Error loading more posts:", error);
                 loadMoreBtn.style.display = "block";
-                loadingSpinner.style.display = "none";
+                if (loadingSpinner) loadingSpinner.style.display = "none";
             });
+    }
+
+    // Initialize with default category if provided
+    if (defaultCategory) {
+        loadMoreBtn.dataset.category = defaultCategory;
+
+        // Set the default category button as active
+        const defaultBtn = document.getElementById(defaultCategory);
+        if (defaultBtn) {
+            categoryButtons.forEach(btn => btn.classList.remove("active"));
+            defaultBtn.classList.add("active");
+        }
+    }
+}
+
+// Legacy function for backward compatibility
+function initNewsletterLoadMore() {
+    initLoadMoreWithFilters({
+        loadMoreBtnId: "newsletter-load-more-btn",
+        loadingSpinnerId: ".loading-spinner",
+        postsContainerId: "newsletters_post",
+        categoryButtonsSelector: ".newsletter_category_filter",
+        ajaxAction: "load_more_newsletters",
+        defaultCategory: "hong-kong-law",
+        postsPerPage: 20
     });
 }
