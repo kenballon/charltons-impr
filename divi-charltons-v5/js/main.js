@@ -20,41 +20,20 @@ document.addEventListener("readystatechange", (e) => {
         defaultFilterdBtn?.classList.add("active");
 
         const newseventsWrapper = document.querySelector('#all_news_posts');
-        // newseventsWrapper && getNewsAndEventsPosts(["awards-and-rankings", "news"]);
+        newseventsWrapper && getNewsAndEventsPosts(["awards-and-rankings", "news"]);
         // getArchivedAllPosts(["hong-kong-law"]);
 
 
         if (window.location.pathname.includes("/news/newsletters/hong-kong-law-3/")) {
-            console.log("Loading posts for Hong Kong Law newsletters...");
 
-            maybeShowLoadMoreButton({
-                postType: "posts",
-                filterByCategories: ["hong-kong-law"],
-                containerSelector: "#newsletters_post",
-                itemClass: "newsletter_post_item",
-                loadMoreWrapperSelector: "#btn_load_more_wrapper",
-                postsPerPage: 16,
-                createCardUI: createCardUI,
-                cardType: "newsletter"
-            });
         }
 
         if (window.location.pathname.includes("/our-firm/awards-2/")) {
-            // maybeShowLoadMoreButton({
-            //     postType: "posts", // Use default posts for awards
-            //     filterTags: ["awards"],
-            //     containerSelector: "#all_awards_wrapper",
-            //     itemClass: "awards_card_item",
-            //     loadMoreWrapperSelector: "#btn_load_more_wrapper",
-            //     postsPerPage: 15,
-            //     createCardUI: createCardUI,
-            //     cardType: "award"
-            // });
+
         }
 
         if (window.location.pathname.includes("/webinars-and-podcasts/")) {
 
-            // initRenderPagination(["webinars-and-podcasts", "webinars"])
         }
     }
 });
@@ -453,155 +432,9 @@ function toggleClass(element, removeClass, addClass) {
 // =======================================
 //  WORDPRESS REST API HELPER FUNCTIONS
 // =======================================
-async function getAllPostsFromAPI({ postType = 'posts', filterByCategories = [], filterByTags = [], postsPerPage = 30 }) {
-    try {
 
-        const restBaseUrl = window.ajax_object?.rest_url || `${window.location.origin}/wp-json/wp/v2/`;
-        const baseUrl = `${restBaseUrl}${postType}`;
+//code here soon...
 
-        const params = new URLSearchParams({
-            per_page: postsPerPage,
-            _embed: 'true',
-            status: 'publish'
-        });
-
-        // If category slugs are provided, we need to get their IDs first
-        if (filterByCategories.length > 0) {
-            try {
-                const categoryResponse = await fetch(`${restBaseUrl}categories?slug=${filterByCategories.join(',')}&per_page=100`);
-                if (categoryResponse.ok) {
-                    const categories = await categoryResponse.json();
-
-                    const categoryIds = categories.map(cat => cat.id);
-
-                    if (categoryIds.length > 0) {
-                        params.append('categories', categoryIds.join(','));
-                    }
-                }
-            } catch (error) {
-                console.warn('Failed to fetch category IDs:', error);
-            }
-        }
-
-        // If tag slugs are provided, we need to get their IDs first
-        if (filterByTags.length > 0) {
-            try {
-                const tagResponse = await fetch(`${restBaseUrl}tags?slug=${filterByTags.join(',')}&per_page=100`);
-                if (tagResponse.ok) {
-                    const tags = await tagResponse.json();
-                    const tagIds = tags.map(tag => tag.id);
-                    if (tagIds.length > 0) {
-                        params.append('tags', tagIds.join(','));
-                    }
-                }
-            } catch (error) {
-                console.warn('Failed to fetch tag IDs:', error);
-            }
-        }
-
-        const paramsString = params.toString();
-
-
-        const response = await fetch(`${baseUrl}?${paramsString}`);
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const posts = await response.json();
-
-
-        // Filter out password-protected posts and posts without featured images
-        const publishedPosts = posts.filter(post =>
-            post.status === 'publish' &&
-            !post.content?.protected &&
-            post.featured_media && post.featured_media > 0
-        );
-
-        // Transform the data to match your expected format
-        const transformedPosts = await Promise.all(publishedPosts.map(async post => {
-            // Extract featured image from embedded data
-            let featuredImage = '';
-            if (post._embedded && post._embedded['wp:featuredmedia'] && post._embedded['wp:featuredmedia'][0]) {
-                const media = post._embedded['wp:featuredmedia'][0];
-                featuredImage = media.source_url || '';
-            }
-
-            // Extract category names and IDs from embedded data or fetch them
-            let categories = '';
-            let categoryNames = '';
-
-            if (post._embedded && post._embedded['wp:term'] && post._embedded['wp:term'][0]) {
-                const cats = post._embedded['wp:term'][0];
-
-                categories = cats.map(cat => cat.slug).join(',');
-                categoryNames = cats.map(cat => cat.name).join(',');
-            } else if (post.categories && post.categories.length > 0) {
-                // Fallback: fetch category details if embedded data is not available
-                try {
-                    const catResponse = await fetch(`${restBaseUrl}categories?include=${post.categories.join(',')}`);
-                    if (catResponse.ok) {
-                        const cats = await catResponse.json();
-                        categories = cats.map(cat => cat.slug).join(',');
-                        categoryNames = cats.map(cat => cat.name).join(',');
-                    }
-                } catch (error) {
-                    console.warn('Failed to fetch category details:', error);
-                }
-            }
-
-            // Extract tag names and IDs from embedded data or fetch them
-            let tags = '';
-            let tagNames = '';
-            if (post._embedded && post._embedded['wp:term'] && post._embedded['wp:term'][1]) {
-                const postTags = post._embedded['wp:term'][1];
-
-                tags = postTags.map(tag => tag.slug).join(',');
-                tagNames = postTags.map(tag => tag.name).join(',');
-            } else if (post.tags && post.tags.length > 0) {
-                // Fallback: fetch tag details if embedded data is not available
-                try {
-                    const tagResponse = await fetch(`${restBaseUrl}tags?include=${post.tags.join(',')}`);
-                    if (tagResponse.ok) {
-                        const postTags = await tagResponse.json();
-                        tags = postTags.map(tag => tag.slug).join(',');
-                        tagNames = postTags.map(tag => tag.name).join(',');
-                    }
-                } catch (error) {
-                    console.warn('Failed to fetch tag details:', error);
-                }
-            }
-
-            // Format date
-            const postDate = new Date(post.date);
-            const formattedDate = postDate.toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-            });
-
-            return {
-                id: post.id,
-                title: decodeHTMLEntities(post.title.rendered),
-                excerpt: post.excerpt ? post.excerpt.rendered.replace(/<[^>]*>/g, '').trim() : '',
-                featured_image: featuredImage,
-                post_date: formattedDate,
-                post_datetime: post.date,
-                categories: categories,
-                category_names: categoryNames,
-                tags: tags,
-                tag_names: tagNames,
-                url: post.link,
-                post_type: post.type
-            };
-        }));
-
-        return transformedPosts;
-
-    } catch (error) {
-        console.error('Error fetching posts from WordPress API:', error);
-        return [];
-    }
-}
 // =======================================
 //  WORDPRESS REST API HELPER FUNCTIONS:::END
 // =======================================
@@ -978,30 +811,35 @@ const openIndexedDB = (dbName, version = 1) => {
 
 // Generic function to handle IndexedDB operations
 async function fetchPostsFromDB(dbName, storeName, filterCallback) {
-    try {
-        const db = await openIndexedDB(dbName);
-        const transaction = db.transaction([storeName], "readonly");
-        const objectStore = transaction.objectStore(storeName);
-        const posts = [];
 
-        objectStore.openCursor().onsuccess = function (event) {
-            const cursor = event.target.result;
-            if (cursor) {
-                if (filterCallback(cursor.value)) {
-                    posts.push(cursor.value);
-                }
-                cursor.continue();
-            }
-        };
+    console.log(`Fetching posts from IndexedDB: ${dbName}, Store: ${storeName}`);
 
-        return new Promise((resolve, reject) => {
-            transaction.oncomplete = () => resolve(posts);
-            transaction.onerror = (event) => reject(event.target.errorCode);
-        });
-    } catch (error) {
-        console.error("Failed to open database:", error);
-        return [];
-    }
+
+
+    // try {
+    //     const db = await openIndexedDB(dbName);
+    //     const transaction = db.transaction([storeName], "readonly");
+    //     const objectStore = transaction.objectStore(storeName);
+    //     const posts = [];
+
+    //     objectStore.openCursor().onsuccess = function (event) {
+    //         const cursor = event.target.result;
+    //         if (cursor) {
+    //             if (filterCallback(cursor.value)) {
+    //                 posts.push(cursor.value);
+    //             }
+    //             cursor.continue();
+    //         }
+    //     };
+
+    //     return new Promise((resolve, reject) => {
+    //         transaction.oncomplete = () => resolve(posts);
+    //         transaction.onerror = (event) => reject(event.target.errorCode);
+    //     });
+    // } catch (error) {
+    //     console.error("Failed to open database:", error);
+    //     return [];
+    // }
 }
 
 /**
@@ -1117,25 +955,6 @@ function decodeHTMLEntities(text) {
     return curr;
 }
 
-// function parseDate(dateString) {
-//     // Handle new date format "14 Jun 2014"
-//     const parts = dateString.split(" ");
-//     if (parts.length !== 3) return null;
-
-//     const day = parseInt(parts[0], 10);
-//     const monthName = parts[1];
-//     const year = parseInt(parts[2], 10);
-
-//     // Convert month name to month number
-//     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-//         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-//     const month = monthNames.indexOf(monthName);
-
-//     if (month === -1) return null; // Invalid month name
-
-//     return new Date(year, month, day);
-// }
-
 // Utility function to sort posts by date
 function sortPostsByDate(posts) {
     return posts.sort(
@@ -1190,53 +1009,53 @@ function addLoadMoreButton(
     });
 }
 
-// async function showFilteredAwards(filterID) {
-//     await filterAndRenderPosts({
-//         dbName: "PostsDatabase",
-//         storeName: "posts",
-//         filterFn: (post) => {
-//             const postTags = post.tags.toLowerCase().split(",");
-//             return postTags.includes("awards");
-//         },
-//         postFilter: (post) => {
-//             const postTags = post.tags.toLowerCase().split(",");
-//             return !filterID || postTags.includes(filterID);
-//         },
-//         renderType: "award",
-//         maxInitialPosts: 15,
-//         containerId: "all_awards_wrapper",
-//         loadMoreId: "btn_load_more_wrapper"
-//     });
-// }
+async function showFilteredAwards(filterID) {
+    await filterAndRenderPosts({
+        dbName: "PostsDatabase",
+        storeName: "posts",
+        filterFn: (post) => {
+            const postTags = post.tags.toLowerCase().split(",");
+            return postTags.includes("awards");
+        },
+        postFilter: (post) => {
+            const postTags = post.tags.toLowerCase().split(",");
+            return !filterID || postTags.includes(filterID);
+        },
+        renderType: "award",
+        maxInitialPosts: 15,
+        containerId: "all_awards_wrapper",
+        loadMoreId: "btn_load_more_wrapper"
+    });
+}
 
-// async function showFilteredAwardsByYear(filterID) {
-//     await filterAndRenderPosts({
-//         dbName: "PostsDatabase",
-//         storeName: "posts",
-//         filterFn: (post) => {
-//             const postTags = post.tags.toLowerCase().split(",");
-//             return postTags.includes("awards");
-//         },
-//         postFilter: (post) => {
-//             const postYear = parseInt(post.post_date.split(" ")[2], 10);
-//             if (!filterID) return true;
-//             const filterYear = parseInt(filterID, 10);
-//             if (filterYear === 2020) {
-//                 return postYear >= 2020;
-//             } else if (filterYear === 2010) {
-//                 return postYear >= 2010 && postYear <= 2019;
-//             } else if (filterYear === 2000) {
-//                 return postYear >= 2000 && postYear <= 2009;
-//             } else {
-//                 return postYear === filterYear;
-//             }
-//         },
-//         renderType: "award",
-//         maxInitialPosts: 20,
-//         containerId: "all_awards_wrapper",
-//         loadMoreId: "btn_load_more_wrapper"
-//     });
-// }
+async function showFilteredAwardsByYear(filterID) {
+    await filterAndRenderPosts({
+        dbName: "PostsDatabase",
+        storeName: "posts",
+        filterFn: (post) => {
+            const postTags = post.tags.toLowerCase().split(",");
+            return postTags.includes("awards");
+        },
+        postFilter: (post) => {
+            const postYear = parseInt(post.post_date.split(" ")[2], 10);
+            if (!filterID) return true;
+            const filterYear = parseInt(filterID, 10);
+            if (filterYear === 2020) {
+                return postYear >= 2020;
+            } else if (filterYear === 2010) {
+                return postYear >= 2010 && postYear <= 2019;
+            } else if (filterYear === 2000) {
+                return postYear >= 2000 && postYear <= 2009;
+            } else {
+                return postYear === filterYear;
+            }
+        },
+        renderType: "award",
+        maxInitialPosts: 20,
+        containerId: "all_awards_wrapper",
+        loadMoreId: "btn_load_more_wrapper"
+    });
+}
 
 FilterButton.initializeAll(SELECTORS.awardsFilterButton, (filterID) => {
     currentFilterID = filterID === "all" ? null : filterID;
@@ -1263,69 +1082,46 @@ const searchInput = document?.getElementById("newsletterSearch");
 const showCloseButton = document?.getElementById("nl_close_search");
 const nlSearchIcon = document?.getElementById("nl_search_icon");
 
-FilterButton.initializeAll(SELECTORS.NewslettersFilterButtons, (filterID) => {
-    currentFilterID = filterID === "all" ? null : filterID;
-    showFilteredNewsletters(currentFilterID);
-});
-
-async function showFilteredNewsletters(filterCategoryID) {
-    await filterAndRenderPosts({
-        dbName: "PostsDatabase",
-        storeName: "posts",
-        filterFn: (post) => {
-            const categories = post.categories.toLowerCase().split(", ");
-            return categories.includes(filterCategoryID);
-        },
-        postFilter: (post) => {
-            const categories = post.categories.toLowerCase().split(", ");
-            return !filterCategoryID || categories.includes(filterCategoryID);
-        },
-        renderType: "newsletter",
-        maxInitialPosts: 16,
-        containerId: "newsletters_post",
-        loadMoreId: "btn_load_more_wrapper"
-    });
-}
 // Generic utility to filter, sort, and render posts with optional load more
-// async function filterAndRenderPosts({
-//     dbName,
-//     storeName,
-//     filterFn,
-//     postFilter = null,
-//     renderType = "news",
-//     maxInitialPosts = 15,
-//     containerId,
-//     loadMoreId
-// }) {
-//     const posts = await fetchPostsFromDB(dbName, storeName, filterFn);
-//     const sortedPosts = sortPostsByDate(posts);
-//     const container = document?.getElementById(containerId);
-//     const loadMoreContainer = document?.getElementById(loadMoreId);
-//     if (!container || !loadMoreContainer) return;
-//     loadMoreContainer.innerHTML = "";
-//     container.innerHTML = "";
-//     let filteredPosts = sortedPosts;
-//     if (postFilter) {
-//         filteredPosts = sortedPosts.filter(postFilter);
-//     }
-//     const initialPosts = filteredPosts.slice(0, maxInitialPosts);
-//     initialPosts.forEach((post) => {
-//         const article = createCardUI(post, renderType, true);
-//         container?.appendChild(article);
-//     });
-//     let currentPostIndex = maxInitialPosts;
-//     if (filteredPosts.length > maxInitialPosts) {
-//         addLoadMoreButton(
-//             loadMoreContainer,
-//             container,
-//             filteredPosts,
-//             currentPostIndex,
-//             maxInitialPosts,
-//             createCardUI,
-//             renderType
-//         );
-//     }
-// }
+async function filterAndRenderPosts({
+    dbName,
+    storeName,
+    filterFn,
+    postFilter = null,
+    renderType = "news",
+    maxInitialPosts = 15,
+    containerId,
+    loadMoreId
+}) {
+    const posts = await fetchPostsFromDB(dbName, storeName, filterFn);
+    const sortedPosts = sortPostsByDate(posts);
+    const container = document?.getElementById(containerId);
+    const loadMoreContainer = document?.getElementById(loadMoreId);
+    if (!container || !loadMoreContainer) return;
+    loadMoreContainer.innerHTML = "";
+    container.innerHTML = "";
+    let filteredPosts = sortedPosts;
+    if (postFilter) {
+        filteredPosts = sortedPosts.filter(postFilter);
+    }
+    const initialPosts = filteredPosts.slice(0, maxInitialPosts);
+    initialPosts.forEach((post) => {
+        const article = createCardUI(post, renderType, true);
+        container?.appendChild(article);
+    });
+    let currentPostIndex = maxInitialPosts;
+    if (filteredPosts.length > maxInitialPosts) {
+        addLoadMoreButton(
+            loadMoreContainer,
+            container,
+            filteredPosts,
+            currentPostIndex,
+            maxInitialPosts,
+            createCardUI,
+            renderType
+        );
+    }
+}
 
 //SEARCH NEWSLETTERS
 searchInput?.addEventListener("input", async function (e) {
@@ -1539,33 +1335,39 @@ function renderPagination(posts, postsPerPage = 15, elementID) {
     updatePagination();
 }
 
-// async function getNewsAndEventsPosts(categories = [], filterID = null) {
-//     const dbName = "PostsDatabase";
-//     const storeName = "posts";
+async function getNewsAndEventsPosts(categories = [], filterID = null) {
 
-//     // get all posts from db that matches the categories
-//     const awardsOrNews = await fetchPostsFromDB(dbName, storeName, (post) => {
-//         const postCategories = post.categories.toLowerCase().split(",");
-//         const matchesCategory = postCategories.some((category) => categories.includes(category));
-//         return matchesCategory;
-//     });
+    console.log("Fetching news and events posts...");
+    console.log("Categories:", categories);
+    console.log("Filter ID:", filterID);
 
-//     let filteredPosts = awardsOrNews;
 
-//     // Filter posts by tag if filterID is provided
-//     if (filterID) {
-//         filteredPosts = awardsOrNews.filter((post) => {
-//             const postTags = post.tags.toLowerCase().split(",");
-//             return postTags.includes(filterID);
-//         });
-//     }
+    const dbName = "PostsDatabase";
+    const storeName = "posts";
 
-//     const sortedPosts = sortPostsByDate(filteredPosts);
+    // get all posts from db that matches the categories
+    const awardsOrNews = await fetchPostsFromDB(dbName, storeName, (post) => {
+        const postCategories = post.categories.toLowerCase().split(",");
+        const matchesCategory = postCategories.some((category) => categories.includes(category));
+        return matchesCategory;
+    });
 
-//     // Initial render
-//     renderPosts(sortedPosts, 1, 15, "all_news_posts");
-//     renderPagination(sortedPosts, 15, "all_news_posts");
-// }
+    let filteredPosts = awardsOrNews;
+
+    // Filter posts by tag if filterID is provided
+    if (filterID) {
+        filteredPosts = awardsOrNews.filter((post) => {
+            const postTags = post.tags.toLowerCase().split(",");
+            return postTags.includes(filterID);
+        });
+    }
+
+    const sortedPosts = sortPostsByDate(filteredPosts);
+
+    // Initial render
+    renderPosts(sortedPosts, 1, 15, "all_news_posts");
+    renderPagination(sortedPosts, 15, "all_news_posts");
+}
 
 // filter for awards 
 FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
@@ -1587,55 +1389,55 @@ function filterPostsByCategoryAndTag(posts, filterID) {
     });
 }
 
-// async function getPodcastsAndWebinars(categories = [], filterID = null) {
+async function getPodcastsAndWebinars(categories = [], filterID = null) {
 
-//     const dbName = "PostsDatabase";
-//     const storeName = "posts";
+    const dbName = "PostsDatabase";
+    const storeName = "posts";
 
-//     const posts = await fetchPostsFromDB(dbName, storeName, (post) => {
-//         if (categories.length === 0) return true; // If no categories specified, include all
+    const posts = await fetchPostsFromDB(dbName, storeName, (post) => {
+        if (categories.length === 0) return true; // If no categories specified, include all
 
-//         const postCategories = post.categories
-//             .toLowerCase()
-//             .split(",")
-//             .map(cat => cat.trim());
-//         return categories.some(category =>
-//             postCategories.includes(category.toLowerCase())
-//         );
-//     });
+        const postCategories = post.categories
+            .toLowerCase()
+            .split(",")
+            .map(cat => cat.trim());
+        return categories.some(category =>
+            postCategories.includes(category.toLowerCase())
+        );
+    });
 
-//     let filteredPosts = posts;
+    let filteredPosts = posts;
 
-//     // Filter by tag if filterID is provided
-//     if (filterID) {
-//         filteredPosts = posts.filter((post) => {
-//             const postCategories = (post.categories || "")
-//                 .toLowerCase()
-//                 .split(",")
-//                 .map(cat => cat.trim());
+    // Filter by tag if filterID is provided
+    if (filterID) {
+        filteredPosts = posts.filter((post) => {
+            const postCategories = (post.categories || "")
+                .toLowerCase()
+                .split(",")
+                .map(cat => cat.trim());
 
-//             const postTags = (post.tags || "")
-//                 .toLowerCase()
-//                 .split(",")
-//                 .map(tag => tag.trim());
+            const postTags = (post.tags || "")
+                .toLowerCase()
+                .split(",")
+                .map(tag => tag.trim());
 
-//             return postCategories.includes(filterID.toLowerCase()) ||
-//                 postTags.includes(filterID.toLowerCase());
-//         });
-//     }
+            return postCategories.includes(filterID.toLowerCase()) ||
+                postTags.includes(filterID.toLowerCase());
+        });
+    }
 
-//     // Filter posts to only include those with featured images
-//     filteredPosts = filteredPosts.filter((post) => {
-//         return post.featured_image && post.featured_image.trim() !== '';
-//     });
+    // Filter posts to only include those with featured images
+    filteredPosts = filteredPosts.filter((post) => {
+        return post.featured_image && post.featured_image.trim() !== '';
+    });
 
-//     // Sort the filtered posts by date
-//     const sortedPosts = sortPostsByDate(filteredPosts);
+    // Sort the filtered posts by date
+    const sortedPosts = sortPostsByDate(filteredPosts);
 
-//     // Initial render
-//     renderPosts(sortedPosts, 1, 15, "pod-and-web");
-//     renderPagination(sortedPosts, 15, "pod-and-web");
-// }
+    // Initial render
+    renderPosts(sortedPosts, 1, 15, "pod-and-web");
+    renderPagination(sortedPosts, 15, "pod-and-web");
+}
 
 FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
     currentFilterID = filterID === "all" ? null : filterID;
@@ -1644,36 +1446,36 @@ FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
     getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], currentFilterID);
 });
 
-// async function initRenderPagination(categories = []) {
+async function initRenderPagination(categories = []) {
 
-//     const dbName = "PostsDatabase";
-//     const storeName = "posts";
+    const dbName = "PostsDatabase";
+    const storeName = "posts";
 
-//     const posts = await fetchPostsFromDB(dbName, storeName, (post) => {
-//         if (categories.length === 0) return true; // If no categories specified, include all
+    const posts = await fetchPostsFromDB(dbName, storeName, (post) => {
+        if (categories.length === 0) return true; // If no categories specified, include all
 
-//         const postCategories = post.categories
-//             .toLowerCase()
-//             .split(",")
-//             .map(cat => cat.trim());
+        const postCategories = post.categories
+            .toLowerCase()
+            .split(",")
+            .map(cat => cat.trim());
 
-//         return categories.some(category =>
-//             postCategories.includes(category.toLowerCase())
-//         );
-//     });
+        return categories.some(category =>
+            postCategories.includes(category.toLowerCase())
+        );
+    });
 
-//     let filteredPosts = posts;
+    let filteredPosts = posts;
 
-//     // Filter posts to only include those with featured images
-//     filteredPosts = filteredPosts.filter((post) => {
-//         return post.featured_image && post.featured_image.trim() !== '';
-//     });
+    // Filter posts to only include those with featured images
+    filteredPosts = filteredPosts.filter((post) => {
+        return post.featured_image && post.featured_image.trim() !== '';
+    });
 
-//     // Sort the filtered posts by date
-//     const sortedPosts = sortPostsByDate(filteredPosts);
+    // Sort the filtered posts by date
+    const sortedPosts = sortPostsByDate(filteredPosts);
 
-//     renderPagination(sortedPosts, 15, "pod-and-web");
-// }
+    renderPagination(sortedPosts, 15, "pod-and-web");
+}
 
 const hamburgerMenuBtn = document?.querySelector('.nav_trail_active .hamburger');
 const aboutUsUlNav = document?.getElementById('about_us_nav');
@@ -1690,44 +1492,44 @@ hamburgerMenuBtn?.addEventListener('click', () => {
     aboutUsNavUlMobile?.setAttribute('aria-hidden', ariaHiddenValue);
 });
 
-// async function getArchivedAllPosts(categories = []) {
-//     const dbName = "PostsDatabase";
-//     const storeName = "posts";
+async function getArchivedAllPosts(categories = []) {
+    const dbName = "PostsDatabase";
+    const storeName = "posts";
 
-//     const allPosts = await fetchPostsFromDB(dbName, storeName, (post) => post);
+    const allPosts = await fetchPostsFromDB(dbName, storeName, (post) => post);
 
-//     let filteredPosts = allPosts;
+    let filteredPosts = allPosts;
 
-//     if (categories.length) {
-//         filteredPosts = filteredPosts.filter((post) => {
-//             // Split categories by comma and trim whitespace
-//             const postCategories = post.categories
-//                 .split(",")
-//                 .map(cat => cat.trim().toLowerCase());
-//             return categories.some((category) => postCategories.includes(category));
-//         });
-//     }
+    if (categories.length) {
+        filteredPosts = filteredPosts.filter((post) => {
+            // Split categories by comma and trim whitespace
+            const postCategories = post.categories
+                .split(",")
+                .map(cat => cat.trim().toLowerCase());
+            return categories.some((category) => postCategories.includes(category));
+        });
+    }
 
-//     const sortedPosts = sortPostsByDate(filteredPosts);
+    const sortedPosts = sortPostsByDate(filteredPosts);
 
-//     // Group posts by year
-//     const postsByYear = {};
-//     sortedPosts.forEach((post) => {
-//         // Handle new date format "14 Jun 2014"
-//         const parts = post.post_date.split(" ");
-//         const year = parts[2]; // Year is now the third part
-//         if (!postsByYear[year]) postsByYear[year] = [];
-//         postsByYear[year].push(post);
-//     });
+    // Group posts by year
+    const postsByYear = {};
+    sortedPosts.forEach((post) => {
+        // Handle new date format "14 Jun 2014"
+        const parts = post.post_date.split(" ");
+        const year = parts[2]; // Year is now the third part
+        if (!postsByYear[year]) postsByYear[year] = [];
+        postsByYear[year].push(post);
+    });
 
-//     // Render a single table
-//     const archivedPostsContainer = document?.getElementById("archived_posts_container");
-//     if (!archivedPostsContainer) return;
-//     archivedPostsContainer.innerHTML = "";
+    // Render a single table
+    const archivedPostsContainer = document?.getElementById("archived_posts_container");
+    if (!archivedPostsContainer) return;
+    archivedPostsContainer.innerHTML = "";
 
-//     const table = createUITable(postsByYear, categories);
-//     archivedPostsContainer.appendChild(table);
-// }
+    const table = createUITable(postsByYear, categories);
+    archivedPostsContainer.appendChild(table);
+}
 
 function createUITable(postsByYear, categories) {
     const table = document.createElement("table");
@@ -1799,48 +1601,7 @@ function getRenderedPostIds(containerSelector, itemClass) {
         .map(el => el.getAttribute('data-post-id'));
 }
 
-async function maybeShowLoadMoreButton({
-    postType = 'posts', // 'posts' for default posts, 'projects' for custom post type
-    filterByCategories = [],
-    filterBtTags = [],
-    containerSelector,
-    itemClass,
-    loadMoreWrapperSelector,
-    postsPerPage = 16,
-    createCardUI,
-    cardType = ""
-}) {
-    const postsContainer = document.querySelector(containerSelector);
-    const buttonContainer = document.querySelector(loadMoreWrapperSelector);
 
-    if (!postsContainer) {
-        console.warn(`maybeShowLoadMoreButton: Container selector "${containerSelector}" not found in DOM.`);
-        return;
-    }
-    if (!buttonContainer) {
-        console.warn(`maybeShowLoadMoreButton: Load more wrapper selector "${loadMoreWrapperSelector}" not found in DOM.`);
-        return;
-    }
-
-    if (!postsContainer || !buttonContainer) return; // Exit if containers are missing
-
-    const renderedIds = getRenderedPostIds(containerSelector, itemClass);
-    const allPosts = await getAllPostsFromAPI({ postType, filterByCategories, filterBtTags, postsPerPage });
-
-    // console.log(`All posts fetched: ${allPosts.length}, Rendered IDs: ${renderedIds.length}`);
-
-    if (allPosts.length > renderedIds.length) {
-        addLoadMoreButton(
-            buttonContainer,
-            postsContainer,
-            allPosts,
-            renderedIds.length,
-            postsPerPage,
-            createCardUI,
-            cardType
-        );
-    }
-}
 
 // PROFILE SINGLE PAGE OBSERVER 
 const sectionTextContent = [...document.querySelectorAll('.profile_content_section')];
