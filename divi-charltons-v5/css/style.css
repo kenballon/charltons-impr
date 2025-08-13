@@ -4178,6 +4178,10 @@ ul.in_page_tab_menu {
         font-size: 1rem;
         font-weight: 700;
       }
+
+      a {
+        margin-top: auto;
+      }
     }
 
     .nl_hero_text {
@@ -7402,3 +7406,39 @@ img.emoji {
 /* ================================================= */
 /* #endregion MISC CSS STYLES */
 /* ================================================= */
+
+.newsletter-load-more-container {
+  display: flex;
+  align-items: center;
+  padding-block: 2rem;
+
+
+  #newsletter-load-more-btn {
+    margin-inline: auto;
+    padding: 10px 20px;
+    background-color: var(--chr-primary-color-500);
+    color: white;
+    border: none;
+
+    cursor: pointer;
+    font-weight: 600;
+
+    &:hover {
+      background-color: var(--chr-primary-color-600);
+    }
+  }
+}
+
+.newsletter_category_filter {
+  transition: all 0.3s ease;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 20px;
+}
+
+.newsletters_post {
+  min-height: 200px;
+  /* Prevent layout shift during loading */
+}
