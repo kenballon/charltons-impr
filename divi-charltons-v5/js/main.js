@@ -25,7 +25,7 @@ document.addEventListener("readystatechange", (e) => {
 
 
         if (window.location.pathname.includes("/news/newsletters/hong-kong-law-3/")) {
-
+            initNewsletterLoadMore();
         }
 
         if (window.location.pathname.includes("/our-firm/awards-2/")) {
@@ -1726,3 +1726,62 @@ expandMoreBtn.forEach(btn => {
     })
 });
 
+// loadmore button for Newsletters
+function initNewsletterLoadMore() {
+    const loadMoreBtn = document.getElementById("newsletter-load-more-btn");
+    const loadingSpinner = document.querySelector(".loading-spinner");
+    const postsContainer = document.getElementById("newsletters_post");
+
+    if (!loadMoreBtn) return;
+
+    loadMoreBtn.addEventListener("click", function () {
+        const offset = parseInt(this.dataset.offset);
+        const postType = this.dataset.postType;
+        const category = this.dataset.category;
+
+        // Show loading state
+        loadMoreBtn.style.display = "none";
+        loadingSpinner.style.display = "block";
+
+        // Make AJAX request
+        fetch(ajax_object.ajax_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                action: "load_more_newsletters",
+                offset: offset,
+                post_type: postType,
+                filter_category: category,
+                posts_per_page: 20
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Append new content to the grid container
+                    postsContainer.insertAdjacentHTML("beforeend", data.data.content);
+
+                    // Update offset
+                    loadMoreBtn.dataset.offset = data.data.next_offset;
+
+                    // Show/hide button based on whether there are more posts
+                    if (data.data.has_more) {
+                        loadMoreBtn.style.display = "block";
+                    } else {
+                        loadMoreBtn.style.display = "none";
+                    }
+                } else {
+                    console.error("Error:", data.data);
+                    loadMoreBtn.style.display = "none";
+                }
+                loadingSpinner.style.display = "none";
+            })
+            .catch(error => {
+                console.error("Error loading more posts:", error);
+                loadMoreBtn.style.display = "block";
+                loadingSpinner.style.display = "none";
+            });
+    });
+}
