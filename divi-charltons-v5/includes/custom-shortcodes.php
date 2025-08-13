@@ -1880,17 +1880,22 @@ function getNewslettersPosts($atts = [])
 {
     $atts = shortcode_atts([
         'post_type' => 'project',
-        'posts_per_page' => -1,
+        'posts_per_page' => 20,  // Changed default to 20 for pagination
         'filter_category' => '',
+        'offset' => 0,  // Added offset for pagination
+        'load_more' => false,  // Added flag for load more requests
     ], $atts, 'get_newsletter_posts');
 
     $post_type = sanitize_text_field($atts['post_type']);
     $posts_per_page = intval($atts['posts_per_page']);
     $filter_category = sanitize_text_field($atts['filter_category']);
+    $offset = intval($atts['offset']);
+    $load_more = filter_var($atts['load_more'], FILTER_VALIDATE_BOOLEAN);
 
     $query_args = [
         'posts_per_page' => $posts_per_page,
         'post_status' => 'publish',
+        'offset' => $offset,
         // Remove meta_query so we don't filter out posts with only plugin images
     ];
 
@@ -1924,6 +1929,9 @@ function getNewslettersPosts($atts = [])
     });
 
     if (empty($custom_posts)) {
+        if ($load_more) {
+            wp_send_json_error('No more posts found');
+        }
         return '<p>No posts found for the specified post type.</p>';
     }
 
@@ -1947,7 +1955,7 @@ function getNewslettersPosts($atts = [])
 ?>
 <article class="newsletter_post_item flex-col" data-category="<?php echo esc_attr($post['categories']); ?>"
     data-tags="<?php echo esc_attr($post['tags']); ?>" data-nl_date="<?php echo esc_attr($post['post_date']); ?>"
-    data-post-id="<?php echo esc_attr($post['id']); ?>">
+    data-post-id="<?php echo esc_attr($post['id']); ?>" data-ken="kenneth">
     <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
         aria-label="<?php echo esc_attr($post['title']); ?>">
         <div class="post-thumbnail">
@@ -1964,7 +1972,116 @@ function getNewslettersPosts($atts = [])
 </article>
 <?php
     endforeach;
-    return ob_get_clean();
+
+    $content = ob_get_clean();
+
+    // If this is a load more request, return JSON
+    if ($load_more) {
+        $has_more = count($custom_posts) === $posts_per_page;
+        wp_send_json_success([
+            'content' => $content,
+            'has_more' => $has_more,
+            'next_offset' => $offset + $posts_per_page
+        ]);
+    }
+
+    // For initial load, structure the content with proper containers
+    if (!$load_more) {
+        // Wrap articles in the grid container
+        $full_content = '<div class="newsletters_post" id="newsletters_post">' . $content . '</div>';
+
+        // Add load more button outside the grid container
+        $full_content .= '<div class="newsletter-load-more-container">
+            <button id="newsletter-load-more-btn" class="load-more-btn" data-offset="' . $posts_per_page . '" data-post-type="' . esc_attr($post_type) . '" data-category="' . esc_attr($filter_category) . '">
+                Load More
+            </button>
+            <div class="loading-spinner" style="display: none;">Loading...</div>
+        </div>';
+
+        $full_content .= '<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const loadMoreBtn = document.getElementById("newsletter-load-more-btn");
+            const loadingSpinner = document.querySelector(".loading-spinner");
+            const postsContainer = document.getElementById("newsletters_post"); // Target the grid container
+            
+            if (loadMoreBtn) {
+                loadMoreBtn.addEventListener("click", function() {
+                    const offset = parseInt(this.dataset.offset);
+                    const postType = this.dataset.postType;
+                    const category = this.dataset.category;
+                    
+                    // Show loading state
+                    loadMoreBtn.style.display = "none";
+                    loadingSpinner.style.display = "block";
+                    
+                    // Make AJAX request
+                    fetch("' . admin_url('admin-ajax.php') . '", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                        },
+                        body: new URLSearchParams({
+                            action: "load_more_newsletters",
+                            offset: offset,
+                            post_type: postType,
+                            filter_category: category,
+                            posts_per_page: 20
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Append new content to the grid container
+                            postsContainer.insertAdjacentHTML("beforeend", data.data.content);
+                            
+                            // Update offset
+                            loadMoreBtn.dataset.offset = data.data.next_offset;
+                            
+                            // Show/hide button based on whether there are more posts
+                            if (data.data.has_more) {
+                                loadMoreBtn.style.display = "block";
+                            } else {
+                                loadMoreBtn.style.display = "none";
+                            }
+                        } else {
+                            loadMoreBtn.style.display = "none";
+                        }
+                        loadingSpinner.style.display = "none";
+                    })
+                    .catch(error => {
+                        console.error("Error loading more posts:", error);
+                        loadMoreBtn.style.display = "block";
+                        loadingSpinner.style.display = "none";
+                    });
+                });
+            }
+        });
+        </script>';
+
+        return $full_content;
+    }
+
+    return $content;
+}
+
+// AJAX handler for load more functionality
+function load_more_newsletters_ajax()
+{
+    // Verify nonce for security (optional but recommended)
+    // if (!wp_verify_nonce($_POST['nonce'], 'load_more_newsletters_nonce')) {
+    //     wp_send_json_error('Invalid nonce');
+    // }
+
+    $atts = [
+        'post_type' => sanitize_text_field($_POST['post_type'] ?? 'project'),
+        'posts_per_page' => intval($_POST['posts_per_page'] ?? 20),
+        'filter_category' => sanitize_text_field($_POST['filter_category'] ?? ''),
+        'offset' => intval($_POST['offset'] ?? 0),
+        'load_more' => true
+    ];
+
+    // Call the main function with load_more flag
+    getNewslettersPosts($atts);
 }
 
 function getAwardPostItems($atts = [])
@@ -2117,6 +2234,144 @@ function getWebinarsPodcasts(array $atts = []): string
     return ob_get_clean();
 }
 
+function getStoreAllPostType($atts = [])
+{
+    // Set default attributes
+    $atts = shortcode_atts([
+        'custom_type' => 'project',
+        'limit' => -1,
+        'category' => '',
+    ], $atts, 'get_all_post_type_data');
+
+    $custom_type = sanitize_text_field($atts['custom_type']);
+    $limit = intval($atts['limit']);
+    $category = sanitize_text_field($atts['category']);
+
+    // Prepare query args for both post types
+    $args_post = [
+        'post_type' => 'post',
+        'posts_per_page' => $limit,
+        'post_status' => 'publish',
+    ];
+    if (!empty($category)) {
+        $args_post['category_name'] = $category;
+    }
+
+    $args_project = [
+        'post_type' => $custom_type,
+        'posts_per_page' => $limit,
+        'post_status' => 'publish',
+    ];
+    if (!empty($category)) {
+        $args_project['tax_query'] = [
+            [
+                'taxonomy' => $custom_type . '_category',
+                'field' => 'slug',
+                'terms' => explode(',', $category),
+            ]
+        ];
+    }
+
+    // Get posts for both types
+    $posts = function_exists('get_all_posts_data') ? get_all_posts_data(['post'], $args_post) : [];
+    $projects = function_exists('get_all_posts_data') ? get_all_posts_data([$custom_type], $args_project) : [];
+
+    // Merge and sort by date (latest first)
+    $all_posts = array_merge($posts, $projects);
+    usort($all_posts, function ($a, $b) {
+        $a_ts = strtotime($a['post_date'] ?? '');
+        $b_ts = strtotime($b['post_date'] ?? '');
+        return $b_ts <=> $a_ts;
+    });
+
+    // Filter out posts without any image
+    $all_posts = array_filter($all_posts, function ($post) {
+        $native_img = !empty($post['featured_image']);
+        $plugin_img = !empty(get_post_meta($post['id'], 'fiuw_image_url', true));
+        return $native_img || $plugin_img;
+    });
+
+    // Encode as JSON
+    $json_data = json_encode(array_values($all_posts));
+    $escaped_json = addslashes($json_data);
+    $data_hash = md5($json_data);
+
+    // Output JS to store in IndexedDB
+    $script = <<<EOT
+        <script>
+        (async () => {
+            try {
+                // const data = $json_data;     
+                const data = JSON.parse('$escaped_json');           
+                const dataHash = "$data_hash";
+                const dbName = "PostsDatabase";
+                const hashKey = "PostsDatabaseHash";                
+
+                if (!window.indexedDB) {
+                    console.log("Your browser doesn't support IndexedDB.");
+                    return;
+                }     
+                    
+                // console.table(data.filter(post => post.post_type === "project"));
+
+                // Check hash to avoid unnecessary updates
+                const storedHash = localStorage.getItem(hashKey);
+                if (storedHash !== dataHash) {
+                    try {
+                        await deleteDatabase(dbName);
+                        localStorage.setItem(hashKey, dataHash);
+                    } catch (e) { console.log("Delete DB error:", e); }
+                    try {
+                        const db = await openDatabase(dbName, 1);
+                        await storePosts(db, data);
+                        console.log("All posts stored in IndexedDB.");
+                    } catch (e) { console.log("Store DB error:", e); }
+                } else {
+                    // console.log("No changes detected. Database not updated.");
+                }
+
+                function deleteDatabase(name) {
+                    return new Promise((resolve, reject) => {
+                        const req = indexedDB.deleteDatabase(name);
+                        req.onsuccess = () => resolve();
+                        req.onerror = () => reject(req.error);
+                        req.onblocked = () => reject("Delete blocked");
+                    });
+                }
+
+                function openDatabase(name, version) {
+                    return new Promise((resolve, reject) => {
+                        const req = indexedDB.open(name, version);
+                        req.onupgradeneeded = (event) => {
+                            const db = event.target.result;
+                            if (!db.objectStoreNames.contains("posts")) {
+                                db.createObjectStore("posts", { keyPath: "id" });
+                            }
+                        };
+                        req.onsuccess = () => resolve(req.result);
+                        req.onerror = () => reject(req.error);
+                    });
+                }
+
+                function storePosts(db, posts) {
+                    return new Promise((resolve, reject) => {
+                        const tx = db.transaction("posts", "readwrite");
+                        const store = tx.objectStore("posts");
+                        posts.forEach(post => store.put(post));
+                        tx.oncomplete = () => resolve();
+                        tx.onerror = () => reject(tx.error);
+                    });
+                }
+            } catch (err) {
+                console.error("Error parsing or storing posts:", err);
+            }
+        })();
+        </script>
+        EOT;
+
+    return $script;
+}
+
 // Register custom shortcodes.
 function register_custom_shortcodes()
 {
@@ -2160,6 +2415,10 @@ function register_custom_shortcodes()
     add_shortcode('get_post_with_offset', 'getRecentPostWithOffset');
     add_shortcode('insights_presentations', 'insights_presentations_sc');
 
+    // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : START
+    // add_shortcode('get_all_post_type_data', 'getStoreAllPostType');
+    // SHORTCODES BELOW ARE CALLED IN FOOTER.PHP : END
+
     add_shortcode('get_newsletter_posts', 'getNewslettersPosts');
     add_shortcode('get_award_post_items', 'getAwardPostItems');
     add_shortcode('getNewsletterPostTitle', 'getNewsletterPostTitle');
@@ -2180,3 +2439,6 @@ add_action('wp_ajax_nopriv_ajax_latest_posts', 'ajax_latest_posts');
 
 add_action('wp_ajax_get_newsletters_posts', 'get_newsletters_posts');
 add_action('wp_ajax_nopriv_get_newsletters_posts', 'get_newsletters_posts');
+
+add_action('wp_ajax_load_more_newsletters', 'load_more_newsletters_ajax');
+add_action('wp_ajax_nopriv_load_more_newsletters', 'load_more_newsletters_ajax');
