@@ -2133,6 +2133,3 @@ searchInput?.addEventListener("input", (e) => {
         }
     }
 });
-
-
-
