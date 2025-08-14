@@ -1078,7 +1078,7 @@ FilterButton.initializeAll(".awards_btn_yrfilter", (filterID) => {
 
 });
 
-const searchInput = document?.getElementById("newsletterSearch");
+// const searchInput = document?.getElementById("newsletterSearch");
 const showCloseButton = document?.getElementById("nl_close_search");
 const nlSearchIcon = document?.getElementById("nl_search_icon");
 
@@ -1124,76 +1124,76 @@ async function filterAndRenderPosts({
 }
 
 //SEARCH NEWSLETTERS
-searchInput?.addEventListener("input", async function (e) {
-    const searchValue = e.target.value.toLowerCase();
-    const activeFilterBtn = document?.querySelector(
-        ".newsletter_category_filter.active"
-    );
+// searchInput?.addEventListener("input", async function (e) {
+//     const searchValue = e.target.value.toLowerCase();
+//     const activeFilterBtn = document?.querySelector(
+//         ".newsletter_category_filter.active"
+//     );
 
-    showCloseButton.classList.toggle("active", searchInput.value.length >= 2);
-    if (searchInput.value.length >= 2) {
-        nlSearchIcon.style.display = "none";
-    } else if (searchInput.value.length === 0) {
-        nlSearchIcon.style.display = "flex";
-    }
+//     showCloseButton.classList.toggle("active", searchInput.value.length >= 2);
+//     if (searchInput.value.length >= 2) {
+//         nlSearchIcon.style.display = "none";
+//     } else if (searchInput.value.length === 0) {
+//         nlSearchIcon.style.display = "flex";
+//     }
 
-    const dbName = "PostsDatabase";
-    const storeName = "posts";
-    const maxInitialPosts = 16;
-    let currentPostIndex = 0;
+//     const dbName = "PostsDatabase";
+//     const storeName = "posts";
+//     const maxInitialPosts = 16;
+//     let currentPostIndex = 0;
 
-    const searchNewsletterPosts = await fetchPostsFromDB(
-        dbName,
-        storeName,
-        (post) => {
-            const categories = post.categories.toLowerCase().split(", ");
-            return categories.includes(activeFilterBtn?.id);
-        }
-    );
+//     const searchNewsletterPosts = await fetchPostsFromDB(
+//         dbName,
+//         storeName,
+//         (post) => {
+//             const categories = post.categories.toLowerCase().split(", ");
+//             return categories.includes(activeFilterBtn?.id);
+//         }
+//     );
 
-    const sortedNewslettersPosts = sortPostsByDate(searchNewsletterPosts);
+//     const sortedNewslettersPosts = sortPostsByDate(searchNewsletterPosts);
 
-    const newsletterContainer = document?.getElementById("newsletters_post");
-    const loadMoreContainer = document?.getElementById("btn_load_more_wrapper");
-    if (!newsletterContainer || !loadMoreContainer) return;
-    loadMoreContainer.innerHTML = "";
-    newsletterContainer.innerHTML = "";
+//     const newsletterContainer = document?.getElementById("newsletters_post");
+//     const loadMoreContainer = document?.getElementById("btn_load_more_wrapper");
+//     if (!newsletterContainer || !loadMoreContainer) return;
+//     loadMoreContainer.innerHTML = "";
+//     newsletterContainer.innerHTML = "";
 
-    const filteredPosts = sortedNewslettersPosts.filter((post) => {
-        const postTitle = post.title.toLowerCase();
-        return postTitle.includes(searchValue);
-    });
+//     const filteredPosts = sortedNewslettersPosts.filter((post) => {
+//         const postTitle = post.title.toLowerCase();
+//         return postTitle.includes(searchValue);
+//     });
 
-    const initialPosts = filteredPosts.slice(0, maxInitialPosts);
+//     const initialPosts = filteredPosts.slice(0, maxInitialPosts);
 
-    initialPosts.forEach((post) => {
-        const article = createCardUI(post, "newsletter", true);
-        newsletterContainer?.appendChild(article);
-    });
+//     initialPosts.forEach((post) => {
+//         const article = createCardUI(post, "newsletter", true);
+//         newsletterContainer?.appendChild(article);
+//     });
 
-    currentPostIndex = maxInitialPosts;
+//     currentPostIndex = maxInitialPosts;
 
-    if (filteredPosts.length > maxInitialPosts) {
-        addLoadMoreButton(
-            loadMoreContainer,
-            newsletterContainer,
-            filteredPosts,
-            currentPostIndex,
-            maxInitialPosts,
-            createCardUI,
-            "newsletter"
-        );
-    }
-});
+//     if (filteredPosts.length > maxInitialPosts) {
+//         addLoadMoreButton(
+//             loadMoreContainer,
+//             newsletterContainer,
+//             filteredPosts,
+//             currentPostIndex,
+//             maxInitialPosts,
+//             createCardUI,
+//             "newsletter"
+//         );
+//     }
+// });
 
-showCloseButton?.addEventListener("click", function () {
-    searchInput.value = "";
-    showCloseButton.classList.remove("active");
-    const activeFilterBtn = document?.querySelector(
-        ".newsletter_category_filter.active"
-    );
-    showFilteredNewsletters(activeFilterBtn?.id);
-});
+// showCloseButton?.addEventListener("click", function () {
+//     searchInput.value = "";
+//     showCloseButton.classList.remove("active");
+//     const activeFilterBtn = document?.querySelector(
+//         ".newsletter_category_filter.active"
+//     );
+//     showFilteredNewsletters(activeFilterBtn?.id);
+// });
 //SEARCH NEWSLETTERS END
 
 const buttonSVG = document.querySelectorAll('.arrow_right_svg_plus_icon');
@@ -1736,7 +1736,10 @@ function initLoadMoreWithFilters(config) {
         categoryButtonsSelector,
         ajaxAction,
         defaultCategory = null,
-        postsPerPage = 20
+        postsPerPage = 20,
+        searchInputId = null,
+        searchCloseButtonId = null,
+        searchIconId = null
     } = config;
 
     const loadMoreBtn = document.getElementById(loadMoreBtnId);
@@ -1744,9 +1747,120 @@ function initLoadMoreWithFilters(config) {
     const postsContainer = document.getElementById(postsContainerId);
     const categoryButtons = document.querySelectorAll(categoryButtonsSelector);
 
+    // Search elements
+    const searchInput = searchInputId ? document.getElementById(searchInputId) : null;
+    const searchCloseButton = searchCloseButtonId ? document.getElementById(searchCloseButtonId) : null;
+    const searchIcon = searchIconId ? document.getElementById(searchIconId) : null;
+
     if (!loadMoreBtn || !postsContainer) {
         console.warn(`Load more functionality not initialized: missing elements`);
         return;
+    }
+
+    // Helper functions
+    function getActiveCategory() {
+        const activeButton = document.querySelector(`${categoryButtonsSelector}.active`);
+        return activeButton ? activeButton.id : defaultCategory;
+    }
+
+    // Remove non-matching cards on the client to ensure search results only show matches
+    function getCardTitleText(card) {
+        const titleEl = card.querySelector('h2.post-title, h2.newsevents__post_title, .title');
+        if (titleEl) return titleEl.textContent.trim();
+        const anchor = card.querySelector('a[aria-label], a[title]');
+        if (anchor) return (anchor.getAttribute('aria-label') || anchor.getAttribute('title') || '').trim();
+        return '';
+    }
+
+    function filterRenderedPostsByTitle(searchTerm) {
+        if (!postsContainer) return;
+        const q = (searchTerm || '').trim().toLowerCase();
+        if (!q) return 0;
+
+        const cards = Array.from(postsContainer.querySelectorAll('article, .news_article_wrapper, .newsletter_post_item'));
+        let kept = 0;
+        cards.forEach(card => {
+            const text = getCardTitleText(card).toLowerCase();
+            if (text.includes(q)) {
+                kept++;
+            } else {
+                card.remove();
+            }
+        });
+
+        // If nothing remains, show a simple empty state
+        if (kept === 0) {
+            postsContainer.innerHTML = `<p class="no-results">No results found for “${sanitizeHTML(searchTerm)}”.</p>`;
+        }
+        return kept;
+    }
+
+    function performSearch(searchTerm) {
+        const activeCategory = getActiveCategory();
+
+        // Reset offset and update button data
+        loadMoreBtn.dataset.offset = postsPerPage.toString();
+        loadMoreBtn.dataset.category = activeCategory;
+        loadMoreBtn.dataset.searchTerm = searchTerm;
+
+        // Clear current posts
+        postsContainer.innerHTML = "";
+
+        // Show loading state
+        loadMoreBtn.style.display = "none";
+        if (loadingSpinner) loadingSpinner.style.display = "block";
+
+        // Load posts with search
+        loadCategoryPosts(activeCategory, 0, true, searchTerm);
+    }
+
+    // Search functionality
+    if (searchInput) {
+        let searchTimeout;
+
+        searchInput.addEventListener("input", function (e) {
+            const searchValue = e.target.value.trim();
+
+            // Update UI elements
+            if (searchCloseButton) {
+                searchCloseButton.classList.toggle("active", searchValue.length >= 2);
+            }
+            if (searchIcon) {
+                searchIcon.style.display = searchValue.length >= 2 ? "none" : "flex";
+            }
+
+            // Clear previous timeout
+            clearTimeout(searchTimeout);
+
+            // Debounce search
+            searchTimeout = setTimeout(() => {
+                if (searchValue.length >= 2) {
+                    performSearch(searchValue);
+                } else if (searchValue.length === 0) {
+                    // Reset to current category filter
+                    const activeCategory = getActiveCategory();
+                    // Clear search state on button for subsequent loads
+                    delete loadMoreBtn.dataset.searchTerm;
+                    loadCategoryPosts(activeCategory, 0, true);
+                }
+            }, 500);
+        });
+
+        if (searchCloseButton) {
+            searchCloseButton.addEventListener("click", function () {
+                searchInput.value = "";
+                searchCloseButton.classList.remove("active");
+                if (searchIcon) {
+                    searchIcon.style.display = "flex";
+                }
+
+                // Reset to current category filter
+                const activeCategory = getActiveCategory();
+                // Clear search state on button for subsequent loads
+                delete loadMoreBtn.dataset.searchTerm;
+                loadCategoryPosts(activeCategory, 0, true);
+            });
+        }
     }
 
     // Category filter functionality
@@ -1759,9 +1873,17 @@ function initLoadMoreWithFilters(config) {
             // Get category from button ID
             const category = this.id;
 
+            // Get current search term
+            const searchTerm = searchInput ? searchInput.value.trim() : "";
+
             // Reset offset and update button data
             loadMoreBtn.dataset.offset = postsPerPage.toString();
             loadMoreBtn.dataset.category = category;
+            if (searchTerm) {
+                loadMoreBtn.dataset.searchTerm = searchTerm;
+            } else {
+                delete loadMoreBtn.dataset.searchTerm;
+            }
 
             // Clear current posts
             postsContainer.innerHTML = "";
@@ -1770,8 +1892,8 @@ function initLoadMoreWithFilters(config) {
             loadMoreBtn.style.display = "none";
             if (loadingSpinner) loadingSpinner.style.display = "block";
 
-            // Load posts for selected category
-            loadCategoryPosts(category, 0);
+            // Load posts for selected category (with search if active)
+            loadCategoryPosts(category, 0, true, searchTerm || null);
         });
     });
 
@@ -1780,36 +1902,56 @@ function initLoadMoreWithFilters(config) {
         const offset = parseInt(this.dataset.offset);
         const postType = this.dataset.postType;
         const category = this.dataset.category;
+        const searchTerm = this.dataset.searchTerm || null;
 
         // Show loading state
         loadMoreBtn.style.display = "none";
         if (loadingSpinner) loadingSpinner.style.display = "block";
 
         // Make AJAX request
-        loadCategoryPosts(category, offset);
+        loadCategoryPosts(category, offset, false, searchTerm);
     });
 
-    function loadCategoryPosts(category, offset) {
+    function loadCategoryPosts(category, offset, isNewSearch = false, searchTerm = null) {
         const postType = loadMoreBtn.dataset.postType || "project";
+
+        const requestBody = {
+            action: ajaxAction,
+            offset: offset,
+            post_type: postType,
+            filter_category: category,
+            posts_per_page: postsPerPage
+        };
+
+        // Add search term if provided
+        if (searchTerm && searchTerm.length >= 2) {
+            requestBody.search_term = searchTerm;
+        }
 
         fetch(ajax_object.ajax_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: new URLSearchParams({
-                action: ajaxAction,
-                offset: offset,
-                post_type: postType,
-                filter_category: category,
-                posts_per_page: postsPerPage
-            })
+            body: new URLSearchParams(requestBody)
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Append new content to the grid container
-                    postsContainer.insertAdjacentHTML("beforeend", data.data.content);
+                    if (isNewSearch) {
+                        // Replace content for new search/filter
+                        postsContainer.innerHTML = data.data.content;
+                    } else {
+                        // Append content for load more
+                        postsContainer.insertAdjacentHTML("beforeend", data.data.content);
+                    }
+
+                    // Apply client-side title filtering to ensure only matching posts are visible
+                    if (searchTerm && searchTerm.length >= 2) {
+                        const kept = filterRenderedPostsByTitle(searchTerm);
+                        // Keep load more hidden during a search to avoid mixing unrelated posts
+                        loadMoreBtn.style.display = "none";
+                    }
 
                     // Update offset
                     loadMoreBtn.dataset.offset = data.data.next_offset;
@@ -1855,6 +1997,9 @@ function initNewsletterLoadMore() {
         categoryButtonsSelector: ".newsletter_category_filter",
         ajaxAction: "load_more_newsletters",
         defaultCategory: "hong-kong-law",
-        postsPerPage: 20
+        postsPerPage: 20,
+        searchInputId: "newsletterSearch",
+        searchCloseButtonId: "nl_close_search",
+        searchIconId: "nl_search_icon"
     });
 }
