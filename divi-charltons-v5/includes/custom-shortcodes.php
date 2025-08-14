@@ -2003,8 +2003,8 @@ function getNewslettersPosts($atts = [])
 
         // Add load more button with default category
         $full_content .= '
-        <div class="flex justify-center items-center mt-4 mb-4">
-            <div class="loading-spinner" style="display:none;"></div>
+        <div class="flex justify-center items-center">
+            <div class="loading-spinner mt-4 mb-4" style="display:none;"></div>
             </div>
         <div class="newsletter-load-more-container flex flex-col items-center">        
             <button id="newsletter-load-more-btn" class="load-more-btn" data-offset="' . $posts_per_page . '" data-post-type="' . esc_attr($post_type) . '" data-category="' . esc_attr($filter_category) . '">
