@@ -2023,16 +2023,56 @@ function getNewslettersPosts($atts = [])
 // AJAX handler for load more functionality
 function load_more_newsletters_ajax()
 {
-    $atts = [
-        'post_type' => sanitize_text_field($_POST['post_type'] ?? 'project'),
-        'posts_per_page' => intval($_POST['posts_per_page'] ?? 20),
-        'filter_category' => sanitize_text_field($_POST['filter_category'] ?? ''),
-        'offset' => intval($_POST['offset'] ?? 0),
-        'load_more' => true
+    // Backward-compatible wrapper. Allows passing a different callback via POST, defaults to newsletters
+    $_POST['callback'] = isset($_POST['callback']) ? sanitize_text_field($_POST['callback']) : 'getNewslettersPosts';
+    load_more_content_ajax();
+}
+
+/**
+ * Generic AJAX handler for "load more" style requests.
+ * Accepts a `callback` POST param that maps to a whitelisted PHP function
+ * (e.g. getNewslettersPosts, getAwardPostItems). All POST params are sanitized
+ * and forwarded as shortcode-style $atts, with load_more enforced to true.
+ */
+function load_more_content_ajax()
+{
+    // Whitelist allowed callbacks for security
+    $allowed_callbacks = [
+        'getNewslettersPosts',
+        'getAwardPostItems',
     ];
 
-    // Call the main function with load_more flag
-    getNewslettersPosts($atts);
+    $callback = sanitize_text_field($_POST['callback'] ?? 'getNewslettersPosts');
+    if (!in_array($callback, $allowed_callbacks, true) || !function_exists($callback)) {
+        wp_send_json_error('Invalid callback');
+    }
+
+    // Build a sanitized $atts array from POST; keep it generic
+    $raw = $_POST;
+    unset($raw['action'], $raw['callback']);
+
+    $atts = [];
+    foreach ($raw as $key => $value) {
+        // Normalize booleans and ints for common keys, else sanitize text
+        if (in_array($key, ['posts_per_page', 'offset', 'limit'], true)) {
+            $atts[$key] = intval($value);
+        } elseif (in_array($key, ['load_more'], true)) {
+            $atts[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        } else {
+            // Accept strings (including comma-separated) and URLs
+            if (stripos($key, 'url') !== false) {
+                $atts[$key] = esc_url_raw($value);
+            } else {
+                $atts[$key] = sanitize_text_field($value);
+            }
+        }
+    }
+
+    // Force load_more for AJAX pathway
+    $atts['load_more'] = true;
+
+    // Invoke the target function; it should echo/return or wp_send_json_* itself
+    call_user_func($callback, $atts);
 }
 
 function getAwardPostItems($atts = [])
@@ -2040,12 +2080,22 @@ function getAwardPostItems($atts = [])
     $atts = shortcode_atts([
         'category' => '',  // Comma-separated slugs
         'tag' => 'awards',  // Comma-separated slugs
-        'limit' => 10,  // Number of posts to show
+        'limit' => 10,  // Back-compat: number of posts to show
+        'posts_per_page' => null,  // Preferred over limit when provided
+        'offset' => 0,
+        'load_more' => false,
     ], $atts, 'get_award_post_items');
+
+    $posts_per_page = isset($atts['posts_per_page']) && $atts['posts_per_page'] !== null
+        ? intval($atts['posts_per_page'])
+        : intval($atts['limit']);
+    $offset = intval($atts['offset']);
+    $load_more = filter_var($atts['load_more'], FILTER_VALIDATE_BOOLEAN);
 
     $args = [
         'post_type' => 'post',
-        'posts_per_page' => intval($atts['limit']),
+        'posts_per_page' => $posts_per_page,
+        'offset' => $offset,
         'post_status' => 'publish',
     ];
 
@@ -2057,19 +2107,30 @@ function getAwardPostItems($atts = [])
         $args['tag'] = $atts['tag'];
     }
 
-    $posts = get_all_posts_data(['post'], $args);
+    $posts = function_exists('get_all_posts_data') ? get_all_posts_data(['post'], $args) : [];
+
+    // Filter out posts without any kind of featured image (native or plugin)
+    $posts = array_filter($posts, function ($post) {
+        $native_img = !empty($post['featured_image']);
+        $plugin_img = !empty(get_post_meta($post['id'], 'fiuw_image_url', true));
+        return $native_img || $plugin_img;
+    });
 
     if (empty($posts)) {
+        if ($load_more) {
+            wp_send_json_error('No more posts found');
+        }
         return '<p>No posts found.</p>';
     }
 
+    // Build just the article items content
     ob_start();
     foreach ($posts as $post) {
-        $img_url = !empty($post['featured_image']) ? $post['featured_image'] : '';
-        // Lowercase categories and tags for rendering
-        $categories_lower = strtolower($post['categories']);
-        $tags_lower = strtolower($post['tags']);
-        $category_names_lower = strtolower($post['category_names']);
+        $plugin_img_url = get_post_meta($post['id'], 'fiuw_image_url', true);
+        $img_url = !empty($plugin_img_url) ? $plugin_img_url : (!empty($post['featured_image']) ? $post['featured_image'] : '');
+        $categories_lower = strtolower($post['categories'] ?? '');
+        $tags_lower = strtolower($post['tags'] ?? '');
+        $category_names_lower = strtolower($post['category_names'] ?? '');
 ?>
 <article class="awards_card_item" data-category="<?php echo esc_attr($categories_lower); ?>"
     data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr($post['id']); ?>">
@@ -2082,7 +2143,7 @@ function getAwardPostItems($atts = [])
         <div>
             <div class="categ_date flex">
                 <div class="categ_lbl capitalize pr-2"><?php echo esc_html($category_names_lower); ?></div>
-                <div class="date_posted text-gray-700 fw-light"><?php echo esc_html($post['post_date']); ?></div>
+                <div class="date_posted text-gray-700 fw-light"><?php echo esc_html($post['post_date'] ?? ''); ?></div>
             </div>
             <div class="title"><?php echo esc_html($post['title']); ?></div>
         </div>
@@ -2090,7 +2151,35 @@ function getAwardPostItems($atts = [])
 </article>
 <?php
     }
-    return ob_get_clean();
+    $content = ob_get_clean();
+
+    if ($load_more) {
+        $has_more = count($posts) === $posts_per_page;
+        wp_send_json_success([
+            'content' => $content,
+            'has_more' => $has_more,
+            'next_offset' => $offset + $posts_per_page,
+        ]);
+    }
+
+    // Initial load: wrap in container and include a load more button and spinner
+    $full_content = '<div id="all_awards_wrapper">' . $content . '</div>';
+    $full_content .= '
+        <div class="flex justify-center items-center">
+            <div class="loading-spinner mt-4 mb-4" style="display:none;"></div>
+        </div>
+    <div class="awards-load-more-container flex flex-col items-center">
+            <button id="awards-load-more-btn" class="load-more-btn py-2 px-4 my-4 cursor-pointer"
+                data-offset="' . esc_attr($posts_per_page) . '"
+                data-post-type="post"
+                data-category="' . esc_attr($atts['category']) . '"
+        data-tag="' . esc_attr($atts['tag']) . '"
+        data-callback="getAwardPostItems">
+                Load More
+            </button>
+        </div>';
+
+    return $full_content;
 }
 
 function getWebinarsPodcasts(array $atts = []): string
@@ -2393,3 +2482,7 @@ add_action('wp_ajax_nopriv_get_newsletters_posts', 'get_newsletters_posts');
 
 add_action('wp_ajax_load_more_newsletters', 'load_more_newsletters_ajax');
 add_action('wp_ajax_nopriv_load_more_newsletters', 'load_more_newsletters_ajax');
+
+// Generic load more endpoint that can dispatch to multiple callbacks
+add_action('wp_ajax_load_more_content', 'load_more_content_ajax');
+add_action('wp_ajax_nopriv_load_more_content', 'load_more_content_ajax');

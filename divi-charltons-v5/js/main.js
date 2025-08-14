@@ -40,7 +40,18 @@ document.addEventListener("readystatechange", (e) => {
         }
 
         if (window.location.pathname.includes("/our-firm/awards-2/")) {
-
+            initLoadMoreWithFilters({
+                loadMoreBtnId: "awards-load-more-btn",
+                loadingSpinnerId: ".loading-spinner",
+                postsContainerId: "all_awards_wrapper",
+                categoryButtonsSelector: ".awards_btn_filter",
+                ajaxAction: "load_more_content",
+                defaultCategory: "",
+                postsPerPage: 20,
+                searchInputId: "awardsSearch",
+                searchCloseButtonId: "awards_close_search",
+                searchIconId: "awards_search_icon"
+            });
         }
 
         if (window.location.pathname.includes("/webinars-and-podcasts/")) {
@@ -1883,6 +1894,7 @@ function initLoadMoreWithFilters(config) {
 
             // Get category from button ID
             const category = this.id;
+            const callback = loadMoreBtn.dataset.callback || null;
 
             // Get current search term
             const searchTerm = searchInput ? searchInput.value.trim() : "";
@@ -1890,6 +1902,10 @@ function initLoadMoreWithFilters(config) {
             // Reset offset and update button data
             loadMoreBtn.dataset.offset = postsPerPage.toString();
             loadMoreBtn.dataset.category = category;
+            // For awards, treat the UI filter as a tag
+            if (callback === 'getAwardPostItems') {
+                loadMoreBtn.dataset.tag = category;
+            }
             if (searchTerm) {
                 loadMoreBtn.dataset.searchTerm = searchTerm;
             } else {
@@ -1925,14 +1941,29 @@ function initLoadMoreWithFilters(config) {
 
     function loadCategoryPosts(category, offset, isNewSearch = false, searchTerm = null) {
         const postType = loadMoreBtn.dataset.postType || "project";
+        const callback = loadMoreBtn.dataset.callback || null;
+        const tag = loadMoreBtn.dataset.tag || null;
 
         const requestBody = {
             action: ajaxAction,
             offset: offset,
             post_type: postType,
+            // Keep legacy param for newsletters shortcode
             filter_category: category,
+            // Add generic category param for other handlers like getAwardPostItems
+            category: category,
             posts_per_page: postsPerPage
         };
+
+        // Add optional generic callback for the server dispatcher
+        if (callback) requestBody.callback = callback;
+        // Add optional tag filter for awards
+        if (tag) {
+            requestBody.tag = tag;
+        } else if (callback === 'getAwardPostItems') {
+            // Fallback: treat selected category as tag for awards if tag is not explicitly set
+            requestBody.tag = category;
+        }
 
         // Add search term if provided
         if (searchTerm && searchTerm.length >= 2) {
