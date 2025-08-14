@@ -25,7 +25,18 @@ document.addEventListener("readystatechange", (e) => {
 
 
         if (window.location.pathname.includes("/news/newsletters/hong-kong-law-3/")) {
-            initNewsletterLoadMore();
+            initLoadMoreWithFilters({
+                loadMoreBtnId: "newsletter-load-more-btn",
+                loadingSpinnerId: ".loading-spinner",
+                postsContainerId: "newsletters_post",
+                categoryButtonsSelector: ".newsletter_category_filter",
+                ajaxAction: "load_more_newsletters",
+                defaultCategory: "hong-kong-law",
+                postsPerPage: 20,
+                searchInputId: "newsletterSearch",
+                searchCloseButtonId: "nl_close_search",
+                searchIconId: "nl_search_icon"
+            });
         }
 
         if (window.location.pathname.includes("/our-firm/awards-2/")) {
@@ -1986,20 +1997,4 @@ function initLoadMoreWithFilters(config) {
             defaultBtn.classList.add("active");
         }
     }
-}
-
-// Legacy function for backward compatibility
-function initNewsletterLoadMore() {
-    initLoadMoreWithFilters({
-        loadMoreBtnId: "newsletter-load-more-btn",
-        loadingSpinnerId: ".loading-spinner",
-        postsContainerId: "newsletters_post",
-        categoryButtonsSelector: ".newsletter_category_filter",
-        ajaxAction: "load_more_newsletters",
-        defaultCategory: "hong-kong-law",
-        postsPerPage: 20,
-        searchInputId: "newsletterSearch",
-        searchCloseButtonId: "nl_close_search",
-        searchIconId: "nl_search_icon"
-    });
 }
