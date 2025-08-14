@@ -2038,9 +2038,32 @@ const debouncedFetchSearch = debounce(async (raw) => {
     const origin = window.location.origin;
 
     try {
-        // Use the WP search endpoint for lightweight results
-        const resp = await fetch(`${origin}/wp-json/wp/v2/search?search=${encodeURIComponent(query)}&per_page=5&type=post&_fields=title,url`);
-        // const resp = await fetch(`${origin}/wp-json/wp/v2/search?search=${encodeURIComponent(query)}&per_page=2&_fields=title,url`);
+        // Use current active newsletter category (fallback to hong-kong-law)
+        const btnFilterActive = document.querySelector('.newsletter_category_filter.active');
+        const categorySlug = btnFilterActive ? btnFilterActive.id : "hong-kong-law";
+
+        // Fetch category to get its ID
+        const categoryResp = await fetch(`${origin}/wp-json/wp/v2/categories?slug=${encodeURIComponent(categorySlug)}`);
+        if (!categoryResp.ok) {
+            console.error("Error fetching category:", categoryResp.status, categoryResp.statusText);
+            return;
+        }
+        const categoryData = await categoryResp.json();
+        const categoryId = categoryData?.[0]?.id;
+
+        if (!categoryId) {
+            // No matching category found; hide any open results and stop
+            const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
+            if (searchResParentDiv) {
+                searchResParentDiv.classList.remove("show");
+                const list = searchResParentDiv.querySelector('.search_res_list');
+                if (list) list.innerHTML = "";
+            }
+            return;
+        }
+
+        // Query posts endpoint so we can filter by category
+        const resp = await fetch(`${origin}/wp-json/wp/v2/posts?search=${encodeURIComponent(query)}&categories=${encodeURIComponent(categoryId)}&per_page=5&orderby=relevance&_fields=title,link`);
 
         if (!resp.ok) {
             console.error("Error fetching search results:", resp.status, resp.statusText);
@@ -2048,27 +2071,33 @@ const debouncedFetchSearch = debounce(async (raw) => {
         }
         const items = await resp.json();
 
-        // Normalize to { title, link } for testing
-        const results = items.map(item => ({
-            title: decodeHTMLEntities(item.title),
-            link: item.url
+        // Normalize to { title, link }
+        const results = (Array.isArray(items) ? items : []).map(item => ({
+            title: decodeHTMLEntities(item?.title?.rendered || ""),
+            link: item?.link || "#"
         }));
 
-        const searchResultsContainer = document.querySelector('.nl_input_search_wrapper');
+        const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
+        const searchResContainer = searchResParentDiv?.querySelector('.search_res_list');
+        if (!searchResParentDiv || !searchResContainer) return;
 
-        // If there are results, render or update the dropdown
+        // Clear previous results each time
+        searchResContainer.innerHTML = "";
+
+        // Render results and toggle visibility
         if (results.length > 0) {
+            searchResParentDiv.classList.add("show");
 
+            const fragment = document.createDocumentFragment();
             results.forEach(result => {
-                const resultItem = document.createElement("li");
-                resultItem.className = "search-result-item";
-                resultItem.style.padding = '8px 12px';
-                resultItem.style.cursor = 'pointer';
-                resultItem.innerHTML = `<a href="${result.link}" class="default_link" target="_blank" style="display:block;color:#111;">${result.title}</a>`;
-                searchResultsContainer.appendChild(resultItem);
+                const li = document.createElement("li");
+                li.className = "search-result-item";
+                li.innerHTML = `<a href="${result.link}" class="cursor-pointer" target="_blank">${result.title}</a>`;
+                fragment.appendChild(li);
             });
-
-            console.log(results);
+            searchResContainer.appendChild(fragment);
+        } else {
+            searchResParentDiv.classList.remove("show");
         }
 
     } catch (err) {
@@ -2076,19 +2105,32 @@ const debouncedFetchSearch = debounce(async (raw) => {
     }
 }, 0);
 
-// Wire up input to debounced search
+
 searchInput?.addEventListener("input", (e) => {
     debouncedFetchSearch(e.target.value);
 
     if (e.target.value.trim().length > 0) {
         showCloseButton.classList.add("active");
         nlSearchIcon.style.display = "none";
+
+        showCloseButton.addEventListener("click", () => {
+            e.target.value = ""; // Clear input
+            showCloseButton.classList.remove("active");
+            nlSearchIcon.style.display = "flex"; // Show search icon again
+            const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
+            if (searchResParentDiv) {
+                searchResParentDiv.classList.remove("show");
+                searchResParentDiv.querySelector('.search_res_list').innerHTML = ""; // Clear results
+            }
+        });
     } else {
         showCloseButton.classList.remove("active");
         nlSearchIcon.style.display = "flex";
-        // Remove the search results list when input is cleared
-        const existingResultsList = document.querySelector(".search-results-list");
-        if (existingResultsList) existingResultsList.remove();
+        const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
+        if (searchResParentDiv) {
+            searchResParentDiv.classList.remove("show");
+            searchResParentDiv.querySelector('.search_res_list').innerHTML = ""; // Clear results
+        }
     }
 });
 

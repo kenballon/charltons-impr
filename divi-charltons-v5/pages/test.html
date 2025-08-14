@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="nl_posts_content_wrapper flex flex-col">
+        <div class="newsletter_filter_wrapper">
+            <div id="nl_filter_search_wrapper" class="flex space-between items-center">
+                <div class="insights_page btn_tag_filter_wrapper flex gap-1">
+                    <button id="hong-kong-law" class="newsletter_category_filter" type="button">Hong Kong Law</button>
+                    <button id="china-law" class="newsletter_category_filter" type="button">China Law</button>
+                    <button id="china-news-alerts" class="newsletter_category_filter" type="button">China News
+                        Alerts</button>
+                    <button id="natural-resources" class="newsletter_category_filter" type="button">Natural
+                        Resources</button>
+                    <button id="regulatory-digest" class="newsletter_category_filter" type="button">Regulatory
+                        Digest</button>
+                </div>
+                <div class="newsletter_search_wrapper">
+                    <div id="newsletterFormSearch">
+                        <div class="nl_input_search_wrapper relative">
+                            <input type="search" name="newsletterSearch" id="newsletterSearch" class="p-2 w-full"
+                                placeholder="Search by topic" autocomplete="off" />
+                            <div class="nl-search-icon" id="nl_search_icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                    width="24px" fill="#202020">
+                                    <path
+                                        d="M779.38-153.85 528.92-404.31q-30 25.54-69 39.54t-78.38 14q-96.1 0-162.67-66.53-66.56-66.53-66.56-162.57 0-96.05 66.53-162.71 66.53-66.65 162.57-66.65 96.05 0 162.71 66.56Q610.77-676.1 610.77-580q0 41.69-14.77 80.69t-38.77 66.69l250.46 250.47-28.31 28.3ZM381.54-390.77q79.61 0 134.42-54.81 54.81-54.8 54.81-134.42 0-79.62-54.81-134.42-54.81-54.81-134.42-54.81-79.62 0-134.42 54.81-54.81 54.8-54.81 134.42 0 79.62 54.81 134.42 54.8 54.81 134.42 54.81Z" />
+                                </svg>
+                            </div>
+                            <div role="button" class="absolute cursor-pointer" id="nl_close_search"
+                                title="clear search">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="32px" width="32px"
+                                    viewBox="0 -960 960 960" fill="#5f6368">
+                                    <path
+                                        d="m253.9-229.79-24.11-24.11L455.9-480 229.79-706.1l24.11-24.11L480-504.1l226.1-226.11 24.11 24.11L504.1-480l226.11 226.1-24.11 24.11L480-455.9 253.9-229.79Z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="nl_search_res_wrapper">
+                            <ul class="search_res_list"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="post-contents-wrapper relative">
+            [get_newsletter_posts post_type="post" posts_per_page="20" filter_category="hong-kong-law"]
+            <!-- 
+            <div class="btn_load_more_wrapper flex justify-center items-center" id="btn_load_more_wrapper">
+            </div> -->
+        </div>
+    </div>
+</body>
+
+</html>
