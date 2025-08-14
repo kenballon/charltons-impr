@@ -1775,7 +1775,14 @@ function initLoadMoreWithFilters(config) {
         searchCloseButtonId = null,
         searchIconId = null,
         // Optional: CSS selector for items inside the posts container. If provided, we'll only remove these on refresh
-        itemSelector = null
+        itemSelector = null,
+        // If true, use server-side ajax_search for searching instead of the generic loadCategoryPosts
+        useCustomAjaxSearch = false,
+        // The WordPress AJAX action to call for server-side search
+        searchAjaxAction = 'ajax_search',
+        // Optional param names for the search endpoint
+        searchRequestParamName = 'search',
+        searchCategoryParamName = 'category'
     } = config;
 
     const loadMoreBtn = document.getElementById(loadMoreBtnId);
@@ -1850,8 +1857,37 @@ function initLoadMoreWithFilters(config) {
         loadMoreBtn.style.display = "none";
         if (loadingSpinner) loadingSpinner.style.display = "block";
 
-        // Load posts with search
-        loadCategoryPosts(activeCategory, 0, true, searchTerm);
+        if (useCustomAjaxSearch) {
+            // Use the dedicated WP ajax_search endpoint which returns HTML <li> items
+            const params = new URLSearchParams();
+            params.append('action', searchAjaxAction);
+            params.append(searchRequestParamName, searchTerm);
+            if (activeCategory) params.append(searchCategoryParamName, activeCategory);
+
+            fetch(ajax_object.ajax_url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            })
+                .then(res => res.text())
+                .then(html => {
+                    // Replace content with server-rendered HTML
+                    postsContainer.innerHTML = html;
+                    // Keep load more hidden during a search to avoid mixing unrelated posts
+                    loadMoreBtn.style.display = 'none';
+                })
+                .catch(err => {
+                    console.error('Search request failed:', err);
+                    // Show a minimal empty state
+                    postsContainer.innerHTML = `<li class="no-results">No results found</li>`;
+                })
+                .finally(() => {
+                    if (loadingSpinner) loadingSpinner.style.display = 'none';
+                });
+        } else {
+            // Load posts with search using the generic JSON endpoint
+            loadCategoryPosts(activeCategory, 0, true, searchTerm);
+        }
     }
 
     // Search functionality
@@ -1941,7 +1977,13 @@ function initLoadMoreWithFilters(config) {
             loadMoreBtn.style.display = "none";
             if (loadingSpinner) loadingSpinner.style.display = "block";
 
-            // Load posts for selected category (with search if active)
+            // If a search term is active and server-side search is enabled, use it
+            if (useCustomAjaxSearch && searchTerm && searchTerm.length >= 2) {
+                performSearch(searchTerm);
+                return;
+            }
+
+            // Otherwise, load posts for selected category (with search if active)
             loadCategoryPosts(category, 0, true, searchTerm || null);
         });
     });
