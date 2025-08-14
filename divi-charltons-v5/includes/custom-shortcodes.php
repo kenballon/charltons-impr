@@ -2024,9 +2024,9 @@ function getNewslettersPosts($atts = [])
 function load_more_newsletters_ajax()
 {
     // Verify nonce for security (optional but recommended)
-    // if (!wp_verify_nonce($_POST['nonce'], 'load_more_newsletters_nonce')) {
-    //     wp_send_json_error('Invalid nonce');
-    // }
+    if (!wp_verify_nonce($_POST['nonce'], 'load_more_newsletters_nonce')) {
+        wp_send_json_error('Invalid nonce');
+    }
 
     $atts = [
         'post_type' => sanitize_text_field($_POST['post_type'] ?? 'project'),
