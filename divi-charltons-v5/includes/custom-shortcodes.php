@@ -2040,6 +2040,7 @@ function load_more_content_ajax()
     $allowed_callbacks = [
         'getNewslettersPosts',
         'getAwardPostItems',
+        'getWebinarsPodcasts',
     ];
 
     $callback = sanitize_text_field($_POST['callback'] ?? 'getNewslettersPosts');
@@ -2188,13 +2189,25 @@ function getWebinarsPodcasts(array $atts = []): string
         'custom_type' => 'project',
         'category' => 'webinars-and-podcasts, webinars',
         'limit' => 15,
+        'posts_per_page' => null,
+        'offset' => 0,
+        'load_more' => false,
+        'search_term' => '',
     ], $atts, 'get_webinar_podcasts');
 
     $custom_type = sanitize_text_field($atts['custom_type']);
     $category = sanitize_text_field($atts['category']);
-    $limit = intval($atts['limit']);
+    $limit = isset($atts['posts_per_page']) && $atts['posts_per_page'] !== null ? intval($atts['posts_per_page']) : intval($atts['limit']);
+    $offset = intval($atts['offset']);
+    $load_more = filter_var($atts['load_more'], FILTER_VALIDATE_BOOLEAN);
+    $search_term = sanitize_text_field($atts['search_term']);
 
-    // Prepare query args for both post types (no limit)
+    // Treat 'all' as no specific category filter
+    if (strtolower($category) === 'all') {
+        $category = '';
+    }
+
+    // Prepare query args for both post types (no limit; we merge then slice for consistent pagination)
     $args_post = [
         'post_type' => 'post',
         'posts_per_page' => -1,
@@ -2214,17 +2227,17 @@ function getWebinarsPodcasts(array $atts = []): string
             [
                 'taxonomy' => $custom_type . '_category',
                 'field' => 'slug',
-                'terms' => explode(',', $category),
+                'terms' => array_map('trim', explode(',', $category)),
             ]
         ];
     }
 
     // Get posts for both types
-    $posts = get_all_posts_data(['post'], $args_post);
-    $projects = get_all_posts_data([$custom_type], $args_project);
+    $posts = function_exists('get_all_posts_data') ? get_all_posts_data(['post'], $args_post) : [];
+    $projects = function_exists('get_all_posts_data') ? get_all_posts_data([$custom_type], $args_project) : [];
 
-    // Merge, sort, then limit
-    $all_posts = [...$posts, ...$projects];
+    // Merge and sort
+    $all_posts = array_merge($posts, $projects);
     usort($all_posts, function ($a, $b) {
         $a_ts = strtotime($a['post_date'] ?? '');
         $b_ts = strtotime($b['post_date'] ?? '');
@@ -2232,17 +2245,27 @@ function getWebinarsPodcasts(array $atts = []): string
     });
 
     // Filter out posts without images
-    $all_posts = array_filter($all_posts, function ($post) {
+    $all_posts = array_values(array_filter($all_posts, function ($post) {
         $native_img = !empty($post['featured_image']);
         $plugin_img = !empty(get_post_meta($post['id'], 'fiuw_image_url', true));
         return $native_img || $plugin_img;
-    });
+    }));
 
-    // Apply limit after sorting/filtering
-    $all_posts = array_slice($all_posts, 0, $limit);
+    // Optional server-side title search (case-insensitive)
+    if (!empty($search_term)) {
+        $needle = mb_strtolower($search_term);
+        $all_posts = array_values(array_filter($all_posts, function ($post) use ($needle) {
+            $title = isset($post['title']) ? mb_strtolower($post['title']) : '';
+            return strpos($title, $needle) !== false;
+        }));
+    }
 
+    $total = count($all_posts);
+    $paged_posts = array_slice($all_posts, $offset, $limit);
+
+    // Build items HTML
     ob_start();
-    foreach ($all_posts as $post) {
+    foreach ($paged_posts as $post) {
         $plugin_img_url = get_post_meta($post['id'], 'fiuw_image_url', true);
         $img_url = !empty($plugin_img_url) ? $plugin_img_url : ($post['featured_image'] ?? '');
         $categories_lower = strtolower($post['categories'] ?? '');
@@ -2271,7 +2294,35 @@ function getWebinarsPodcasts(array $atts = []): string
 </article>
 <?php
     }
-    return ob_get_clean();
+    $content = ob_get_clean();
+
+    if ($load_more) {
+        $next_offset = $offset + count($paged_posts);
+        $has_more = $next_offset < $total;
+        wp_send_json_success([
+            'content' => $content,
+            'has_more' => $has_more,
+            'next_offset' => $next_offset,
+        ]);
+    }
+
+    // Initial load: return items plus spinner + load more button (parent container exists as #pod-and-web)
+    $full = $content;
+    $full .= '
+        <div class="flex justify-center items-center">
+            <div class="loading-spinner mt-4 mb-4" style="display:none;"></div>
+        </div>
+        <div class="webinars-load-more-container flex flex-col items-center">
+            <button id="webinars-load-more-btn" class="load-more-btn py-2 px-4 my-4 cursor-pointer"
+                data-offset="' . esc_attr($limit) . '"
+                data-post-type="post"
+                data-category="' . esc_attr($category) . '"
+                data-callback="getWebinarsPodcasts">
+                Load More
+            </button>
+        </div>';
+
+    return $full;
 }
 
 function getStoreAllPostType($atts = [])

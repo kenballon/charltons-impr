@@ -55,7 +55,17 @@ document.addEventListener("readystatechange", (e) => {
         }
 
         if (window.location.pathname.includes("/webinars-and-podcasts/")) {
-
+            initLoadMoreWithFilters({
+                loadMoreBtnId: "webinars-load-more-btn",
+                loadingSpinnerId: ".loading-spinner",
+                postsContainerId: "pod-and-web",
+                categoryButtonsSelector: ".pod_web_btn_filter",
+                ajaxAction: "load_more_content",
+                defaultCategory: "webinars-and-podcasts, webinars",
+                postsPerPage: 15,
+                // Ensure we only clear article items to preserve button/spinner embedded in the container
+                itemSelector: "article.news_article_wrapper"
+            });
         }
     }
 });
@@ -1461,12 +1471,14 @@ async function getPodcastsAndWebinars(categories = [], filterID = null) {
     renderPagination(sortedPosts, 15, "pod-and-web");
 }
 
-FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
-    currentFilterID = filterID === "all" ? null : filterID;
-
-    // Fetch and filter by category and tag
-    getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], currentFilterID);
-});
+// Initialize client-side filtering for webinars/podcasts only when load-more is not active
+if (!window.location.pathname.includes("/webinars-and-podcasts/") && !document.getElementById('webinars-load-more-btn')) {
+    FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
+        currentFilterID = filterID === "all" ? null : filterID;
+        // Fetch and filter by category and tag
+        getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], currentFilterID);
+    });
+}
 
 async function initRenderPagination(categories = []) {
 
@@ -1761,7 +1773,9 @@ function initLoadMoreWithFilters(config) {
         postsPerPage = 20,
         searchInputId = null,
         searchCloseButtonId = null,
-        searchIconId = null
+        searchIconId = null,
+        // Optional: CSS selector for items inside the posts container. If provided, we'll only remove these on refresh
+        itemSelector = null
     } = config;
 
     const loadMoreBtn = document.getElementById(loadMoreBtnId);
@@ -1825,8 +1839,12 @@ function initLoadMoreWithFilters(config) {
         loadMoreBtn.dataset.category = activeCategory;
         loadMoreBtn.dataset.searchTerm = searchTerm;
 
-        // Clear current posts
-        postsContainer.innerHTML = "";
+        // Clear current posts (preserve non-item children like buttons/spinners when itemSelector is provided)
+        if (itemSelector) {
+            postsContainer.querySelectorAll(itemSelector).forEach(el => el.remove());
+        } else {
+            postsContainer.innerHTML = "";
+        }
 
         // Show loading state
         loadMoreBtn.style.display = "none";
@@ -1912,8 +1930,12 @@ function initLoadMoreWithFilters(config) {
                 delete loadMoreBtn.dataset.searchTerm;
             }
 
-            // Clear current posts
-            postsContainer.innerHTML = "";
+            // Clear current posts (preserve non-item children when itemSelector is provided)
+            if (itemSelector) {
+                postsContainer.querySelectorAll(itemSelector).forEach(el => el.remove());
+            } else {
+                postsContainer.innerHTML = "";
+            }
 
             // Show loading state
             loadMoreBtn.style.display = "none";
@@ -1980,12 +2002,33 @@ function initLoadMoreWithFilters(config) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    const insertContent = (html) => {
+                        if (itemSelector) {
+                            // Insert before spinner or load-more button if present
+                            const spinnerEl = postsContainer.querySelector(loadingSpinnerId);
+                            const loadMoreEl = document.getElementById(loadMoreBtnId);
+                            const anchor = spinnerEl || loadMoreEl;
+                            if (anchor && anchor.parentElement === postsContainer) {
+                                anchor.insertAdjacentHTML("beforebegin", html);
+                            } else {
+                                // Fallback: prepend
+                                postsContainer.insertAdjacentHTML("afterbegin", html);
+                            }
+                        } else {
+                            postsContainer.insertAdjacentHTML("beforeend", html);
+                        }
+                    };
+
                     if (isNewSearch) {
                         // Replace content for new search/filter
-                        postsContainer.innerHTML = data.data.content;
+                        if (itemSelector) {
+                            insertContent(data.data.content);
+                        } else {
+                            postsContainer.innerHTML = data.data.content;
+                        }
                     } else {
                         // Append content for load more
-                        postsContainer.insertAdjacentHTML("beforeend", data.data.content);
+                        insertContent(data.data.content);
                     }
 
                     // Apply client-side title filtering to ensure only matching posts are visible
