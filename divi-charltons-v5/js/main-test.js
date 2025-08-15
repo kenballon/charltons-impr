@@ -1,7 +1,5 @@
 import FilterButton from "./FilterButton.js";
-// =======================================
-//  KENNETH BALLON NEW NAV JS CODE
-// =======================================
+
 // Get the current URL
 const currentUrl = window.location.href;
 const origin = window.location.origin;
@@ -70,6 +68,10 @@ document.addEventListener("readystatechange", (e) => {
         }
     }
 });
+
+// ==================================================
+// #region HEADER NAV:::START
+// ==================================================
 
 function customHeaderNavigation() {
     // mobile nav reveal
@@ -416,7 +418,11 @@ function menuMobileBtnToggle() {
 }
 
 // ==================================================
-// Utility Functions:::START
+// #endregion HEADER NAV:::END
+// ==================================================
+
+// ==================================================
+// #region Utility Functions:::START
 // ==================================================
 
 /**
@@ -605,13 +611,9 @@ function escapeRegExp(str) {
 }
 
 // ==================================================
-// Utility Functions:::END
+// #endregion Utility Functions:::END
 // ==================================================
 
-
-// ==================================================
-//  News and Events:::START
-// ==================================================
 let currentFilterID = null;
 let postsPerPage = 15;
 let currentPage = 1;
@@ -628,7 +630,6 @@ const SELECTORS = {
     awardsFilterButton: ".awards_btn_filter",
     newsHiddenInput: ".newsevents_hidden_input",
     CategPPWFilterButtons: ".ppw_category_filter",
-    NewslettersFilterButtons: ".newsletter_category_filter",
     TagsPPWFilterButtons: ".ppw_tag_btn_filter",
     paginationdots_first: "#ne_pagination_dots_first",
     paginationdots_last: "#ne_pagination_dots",
@@ -637,9 +638,8 @@ const SELECTORS = {
 };
 
 // ============================================================
-//  Publication and Presentations:::START
+//  #region Publication and Presentations:::START
 // ============================================================
-
 const insightFilterButtons = document.getElementById("insights_filter_toggle");
 const svgFilterIcon = document.getElementById("insights_filter_icon");
 const svgCloseIcon = document.getElementById("insights_filter_close_icon");
@@ -716,11 +716,11 @@ function filterByCategoryOrTag(filterName, type) {
 // open filter button or show/hide filter buttons
 insightFilterButtons?.addEventListener("click", toggleFilter);
 // ============================================================
-//  Publication and Presentations:::END
+//  #endregion Publication and Presentations:::END
 // ============================================================
 
 // ============================================================
-//  SHARING TO SOCIAL MEDIA JS CODE:::START
+//  #region SHARING TO SOCIAL MEDIA JS CODE:::START
 // ============================================================
 
 function initNewsletterPage() {
@@ -969,10 +969,12 @@ const openIndexedDB = (dbName, version = 1) => {
 };
 
 // ============================================================
-//  SHARING TO SOCIAL MEDIA JS CODE:::END
+//  #endregion SHARING TO SOCIAL MEDIA JS CODE:::END
 // ============================================================
 
-
+// ============================================================
+//  #region AWARDS COLLECTION PAGE:::START
+// ============================================================
 async function showFilteredAwards(filterID) {
     await filterAndRenderPosts({
         dbName: "PostsDatabase",
@@ -1062,112 +1064,12 @@ buttonSVG.forEach(button => {
     });
 });
 
-// =======================================
-//  NEWS & EVENTS PAGE JS CODE : REFACTORED
-// =======================================
-
-// filter for awards 
-FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
-    currentFilterID = filterID === "all" ? null : filterID;
-    getNewsAndEventsPosts(["awards-and-rankings", "news"], currentFilterID);
-});
-
-// Initialize client-side filtering for webinars/podcasts only when load-more is not active
-if (!window.location.pathname.includes("/webinars-and-podcasts/") && !document.getElementById('webinars-load-more-btn')) {
-    FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
-        currentFilterID = filterID === "all" ? null : filterID;
-        // Fetch and filter by category and tag
-        getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], currentFilterID);
-    });
-}
-
-const hamburgerMenuBtn = document?.querySelector('.nav_trail_active .hamburger');
-const aboutUsUlNav = document?.getElementById('about_us_nav');
-const aboutUsNavUlMobile = document?.getElementById('about_us_ul_nav_mobile');
-
-hamburgerMenuBtn?.addEventListener('click', () => {
-    const toggleClass = (element, className) => element?.classList.toggle(className);
-
-    toggleClass(aboutUsUlNav, 'about_us_active');
-    toggleClass(aboutUsNavUlMobile, 'dropdown_active');
-    toggleClass(hamburgerMenuBtn, 'active');
-
-    const ariaHiddenValue = aboutUsNavUlMobile?.classList.contains('dropdown_active') ? 'false' : 'true';
-    aboutUsNavUlMobile?.setAttribute('aria-hidden', ariaHiddenValue);
-});
-
-function createUITable(postsByYear, categories) {
-    const table = document.createElement("table");
-    table.className = "archive_table";
-    table.setAttribute("data-archive-category", categories[0] || "");
-
-    Object.keys(postsByYear).sort((a, b) => b - a).forEach((year) => {
-        // Thead for each year
-        const thead = document.createElement("thead");
-        thead.setAttribute("data-archive-year-head", year);
-        const trHead = document.createElement("tr");
-        const th = document.createElement("th");
-        th.colSpan = 2;
-        th.innerHTML = `
-            <div>
-                <span class="material-symbols-outlined">calendar_month</span>
-                <span class="label_thead">${year}</span>
-            </div>
-        `;
-        trHead.appendChild(th);
-        thead.appendChild(trHead);
-        table.appendChild(thead);
-
-        // Tbody for each year
-        const tbody = document.createElement("tbody");
-        tbody.setAttribute("data-archive-year-body", year);
-
-        postsByYear[year].forEach((post) => {
-            const tr = document.createElement("tr");
-            tr.setAttribute("data-archive-post-content", post.post_date);
-            tr.setAttribute("data-archive-post-category", post.categories.toLowerCase());
-
-            // Handle new date format "14 Jun 2014"
-            const [day, month, _year] = post.post_date.split(" ");
-            const dateObj = new Date(`${day} ${month} ${_year}`);
-            const formattedDate = `${dateObj.getDate()} ${dateObj.toLocaleString('en-US', { month: 'short' })}`;
-
-            const tdDate = document.createElement("td");
-            tdDate.textContent = formattedDate;
-
-            const tdTitle = document.createElement("td");
-            const a = document.createElement("a");
-            a.href = post.url || "#";
-            a.className = "default_link";
-            a.target = "_blank";
-            a.textContent = decodeHTMLEntities(post.title); // Only decode, do not sanitize for textContent
-            tdTitle.appendChild(a);
-
-            tr.appendChild(tdDate);
-            tr.appendChild(tdTitle);
-            tbody.appendChild(tr);
-        });
-
-        table.appendChild(tbody);
-    });
-
-    return table;
-}
-
-FilterButton.initializeAll(SELECTORS.NewsletterAchiveFilter, (filterID) => {
-    currentFilterID = filterID === "all" ? null : filterID;
-    console.log(`Current Filter ID: ${currentFilterID}`);
-
-    getArchivedAllPosts([currentFilterID]);
-});
-
-function getRenderedPostIds(containerSelector, itemClass) {
-    return Array.from(document.querySelectorAll(`${containerSelector} .${itemClass}`))
-        .map(el => el.getAttribute('data-post-id'));
-}
+// ============================================================
+//  #endregion AWARDS COLLECTION PAGE:::END
+// ============================================================
 
 // =======================================
-// PROFILE SINGLE PAGE OBSERVER:::START
+// #region PROFILE SINGLE PAGE OBSERVER:::START
 // =======================================
 // This code observes the profile content sections and updates the navigation items accordingly
 
@@ -1289,9 +1191,114 @@ expandMoreBtn.forEach(btn => {
         }
     })
 });
+
 // =======================================
-// PROFILE SINGLE PAGE OBSERVER:::END
+// #endregion PROFILE SINGLE PAGE OBSERVER:::END
 // =======================================
+
+// =======================================
+//  NEWS & EVENTS PAGE JS CODE : REFACTORED
+// =======================================
+
+// filter for awards 
+FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
+    currentFilterID = filterID === "all" ? null : filterID;
+    getNewsAndEventsPosts(["awards-and-rankings", "news"], currentFilterID);
+});
+
+// Initialize client-side filtering for webinars/podcasts only when load-more is not active
+if (!window.location.pathname.includes("/webinars-and-podcasts/") && !document.getElementById('webinars-load-more-btn')) {
+    FilterButton.initializeAll(SELECTORS.podAndWebinarFilterButtons, (filterID) => {
+        currentFilterID = filterID === "all" ? null : filterID;
+        // Fetch and filter by category and tag
+        getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], currentFilterID);
+    });
+}
+
+const hamburgerMenuBtn = document?.querySelector('.nav_trail_active .hamburger');
+const aboutUsUlNav = document?.getElementById('about_us_nav');
+const aboutUsNavUlMobile = document?.getElementById('about_us_ul_nav_mobile');
+
+hamburgerMenuBtn?.addEventListener('click', () => {
+    const toggleClass = (element, className) => element?.classList.toggle(className);
+
+    toggleClass(aboutUsUlNav, 'about_us_active');
+    toggleClass(aboutUsNavUlMobile, 'dropdown_active');
+    toggleClass(hamburgerMenuBtn, 'active');
+
+    const ariaHiddenValue = aboutUsNavUlMobile?.classList.contains('dropdown_active') ? 'false' : 'true';
+    aboutUsNavUlMobile?.setAttribute('aria-hidden', ariaHiddenValue);
+});
+
+function createUITable(postsByYear, categories) {
+    const table = document.createElement("table");
+    table.className = "archive_table";
+    table.setAttribute("data-archive-category", categories[0] || "");
+
+    Object.keys(postsByYear).sort((a, b) => b - a).forEach((year) => {
+        // Thead for each year
+        const thead = document.createElement("thead");
+        thead.setAttribute("data-archive-year-head", year);
+        const trHead = document.createElement("tr");
+        const th = document.createElement("th");
+        th.colSpan = 2;
+        th.innerHTML = `
+            <div>
+                <span class="material-symbols-outlined">calendar_month</span>
+                <span class="label_thead">${year}</span>
+            </div>
+        `;
+        trHead.appendChild(th);
+        thead.appendChild(trHead);
+        table.appendChild(thead);
+
+        // Tbody for each year
+        const tbody = document.createElement("tbody");
+        tbody.setAttribute("data-archive-year-body", year);
+
+        postsByYear[year].forEach((post) => {
+            const tr = document.createElement("tr");
+            tr.setAttribute("data-archive-post-content", post.post_date);
+            tr.setAttribute("data-archive-post-category", post.categories.toLowerCase());
+
+            // Handle new date format "14 Jun 2014"
+            const [day, month, _year] = post.post_date.split(" ");
+            const dateObj = new Date(`${day} ${month} ${_year}`);
+            const formattedDate = `${dateObj.getDate()} ${dateObj.toLocaleString('en-US', { month: 'short' })}`;
+
+            const tdDate = document.createElement("td");
+            tdDate.textContent = formattedDate;
+
+            const tdTitle = document.createElement("td");
+            const a = document.createElement("a");
+            a.href = post.url || "#";
+            a.className = "default_link";
+            a.target = "_blank";
+            a.textContent = decodeHTMLEntities(post.title); // Only decode, do not sanitize for textContent
+            tdTitle.appendChild(a);
+
+            tr.appendChild(tdDate);
+            tr.appendChild(tdTitle);
+            tbody.appendChild(tr);
+        });
+
+        table.appendChild(tbody);
+    });
+
+    return table;
+}
+
+FilterButton.initializeAll(SELECTORS.NewsletterAchiveFilter, (filterID) => {
+    currentFilterID = filterID === "all" ? null : filterID;
+    console.log(`Current Filter ID: ${currentFilterID}`);
+
+    getArchivedAllPosts([currentFilterID]);
+});
+
+function getRenderedPostIds(containerSelector, itemClass) {
+    return Array.from(document.querySelectorAll(`${containerSelector} .${itemClass}`))
+        .map(el => el.getAttribute('data-post-id'));
+}
 
 function initLoadMoreWithFilters(config) {
     const {
@@ -1739,4 +1746,3 @@ function initLoadMoreWithFilters(config) {
         }
     }
 }
-
