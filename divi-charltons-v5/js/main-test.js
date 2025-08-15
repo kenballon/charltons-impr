@@ -1295,9 +1295,146 @@ FilterButton.initializeAll(SELECTORS.NewsletterAchiveFilter, (filterID) => {
     getArchivedAllPosts([currentFilterID]);
 });
 
-function getRenderedPostIds(containerSelector, itemClass) {
-    return Array.from(document.querySelectorAll(`${containerSelector} .${itemClass}`))
-        .map(el => el.getAttribute('data-post-id'));
+
+/**
+ * Parse a decade label like "2020s" or a year range into numeric start/end.
+ * Accepts strings like "2020s", "2010-2019", or single year (treated as that decade start).
+ * Returns { start: number, end: number } or null if not parseable.
+ */
+function parseYearDecade(label) {
+    if (!label) return null;
+    const str = String(label).trim().toLowerCase();
+    // Formats: 2020, 1990
+    const decadeMatch = str.match(/^(\d{4})$/);
+    if (decadeMatch) {
+        const start = parseInt(decadeMatch[1], 10);
+        if (!isNaN(start)) return { start, end: start + 9 };
+    }
+    // Formats: 2010-2019
+    const rangeMatch = str.match(/^(\d{4})\s*[-–]\s*(\d{4})$/);
+    if (rangeMatch) {
+        const start = parseInt(rangeMatch[1], 10);
+        const end = parseInt(rangeMatch[2], 10);
+        if (!isNaN(start) && !isNaN(end) && end >= start) return { start, end };
+    }
+    // Single year => treat as its decade
+    const yearMatch = str.match(/^(\d{4})$/);
+    if (yearMatch) {
+        const y = parseInt(yearMatch[1], 10);
+        const decadeStart = y - (y % 10);
+        return { start: decadeStart, end: decadeStart + 9 };
+    }
+    return null;
+}
+
+/**
+ * Initialize filter buttons for category/tag/year-decade in a modular way.
+ *
+ * options:
+ * - buttonsSelector: CSS selector for all filter buttons within a group
+ * - activeClass: class to toggle on active button (default: 'active')
+ * - resolveType: (button: HTMLElement) => 'category'|'tag'|'yearDecade'
+ *   Default: from data-filter-type, else heuristics on className, else 'category'
+ * - resolveValue: (button: HTMLElement) => string
+ *   Default: data-filter-value || id || textContent.trim()
+ * - onChange: ({ type, value, range, button }) => void
+ */
+function initFilterControls(options) {
+    const {
+        buttonsSelector,
+        activeClass = 'active',
+        resolveType,
+        resolveValue,
+        onChange
+    } = options || {};
+
+    const buttons = document.querySelectorAll(buttonsSelector);
+    if (!buttons.length) return;
+
+    const detectType = (btn) => {
+        if (typeof resolveType === 'function') return resolveType(btn);
+        const dataType = btn.dataset.filterType;
+        if (dataType) return dataType;
+        const cls = btn.className || '';
+        if (/yrfilter|year/i.test(cls)) return 'yearDecade';
+        if (/tag/i.test(cls)) return 'tag';
+        return 'category';
+    };
+
+    const detectValue = (btn) => {
+        if (typeof resolveValue === 'function') return resolveValue(btn);
+        return btn.dataset.filterValue || btn.id || (btn.textContent || '').trim();
+    };
+
+    buttons.forEach((button) => {
+        button.addEventListener('click', function () {
+            // Toggle active state within the group
+            buttons.forEach(b => b.classList.remove(activeClass));
+            this.classList.add(activeClass);
+
+            const type = detectType(this);
+            const value = detectValue(this);
+            const range = type === 'yearDecade' ? parseYearDecade(value) : null;
+
+            if (typeof onChange === 'function') {
+                onChange({ type, value, range, button: this });
+            }
+        });
+    });
+}
+
+/**
+ * Initialize a modular search input with debounce and clear button toggles.
+ *
+ * options:
+ * - inputId: element id of the search input
+ * - closeButtonId: optional id for a clear/close button
+ * - iconId: optional id for the search icon wrapper to toggle
+ * - minChars: minimum characters before firing onSearch (default 2)
+ * - debounceMs: debounce delay (default 500ms)
+ * - onSearch: (term: string) => void
+ * - onClear: () => void
+ */
+function initSearchFeature(options) {
+    const {
+        inputId,
+        closeButtonId = null,
+        iconId = null,
+        minChars = 2,
+        debounceMs = 500,
+        onSearch,
+        onClear
+    } = options || {};
+
+    const input = inputId ? document.getElementById(inputId) : null;
+    const closeBtn = closeButtonId ? document.getElementById(closeButtonId) : null;
+    const icon = iconId ? document.getElementById(iconId) : null;
+    if (!input) return;
+
+    let t;
+    input.addEventListener('input', (e) => {
+        const val = (e.target.value || '').trim();
+        if (closeBtn) closeBtn.classList.toggle('active', val.length >= minChars);
+        if (icon) icon.style.display = val.length >= minChars ? 'none' : 'flex';
+
+        clearTimeout(t);
+        t = setTimeout(() => {
+            if (val.length >= minChars) {
+                if (typeof onSearch === 'function') onSearch(val);
+            } else if (val.length === 0) {
+                if (typeof onClear === 'function') onClear();
+            }
+        }, debounceMs);
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            input.value = '';
+            closeBtn.classList.remove('active');
+            if (icon) icon.style.display = 'flex';
+            if (typeof onClear === 'function') onClear();
+        });
+    }
 }
 
 function initLoadMoreWithFilters(config) {
@@ -1522,103 +1659,85 @@ function initLoadMoreWithFilters(config) {
         }
     }
 
-    // Search functionality
+    // Search functionality (modular)
     if (searchInput) {
-        let searchTimeout;
-
-        searchInput.addEventListener("input", function (e) {
-            const searchValue = e.target.value.trim();
-
-            // Update UI elements
-            if (searchCloseButton) {
-                searchCloseButton.classList.toggle("active", searchValue.length >= 2);
-            }
-            if (searchIcon) {
-                searchIcon.style.display = searchValue.length >= 2 ? "none" : "flex";
-            }
-
-            // Clear previous timeout
-            clearTimeout(searchTimeout);
-
-            // Debounce search
-            searchTimeout = setTimeout(() => {
-                if (searchValue.length >= 2) {
-                    performSearch(searchValue);
-                } else if (searchValue.length === 0) {
-                    // Reset to current category filter
-                    const activeCategory = getActiveCategory();
-                    // Clear search state on button for subsequent loads
-                    delete loadMoreBtn.dataset.searchTerm;
-                    loadCategoryPosts(activeCategory, 0, true);
-                }
-            }, 500);
-        });
-
-        if (searchCloseButton) {
-            searchCloseButton.addEventListener("click", function () {
-                searchInput.value = "";
-                searchCloseButton.classList.remove("active");
-                if (searchIcon) {
-                    searchIcon.style.display = "flex";
-                }
-
-                // Reset to current category filter
+        initSearchFeature({
+            inputId: searchInputId,
+            closeButtonId: searchCloseButtonId,
+            iconId: searchIconId,
+            minChars: 2,
+            debounceMs: 500,
+            onSearch: (term) => {
+                performSearch(term);
+            },
+            onClear: () => {
                 const activeCategory = getActiveCategory();
-                // Clear search state on button for subsequent loads
                 delete loadMoreBtn.dataset.searchTerm;
                 loadCategoryPosts(activeCategory, 0, true);
-            });
-        }
+            }
+        });
     }
 
-    // Category filter functionality
-    categoryButtons.forEach(button => {
-        button.addEventListener("click", function () {
-            // Update active button
-            categoryButtons.forEach(btn => btn.classList.remove("active"));
-            this.classList.add("active");
+    // Filter buttons (modular) — supports category/tag/yearDecade
+    if (categoryButtons && categoryButtons.length) {
+        initFilterControls({
+            buttonsSelector: categoryButtonsSelector,
+            activeClass: 'active',
+            onChange: ({ type, value, range, button }) => {
+                const callback = loadMoreBtn.dataset.callback || null;
+                const activeSearch = (searchInput ? searchInput.value.trim() : '') || '';
 
-            // Get category from button ID
-            const category = this.id;
-            const callback = loadMoreBtn.dataset.callback || null;
+                // Reset offset and update dataset for load-more state
+                loadMoreBtn.dataset.offset = postsPerPage.toString();
+                delete loadMoreBtn.dataset.tag;
+                delete loadMoreBtn.dataset.yearStart;
+                delete loadMoreBtn.dataset.yearEnd;
 
-            // Get current search term
-            const searchTerm = searchInput ? searchInput.value.trim() : "";
+                if (type === 'tag') {
+                    // Some endpoints expect 'tag' and sometimes category too
+                    loadMoreBtn.dataset.tag = value;
+                    loadMoreBtn.dataset.category = value; // keep parity with legacy
+                } else if (type === 'yearDecade' && range) {
+                    loadMoreBtn.dataset.yearStart = String(range.start);
+                    loadMoreBtn.dataset.yearEnd = String(range.end);
+                    // keep category as-is but also set to value for traceability
+                    loadMoreBtn.dataset.category = value;
+                } else {
+                    loadMoreBtn.dataset.category = value;
+                    // For awards handler that expects tag
+                    if (callback === 'getAwardPostItems') {
+                        loadMoreBtn.dataset.tag = value;
+                    }
+                }
 
-            // Reset offset and update button data
-            loadMoreBtn.dataset.offset = postsPerPage.toString();
-            loadMoreBtn.dataset.category = category;
-            // For awards, treat the UI filter as a tag
-            if (callback === 'getAwardPostItems') {
-                loadMoreBtn.dataset.tag = category;
+                if (activeSearch) {
+                    loadMoreBtn.dataset.searchTerm = activeSearch;
+                } else {
+                    delete loadMoreBtn.dataset.searchTerm;
+                }
+
+                // Clear current items
+                if (itemSelector) {
+                    postsContainer.querySelectorAll(itemSelector).forEach(el => el.remove());
+                } else {
+                    postsContainer.innerHTML = '';
+                }
+
+                // Show loading
+                loadMoreBtn.style.display = 'none';
+                if (loadingSpinner) loadingSpinner.style.display = 'block';
+
+                // If searching and server-side search is enabled
+                if (useCustomAjaxSearch && activeSearch && activeSearch.length >= 2) {
+                    performSearch(activeSearch);
+                    return;
+                }
+
+                // Otherwise load with applied filter
+                loadCategoryPosts(loadMoreBtn.dataset.category || null, 0, true, activeSearch || null);
             }
-            if (searchTerm) {
-                loadMoreBtn.dataset.searchTerm = searchTerm;
-            } else {
-                delete loadMoreBtn.dataset.searchTerm;
-            }
-
-            // Clear current posts (preserve non-item children when itemSelector is provided)
-            if (itemSelector) {
-                postsContainer.querySelectorAll(itemSelector).forEach(el => el.remove());
-            } else {
-                postsContainer.innerHTML = "";
-            }
-
-            // Show loading state
-            loadMoreBtn.style.display = "none";
-            if (loadingSpinner) loadingSpinner.style.display = "block";
-
-            // If a search term is active and server-side search is enabled, use it
-            if (useCustomAjaxSearch && searchTerm && searchTerm.length >= 2) {
-                performSearch(searchTerm);
-                return;
-            }
-
-            // Otherwise, load posts for selected category (with search if active)
-            loadCategoryPosts(category, 0, true, searchTerm || null);
         });
-    });
+    }
 
     // Load more functionality
     loadMoreBtn.addEventListener("click", function () {
@@ -1639,6 +1758,8 @@ function initLoadMoreWithFilters(config) {
         const postType = loadMoreBtn.dataset.postType || "project";
         const callback = loadMoreBtn.dataset.callback || null;
         const tag = loadMoreBtn.dataset.tag || null;
+        const yearStart = loadMoreBtn.dataset.yearStart || null;
+        const yearEnd = loadMoreBtn.dataset.yearEnd || null;
 
         const requestBody = {
             action: ajaxAction,
@@ -1659,6 +1780,12 @@ function initLoadMoreWithFilters(config) {
         } else if (callback === 'getAwardPostItems') {
             // Fallback: treat selected category as tag for awards if tag is not explicitly set
             requestBody.tag = category;
+        }
+
+        // Add optional year range when year-decade filter is used
+        if (yearStart && yearEnd) {
+            requestBody.year_start = yearStart;
+            requestBody.year_end = yearEnd;
         }
 
         // Add search term if provided
