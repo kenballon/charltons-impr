@@ -238,42 +238,6 @@ function customHeaderNavigation() {
     revealSearch();
 }
 
-// =====================
-// Utility Functions
-// =====================
-
-/**
- * Debounce a function by a given delay.
- * @param {Function} func - The function to debounce.
- * @param {number} delay - Delay in milliseconds.
- * @returns {Function}
- */
-function debounce(func, delay) {
-    let timer;
-    return function (...args) {
-        clearTimeout(timer);
-        timer = setTimeout(() => func.apply(this, args), delay);
-    };
-}
-
-/**
- * Fetch data via POST request (AJAX helper).
- * @param {string} url - The endpoint URL.
- * @param {object} bodyObj - The body as a key-value object.
- * @returns {Promise<string>} - The response text.
- */
-async function fetchPostData(url, bodyObj) {
-    const body = Object.entries(bodyObj)
-        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-        .join('&');
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body
-    });
-    return response.text();
-}
-
 function customSearch() {
     const searchInput = document?.getElementById("search-input");
     const searchMatchesWrapper = document.querySelector(
@@ -380,9 +344,6 @@ function revealSearch() {
     });
 }
 
-// ==================================================
-// MOBILE ICON PLUS INTERACTIVITY
-// ==================================================
 function mobilePlusIconClick() {
     const mobileParentIconPlus = document.querySelectorAll(".sm_plus_icon");
     const mobileChildIconPlus = document.querySelectorAll(".sm_plus_icon_child");
@@ -454,6 +415,42 @@ function menuMobileBtnToggle() {
     });
 }
 
+// ==================================================
+// Utility Functions:::START
+// ==================================================
+
+/**
+ * Debounce a function by a given delay.
+ * @param {Function} func - The function to debounce.
+ * @param {number} delay - Delay in milliseconds.
+ * @returns {Function}
+ */
+function debounce(func, delay) {
+    let timer;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+/**
+ * Fetch data via POST request (AJAX helper).
+ * @param {string} url - The endpoint URL.
+ * @param {object} bodyObj - The body as a key-value object.
+ * @returns {Promise<string>} - The response text.
+ */
+async function fetchPostData(url, bodyObj) {
+    const body = Object.entries(bodyObj)
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join('&');
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body
+    });
+    return response.text();
+}
+
 function toggleClass(element, removeClass, addClass) {
     if (element.classList.contains(removeClass)) {
         element.classList.remove(removeClass);
@@ -461,21 +458,160 @@ function toggleClass(element, removeClass, addClass) {
     }
 }
 
+function toggleFilter(event) {
+    event.preventDefault();
 
-// =======================================
-//  WORDPRESS REST API HELPER FUNCTIONS
-// =======================================
+    const isActive = insightFilterButtons.classList.toggle("active");
+    const dataStateValue = isActive ? "true" : "false";
+    insightFilterButtons.setAttribute("data-state", dataStateValue);
 
-//code here soon...
+    svgCloseIcon.classList.toggle("hidden", !isActive);
+    svgFilterIcon.classList.toggle("hidden", isActive);
+    filterBtnsContainer.classList.toggle("hidden", !isActive);
+}
 
-// =======================================
-//  WORDPRESS REST API HELPER FUNCTIONS:::END
-// =======================================
+/**
+ * Creates an article card element based on the provided post data and type.
+ *
+ * @param {Object} post - The post data object.
+ * @param {string} [type="award"] - The type of the post (e.g., "award", "newsletter", "news").
+ * @param {boolean} [isInitial=false] - Flag indicating if this is an initial card creation.
+ * @returns {HTMLElement} The created article card element.
+ */
+function createCardUI(post, type = "award", isInitial = false) {
+    const articleCard = document.createElement("article");
+    articleCard.className = getClassName(type);
+    articleCard.setAttribute("data-category", post.categories);
+    articleCard.setAttribute("data-tags", post.tags);
+    articleCard.setAttribute("data-post-id", post.id);
+
+    const postDate = post.post_date;
+
+    if (type === "newsletter") {
+        articleCard.setAttribute("data-nl_date", post.post_date);
+        articleCard.innerHTML = getNewsletterHTML(post, postDate);
+    } else if (type === "news") {
+        articleCard.innerHTML = getNewsHTML(post, postDate);
+    } else {
+        articleCard.innerHTML = getAwardHTML(post, postDate);
+    }
+    return articleCard;
+}
+
+function getClassName(type) {
+    switch (type) {
+        case "award":
+            return "awards_card_item";
+        case "newsletter":
+            return "newsletter_post_item flex-col";
+        case "news":
+            return "news_article_wrapper";
+        default:
+            return "";
+    }
+}
+
+function getImageHTML(post, width, height, className) {
+    return `
+    <img decoding="async" width="${width}" height="${height}" class="${className}"
+      src="${sanitizeHTML(post.featured_image)}"
+      srcset="${sanitizeHTML(post.featured_image_small || post.featured_image)} 300w,
+              ${sanitizeHTML(post.featured_image_medium || post.featured_image)} 768w,
+              ${sanitizeHTML(post.featured_image_large || post.featured_image)} 1024w"
+      alt="${sanitizeHTML(decodeHTMLEntities(post.title))}">
+  `;
+}
+
+function getNewsletterHTML(post, postDate) {
+    return `
+    <a href="${sanitizeHTML(post.url)}" rel="noopener noreferrer" aria-label="${sanitizeHTML(decodeHTMLEntities(post.title))}">
+      <div class="post-thumbnail">
+        ${getImageHTML(post, 286, 286, "")}
+        <time class="post-date" datetime="${sanitizeHTML(post.post_date)}">${postDate}</time>
+        <h2 class="post-title" title="${sanitizeHTML(decodeHTMLEntities(post.title))}">${sanitizeHTML(decodeHTMLEntities(post.title))}</h2>
+      </div>
+    </a>
+  `;
+}
+
+function getNewsHTML(post, postDate) {
+    return `
+    <div class="news_card_image">
+      <a href="${sanitizeHTML(post.url)}" rel="noopener noreferrer" aria-label="${sanitizeHTML(decodeHTMLEntities(post.title))}" title="${sanitizeHTML(decodeHTMLEntities(post.title))}">
+        ${getImageHTML(post, 320, 320, "border-1")}
+      </a>
+    </div>
+    <div class="news_card_content">
+      <div class="newsevents__post_date">${postDate}</div>
+      <a href="${sanitizeHTML(post.url)}" rel="noopener noreferrer" aria-label="${sanitizeHTML(decodeHTMLEntities(post.title))}" title="${sanitizeHTML(decodeHTMLEntities(post.title))}">
+        <h2 class="newsevents__post_title fw-medium">${sanitizeHTML(decodeHTMLEntities(post.title))}</h2>
+      </a>
+    </div>
+  `;
+}
+
+function getAwardHTML(post, postDate) {
+    return `
+    <a href="${sanitizeHTML(post.url)}" rel="noopener noreferrer" aria-label="${sanitizeHTML(decodeHTMLEntities(post.title))}">
+      ${getImageHTML(post, 300, 300, "awards_card_img")}
+      <div>
+        <div class="categ_date flex">
+          <div class="categ_lbl capitalize pr-2">${sanitizeHTML(decodeHTMLEntities(post.category_names))}</div>
+          <div class="date_posted text-gray-700 fw-light">${postDate}</div>
+        </div>
+        <div class="title">${sanitizeHTML(decodeHTMLEntities(post.title))}</div>
+      </div>
+    </a>
+  `;
+}
+
+function sanitizeHTML(html) {
+    const tempDiv = document.createElement("div");
+    tempDiv.textContent = html;
+    return tempDiv.innerHTML;
+}
+
+function decodeHTMLEntities(text) {
+    let textArea = document.createElement("textarea");
+    let prev = text;
+    let curr = text;
+    do {
+        prev = curr;
+        textArea.innerHTML = prev;
+        curr = textArea.value;
+    } while (curr !== prev);
+    return curr;
+}
+
+// Safely bolds words from the query that appear in the given text
+function highlightMatches(text, query) {
+    const safeText = sanitizeHTML(text || "");
+    const q = (query || "").trim();
+    if (!q) return safeText;
+
+    // Build a regex of unique words >= 2 chars
+    const terms = Array.from(new Set(q.split(/\s+/).filter(w => w.length >= 2)));
+    if (terms.length === 0) return safeText;
+
+    const escaped = terms.map(t => escapeRegExp(t));
+    // Word boundaries to match whole words; case-insensitive
+    const pattern = `\\b(${escaped.join("|")})\\b`;
+    const re = new RegExp(pattern, "gi");
+    return safeText.replace(re, "<strong>$1</strong>");
+}
+
+function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// ==================================================
+// Utility Functions:::END
+// ==================================================
 
 
-// =======================================
-//  News and Events JS
-// =======================================
+// ==================================================
+//  News and Events:::START
+// ==================================================
 let currentFilterID = null;
 let postsPerPage = 15;
 let currentPage = 1;
@@ -501,8 +637,15 @@ const SELECTORS = {
 };
 
 // ============================================================
-//  PPW (Publication, Presentations, and Webinars) JS CODE
+//  Publication and Presentations:::START
 // ============================================================
+
+const insightFilterButtons = document.getElementById("insights_filter_toggle");
+const svgFilterIcon = document.getElementById("insights_filter_icon");
+const svgCloseIcon = document.getElementById("insights_filter_close_icon");
+const filterBtnsContainer = document.querySelector(
+    ".insights_page.btn_tag_filter_wrapper"
+);
 const ppwArticlesPost = Array.from(
     document.querySelectorAll(".insights_post_title_wrapper")
 );
@@ -518,6 +661,7 @@ FilterButton.initializeAll(SELECTORS.TagsPPWFilterButtons, (filterID) => {
 FilterButton.initializeAll(SELECTORS.CategPPWFilterButtons, (filterID) => {
     filterByCategoryOrTag(filterID === "all" ? null : filterID, "category");
 });
+
 
 // Function to filter by category or tag
 function filterByCategoryOrTag(filterName, type) {
@@ -568,34 +712,16 @@ function filterByCategoryOrTag(filterName, type) {
     });
 }
 
-const insightFilterButtons = document.getElementById("insights_filter_toggle");
-const svgFilterIcon = document.getElementById("insights_filter_icon");
-const svgCloseIcon = document.getElementById("insights_filter_close_icon");
-const filterBtnsContainer = document.querySelector(
-    ".insights_page.btn_tag_filter_wrapper"
-);
-
-function toggleFilter(event) {
-    event.preventDefault();
-
-    const isActive = insightFilterButtons.classList.toggle("active");
-    const dataStateValue = isActive ? "true" : "false";
-    insightFilterButtons.setAttribute("data-state", dataStateValue);
-
-    svgCloseIcon.classList.toggle("hidden", !isActive);
-    svgFilterIcon.classList.toggle("hidden", isActive);
-    filterBtnsContainer.classList.toggle("hidden", !isActive);
-}
 
 // open filter button or show/hide filter buttons
 insightFilterButtons?.addEventListener("click", toggleFilter);
 // ============================================================
-//  PPW (Publication, Presentations, and Webinars) JS CODE: END
+//  Publication and Presentations:::END
 // ============================================================
 
-// =======================================
-//  SHARING TO SOCIAL MEDIA JS CODE
-// =======================================
+// ============================================================
+//  SHARING TO SOCIAL MEDIA JS CODE:::START
+// ============================================================
 
 function initNewsletterPage() {
     const wordsPerMinute = 200;
@@ -842,226 +968,10 @@ const openIndexedDB = (dbName, version = 1) => {
     });
 };
 
-// Generic function to handle IndexedDB operations
-async function fetchPostsFromDB(dbName, storeName, filterCallback) {
+// ============================================================
+//  SHARING TO SOCIAL MEDIA JS CODE:::END
+// ============================================================
 
-    console.log(`Fetching posts from IndexedDB: ${dbName}, Store: ${storeName}`);
-
-
-
-    // try {
-    //     const db = await openIndexedDB(dbName);
-    //     const transaction = db.transaction([storeName], "readonly");
-    //     const objectStore = transaction.objectStore(storeName);
-    //     const posts = [];
-
-    //     objectStore.openCursor().onsuccess = function (event) {
-    //         const cursor = event.target.result;
-    //         if (cursor) {
-    //             if (filterCallback(cursor.value)) {
-    //                 posts.push(cursor.value);
-    //             }
-    //             cursor.continue();
-    //         }
-    //     };
-
-    //     return new Promise((resolve, reject) => {
-    //         transaction.oncomplete = () => resolve(posts);
-    //         transaction.onerror = (event) => reject(event.target.errorCode);
-    //     });
-    // } catch (error) {
-    //     console.error("Failed to open database:", error);
-    //     return [];
-    // }
-}
-
-/**
- * Creates an article card element based on the provided post data and type.
- *
- * @param {Object} post - The post data object.
- * @param {string} [type="award"] - The type of the post (e.g., "award", "newsletter", "news").
- * @param {boolean} [isInitial=false] - Flag indicating if this is an initial card creation.
- * @returns {HTMLElement} The created article card element.
- */
-function createCardUI(post, type = "award", isInitial = false) {
-    const articleCard = document.createElement("article");
-    articleCard.className = getClassName(type);
-    articleCard.setAttribute("data-category", post.categories);
-    articleCard.setAttribute("data-tags", post.tags);
-    articleCard.setAttribute("data-post-id", post.id);
-
-    const postDate = post.post_date;
-
-    if (type === "newsletter") {
-        articleCard.setAttribute("data-nl_date", post.post_date);
-        articleCard.innerHTML = getNewsletterHTML(post, postDate);
-    } else if (type === "news") {
-        articleCard.innerHTML = getNewsHTML(post, postDate);
-    } else {
-        articleCard.innerHTML = getAwardHTML(post, postDate);
-    }
-    return articleCard;
-}
-
-function getClassName(type) {
-    switch (type) {
-        case "award":
-            return "awards_card_item";
-        case "newsletter":
-            return "newsletter_post_item flex-col";
-        case "news":
-            return "news_article_wrapper";
-        default:
-            return "";
-    }
-}
-
-function getImageHTML(post, width, height, className) {
-    return `
-    <img decoding="async" width="${width}" height="${height}" class="${className}"
-      src="${sanitizeHTML(post.featured_image)}"
-      srcset="${sanitizeHTML(post.featured_image_small || post.featured_image)} 300w,
-              ${sanitizeHTML(post.featured_image_medium || post.featured_image)} 768w,
-              ${sanitizeHTML(post.featured_image_large || post.featured_image)} 1024w"
-      alt="${sanitizeHTML(decodeHTMLEntities(post.title))}">
-  `;
-}
-
-function getNewsletterHTML(post, postDate) {
-    return `
-    <a href="${sanitizeHTML(post.url)}" rel="noopener noreferrer" aria-label="${sanitizeHTML(decodeHTMLEntities(post.title))}">
-      <div class="post-thumbnail">
-        ${getImageHTML(post, 286, 286, "")}
-        <time class="post-date" datetime="${sanitizeHTML(post.post_date)}">${postDate}</time>
-        <h2 class="post-title" title="${sanitizeHTML(decodeHTMLEntities(post.title))}">${sanitizeHTML(decodeHTMLEntities(post.title))}</h2>
-      </div>
-    </a>
-  `;
-}
-
-function getNewsHTML(post, postDate) {
-    return `
-    <div class="news_card_image">
-      <a href="${sanitizeHTML(post.url)}" rel="noopener noreferrer" aria-label="${sanitizeHTML(decodeHTMLEntities(post.title))}" title="${sanitizeHTML(decodeHTMLEntities(post.title))}">
-        ${getImageHTML(post, 320, 320, "border-1")}
-      </a>
-    </div>
-    <div class="news_card_content">
-      <div class="newsevents__post_date">${postDate}</div>
-      <a href="${sanitizeHTML(post.url)}" rel="noopener noreferrer" aria-label="${sanitizeHTML(decodeHTMLEntities(post.title))}" title="${sanitizeHTML(decodeHTMLEntities(post.title))}">
-        <h2 class="newsevents__post_title fw-medium">${sanitizeHTML(decodeHTMLEntities(post.title))}</h2>
-      </a>
-    </div>
-  `;
-}
-
-function getAwardHTML(post, postDate) {
-    return `
-    <a href="${sanitizeHTML(post.url)}" rel="noopener noreferrer" aria-label="${sanitizeHTML(decodeHTMLEntities(post.title))}">
-      ${getImageHTML(post, 300, 300, "awards_card_img")}
-      <div>
-        <div class="categ_date flex">
-          <div class="categ_lbl capitalize pr-2">${sanitizeHTML(decodeHTMLEntities(post.category_names))}</div>
-          <div class="date_posted text-gray-700 fw-light">${postDate}</div>
-        </div>
-        <div class="title">${sanitizeHTML(decodeHTMLEntities(post.title))}</div>
-      </div>
-    </a>
-  `;
-}
-
-function sanitizeHTML(html) {
-    const tempDiv = document.createElement("div");
-    tempDiv.textContent = html;
-    return tempDiv.innerHTML;
-}
-
-function decodeHTMLEntities(text) {
-    let textArea = document.createElement("textarea");
-    let prev = text;
-    let curr = text;
-    do {
-        prev = curr;
-        textArea.innerHTML = prev;
-        curr = textArea.value;
-    } while (curr !== prev);
-    return curr;
-}
-
-// Safely bolds words from the query that appear in the given text
-function highlightMatches(text, query) {
-    const safeText = sanitizeHTML(text || "");
-    const q = (query || "").trim();
-    if (!q) return safeText;
-
-    // Build a regex of unique words >= 2 chars
-    const terms = Array.from(new Set(q.split(/\s+/).filter(w => w.length >= 2)));
-    if (terms.length === 0) return safeText;
-
-    const escaped = terms.map(t => escapeRegExp(t));
-    // Word boundaries to match whole words; case-insensitive
-    const pattern = `\\b(${escaped.join("|")})\\b`;
-    const re = new RegExp(pattern, "gi");
-    return safeText.replace(re, "<strong>$1</strong>");
-}
-
-function escapeRegExp(str) {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-// Utility function to sort posts by date
-function sortPostsByDate(posts) {
-    return posts.sort(
-        (a, b) =>
-            new Date(b.post_date) - new Date(a.post_date)
-    );
-}
-
-// Utility function to add "Load More" button
-function addLoadMoreButton(
-    buttonContainer,
-    postsContainer,
-    posts,
-    currentPostIndex,
-    maxPosts,
-    createCardUI,
-    type = "award"
-) {
-    const loadMoreButton = document.createElement("button");
-    loadMoreButton.textContent = "See More";
-    loadMoreButton.className =
-        "load-more-button btn-primary border-0 cursor-pointer";
-    buttonContainer?.appendChild(loadMoreButton);
-
-    loadMoreButton.addEventListener("click", () => {
-        if (loadMoreButton.textContent === "See More") {
-            const remainingPosts = posts.slice(
-                currentPostIndex,
-                currentPostIndex + maxPosts
-            );
-            remainingPosts.forEach((post) => {
-                const article = createCardUI(post, type);
-                postsContainer.appendChild(article);
-            });
-            currentPostIndex += maxPosts;
-
-            // Change button text to "Show Less" if all posts are loaded
-            if (currentPostIndex >= posts.length) {
-                loadMoreButton.textContent = "Show Less";
-            }
-        } else {
-            // Reset to initial state
-            postsContainer.innerHTML = "";
-            const initialPosts = posts.slice(0, maxPosts);
-            initialPosts.forEach((post) => {
-                const article = createCardUI(post, type);
-                postsContainer.appendChild(article);
-            });
-            currentPostIndex = maxPosts;
-            loadMoreButton.textContent = "See More";
-        }
-    });
-}
 
 async function showFilteredAwards(filterID) {
     await filterAndRenderPosts({
@@ -1136,119 +1046,6 @@ const searchInput = document?.getElementById("newsletterSearch");
 const showCloseButton = document?.getElementById("nl_close_search");
 const nlSearchIcon = document?.getElementById("nl_search_icon");
 
-// Generic utility to filter, sort, and render posts with optional load more
-async function filterAndRenderPosts({
-    dbName,
-    storeName,
-    filterFn,
-    postFilter = null,
-    renderType = "news",
-    maxInitialPosts = 15,
-    containerId,
-    loadMoreId
-}) {
-    const posts = await fetchPostsFromDB(dbName, storeName, filterFn);
-    const sortedPosts = sortPostsByDate(posts);
-    const container = document?.getElementById(containerId);
-    const loadMoreContainer = document?.getElementById(loadMoreId);
-    if (!container || !loadMoreContainer) return;
-    loadMoreContainer.innerHTML = "";
-    container.innerHTML = "";
-    let filteredPosts = sortedPosts;
-    if (postFilter) {
-        filteredPosts = sortedPosts.filter(postFilter);
-    }
-    const initialPosts = filteredPosts.slice(0, maxInitialPosts);
-    initialPosts.forEach((post) => {
-        const article = createCardUI(post, renderType, true);
-        container?.appendChild(article);
-    });
-    let currentPostIndex = maxInitialPosts;
-    if (filteredPosts.length > maxInitialPosts) {
-        addLoadMoreButton(
-            loadMoreContainer,
-            container,
-            filteredPosts,
-            currentPostIndex,
-            maxInitialPosts,
-            createCardUI,
-            renderType
-        );
-    }
-}
-
-//SEARCH NEWSLETTERS
-// searchInput?.addEventListener("input", async function (e) {
-//     const searchValue = e.target.value.toLowerCase();
-//     const activeFilterBtn = document?.querySelector(
-//         ".newsletter_category_filter.active"
-//     );
-
-//     showCloseButton.classList.toggle("active", searchInput.value.length >= 2);
-//     if (searchInput.value.length >= 2) {
-//         nlSearchIcon.style.display = "none";
-//     } else if (searchInput.value.length === 0) {
-//         nlSearchIcon.style.display = "flex";
-//     }
-
-//     const dbName = "PostsDatabase";
-//     const storeName = "posts";
-//     const maxInitialPosts = 16;
-//     let currentPostIndex = 0;
-
-//     const searchNewsletterPosts = await fetchPostsFromDB(
-//         dbName,
-//         storeName,
-//         (post) => {
-//             const categories = post.categories.toLowerCase().split(", ");
-//             return categories.includes(activeFilterBtn?.id);
-//         }
-//     );
-
-//     const sortedNewslettersPosts = sortPostsByDate(searchNewsletterPosts);
-
-//     const newsletterContainer = document?.getElementById("newsletters_post");
-//     const loadMoreContainer = document?.getElementById("btn_load_more_wrapper");
-//     if (!newsletterContainer || !loadMoreContainer) return;
-//     loadMoreContainer.innerHTML = "";
-//     newsletterContainer.innerHTML = "";
-
-//     const filteredPosts = sortedNewslettersPosts.filter((post) => {
-//         const postTitle = post.title.toLowerCase();
-//         return postTitle.includes(searchValue);
-//     });
-
-//     const initialPosts = filteredPosts.slice(0, maxInitialPosts);
-
-//     initialPosts.forEach((post) => {
-//         const article = createCardUI(post, "newsletter", true);
-//         newsletterContainer?.appendChild(article);
-//     });
-
-//     currentPostIndex = maxInitialPosts;
-
-//     if (filteredPosts.length > maxInitialPosts) {
-//         addLoadMoreButton(
-//             loadMoreContainer,
-//             newsletterContainer,
-//             filteredPosts,
-//             currentPostIndex,
-//             maxInitialPosts,
-//             createCardUI,
-//             "newsletter"
-//         );
-//     }
-// });
-
-// showCloseButton?.addEventListener("click", function () {
-//     searchInput.value = "";
-//     showCloseButton.classList.remove("active");
-//     const activeFilterBtn = document?.querySelector(
-//         ".newsletter_category_filter.active"
-//     );
-//     showFilteredNewsletters(activeFilterBtn?.id);
-// });
-//SEARCH NEWSLETTERS END
 
 const buttonSVG = document.querySelectorAll('.arrow_right_svg_plus_icon');
 
@@ -1269,229 +1066,11 @@ buttonSVG.forEach(button => {
 //  NEWS & EVENTS PAGE JS CODE : REFACTORED
 // =======================================
 
-function renderPosts(posts, page, postsPerPage = 15, elementID) {
-
-    const awardNewsPostContainer = document?.getElementById(elementID);
-    if (!awardNewsPostContainer) return;
-
-    awardNewsPostContainer.innerHTML = "";
-
-    const start = (page - 1) * postsPerPage;
-    const end = start + postsPerPage;
-    const postsToRender = posts.slice(start, end);
-
-    // Batch DOM updates using DocumentFragment
-    const fragment = document.createDocumentFragment();
-    postsToRender.forEach((post) => {
-        const article = createCardUI(post, "news", true);
-        fragment.appendChild(article);
-    });
-    awardNewsPostContainer.appendChild(fragment);
-}
-
-function renderPagination(posts, postsPerPage = 15, elementID) {
-    const paginationWrapper = document?.getElementById("news_pagination_btns_wrapper");
-    const prevBtn = document?.getElementById("prev_post_btn");
-    const nextBtn = document?.getElementById("next_post_btn");
-    const firstBtn = document?.getElementById("first_post_btn");
-    const lastBtn = document?.getElementById("last_post_btn");
-    const paginationDotsFirst = document?.getElementById("ne_pagination_dots_first");
-    const paginationDotsLast = document?.getElementById("ne_pagination_dots");
-
-    let currentPage = 1;
-    const totalPages = Math.ceil(posts.length / postsPerPage);
-
-    function togglePaginationVisibility(isVisible) {
-        document?.querySelector('.pagination_container').classList.toggle('d-none', !isVisible);
-    }
-
-    function createPageButton(page) {
-        const button = document.createElement("button");
-        button.textContent = page;
-        button.className = "pagination_btn";
-        button.setAttribute("type", "button");
-        button.setAttribute("aria-label", `Go to page ${page}`);
-        button.addEventListener("click", () => {
-            currentPage = page;
-            renderPosts(posts, currentPage, postsPerPage, elementID);
-            updatePagination();
-        });
-        return button;
-    }
-
-    function updatePagination() {
-        if (!paginationWrapper) return;
-        paginationWrapper.innerHTML = "";
-
-        const startPage = Math.floor((currentPage - 1) / 5) * 5 + 1;
-        const endPage = Math.min(startPage + 4, totalPages);
-
-        for (let i = startPage; i <= endPage; i++) {
-            const pageButton = createPageButton(i);
-            if (i === currentPage) pageButton.classList.add("active");
-
-            paginationWrapper.appendChild(pageButton);
-        }
-
-        updateButtonStates(endPage);
-    }
-
-    function updateButtonStates(endPage) {
-        const isFirstPage = currentPage === 1;
-        const isLastPage = currentPage === totalPages;
-
-        prevBtn?.classList.toggle("d-none", isFirstPage);
-        nextBtn?.classList.toggle("d-none", isLastPage);
-        firstBtn?.classList.toggle("d-none", isFirstPage || currentPage <= 5);
-        lastBtn?.classList.toggle("d-none", isLastPage || endPage === totalPages);
-        paginationDotsFirst?.classList.toggle("d-none", isFirstPage || currentPage <= 5);
-        paginationDotsLast?.classList.toggle("d-none", isLastPage || endPage === totalPages);
-
-        firstBtn.textContent = "1";
-        lastBtn.textContent = totalPages;
-    }
-
-    prevBtn?.addEventListener("click", () => {
-        if (currentPage > 1) {
-            currentPage--;
-            renderPosts(posts, currentPage, postsPerPage, elementID);
-            updatePagination();
-        }
-    });
-
-    nextBtn?.addEventListener("click", () => {
-        if (currentPage < totalPages) {
-            currentPage++;
-            renderPosts(posts, currentPage, postsPerPage, elementID);
-            updatePagination();
-        }
-    });
-
-    firstBtn?.addEventListener("click", () => {
-        currentPage = 1;
-        renderPosts(posts, currentPage, postsPerPage, elementID);
-        updatePagination();
-    });
-
-    lastBtn?.addEventListener("click", () => {
-        currentPage = totalPages;
-        renderPosts(posts, currentPage, postsPerPage, elementID);
-        updatePagination();
-    });
-
-    if (totalPages <= 1) {
-        togglePaginationVisibility(false);
-        return;
-    }
-
-    togglePaginationVisibility(true);
-
-    updatePagination();
-}
-
-async function getNewsAndEventsPosts(categories = [], filterID = null) {
-
-    console.log("Fetching news and events posts...");
-    console.log("Categories:", categories);
-    console.log("Filter ID:", filterID);
-
-
-    const dbName = "PostsDatabase";
-    const storeName = "posts";
-
-    // get all posts from db that matches the categories
-    const awardsOrNews = await fetchPostsFromDB(dbName, storeName, (post) => {
-        const postCategories = post.categories.toLowerCase().split(",");
-        const matchesCategory = postCategories.some((category) => categories.includes(category));
-        return matchesCategory;
-    });
-
-    let filteredPosts = awardsOrNews;
-
-    // Filter posts by tag if filterID is provided
-    if (filterID) {
-        filteredPosts = awardsOrNews.filter((post) => {
-            const postTags = post.tags.toLowerCase().split(",");
-            return postTags.includes(filterID);
-        });
-    }
-
-    const sortedPosts = sortPostsByDate(filteredPosts);
-
-    // Initial render
-    renderPosts(sortedPosts, 1, 15, "all_news_posts");
-    renderPagination(sortedPosts, 15, "all_news_posts");
-}
-
 // filter for awards 
 FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
     currentFilterID = filterID === "all" ? null : filterID;
     getNewsAndEventsPosts(["awards-and-rankings", "news"], currentFilterID);
 });
-
-
-function filterPostsByCategoryAndTag(posts, filterID) {
-    return posts.filter((post) => {
-        const postCategories = post.categories.toLowerCase().split(",");
-        const postTags = post.tags.toLowerCase().split(",");
-
-        // Check if the filterID matches either a category or a tag
-        const matchesCategory = postCategories.includes(filterID);
-        const matchesTag = postTags.includes(filterID);
-
-        return matchesCategory || matchesTag;
-    });
-}
-
-async function getPodcastsAndWebinars(categories = [], filterID = null) {
-
-    const dbName = "PostsDatabase";
-    const storeName = "posts";
-
-    const posts = await fetchPostsFromDB(dbName, storeName, (post) => {
-        if (categories.length === 0) return true; // If no categories specified, include all
-
-        const postCategories = post.categories
-            .toLowerCase()
-            .split(",")
-            .map(cat => cat.trim());
-        return categories.some(category =>
-            postCategories.includes(category.toLowerCase())
-        );
-    });
-
-    let filteredPosts = posts;
-
-    // Filter by tag if filterID is provided
-    if (filterID) {
-        filteredPosts = posts.filter((post) => {
-            const postCategories = (post.categories || "")
-                .toLowerCase()
-                .split(",")
-                .map(cat => cat.trim());
-
-            const postTags = (post.tags || "")
-                .toLowerCase()
-                .split(",")
-                .map(tag => tag.trim());
-
-            return postCategories.includes(filterID.toLowerCase()) ||
-                postTags.includes(filterID.toLowerCase());
-        });
-    }
-
-    // Filter posts to only include those with featured images
-    filteredPosts = filteredPosts.filter((post) => {
-        return post.featured_image && post.featured_image.trim() !== '';
-    });
-
-    // Sort the filtered posts by date
-    const sortedPosts = sortPostsByDate(filteredPosts);
-
-    // Initial render
-    renderPosts(sortedPosts, 1, 15, "pod-and-web");
-    renderPagination(sortedPosts, 15, "pod-and-web");
-}
 
 // Initialize client-side filtering for webinars/podcasts only when load-more is not active
 if (!window.location.pathname.includes("/webinars-and-podcasts/") && !document.getElementById('webinars-load-more-btn')) {
@@ -1500,37 +1079,6 @@ if (!window.location.pathname.includes("/webinars-and-podcasts/") && !document.g
         // Fetch and filter by category and tag
         getPodcastsAndWebinars(["webinars-and-podcasts", "webinars"], currentFilterID);
     });
-}
-
-async function initRenderPagination(categories = []) {
-
-    const dbName = "PostsDatabase";
-    const storeName = "posts";
-
-    const posts = await fetchPostsFromDB(dbName, storeName, (post) => {
-        if (categories.length === 0) return true; // If no categories specified, include all
-
-        const postCategories = post.categories
-            .toLowerCase()
-            .split(",")
-            .map(cat => cat.trim());
-
-        return categories.some(category =>
-            postCategories.includes(category.toLowerCase())
-        );
-    });
-
-    let filteredPosts = posts;
-
-    // Filter posts to only include those with featured images
-    filteredPosts = filteredPosts.filter((post) => {
-        return post.featured_image && post.featured_image.trim() !== '';
-    });
-
-    // Sort the filtered posts by date
-    const sortedPosts = sortPostsByDate(filteredPosts);
-
-    renderPagination(sortedPosts, 15, "pod-and-web");
 }
 
 const hamburgerMenuBtn = document?.querySelector('.nav_trail_active .hamburger');
@@ -1547,45 +1095,6 @@ hamburgerMenuBtn?.addEventListener('click', () => {
     const ariaHiddenValue = aboutUsNavUlMobile?.classList.contains('dropdown_active') ? 'false' : 'true';
     aboutUsNavUlMobile?.setAttribute('aria-hidden', ariaHiddenValue);
 });
-
-async function getArchivedAllPosts(categories = []) {
-    const dbName = "PostsDatabase";
-    const storeName = "posts";
-
-    const allPosts = await fetchPostsFromDB(dbName, storeName, (post) => post);
-
-    let filteredPosts = allPosts;
-
-    if (categories.length) {
-        filteredPosts = filteredPosts.filter((post) => {
-            // Split categories by comma and trim whitespace
-            const postCategories = post.categories
-                .split(",")
-                .map(cat => cat.trim().toLowerCase());
-            return categories.some((category) => postCategories.includes(category));
-        });
-    }
-
-    const sortedPosts = sortPostsByDate(filteredPosts);
-
-    // Group posts by year
-    const postsByYear = {};
-    sortedPosts.forEach((post) => {
-        // Handle new date format "14 Jun 2014"
-        const parts = post.post_date.split(" ");
-        const year = parts[2]; // Year is now the third part
-        if (!postsByYear[year]) postsByYear[year] = [];
-        postsByYear[year].push(post);
-    });
-
-    // Render a single table
-    const archivedPostsContainer = document?.getElementById("archived_posts_container");
-    if (!archivedPostsContainer) return;
-    archivedPostsContainer.innerHTML = "";
-
-    const table = createUITable(postsByYear, categories);
-    archivedPostsContainer.appendChild(table);
-}
 
 function createUITable(postsByYear, categories) {
     const table = document.createElement("table");
@@ -1657,11 +1166,12 @@ function getRenderedPostIds(containerSelector, itemClass) {
         .map(el => el.getAttribute('data-post-id'));
 }
 
+// =======================================
+// PROFILE SINGLE PAGE OBSERVER:::START
+// =======================================
+// This code observes the profile content sections and updates the navigation items accordingly
 
-
-// PROFILE SINGLE PAGE OBSERVER 
 const sectionTextContent = [...document.querySelectorAll('.profile_content_section')];
-
 
 let options = {
     threshold: [0, 0.3],
@@ -1698,8 +1208,6 @@ const observeProfileContent = new IntersectionObserver(handleIntersection, optio
 sectionTextContent.forEach(section => {
     observeProfileContent.observe(section);
 });
-
-
 
 const stickyNav = document?.querySelector('.lawyer_profile_section_nav');
 const navLinks = document?.querySelectorAll('.profile_bio_nav_item .profile_bio_nav_item_label');
@@ -1781,8 +1289,10 @@ expandMoreBtn.forEach(btn => {
         }
     })
 });
+// =======================================
+// PROFILE SINGLE PAGE OBSERVER:::END
+// =======================================
 
-// loadmore button for Newsletters
 function initLoadMoreWithFilters(config) {
     const {
         loadMoreBtnId,
@@ -2230,149 +1740,3 @@ function initLoadMoreWithFilters(config) {
     }
 }
 
-
-// Initialize load more functionality for newsletters
-const useAjaxForNewsletterSearch = true;
-
-// Sequence counter to invalidate stale async search responses
-let searchRequestCounter = 0;
-
-async function fetchPostViaAjax(query, categorySlug, perPage = 5) {
-    // console.log(`Fetching newsletter results via AJAX for query: "${query}", category: "${categorySlug}"`);
-
-    if (!window.ajax_object?.ajax_url) {
-        console.warn("ajax_object.ajax_url missing; falling back to REST.");
-        return fetchPostViaRestAPI(query, categorySlug, perPage);
-    }
-    const body = new URLSearchParams({
-        action: "newsletter_search",
-        search: query,
-        category: categorySlug,
-        per_page: String(perPage)
-    });
-    const resp = await fetch(window.ajax_object.ajax_url, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body
-    });
-    const json = await resp.json();
-    if (!json?.success) return [];
-    return (json.data || []).map(item => ({
-        title: decodeHTMLEntities(item?.title || ""),
-        link: item?.link || "#"
-    }));
-}
-
-async function fetchPostViaRestAPI(query, categorySlug, perPage = 5) {
-    // console.log(`Fetching newsletter results via REST for query: "${query}", category: "${categorySlug}"`);
-
-    const origin = window.location.origin;
-    // Resolve category ID from slug
-    const categoryResp = await fetch(`${origin}/wp-json/wp/v2/categories?slug=${encodeURIComponent(categorySlug)}`);
-    if (!categoryResp.ok) return [];
-    const categoryData = await categoryResp.json();
-    const categoryId = categoryData?.[0]?.id;
-    if (!categoryId) return [];
-    // Fetch posts in that category
-    const resp = await fetch(
-        `${origin}/wp-json/wp/v2/posts?search=${encodeURIComponent(query)}&categories=${encodeURIComponent(categoryId)}&per_page=${perPage}&orderby=relevance&_fields=title,link`
-    );
-    if (!resp.ok) return [];
-    const items = await resp.json();
-    return (Array.isArray(items) ? items : []).map(item => ({
-        title: decodeHTMLEntities(item?.title?.rendered || ""),
-        link: item?.link || "#"
-    }));
-}
-
-// Replace the existing debouncedFetchSearch with this version
-const debouncedFetchSearch = debounce(async (raw) => {
-    const query = (raw || "").trim();
-    // Increment to invalidate any previous in-flight requests
-    const requestId = ++searchRequestCounter;
-
-    const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
-    const searchResContainer = searchResParentDiv?.querySelector('.search_res_list');
-
-    if (query.length < 2) {
-        if (searchResParentDiv && searchResContainer) {
-            searchResParentDiv.classList.remove("show");
-            searchResContainer.innerHTML = "";
-        }
-        return;
-    }
-
-    try {
-        // Use current active newsletter category (fallback to hong-kong-law)
-        const btnFilterActive = document.querySelector('.newsletter_category_filter.active');
-        const categorySlug = btnFilterActive ? btnFilterActive.id : "hong-kong-law";
-
-        // Fetch results via AJAX or REST
-        const results = useAjaxForNewsletterSearch
-            ? await fetchPostViaAjax(query, categorySlug, 5)
-            : await fetchPostViaRestAPI(query, categorySlug, 5);
-
-        // If a newer request has started since this one, ignore these results
-        if (requestId !== searchRequestCounter) return;
-
-        if (!searchResParentDiv || !searchResContainer) return;
-
-        // Clear previous results
-        searchResContainer.innerHTML = "";
-
-        if (results.length > 0) {
-            searchResParentDiv.classList.add("show");
-            const fragment = document.createDocumentFragment();
-            results.forEach(result => {
-                const li = document.createElement("li");
-                li.className = "search-result-item";
-                const highlighted = highlightMatches(result.title, query);
-                li.innerHTML = `<a href="${sanitizeHTML(result.link)}" class="cursor-pointer">${highlighted}</a>`;
-                fragment.appendChild(li);
-            });
-            searchResContainer.appendChild(fragment);
-        } else {
-            searchResParentDiv.classList.remove("show");
-        }
-    } catch (err) {
-        console.error("Search request failed:", err);
-    }
-}, 0);
-
-
-// searchInput?.addEventListener("input", (e) => {
-//     debouncedFetchSearch(e.target.value);
-
-//     const hasText = e.target.value.trim().length > 0;
-//     if (hasText) {
-//         showCloseButton?.classList.add("active");
-//         if (nlSearchIcon) nlSearchIcon.style.display = "none";
-//     } else {
-//         showCloseButton?.classList.remove("active");
-//         if (nlSearchIcon) nlSearchIcon.style.display = "flex";
-//         const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
-//         if (searchResParentDiv) {
-//             searchResParentDiv.classList.remove("show");
-//             const list = searchResParentDiv.querySelector('.search_res_list');
-//             if (list) list.innerHTML = ""; // Clear results
-//         }
-//         // Invalidate any in-flight searches to prevent stale re-show
-//         searchRequestCounter++;
-//     }
-// });
-
-// // Attach a single clear button handler
-// showCloseButton?.addEventListener("click", () => {
-//     if (!searchInput) return;
-//     searchInput.value = "";
-//     showCloseButton.classList.remove("active");
-//     if (nlSearchIcon) nlSearchIcon.style.display = "flex"; // Show search icon again
-//     const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
-//     if (searchResParentDiv) {
-//         searchResParentDiv.classList.remove("show");
-//         const list = searchResParentDiv.querySelector('.search_res_list');
-//         if (list) list.innerHTML = ""; // Clear results
-//     }
-//     // Invalidate any in-flight searches and cancel pending UI updates
-//     searchRequestCounter++;
-// });
