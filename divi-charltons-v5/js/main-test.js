@@ -1376,6 +1376,11 @@ function initFilterControls(options) {
             const value = detectValue(this);
             const range = type === 'yearDecade' ? parseYearDecade(value) : null;
 
+            console.log(detectType(this));
+            console.log(detectValue(this));
+            console.log(range);
+
+
             if (typeof onChange === 'function') {
                 onChange({ type, value, range, button: this });
             }
