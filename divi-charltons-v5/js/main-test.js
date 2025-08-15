@@ -25,18 +25,19 @@ document.addEventListener("readystatechange", (e) => {
 
 
         if (window.location.pathname.includes("/news/newsletters/hong-kong-law-3/")) {
-            // initLoadMoreWithFilters({
-            //     loadMoreBtnId: "newsletter-load-more-btn",
-            //     loadingSpinnerId: ".loading-spinner",
-            //     postsContainerId: "newsletters_post",
-            //     categoryButtonsSelector: ".newsletter_category_filter",
-            //     ajaxAction: "load_more_newsletters",
-            //     defaultCategory: "hong-kong-law",
-            //     postsPerPage: 20,
-            //     searchInputId: "newsletterSearch",
-            //     searchCloseButtonId: "nl_close_search",
-            //     searchIconId: "nl_search_icon"
-            // });
+            initLoadMoreWithFilters({
+                loadMoreBtnId: "newsletter-load-more-btn",
+                loadingSpinnerId: ".loading-spinner",
+                postsContainerId: "newsletters_post",
+                categoryButtonsSelector: ".newsletter_category_filter",
+                ajaxAction: "load_more_newsletters",
+                defaultCategory: "hong-kong-law",
+                postsPerPage: 20,
+                searchInputId: "newsletterSearch",
+                searchCloseButtonId: "nl_close_search",
+                searchIconId: "nl_search_icon",
+                useCustomAjaxSearch: true,
+            });
         }
 
         if (window.location.pathname.includes("/our-firm/awards-2/")) {
@@ -987,6 +988,27 @@ function decodeHTMLEntities(text) {
     return curr;
 }
 
+// Safely bolds words from the query that appear in the given text
+function highlightMatches(text, query) {
+    const safeText = sanitizeHTML(text || "");
+    const q = (query || "").trim();
+    if (!q) return safeText;
+
+    // Build a regex of unique words >= 2 chars
+    const terms = Array.from(new Set(q.split(/\s+/).filter(w => w.length >= 2)));
+    if (terms.length === 0) return safeText;
+
+    const escaped = terms.map(t => escapeRegExp(t));
+    // Word boundaries to match whole words; case-insensitive
+    const pattern = `\\b(${escaped.join("|")})\\b`;
+    const re = new RegExp(pattern, "gi");
+    return safeText.replace(re, "<strong>$1</strong>");
+}
+
+function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // Utility function to sort posts by date
 function sortPostsByDate(posts) {
     return posts.sort(
@@ -1761,7 +1783,6 @@ expandMoreBtn.forEach(btn => {
 });
 
 // loadmore button for Newsletters
-
 function initLoadMoreWithFilters(config) {
     const {
         loadMoreBtnId,
@@ -1775,7 +1796,14 @@ function initLoadMoreWithFilters(config) {
         searchCloseButtonId = null,
         searchIconId = null,
         // Optional: CSS selector for items inside the posts container. If provided, we'll only remove these on refresh
-        itemSelector = null
+        itemSelector = null,
+        // If true, use server-side ajax_search for searching instead of the generic loadCategoryPosts
+        useCustomAjaxSearch = false,
+        // The WordPress AJAX action to call for server-side search
+        searchAjaxAction = 'ajax_search',
+        // Optional param names for the search endpoint
+        searchRequestParamName = 'search',
+        searchCategoryParamName = 'category'
     } = config;
 
     const loadMoreBtn = document.getElementById(loadMoreBtnId);
@@ -1783,12 +1811,10 @@ function initLoadMoreWithFilters(config) {
     const postsContainer = document.getElementById(postsContainerId);
     const categoryButtons = document.querySelectorAll(categoryButtonsSelector);
 
-    // Search elements (disabled for now; switching to WP REST API soon)
-    /*
+    // Search elements
     const searchInput = searchInputId ? document.getElementById(searchInputId) : null;
     const searchCloseButton = searchCloseButtonId ? document.getElementById(searchCloseButtonId) : null;
     const searchIcon = searchIconId ? document.getElementById(searchIconId) : null;
-    */
 
     if (!loadMoreBtn || !postsContainer) {
         console.warn(`Load more functionality not initialized: missing elements`);
@@ -1801,8 +1827,7 @@ function initLoadMoreWithFilters(config) {
         return activeButton ? activeButton.id : defaultCategory;
     }
 
-    // Remove non-matching cards on the client to ensure search results only show matches (disabled for now)
-    /*
+    // Remove non-matching cards on the client to ensure search results only show matches
     function getCardTitleText(card) {
         const titleEl = card.querySelector('h2.post-title, h2.newsevents__post_title, .title');
         if (titleEl) return titleEl.textContent.trim();
@@ -1827,38 +1852,207 @@ function initLoadMoreWithFilters(config) {
             }
         });
 
+        // If nothing remains, show a simple empty state
         if (kept === 0) {
             postsContainer.innerHTML = `<p class="no-results">No results found for “${sanitizeHTML(searchTerm)}”.</p>`;
         }
         return kept;
     }
 
+    async function renderNewsletterSearchResults(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+
+        const items = Array.from(tmp.querySelectorAll('li'));
+        if (items.length === 0) {
+            // Fallback: show whatever came back
+            postsContainer.innerHTML = html;
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        const pickImageFromMedia = (mediaJson) => {
+            const sizes = mediaJson?.media_details?.sizes || {};
+            return (
+                sizes?.medium_large?.source_url ||
+                sizes?.large?.source_url ||
+                sizes?.medium?.source_url ||
+                mediaJson?.source_url ||
+                ''
+            );
+        };
+
+        const formatDate = (iso) => {
+            const d = new Date(iso);
+            const day = d.getDate();
+            const mon = d.toLocaleString('en-GB', { month: 'short' });
+            const year = d.getFullYear();
+            return `${day} ${mon} ${year}`;
+        };
+
+        const origin = window.location.origin;
+
+        for (const li of items) {
+            const a = li.querySelector('a');
+            if (!a) continue;
+
+            let link = a.href;
+            let title = a.getAttribute('title') || a.textContent.trim();
+            let img = li.dataset.img || (li.querySelector('img')?.src || '');
+            let postDate = li.dataset.date || '';
+
+            // Enrich with REST if missing data
+            if (!img || !postDate) {
+                try {
+                    const urlObj = new URL(link, origin);
+                    const parts = urlObj.pathname.split('/').filter(Boolean);
+                    const slug = parts[parts.length - 1];
+
+                    const postResp = await fetch(`${origin}/wp-json/wp/v2/posts?slug=${encodeURIComponent(slug)}&_fields=id,date,featured_media,title,link`);
+                    if (postResp.ok) {
+                        const arr = await postResp.json();
+                        const postJson = Array.isArray(arr) ? arr[0] : null;
+                        if (postJson) {
+                            postDate = postDate || formatDate(postJson.date);
+                            title = decodeHTMLEntities(postJson.title?.rendered || title);
+                            link = postJson.link || link;
+
+                            if (!img && postJson.featured_media) {
+                                const mediaResp = await fetch(`${origin}/wp-json/wp/v2/media/${postJson.featured_media}?_fields=source_url,media_details`);
+                                if (mediaResp.ok) {
+                                    const mediaJson = await mediaResp.json();
+                                    img = pickImageFromMedia(mediaJson);
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to enrich search item via REST:', e);
+                }
+            }
+
+            const postObj = {
+                categories: getActiveCategory() || '',
+                tags: '',
+                id: li.dataset.postId || '',
+                post_date: postDate || '',
+                featured_image: img || '',
+                featured_image_small: img || '',
+                featured_image_medium: img || '',
+                featured_image_large: img || '',
+                url: link,
+                title: title
+            };
+
+            const article = createCardUI(postObj, 'newsletter', true);
+            fragment.appendChild(article);
+        }
+
+        postsContainer.innerHTML = '';
+        postsContainer.appendChild(fragment);
+    }
+
     function performSearch(searchTerm) {
         const activeCategory = getActiveCategory();
+
+        // Reset offset and update button data
         loadMoreBtn.dataset.offset = postsPerPage.toString();
         loadMoreBtn.dataset.category = activeCategory;
         loadMoreBtn.dataset.searchTerm = searchTerm;
+
+        // Clear current posts (preserve non-item children like buttons/spinners when itemSelector is provided)
         if (itemSelector) {
             postsContainer.querySelectorAll(itemSelector).forEach(el => el.remove());
         } else {
             postsContainer.innerHTML = "";
         }
+
+        // Show loading state
         loadMoreBtn.style.display = "none";
         if (loadingSpinner) loadingSpinner.style.display = "block";
-        loadCategoryPosts(activeCategory, 0, true, searchTerm);
-    }
-    */
 
-    // Search functionality (disabled for now)
-    /*
-    if (searchInput) {
-        let searchTimeout;
-        searchInput.addEventListener("input", function (e) { ... });
-        if (searchCloseButton) {
-            searchCloseButton.addEventListener("click", function () { ... });
+        if (useCustomAjaxSearch) {
+            // Use the dedicated WP ajax_search endpoint which returns HTML <li> items
+            const params = new URLSearchParams();
+            params.append('action', searchAjaxAction);
+            params.append(searchRequestParamName, searchTerm);
+            if (activeCategory) params.append(searchCategoryParamName, activeCategory);
+
+            fetch(ajax_object.ajax_url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            })
+                .then(res => res.text())
+                .then(async html => {
+                    // Convert <li> results into newsletter cards
+                    await renderNewsletterSearchResults(html);
+                    // Keep load more hidden during a search to avoid mixing unrelated posts
+                    loadMoreBtn.style.display = 'none';
+                })
+                .catch(err => {
+                    console.error('Search request failed:', err);
+                    // Show a minimal empty state
+                    postsContainer.innerHTML = `<li class="no-results">No results found</li>`;
+                })
+                .finally(() => {
+                    if (loadingSpinner) loadingSpinner.style.display = 'none';
+                });
+        } else {
+            // Load posts with search using the generic JSON endpoint
+            loadCategoryPosts(activeCategory, 0, true, searchTerm);
         }
     }
-    */
+
+    // Search functionality
+    if (searchInput) {
+        let searchTimeout;
+
+        searchInput.addEventListener("input", function (e) {
+            const searchValue = e.target.value.trim();
+
+            // Update UI elements
+            if (searchCloseButton) {
+                searchCloseButton.classList.toggle("active", searchValue.length >= 2);
+            }
+            if (searchIcon) {
+                searchIcon.style.display = searchValue.length >= 2 ? "none" : "flex";
+            }
+
+            // Clear previous timeout
+            clearTimeout(searchTimeout);
+
+            // Debounce search
+            searchTimeout = setTimeout(() => {
+                if (searchValue.length >= 2) {
+                    performSearch(searchValue);
+                } else if (searchValue.length === 0) {
+                    // Reset to current category filter
+                    const activeCategory = getActiveCategory();
+                    // Clear search state on button for subsequent loads
+                    delete loadMoreBtn.dataset.searchTerm;
+                    loadCategoryPosts(activeCategory, 0, true);
+                }
+            }, 500);
+        });
+
+        if (searchCloseButton) {
+            searchCloseButton.addEventListener("click", function () {
+                searchInput.value = "";
+                searchCloseButton.classList.remove("active");
+                if (searchIcon) {
+                    searchIcon.style.display = "flex";
+                }
+
+                // Reset to current category filter
+                const activeCategory = getActiveCategory();
+                // Clear search state on button for subsequent loads
+                delete loadMoreBtn.dataset.searchTerm;
+                loadCategoryPosts(activeCategory, 0, true);
+            });
+        }
+    }
 
     // Category filter functionality
     categoryButtons.forEach(button => {
@@ -1871,12 +2065,20 @@ function initLoadMoreWithFilters(config) {
             const category = this.id;
             const callback = loadMoreBtn.dataset.callback || null;
 
+            // Get current search term
+            const searchTerm = searchInput ? searchInput.value.trim() : "";
+
             // Reset offset and update button data
             loadMoreBtn.dataset.offset = postsPerPage.toString();
             loadMoreBtn.dataset.category = category;
             // For awards, treat the UI filter as a tag
             if (callback === 'getAwardPostItems') {
                 loadMoreBtn.dataset.tag = category;
+            }
+            if (searchTerm) {
+                loadMoreBtn.dataset.searchTerm = searchTerm;
+            } else {
+                delete loadMoreBtn.dataset.searchTerm;
             }
 
             // Clear current posts (preserve non-item children when itemSelector is provided)
@@ -1890,8 +2092,14 @@ function initLoadMoreWithFilters(config) {
             loadMoreBtn.style.display = "none";
             if (loadingSpinner) loadingSpinner.style.display = "block";
 
-            // Load posts for selected category (search disabled)
-            loadCategoryPosts(category, 0, true);
+            // If a search term is active and server-side search is enabled, use it
+            if (useCustomAjaxSearch && searchTerm && searchTerm.length >= 2) {
+                performSearch(searchTerm);
+                return;
+            }
+
+            // Otherwise, load posts for selected category (with search if active)
+            loadCategoryPosts(category, 0, true, searchTerm || null);
         });
     });
 
@@ -1900,14 +2108,14 @@ function initLoadMoreWithFilters(config) {
         const offset = parseInt(this.dataset.offset);
         const postType = this.dataset.postType;
         const category = this.dataset.category;
-        // const searchTerm = this.dataset.searchTerm || null; // search disabled
+        const searchTerm = this.dataset.searchTerm || null;
 
         // Show loading state
         loadMoreBtn.style.display = "none";
         if (loadingSpinner) loadingSpinner.style.display = "block";
 
         // Make AJAX request
-        loadCategoryPosts(category, offset, false);
+        loadCategoryPosts(category, offset, false, searchTerm);
     });
 
     function loadCategoryPosts(category, offset, isNewSearch = false, searchTerm = null) {
@@ -1936,12 +2144,10 @@ function initLoadMoreWithFilters(config) {
             requestBody.tag = category;
         }
 
-        // Add search term if provided (disabled)
-        /*
+        // Add search term if provided
         if (searchTerm && searchTerm.length >= 2) {
             requestBody.search_term = searchTerm;
         }
-        */
 
         fetch(ajax_object.ajax_url, {
             method: "POST",
@@ -1982,13 +2188,12 @@ function initLoadMoreWithFilters(config) {
                         insertContent(data.data.content);
                     }
 
-                    // Apply client-side title filtering (disabled during search-off phase)
-                    /*
+                    // Apply client-side title filtering to ensure only matching posts are visible
                     if (searchTerm && searchTerm.length >= 2) {
                         const kept = filterRenderedPostsByTitle(searchTerm);
+                        // Keep load more hidden during a search to avoid mixing unrelated posts
                         loadMoreBtn.style.display = "none";
                     }
-                    */
 
                     // Update offset
                     loadMoreBtn.dataset.offset = data.data.next_offset;
@@ -2024,112 +2229,150 @@ function initLoadMoreWithFilters(config) {
         }
     }
 }
-//newsletterFormSearch
 
-// Debounced fetch that runs 500ms after the user stops typing
-const debouncedFetchSearch = debounce(async (raw) => {
 
-    const query = (raw || "").trim();
+// Initialize load more functionality for newsletters
+const useAjaxForNewsletterSearch = true;
 
-    if (query.length < 2) {
-        return;
+// Sequence counter to invalidate stale async search responses
+let searchRequestCounter = 0;
+
+async function fetchPostViaAjax(query, categorySlug, perPage = 5) {
+    // console.log(`Fetching newsletter results via AJAX for query: "${query}", category: "${categorySlug}"`);
+
+    if (!window.ajax_object?.ajax_url) {
+        console.warn("ajax_object.ajax_url missing; falling back to REST.");
+        return fetchPostViaRestAPI(query, categorySlug, perPage);
     }
+    const body = new URLSearchParams({
+        action: "newsletter_search",
+        search: query,
+        category: categorySlug,
+        per_page: String(perPage)
+    });
+    const resp = await fetch(window.ajax_object.ajax_url, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body
+    });
+    const json = await resp.json();
+    if (!json?.success) return [];
+    return (json.data || []).map(item => ({
+        title: decodeHTMLEntities(item?.title || ""),
+        link: item?.link || "#"
+    }));
+}
+
+async function fetchPostViaRestAPI(query, categorySlug, perPage = 5) {
+    // console.log(`Fetching newsletter results via REST for query: "${query}", category: "${categorySlug}"`);
 
     const origin = window.location.origin;
+    // Resolve category ID from slug
+    const categoryResp = await fetch(`${origin}/wp-json/wp/v2/categories?slug=${encodeURIComponent(categorySlug)}`);
+    if (!categoryResp.ok) return [];
+    const categoryData = await categoryResp.json();
+    const categoryId = categoryData?.[0]?.id;
+    if (!categoryId) return [];
+    // Fetch posts in that category
+    const resp = await fetch(
+        `${origin}/wp-json/wp/v2/posts?search=${encodeURIComponent(query)}&categories=${encodeURIComponent(categoryId)}&per_page=${perPage}&orderby=relevance&_fields=title,link`
+    );
+    if (!resp.ok) return [];
+    const items = await resp.json();
+    return (Array.isArray(items) ? items : []).map(item => ({
+        title: decodeHTMLEntities(item?.title?.rendered || ""),
+        link: item?.link || "#"
+    }));
+}
+
+// Replace the existing debouncedFetchSearch with this version
+const debouncedFetchSearch = debounce(async (raw) => {
+    const query = (raw || "").trim();
+    // Increment to invalidate any previous in-flight requests
+    const requestId = ++searchRequestCounter;
+
+    const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
+    const searchResContainer = searchResParentDiv?.querySelector('.search_res_list');
+
+    if (query.length < 2) {
+        if (searchResParentDiv && searchResContainer) {
+            searchResParentDiv.classList.remove("show");
+            searchResContainer.innerHTML = "";
+        }
+        return;
+    }
 
     try {
         // Use current active newsletter category (fallback to hong-kong-law)
         const btnFilterActive = document.querySelector('.newsletter_category_filter.active');
         const categorySlug = btnFilterActive ? btnFilterActive.id : "hong-kong-law";
 
-        // Fetch category to get its ID
-        const categoryResp = await fetch(`${origin}/wp-json/wp/v2/categories?slug=${encodeURIComponent(categorySlug)}`);
-        if (!categoryResp.ok) {
-            console.error("Error fetching category:", categoryResp.status, categoryResp.statusText);
-            return;
-        }
-        const categoryData = await categoryResp.json();
-        const categoryId = categoryData?.[0]?.id;
+        // Fetch results via AJAX or REST
+        const results = useAjaxForNewsletterSearch
+            ? await fetchPostViaAjax(query, categorySlug, 5)
+            : await fetchPostViaRestAPI(query, categorySlug, 5);
 
-        if (!categoryId) {
-            // No matching category found; hide any open results and stop
-            const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
-            if (searchResParentDiv) {
-                searchResParentDiv.classList.remove("show");
-                const list = searchResParentDiv.querySelector('.search_res_list');
-                if (list) list.innerHTML = "";
-            }
-            return;
-        }
+        // If a newer request has started since this one, ignore these results
+        if (requestId !== searchRequestCounter) return;
 
-        // Query posts endpoint so we can filter by category
-        const resp = await fetch(`${origin}/wp-json/wp/v2/posts?search=${encodeURIComponent(query)}&categories=${encodeURIComponent(categoryId)}&per_page=5&orderby=relevance&_fields=title,link`);
-
-        if (!resp.ok) {
-            console.error("Error fetching search results:", resp.status, resp.statusText);
-            return;
-        }
-        const items = await resp.json();
-
-        // Normalize to { title, link }
-        const results = (Array.isArray(items) ? items : []).map(item => ({
-            title: decodeHTMLEntities(item?.title?.rendered || ""),
-            link: item?.link || "#"
-        }));
-
-        const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
-        const searchResContainer = searchResParentDiv?.querySelector('.search_res_list');
         if (!searchResParentDiv || !searchResContainer) return;
 
-        // Clear previous results each time
+        // Clear previous results
         searchResContainer.innerHTML = "";
 
-        // Render results and toggle visibility
         if (results.length > 0) {
             searchResParentDiv.classList.add("show");
-
             const fragment = document.createDocumentFragment();
             results.forEach(result => {
                 const li = document.createElement("li");
                 li.className = "search-result-item";
-                li.innerHTML = `<a href="${result.link}" class="cursor-pointer" target="_blank">${result.title}</a>`;
+                const highlighted = highlightMatches(result.title, query);
+                li.innerHTML = `<a href="${sanitizeHTML(result.link)}" class="cursor-pointer">${highlighted}</a>`;
                 fragment.appendChild(li);
             });
             searchResContainer.appendChild(fragment);
         } else {
             searchResParentDiv.classList.remove("show");
         }
-
     } catch (err) {
         console.error("Search request failed:", err);
     }
 }, 0);
 
 
-searchInput?.addEventListener("input", (e) => {
-    debouncedFetchSearch(e.target.value);
+// searchInput?.addEventListener("input", (e) => {
+//     debouncedFetchSearch(e.target.value);
 
-    if (e.target.value.trim().length > 0) {
-        showCloseButton.classList.add("active");
-        nlSearchIcon.style.display = "none";
+//     const hasText = e.target.value.trim().length > 0;
+//     if (hasText) {
+//         showCloseButton?.classList.add("active");
+//         if (nlSearchIcon) nlSearchIcon.style.display = "none";
+//     } else {
+//         showCloseButton?.classList.remove("active");
+//         if (nlSearchIcon) nlSearchIcon.style.display = "flex";
+//         const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
+//         if (searchResParentDiv) {
+//             searchResParentDiv.classList.remove("show");
+//             const list = searchResParentDiv.querySelector('.search_res_list');
+//             if (list) list.innerHTML = ""; // Clear results
+//         }
+//         // Invalidate any in-flight searches to prevent stale re-show
+//         searchRequestCounter++;
+//     }
+// });
 
-        showCloseButton.addEventListener("click", () => {
-            e.target.value = ""; // Clear input
-            showCloseButton.classList.remove("active");
-            nlSearchIcon.style.display = "flex"; // Show search icon again
-            const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
-            if (searchResParentDiv) {
-                searchResParentDiv.classList.remove("show");
-                searchResParentDiv.querySelector('.search_res_list').innerHTML = ""; // Clear results
-            }
-        });
-    } else {
-        showCloseButton.classList.remove("active");
-        nlSearchIcon.style.display = "flex";
-        const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
-        if (searchResParentDiv) {
-            searchResParentDiv.classList.remove("show");
-            searchResParentDiv.querySelector('.search_res_list').innerHTML = ""; // Clear results
-        }
-    }
-});
+// // Attach a single clear button handler
+// showCloseButton?.addEventListener("click", () => {
+//     if (!searchInput) return;
+//     searchInput.value = "";
+//     showCloseButton.classList.remove("active");
+//     if (nlSearchIcon) nlSearchIcon.style.display = "flex"; // Show search icon again
+//     const searchResParentDiv = document.querySelector('.nl_search_res_wrapper');
+//     if (searchResParentDiv) {
+//         searchResParentDiv.classList.remove("show");
+//         const list = searchResParentDiv.querySelector('.search_res_list');
+//         if (list) list.innerHTML = ""; // Clear results
+//     }
+//     // Invalidate any in-flight searches and cancel pending UI updates
+//     searchRequestCounter++;
+// });

@@ -127,7 +127,8 @@ function get_all_posts_data($post_types = ['post'], $args = [])
                 'tag_names' => implode(',', $tag_names),
                 'excerpt' => wp_strip_all_tags(get_the_excerpt()),
                 'url' => get_permalink(),
-                'featured_image' => get_the_post_thumbnail_url($post->ID, 'full'),
+                // Core sizes: thumbnail, medium, medium_large, large, full
+                'featured_image' => get_the_post_thumbnail_url($post->ID, 'medium_large') ?: false,
             ];
         }
         wp_reset_postdata();
@@ -1043,93 +1044,6 @@ function custom_search_form_shortcode()
     return ob_get_clean();
 }
 
-function ajax_search()
-{
-    $search_query = sanitize_text_field($_POST['search']);
-    $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '';
-
-    $args = [
-        's' => $search_query,
-        'post_type' => 'post',
-        'posts_per_page' => 4,
-        'post_status' => 'publish',
-        'has_password' => false,
-    ];
-
-    if (!empty($category)) {
-        $args['category_name'] = $category;  // Add category filter if provided
-    }
-
-    $search_query = new WP_Query($args);
-
-    if ($search_query->have_posts()):
-        while ($search_query->have_posts()):
-            $search_query->the_post();
-            if (!post_password_required()):  // Exclude password-protected posts
-                ?>
-<li>
-    <a href="<?php the_permalink(); ?>">
-        <div class="thumbnail">
-            <?php if (has_post_thumbnail()):
-                the_post_thumbnail('thumbnail');
-            else: ?>
-            <img src="<?php echo get_template_directory_uri(); ?>/path/to/default-image.jpg" alt="Default Thumbnail">
-            <?php endif; ?>
-        </div>
-        <div class="title">
-            <?php the_title(); ?>
-        </div>
-    </a>
-</li>
-<?php
-            endif;
-        endwhile;
-    else:
-        echo '<li class="text-white">No results found</li>';
-    endif;
-    wp_reset_postdata();
-    die();
-}
-
-function ajax_latest_posts()
-{
-    $args = [
-        'post_type' => 'post',  // Include both posts and pages
-        'posts_per_page' => 3,
-        'orderby' => 'date',
-        'order' => 'DESC',
-        'post_status' => 'publish',
-        'has_password' => false,
-    ];
-    $latest_posts = new WP_Query($args);
-
-    if ($latest_posts->have_posts()):
-        while ($latest_posts->have_posts()):
-            $latest_posts->the_post();
-            ?>
-<li>
-    <a href="<?php the_permalink(); ?>">
-        <div class="thumbnail">
-            <?php if (has_post_thumbnail()):
-                the_post_thumbnail('thumbnail');
-            else: ?>
-            <img src="<?php echo get_template_directory_uri(); ?>/path/to/default-image.jpg" alt="Default Thumbnail">
-            <?php endif; ?>
-        </div>
-        <div class="title">
-            <?php the_title(); ?>
-        </div>
-    </a>
-</li>
-<?php
-        endwhile;
-    else:
-        echo '<li>No latest posts found</li>';
-    endif;
-    wp_reset_postdata();
-    die();
-}
-
 function get_recent_news_posts($atts)
 {
     // Extract shortcode attributes
@@ -1965,7 +1879,7 @@ function getNewslettersPosts($atts = [])
 ?>
 <article class="newsletter_post_item flex-col" data-category="<?php echo esc_attr($post['categories']); ?>"
     data-tags="<?php echo esc_attr($post['tags']); ?>" data-nl_date="<?php echo esc_attr($post['post_date']); ?>"
-    data-post-id="<?php echo esc_attr($post['id']); ?>" data-ken="kenneth">
+    data-post-id="<?php echo esc_attr($post['id']); ?>">
     <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
         aria-label="<?php echo esc_attr($post['title']); ?>">
         <div class="post-thumbnail">
@@ -2463,6 +2377,131 @@ function getStoreAllPostType($atts = [])
     return $script;
 }
 
+function ajax_search()
+{
+    $search_query = sanitize_text_field($_POST['search']);
+    $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '';
+
+    $args = [
+        's' => $search_query,
+        'post_type' => 'post',
+        'posts_per_page' => 4,
+        'post_status' => 'publish',
+        'has_password' => false,
+    ];
+
+    if (!empty($category)) {
+        $args['category_name'] = $category;  // Add category filter if provided
+    }
+
+    $search_query = new WP_Query($args);
+
+    if ($search_query->have_posts()):
+        while ($search_query->have_posts()):
+            $search_query->the_post();
+            if (!post_password_required()):  // Exclude password-protected posts
+                ?>
+<li>
+    <a href="<?php the_permalink(); ?>">
+        <div class="thumbnail">
+            <?php if (has_post_thumbnail()):
+                the_post_thumbnail('thumbnail');
+            else: ?>
+            <img src="<?php echo get_template_directory_uri(); ?>/path/to/default-image.jpg" alt="Default Thumbnail">
+            <?php endif; ?>
+        </div>
+        <div class="title">
+            <?php the_title(); ?>
+        </div>
+    </a>
+</li>
+<?php
+            endif;
+        endwhile;
+    else:
+        echo '<li class="text-white">No results found</li>';
+    endif;
+    wp_reset_postdata();
+    die();
+}
+
+function ajax_latest_posts()
+{
+    $args = [
+        'post_type' => 'post',  // Include both posts and pages
+        'posts_per_page' => 3,
+        'orderby' => 'date',
+        'order' => 'DESC',
+        'post_status' => 'publish',
+        'has_password' => false,
+    ];
+    $latest_posts = new WP_Query($args);
+
+    if ($latest_posts->have_posts()):
+        while ($latest_posts->have_posts()):
+            $latest_posts->the_post();
+            ?>
+<li>
+    <a href="<?php the_permalink(); ?>">
+        <div class="thumbnail">
+            <?php if (has_post_thumbnail()):
+                the_post_thumbnail('thumbnail');
+            else: ?>
+            <img src="<?php echo get_template_directory_uri(); ?>/path/to/default-image.jpg" alt="Default Thumbnail">
+            <?php endif; ?>
+        </div>
+        <div class="title">
+            <?php the_title(); ?>
+        </div>
+    </a>
+</li>
+<?php
+        endwhile;
+    else:
+        echo '<li>No latest posts found</li>';
+    endif;
+    wp_reset_postdata();
+    die();
+}
+
+function search_newsletters()
+{
+    // Basic input handling
+    $search = isset($_POST['search']) ? sanitize_text_field(wp_unslash($_POST['search'])) : '';
+    $slug = isset($_POST['category']) ? sanitize_title(wp_unslash($_POST['category'])) : '';
+    $perPage = isset($_POST['per_page']) ? max(1, (int) $_POST['per_page']) : 5;
+
+    if (strlen($search) < 2) {
+        wp_send_json_success([]);
+    }
+
+    $args = array(
+        's' => $search,
+        'posts_per_page' => $perPage,
+        'post_status' => 'publish',
+        'fields' => 'ids',
+    );
+
+    if (!empty($slug)) {
+        // Filter by category slug
+        $args['category_name'] = $slug;
+    }
+
+    $q = new WP_Query($args);
+    $results = array();
+
+    if ($q->have_posts()) {
+        foreach ($q->posts as $post_id) {
+            $results[] = array(
+                'title' => html_entity_decode(get_the_title($post_id), ENT_QUOTES, 'UTF-8'),
+                'link' => get_permalink($post_id),
+            );
+        }
+    }
+
+    wp_send_json_success($results);
+}
+
 // Register custom shortcodes.
 function register_custom_shortcodes()
 {
@@ -2523,8 +2562,6 @@ function register_custom_shortcodes()
 }
 
 add_action('init', 'register_custom_shortcodes');
-add_action('wp_ajax_ajax_search', 'ajax_search');
-add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
 add_action('wp_ajax_ajax_latest_posts', 'ajax_latest_posts');
 add_action('wp_ajax_nopriv_ajax_latest_posts', 'ajax_latest_posts');
 
@@ -2537,3 +2574,9 @@ add_action('wp_ajax_nopriv_load_more_newsletters', 'load_more_newsletters_ajax')
 // Generic load more endpoint that can dispatch to multiple callbacks
 add_action('wp_ajax_load_more_content', 'load_more_content_ajax');
 add_action('wp_ajax_nopriv_load_more_content', 'load_more_content_ajax');
+
+// AJAX actions for search functionality
+add_action('wp_ajax_ajax_search', 'ajax_search');
+add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
+add_action('wp_ajax_newsletter_search', 'search_newsletters');
+add_action('wp_ajax_nopriv_newsletter_search', 'search_newsletters');
