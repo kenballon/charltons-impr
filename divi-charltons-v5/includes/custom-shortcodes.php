@@ -1999,6 +1999,13 @@ function getAwardPostItems($atts = [])
         'posts_per_page' => null,  // Preferred over limit when provided
         'offset' => 0,
         'load_more' => false,
+        // Year/decade filter aliases to align with front-end payload
+        'year_start' => '',
+        'year_end' => '',
+        'filter_year_start' => '',
+        'filter_year_end' => '',
+        'year_range' => '',  // e.g., "2000-2009"
+        'years' => '',  // alias for range
     ], $atts, 'get_award_post_items');
 
     $posts_per_page = isset($atts['posts_per_page']) && $atts['posts_per_page'] !== null
@@ -2006,6 +2013,41 @@ function getAwardPostItems($atts = [])
         : intval($atts['limit']);
     $offset = intval($atts['offset']);
     $load_more = filter_var($atts['load_more'], FILTER_VALIDATE_BOOLEAN);
+
+    // Resolve year range from aliases (prefer explicit start/end, else parse range)
+    $year_start = '';
+    $year_end = '';
+    foreach (['year_start', 'filter_year_start'] as $k) {
+        if ($atts[$k] !== '') {
+            $year_start = $atts[$k];
+            break;
+        }
+    }
+    foreach (['year_end', 'filter_year_end'] as $k) {
+        if ($atts[$k] !== '') {
+            $year_end = $atts[$k];
+            break;
+        }
+    }
+    if ($year_start === '' || $year_end === '') {
+        $range_raw = '';
+        foreach (['year_range', 'years'] as $rk) {
+            if (!empty($atts[$rk])) {
+                $range_raw = $atts[$rk];
+                break;
+            }
+        }
+        if ($range_raw && preg_match('/^(\d{4})\s*[-–]\s*(\d{4})$/', $range_raw, $m)) {
+            if ($year_start === '') {
+                $year_start = $m[1];
+            }
+            if ($year_end === '') {
+                $year_end = $m[2];
+            }
+        }
+    }
+    $year_start_int = is_numeric($year_start) ? intval($year_start) : null;
+    $year_end_int = is_numeric($year_end) ? intval($year_end) : null;
 
     $args = [
         'post_type' => 'post',
@@ -2018,11 +2060,52 @@ function getAwardPostItems($atts = [])
         $args['category_name'] = $atts['category'];
     }
 
-    if (!empty($atts['tag'])) {
+    // Resolve tag(s) from multiple aliases (CSV of slugs)
+    $raw_tags = '';
+    foreach (['tags', 'tag', 'filter_tag', 'filter_tags'] as $tkey) {
+        if (!empty($atts[$tkey])) {
+            $raw_tags = $atts[$tkey];
+            break;
+        }
+    }
+    if (!empty($raw_tags)) {
+        $args['tag'] = $raw_tags;
+    } elseif (!empty($atts['tag'])) {
         $args['tag'] = $atts['tag'];
     }
 
+    // Apply year range server-side when provided to reduce dataset size
+    if (!empty($year_start_int) || !empty($year_end_int)) {
+        $dq = ['inclusive' => true];
+        if (!empty($year_start_int)) {
+            $dq['after'] = ['year' => $year_start_int, 'month' => 1, 'day' => 1];
+        }
+        if (!empty($year_end_int)) {
+            $dq['before'] = ['year' => $year_end_int, 'month' => 12, 'day' => 31];
+        }
+        $args['date_query'] = [$dq];
+    }
+
     $posts = function_exists('get_all_posts_data') ? get_all_posts_data(['post'], $args) : [];
+
+    // Safety: if date_query wasn't able to constrain (e.g., custom date formatting),
+    // apply a secondary in-PHP filter using the computed year range.
+    if (!empty($year_start_int) || !empty($year_end_int)) {
+        $ys = $year_start_int;
+        $ye = $year_end_int;
+        $posts = array_values(array_filter($posts, function ($p) use ($ys, $ye) {
+            $ts_raw = !empty($p['post_datetime']) ? $p['post_datetime'] : (!empty($p['post_date']) ? $p['post_date'] : '');
+            $ts = strtotime($ts_raw);
+            if (!$ts)
+                return false;
+            $y = intval(date('Y', $ts));
+            if ($ys !== null && $y < $ys)
+                return false;
+            if ($ye !== null && $y > $ye)
+                return false;
+            return true;
+        }));
+    }
 
     // Filter out posts without any kind of featured image (native or plugin)
     $posts = array_filter($posts, function ($post) {
