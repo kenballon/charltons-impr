@@ -23,22 +23,27 @@ document.addEventListener("readystatechange", (e) => {
 
 
         if (window.location.pathname.includes("/news/newsletters/hong-kong-law-3/")) {
+            // initLoadMoreWithFilters({
+            //     loadMoreBtnId: "newsletter-load-more-btn",
+            //     loadingSpinnerId: ".loading-spinner",
+            //     postsContainerId: "newsletters_post",
+            //     ajaxAction: "load_more_newsletters",
+            //     postsPerPage: 20,
+            // });
             initLoadMoreWithFilters({
                 loadMoreBtnId: "newsletter-load-more-btn",
                 loadingSpinnerId: ".loading-spinner",
                 postsContainerId: "newsletters_post",
                 ajaxAction: "load_more_newsletters",
                 postsPerPage: 20,
-                buttonSelector: ".newsletter_category_filter"
+                buttonSelector: ".newsletter_category_filter",
+                filterOnClickCallback: ({ value }) => {
+                    console.log("Selected filter:", value);
+                }
             });
 
-            // initFilterButton({
-            //     buttonSelector: ".newsletter_category_filter",
-            //     onClickCallback: (filterValue) => {
-            //         // Handle filter button click
-            //         console.log("Selected filter:", filterValue);
-            //     }
-            // });
+
+
         }
 
         if (window.location.pathname.includes("/our-firm/awards-2/")) {
@@ -49,26 +54,21 @@ document.addEventListener("readystatechange", (e) => {
                 ajaxAction: "load_more_content",
                 postsPerPage: 20,
                 buttonSelector: ".awards_btn_filter",
-            });
-
-            initFilterButton({
-                buttonSelector: ".awards_btn_filter",
-                onClickCallback: (filterValue) => {
-                    // Handle filter button click
-                    console.log("Selected filter:", filterValue);
+                filterOnClickCallback: ({ value }) => {
+                    console.log("Selected filter:", value);
                 }
             });
 
         }
 
         if (window.location.pathname.includes("/webinars-and-podcasts/")) {
-            initLoadMoreWithFilters({
-                loadMoreBtnId: "webinars-load-more-btn",
-                loadingSpinnerId: ".loading-spinner",
-                postsContainerId: "pod-and-web",
-                ajaxAction: "load_more_content",
-                postsPerPage: 15
-            });
+            // initLoadMoreWithFilters({
+            //     loadMoreBtnId: "webinars-load-more-btn",
+            //     loadingSpinnerId: ".loading-spinner",
+            //     postsContainerId: "pod-and-web",
+            //     ajaxAction: "load_more_content",
+            //     postsPerPage: 15
+            // });
         }
     }
 });
@@ -1449,8 +1449,10 @@ function initLoadMoreWithFilters(config) {
         loadMoreBtnId,
         loadingSpinnerId = ".loading-spinner",
         postsContainerId,
-        ajaxAction, //PHP Ajax Action
+        ajaxAction, // PHP Ajax Action
         postsPerPage = 20,
+        buttonSelector,
+        filterOnClickCallback,
     } = config || {};
 
     const loadMoreBtn = document.getElementById(loadMoreBtnId);
@@ -1462,10 +1464,40 @@ function initLoadMoreWithFilters(config) {
         return;
     }
 
+    // Hook up filter buttons (accept alias)
+    const selector = buttonSelector;
+    if (selector) {
+        initFilterButton({
+            buttonSelector: selector,
+            onClickCallback: (payload) => {
+                const selected = Array.isArray(payload?.value) ? payload.value[0] : payload?.value;
+                const category = selected && selected !== 'all' ? selected : null;
+
+                // Reset state for a new filter selection
+                loadMoreBtn.dataset.category = category ?? '';
+                loadMoreBtn.dataset.offset = '0';
+                postsContainer.innerHTML = '';
+
+                // Show loading state
+                loadMoreBtn.style.display = 'none';
+                if (loadingSpinner) loadingSpinner.style.display = 'block';
+
+                // Fetch first page for this filter
+                loadCategoryPosts(category, 0);
+
+                // Bubble user callback (optional)
+                if (typeof filterOnClickCallback === 'function') {
+                    filterOnClickCallback(payload);
+                }
+            }
+        });
+    }
+
     // Load more: fetch next page and append
     loadMoreBtn.addEventListener("click", function () {
         const offset = parseInt(this.dataset.offset || '0', 10);
-        const category = this.dataset.category || null;
+        const categoryRaw = this.dataset.category;
+        const category = categoryRaw && categoryRaw !== 'all' ? categoryRaw : null;
 
         // Show loading state
         loadMoreBtn.style.display = "none";
@@ -1482,12 +1514,16 @@ function initLoadMoreWithFilters(config) {
             action: ajaxAction,
             offset: offset,
             post_type: postType,
-            // Keep legacy param for newsletters shortcode
-            filter_category: category,
-            // Add generic category param for other handlers like getAwardPostItems
-            category: category,
             posts_per_page: postsPerPage
         };
+
+        // Only include category params when present
+        if (category) {
+            // Keep legacy param for newsletters shortcode
+            requestBody.filter_category = category;
+            // Generic category param for other handlers like getAwardPostItems
+            requestBody.category = category;
+        }
 
         if (callback) requestBody.callback = callback;
 
@@ -1499,17 +1535,14 @@ function initLoadMoreWithFilters(config) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Append new items
                     postsContainer.insertAdjacentHTML("beforeend", data.data.content);
 
-                    // Update offset
+                    // Update offset for next click
                     loadMoreBtn.dataset.offset = data.data.next_offset;
 
-                    // Show/hide button based on whether there are more posts
-                    if (data.data.has_more) {
-                        loadMoreBtn.style.display = "block";
-                    } else {
-                        loadMoreBtn.style.display = "none";
-                    }
+                    // Show/hide button depending on more pages
+                    loadMoreBtn.style.display = data.data.has_more ? "block" : "none";
                 } else {
                     console.error("Error:", data.data);
                     loadMoreBtn.style.display = "none";
@@ -1517,6 +1550,7 @@ function initLoadMoreWithFilters(config) {
             })
             .catch(error => {
                 console.error("Error loading more posts:", error);
+                // Allow retry
                 loadMoreBtn.style.display = "block";
             })
             .finally(() => {
