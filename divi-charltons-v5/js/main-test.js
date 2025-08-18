@@ -1023,26 +1023,26 @@ async function showFilteredAwardsByYear(filterID) {
     });
 }
 
-FilterButton.initializeAll(SELECTORS.awardsFilterButton, (filterID) => {
-    currentFilterID = filterID === "all" ? null : filterID;
+// FilterButton.initializeAll(SELECTORS.awardsFilterButton, (filterID) => {
+//     currentFilterID = filterID === "all" ? null : filterID;
 
-    showFilteredAwards(currentFilterID);
+//     showFilteredAwards(currentFilterID);
 
-    const awardsYearFilterBtn = document?.querySelector(
-        ".awards_btn_yrfilter.active"
-    );
-    awardsYearFilterBtn ? awardsYearFilterBtn.classList.remove("active") : null;
-});
+//     const awardsYearFilterBtn = document?.querySelector(
+//         ".awards_btn_yrfilter.active"
+//     );
+//     awardsYearFilterBtn ? awardsYearFilterBtn.classList.remove("active") : null;
+// });
 
-FilterButton.initializeAll(".awards_btn_yrfilter", (filterID) => {
-    currentFilterID = filterID === "all" ? null : filterID;
-    showFilteredAwardsByYear(currentFilterID);
-    const awardsTagFilterBtn = document?.querySelector(
-        ".awards_btn_filter.active"
-    );
-    awardsTagFilterBtn ? awardsTagFilterBtn.classList.remove("active") : null;
+// FilterButton.initializeAll(".awards_btn_yrfilter", (filterID) => {
+//     currentFilterID = filterID === "all" ? null : filterID;
+//     showFilteredAwardsByYear(currentFilterID);
+//     const awardsTagFilterBtn = document?.querySelector(
+//         ".awards_btn_filter.active"
+//     );
+//     awardsTagFilterBtn ? awardsTagFilterBtn.classList.remove("active") : null;
 
-});
+// });
 
 const searchInput = document?.getElementById("newsletterSearch");
 const showCloseButton = document?.getElementById("nl_close_search");
@@ -1328,16 +1328,17 @@ function parseYearDecade(label) {
 }
 
 /**
- * Initialize filter buttons for category/tag/year-decade in a modular way.
+ * Initialize filter buttons for category/categories, tag/tags, or year-decade.
  *
  * options:
  * - buttonsSelector: CSS selector for all filter buttons within a group
  * - activeClass: class to toggle on active button (default: 'active')
- * - resolveType: (button: HTMLElement) => 'category'|'tag'|'yearDecade'
+ * - resolveType: (button: HTMLElement) => 'category'|'categories'|'tag'|'tags'|'yearDecade'
  *   Default: from data-filter-type, else heuristics on className, else 'category'
- * - resolveValue: (button: HTMLElement) => string
- *   Default: data-filter-value || id || textContent.trim()
- * - onChange: ({ type, value, range, button }) => void
+ * - resolveValue: (button: HTMLElement) => string | string[]
+ *   Default: prefers data-filter-values (JSON or comma-separated) → string[]; else
+ *   data-filter-value || id || textContent.trim() → string
+ * - onChange: ({ type, value, values, range, button }) => void
  */
 function initFilterControls(options) {
     const {
@@ -1351,10 +1352,31 @@ function initFilterControls(options) {
     const buttons = document.querySelectorAll(buttonsSelector);
     if (!buttons.length) return;
 
+    const parseValues = (btn) => {
+        // Prefer explicit list values
+        const raw = btn.dataset.filterValues;
+        if (!raw) return null;
+        try {
+            // Try JSON first
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed.map(v => String(v).trim()).filter(Boolean);
+        } catch (e) {
+            // Fallback: comma-separated list
+            const arr = String(raw).split(',').map(s => s.trim()).filter(Boolean);
+            if (arr.length) return arr;
+        }
+        return null;
+    };
+
     const detectType = (btn) => {
         if (typeof resolveType === 'function') return resolveType(btn);
-        const dataType = btn.dataset.filterType;
-        if (dataType) return dataType;
+        const dataType = (btn.dataset.filterType || '').toLowerCase();
+        if (dataType) {
+            if (dataType === 'years' || dataType === 'year' || dataType === 'year-decade' || dataType === 'yeardecade' || dataType === 'decade') return 'yearDecade';
+            if (dataType === 'tags' || dataType === 'tag') return dataType;
+            if (dataType === 'categories' || dataType === 'category') return dataType;
+            return dataType;
+        }
         const cls = btn.className || '';
         if (/yrfilter|year/i.test(cls)) return 'yearDecade';
         if (/tag/i.test(cls)) return 'tag';
@@ -1363,6 +1385,8 @@ function initFilterControls(options) {
 
     const detectValue = (btn) => {
         if (typeof resolveValue === 'function') return resolveValue(btn);
+        const multi = parseValues(btn);
+        if (multi && multi.length) return multi; // array
         return btn.dataset.filterValue || btn.id || (btn.textContent || '').trim();
     };
 
@@ -1373,16 +1397,18 @@ function initFilterControls(options) {
             this.classList.add(activeClass);
 
             const type = detectType(this);
-            const value = detectValue(this);
+            const detected = detectValue(this);
+            const isArray = Array.isArray(detected);
+            const values = isArray ? detected : null;
+            const value = isArray ? (detected[0] || '') : detected;
             const range = type === 'yearDecade' ? parseYearDecade(value) : null;
 
             console.log(detectType(this));
-            console.log(detectValue(this));
+            console.log(detected);
             console.log(range);
 
-
             if (typeof onChange === 'function') {
-                onChange({ type, value, range, button: this });
+                onChange({ type, value, values, range, button: this });
             }
         });
     });
@@ -1688,31 +1714,49 @@ function initLoadMoreWithFilters(config) {
         initFilterControls({
             buttonsSelector: categoryButtonsSelector,
             activeClass: 'active',
-            onChange: ({ type, value, range, button }) => {
+            onChange: ({ type, value, values, range, button }) => {
                 const callback = loadMoreBtn.dataset.callback || null;
                 const activeSearch = (searchInput ? searchInput.value.trim() : '') || '';
 
                 // Reset offset and update dataset for load-more state
                 loadMoreBtn.dataset.offset = postsPerPage.toString();
                 delete loadMoreBtn.dataset.tag;
+                delete loadMoreBtn.dataset.tags;
                 delete loadMoreBtn.dataset.yearStart;
                 delete loadMoreBtn.dataset.yearEnd;
+                delete loadMoreBtn.dataset.categories;
 
-                if (type === 'tag') {
+                const isTag = (t) => t === 'tag' || t === 'tags';
+                const isCategory = (t) => t === 'category' || t === 'categories';
+
+                if (isTag(type)) {
                     // Some endpoints expect 'tag' and sometimes category too
                     loadMoreBtn.dataset.tag = value;
-                    loadMoreBtn.dataset.category = value; // keep parity with legacy
+                    if (Array.isArray(values) && values.length) {
+                        loadMoreBtn.dataset.tags = JSON.stringify(values);
+                    }
+                    // keep parity with legacy: mirror into category when only tag is present
+                    loadMoreBtn.dataset.category = value;
                 } else if (type === 'yearDecade' && range) {
                     loadMoreBtn.dataset.yearStart = String(range.start);
                     loadMoreBtn.dataset.yearEnd = String(range.end);
                     // keep category as-is but also set to value for traceability
                     loadMoreBtn.dataset.category = value;
-                } else {
+                } else if (isCategory(type)) {
                     loadMoreBtn.dataset.category = value;
+                    if (Array.isArray(values) && values.length) {
+                        loadMoreBtn.dataset.categories = JSON.stringify(values);
+                    }
                     // For awards handler that expects tag
                     if (callback === 'getAwardPostItems') {
                         loadMoreBtn.dataset.tag = value;
+                        if (Array.isArray(values) && values.length) {
+                            loadMoreBtn.dataset.tags = JSON.stringify(values);
+                        }
                     }
+                } else {
+                    // default fallback
+                    loadMoreBtn.dataset.category = value;
                 }
 
                 if (activeSearch) {
@@ -1763,8 +1807,26 @@ function initLoadMoreWithFilters(config) {
         const postType = loadMoreBtn.dataset.postType || "project";
         const callback = loadMoreBtn.dataset.callback || null;
         const tag = loadMoreBtn.dataset.tag || null;
+        const tagsJson = loadMoreBtn.dataset.tags || null;
+        const categoriesJson = loadMoreBtn.dataset.categories || null;
         const yearStart = loadMoreBtn.dataset.yearStart || null;
         const yearEnd = loadMoreBtn.dataset.yearEnd || null;
+
+        // Parse arrays if present
+        const parseList = (raw) => {
+            if (!raw) return null;
+            try {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) return parsed;
+            } catch (e) {
+                const arr = String(raw).split(',').map(s => s.trim()).filter(Boolean);
+                if (arr.length) return arr;
+            }
+            return null;
+        };
+
+        const tagsArr = parseList(tagsJson);
+        const categoriesArr = parseList(categoriesJson);
 
         const requestBody = {
             action: ajaxAction,
@@ -1785,6 +1847,20 @@ function initLoadMoreWithFilters(config) {
         } else if (callback === 'getAwardPostItems') {
             // Fallback: treat selected category as tag for awards if tag is not explicitly set
             requestBody.tag = category;
+        }
+
+        // Add plural forms if present; always include CSV variant for compatibility
+        if (categoriesArr && categoriesArr.length) {
+            requestBody.categories = categoriesArr; // becomes comma-separated via toString()
+            requestBody.categories_csv = categoriesArr.join(',');
+            // Ensure singulars are also populated for legacy handlers
+            if (!requestBody.category) requestBody.category = categoriesArr[0];
+            requestBody.filter_category = requestBody.category;
+        }
+        if (tagsArr && tagsArr.length) {
+            requestBody.tags = tagsArr; // becomes comma-separated
+            requestBody.tags_csv = tagsArr.join(',');
+            if (!requestBody.tag) requestBody.tag = tagsArr[0];
         }
 
         // Add optional year range when year-decade filter is used
