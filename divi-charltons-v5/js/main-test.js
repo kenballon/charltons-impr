@@ -43,7 +43,8 @@ document.addEventListener("readystatechange", (e) => {
                 loadMoreBtnId: "awards-load-more-btn",
                 loadingSpinnerId: ".loading-spinner",
                 postsContainerId: "all_awards_wrapper",
-                categoryButtonsSelector: ".awards_btn_filter",
+                // Include both tag and year-decade filters
+                categoryButtonsSelector: ".awards_btn_filter, .awards_btn_yrfilter",
                 ajaxAction: "load_more_content",
                 defaultCategory: "",
                 postsPerPage: 20,
@@ -1508,8 +1509,9 @@ function initLoadMoreWithFilters(config) {
 
     // Helper functions
     function getActiveCategory() {
-        const activeButton = document.querySelector(`${categoryButtonsSelector}.active`);
-        return activeButton ? activeButton.id : defaultCategory;
+        // Robustly detect the active button even when the selector contains commas
+        const activeBtn = Array.from(categoryButtons).find(b => b.classList.contains('active'));
+        return activeBtn ? activeBtn.id : defaultCategory;
     }
 
     // Remove non-matching cards on the client to ensure search results only show matches
@@ -1540,6 +1542,37 @@ function initLoadMoreWithFilters(config) {
         // If nothing remains, show a simple empty state
         if (kept === 0) {
             postsContainer.innerHTML = `<p class="no-results">No results found for “${sanitizeHTML(searchTerm)}”.</p>`;
+        }
+        return kept;
+    }
+
+    // Client-side filter for Awards by year range (decade) to complement server filtering
+    function filterRenderedAwardsByYear(range) {
+        if (!postsContainer || !range) return 0;
+        const { start, end } = range;
+        const cards = Array.from(postsContainer.querySelectorAll('article.awards_card_item'));
+        if (!cards.length) return 0;
+
+        let kept = 0;
+        const getYear = (card) => {
+            const dateEl = card.querySelector('.date_posted');
+            if (!dateEl) return null;
+            const txt = (dateEl.textContent || '').trim();
+            const m = txt.match(/(\d{4})/);
+            return m ? parseInt(m[1], 10) : null;
+        };
+
+        cards.forEach(card => {
+            const y = getYear(card);
+            if (y !== null && y >= start && y <= end) {
+                kept++;
+            } else {
+                card.remove();
+            }
+        });
+
+        if (kept === 0) {
+            postsContainer.innerHTML = `<p class="no-results">No results found for ${start}-${end}.</p>`;
         }
         return kept;
     }
@@ -1742,16 +1775,28 @@ function initLoadMoreWithFilters(config) {
                     loadMoreBtn.dataset.yearEnd = String(range.end);
                     // keep category as-is but also set to value for traceability
                     loadMoreBtn.dataset.category = value;
-                } else if (isCategory(type)) {
-                    loadMoreBtn.dataset.category = value;
-                    if (Array.isArray(values) && values.length) {
-                        loadMoreBtn.dataset.categories = JSON.stringify(values);
-                    }
-                    // For awards handler that expects tag
+                    // For awards, ensure we still query the awards tag on server
                     if (callback === 'getAwardPostItems') {
-                        loadMoreBtn.dataset.tag = value;
+                        loadMoreBtn.dataset.tag = loadMoreBtn.dataset.tag || 'awards';
+                    }
+                } else if (isCategory(type)) {
+                    // Special-case the "All" button on Awards: default to tag=awards
+                    if ((value || '').toLowerCase() === 'all' && callback === 'getAwardPostItems') {
+                        loadMoreBtn.dataset.category = '';
+                        loadMoreBtn.dataset.tag = 'awards';
+                        delete loadMoreBtn.dataset.categories;
+                        delete loadMoreBtn.dataset.tags;
+                    } else {
+                        loadMoreBtn.dataset.category = value;
                         if (Array.isArray(values) && values.length) {
-                            loadMoreBtn.dataset.tags = JSON.stringify(values);
+                            loadMoreBtn.dataset.categories = JSON.stringify(values);
+                        }
+                        // For awards handler that expects tag
+                        if (callback === 'getAwardPostItems') {
+                            loadMoreBtn.dataset.tag = value;
+                            if (Array.isArray(values) && values.length) {
+                                loadMoreBtn.dataset.tags = JSON.stringify(values);
+                            }
                         }
                     }
                 } else {
@@ -1917,6 +1962,13 @@ function initLoadMoreWithFilters(config) {
                     if (searchTerm && searchTerm.length >= 2) {
                         const kept = filterRenderedPostsByTitle(searchTerm);
                         // Keep load more hidden during a search to avoid mixing unrelated posts
+                        loadMoreBtn.style.display = "none";
+                    }
+
+                    // If a year-decade was selected (Awards), also filter client-side for now
+                    if (yearStart && yearEnd) {
+                        filterRenderedAwardsByYear({ start: parseInt(yearStart, 10), end: parseInt(yearEnd, 10) });
+                        // Avoid mixing unrelated posts
                         loadMoreBtn.style.display = "none";
                     }
 
