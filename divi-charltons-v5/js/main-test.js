@@ -1464,17 +1464,60 @@ function initLoadMoreWithFilters(config) {
         return;
     }
 
-    // Hook up filter buttons (accept alias)
+    // Normalize type to 'category' or 'tag'
+    const normalizeType = (t) => {
+        if (!t) return null;
+        const s = Array.isArray(t) ? (t[0] || '') : String(t);
+        const v = s.trim().toLowerCase();
+        if (v === 'category' || v === 'categories') return 'category';
+        if (v === 'tag' || v === 'tags') return 'tag';
+        return v || null;
+    };
+
+    // Hook up filter buttons
     const selector = buttonSelector;
     if (selector) {
         initFilterButton({
             buttonSelector: selector,
             onClickCallback: (payload) => {
-                const selected = Array.isArray(payload?.value) ? payload.value[0] : payload?.value;
-                const category = selected && selected !== 'all' ? selected : null;
+                const type = normalizeType(payload?.type);
+                const selected = Array.isArray(payload?.value) ? payload.value : (payload?.value ? [payload.value] : []);
+                const cleaned = selected.map(v => (v || '').toString().trim()).filter(Boolean);
+
+                // State
+                let category = null;
+                let tagsArr = [];
+                let yearStart = null;
+                let yearEnd = null;
+
+                if (type === 'category') {
+                    category = cleaned.length ? cleaned[0] : null;
+                } else if (type === 'tag') {
+                    tagsArr = cleaned.length ? cleaned : [];
+                } else if (type === 'years') {
+                    // Compute decade range from the clicked value (e.g., "2000" => 2000-2009 by default)
+                    const yr = cleaned.length ? cleaned[0] : null;
+                    const range = yr ? parseYearDecade(String(yr)) : null;
+                    if (range) {
+                        yearStart = range.start;
+                        yearEnd = range.end;
+                        // Optional: make 2020 open-ended through current year (uncomment if desired)
+                        // if (yearStart === 2020) yearEnd = new Date().getFullYear();
+                    }
+                    // Force the "awards" tag for years filtering
+                    tagsArr = ['awards'];
+                } else {
+                    // Fallback: treat as category
+                    category = cleaned.length ? cleaned[0] : null;
+                }
+
+                const isAll = cleaned.length === 0 || cleaned[0] === 'all';
 
                 // Reset state for a new filter selection
-                loadMoreBtn.dataset.category = category ?? '';
+                loadMoreBtn.dataset.category = isAll ? '' : (category || '');
+                loadMoreBtn.dataset.tags = isAll ? '' : (tagsArr.length ? Array.from(new Set(tagsArr)).join(',') : '');
+                loadMoreBtn.dataset.yearStart = isAll ? '' : (yearStart ?? '');
+                loadMoreBtn.dataset.yearEnd = isAll ? '' : (yearEnd ?? '');
                 loadMoreBtn.dataset.offset = '0';
                 postsContainer.innerHTML = '';
 
@@ -1483,7 +1526,13 @@ function initLoadMoreWithFilters(config) {
                 if (loadingSpinner) loadingSpinner.style.display = 'block';
 
                 // Fetch first page for this filter
-                loadCategoryPosts(category, 0);
+                loadCategoryPosts(
+                    isAll ? null : (category || null),
+                    0,
+                    isAll ? null : (tagsArr.length ? Array.from(new Set(tagsArr)) : null),
+                    isAll ? null : (yearStart ?? null),
+                    isAll ? null : (yearEnd ?? null)
+                );
 
                 // Bubble user callback (optional)
                 if (typeof filterOnClickCallback === 'function') {
@@ -1496,17 +1545,25 @@ function initLoadMoreWithFilters(config) {
     // Load more: fetch next page and append
     loadMoreBtn.addEventListener("click", function () {
         const offset = parseInt(this.dataset.offset || '0', 10);
-        const categoryRaw = this.dataset.category;
+        const categoryRaw = (this.dataset.category || '').trim();
+        const tagsRaw = (this.dataset.tags || '').trim();
+        const yearStartRaw = (this.dataset.yearStart || '').trim();
+        const yearEndRaw = (this.dataset.yearEnd || '').trim();
+
         const category = categoryRaw && categoryRaw !== 'all' ? categoryRaw : null;
+        const tags = tagsRaw ? tagsRaw.split(',').map(s => s.trim()).filter(Boolean) : null;
+        const yearStart = yearStartRaw ? parseInt(yearStartRaw, 10) : null;
+        const yearEnd = yearEndRaw ? parseInt(yearEndRaw, 10) : null;
 
         // Show loading state
         loadMoreBtn.style.display = "none";
         if (loadingSpinner) loadingSpinner.style.display = "block";
 
-        loadCategoryPosts(category, offset);
+        loadCategoryPosts(category, offset, tags, yearStart, yearEnd);
     });
 
-    function loadCategoryPosts(category, offset) {
+    // Core fetcher: now supports category and tags
+    function loadCategoryPosts(category, offset, tags, yearStart, yearEnd) {
         const postType = loadMoreBtn.dataset.postType || "project";
         const callback = loadMoreBtn.dataset.callback || null;
 
@@ -1517,12 +1574,35 @@ function initLoadMoreWithFilters(config) {
             posts_per_page: postsPerPage
         };
 
-        // Only include category params when present
+        // Categories (custom + legacy)
         if (category) {
-            // Keep legacy param for newsletters shortcode
-            requestBody.filter_category = category;
-            // Generic category param for other handlers like getAwardPostItems
             requestBody.category = category;
+            requestBody.filter_category = category; // legacy
+            requestBody.category_name = category;   // WP native alias
+        }
+
+        // Tags (CSV): support several keys so PHP can pick what it expects
+        if (tags && tags.length) {
+            const tagsCsv = tags.join(',');
+            requestBody.tag = tagsCsv;           // WP native
+            requestBody.tags = tagsCsv;          // custom
+            requestBody.filter_tag = tagsCsv;    // legacy
+            requestBody.filter_tags = tagsCsv;   // legacy plural
+        }
+
+        // Years/decade range
+        if (Number.isInteger(yearStart)) {
+            requestBody.year_start = yearStart;
+            requestBody.filter_year_start = yearStart; // legacy alias
+        }
+        if (Number.isInteger(yearEnd)) {
+            requestBody.year_end = yearEnd;
+            requestBody.filter_year_end = yearEnd;     // legacy alias
+        }
+        if (Number.isInteger(yearStart) && Number.isInteger(yearEnd)) {
+            const rangeStr = `${yearStart}-${yearEnd}`;
+            requestBody.year_range = rangeStr;
+            requestBody.years = rangeStr; // extra alias
         }
 
         if (callback) requestBody.callback = callback;
@@ -1535,13 +1615,8 @@ function initLoadMoreWithFilters(config) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Append new items
                     postsContainer.insertAdjacentHTML("beforeend", data.data.content);
-
-                    // Update offset for next click
                     loadMoreBtn.dataset.offset = data.data.next_offset;
-
-                    // Show/hide button depending on more pages
                     loadMoreBtn.style.display = data.data.has_more ? "block" : "none";
                 } else {
                     console.error("Error:", data.data);
@@ -1550,7 +1625,6 @@ function initLoadMoreWithFilters(config) {
             })
             .catch(error => {
                 console.error("Error loading more posts:", error);
-                // Allow retry
                 loadMoreBtn.style.display = "block";
             })
             .finally(() => {

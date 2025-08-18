@@ -2099,6 +2099,7 @@ function getAwardPostItems($atts = [])
 
 function getWebinarsPodcasts(array $atts = []): string
 {
+    // Accept new filter params + aliases to align with front-end
     $atts = shortcode_atts([
         'custom_type' => 'project',
         'category' => 'webinars-and-podcasts, webinars',
@@ -2107,6 +2108,18 @@ function getWebinarsPodcasts(array $atts = []): string
         'offset' => 0,
         'load_more' => false,
         'search_term' => '',
+        // tag aliases
+        'tag' => '',
+        'tags' => '',
+        'filter_tag' => '',
+        'filter_tags' => '',
+        // year range aliases
+        'year_start' => '',
+        'year_end' => '',
+        'filter_year_start' => '',
+        'filter_year_end' => '',
+        'year_range' => '',
+        'years' => '',
     ], $atts, 'get_webinar_podcasts');
 
     $custom_type = sanitize_text_field($atts['custom_type']);
@@ -2115,6 +2128,49 @@ function getWebinarsPodcasts(array $atts = []): string
     $offset = intval($atts['offset']);
     $load_more = filter_var($atts['load_more'], FILTER_VALIDATE_BOOLEAN);
     $search_term = sanitize_text_field($atts['search_term']);
+
+    // Resolve tags (CSV of slugs) from multiple aliases
+    $raw_tags = '';
+    foreach (['tags', 'tag', 'filter_tag', 'filter_tags'] as $tkey) {
+        if (!empty($atts[$tkey])) {
+            $raw_tags = $atts[$tkey];
+            break;
+        }
+    }
+    $tag_slugs = array_filter(array_map('trim', array_map('strtolower', explode(',', (string) $raw_tags))));
+
+    // Resolve year range from aliases (prefer explicit start/end; else parse range "YYYY-YYYY")
+    $year_start = '';
+    $year_end = '';
+    foreach (['year_start', 'filter_year_start'] as $yk) {
+        if ($atts[$yk] !== '') {
+            $year_start = $atts[$yk];
+            break;
+        }
+    }
+    foreach (['year_end', 'filter_year_end'] as $yk) {
+        if ($atts[$yk] !== '') {
+            $year_end = $atts[$yk];
+            break;
+        }
+    }
+    if ($year_start === '' || $year_end === '') {
+        $range_raw = '';
+        foreach (['year_range', 'years'] as $rk) {
+            if (!empty($atts[$rk])) {
+                $range_raw = $atts[$rk];
+                break;
+            }
+        }
+        if ($range_raw) {
+            if (preg_match('/^(\d{4})\s*[-–]\s*(\d{4})$/', $range_raw, $m)) {
+                $year_start = $year_start === '' ? $m[1] : $year_start;
+                $year_end = $year_end === '' ? $m[2] : $year_end;
+            }
+        }
+    }
+    $year_start_int = is_numeric($year_start) ? intval($year_start) : null;
+    $year_end_int = is_numeric($year_end) ? intval($year_end) : null;
 
     // Treat 'all' as no specific category filter
     if (strtolower($category) === 'all') {
@@ -2130,6 +2186,17 @@ function getWebinarsPodcasts(array $atts = []): string
     if (!empty($category)) {
         $args_post['category_name'] = $category;
     }
+    // Apply year range server-side when available to reduce dataset size
+    if (!empty($year_start_int) || !empty($year_end_int)) {
+        $dq = ['inclusive' => true];
+        if (!empty($year_start_int)) {
+            $dq['after'] = ['year' => $year_start_int, 'month' => 1, 'day' => 1];
+        }
+        if (!empty($year_end_int)) {
+            $dq['before'] = ['year' => $year_end_int, 'month' => 12, 'day' => 31];
+        }
+        $args_post['date_query'] = [$dq];
+    }
 
     $args_project = [
         'post_type' => $custom_type,
@@ -2144,6 +2211,16 @@ function getWebinarsPodcasts(array $atts = []): string
                 'terms' => array_map('trim', explode(',', $category)),
             ]
         ];
+    }
+    if (!empty($year_start_int) || !empty($year_end_int)) {
+        $dq = ['inclusive' => true];
+        if (!empty($year_start_int)) {
+            $dq['after'] = ['year' => $year_start_int, 'month' => 1, 'day' => 1];
+        }
+        if (!empty($year_end_int)) {
+            $dq['before'] = ['year' => $year_end_int, 'month' => 12, 'day' => 31];
+        }
+        $args_project['date_query'] = [$dq];
     }
 
     // Get posts for both types
@@ -2164,6 +2241,35 @@ function getWebinarsPodcasts(array $atts = []): string
         $plugin_img = !empty(get_post_meta($post['id'], 'fiuw_image_url', true));
         return $native_img || $plugin_img;
     }));
+
+    // Optional tag filtering (any-of match). Compare slug lists case-insensitively
+    if (!empty($tag_slugs)) {
+        $tags_req = $tag_slugs;  // already lowercased
+        $all_posts = array_values(array_filter($all_posts, function ($post) use ($tags_req) {
+            $post_tags = array_filter(array_map('trim', array_map('strtolower', explode(',', $post['tags'] ?? ''))));
+            if (empty($post_tags))
+                return false;
+            // any overlap
+            return count(array_intersect($tags_req, $post_tags)) > 0;
+        }));
+    }
+
+    // Optional server-side year filtering (safety, if not applied via date_query)
+    if (!empty($year_start_int) || !empty($year_end_int)) {
+        $ys = $year_start_int ?? null;
+        $ye = $year_end_int ?? null;
+        $all_posts = array_values(array_filter($all_posts, function ($post) use ($ys, $ye) {
+            $ts = strtotime($post['post_datetime'] ?? $post['post_date'] ?? '');
+            if (!$ts)
+                return false;
+            $y = intval(date('Y', $ts));
+            if ($ys !== null && $y < $ys)
+                return false;
+            if ($ye !== null && $y > $ye)
+                return false;
+            return true;
+        }));
+    }
 
     // Optional server-side title search (case-insensitive)
     if (!empty($search_term)) {
@@ -2231,6 +2337,9 @@ function getWebinarsPodcasts(array $atts = []): string
                 data-offset="' . esc_attr($limit) . '"
                 data-post-type="post"
                 data-category="' . esc_attr($category) . '"
+                data-tags="' . esc_attr(implode(',', $tag_slugs)) . '"
+                data-year-start="' . esc_attr($year_start_int ?? '') . '"
+                data-year-end="' . esc_attr($year_end_int ?? '') . '"
                 data-callback="getWebinarsPodcasts">
                 Load More
             </button>
