@@ -28,16 +28,17 @@ document.addEventListener("readystatechange", (e) => {
                 loadingSpinnerId: ".loading-spinner",
                 postsContainerId: "newsletters_post",
                 ajaxAction: "load_more_newsletters",
-                postsPerPage: 20
+                postsPerPage: 20,
+                buttonSelector: ".newsletter_category_filter"
             });
 
-            initFilterButton({
-                buttonSelector: ".newsletter_category_filter",
-                onClickCallback: (filterValue) => {
-                    // Handle filter button click
-                    console.log("Selected filter:", filterValue);
-                }
-            });
+            // initFilterButton({
+            //     buttonSelector: ".newsletter_category_filter",
+            //     onClickCallback: (filterValue) => {
+            //         // Handle filter button click
+            //         console.log("Selected filter:", filterValue);
+            //     }
+            // });
         }
 
         if (window.location.pathname.includes("/our-firm/awards-2/")) {
@@ -46,7 +47,8 @@ document.addEventListener("readystatechange", (e) => {
                 loadingSpinnerId: ".loading-spinner",
                 postsContainerId: "all_awards_wrapper",
                 ajaxAction: "load_more_content",
-                postsPerPage: 20
+                postsPerPage: 20,
+                buttonSelector: ".awards_btn_filter",
             });
 
             initFilterButton({
@@ -56,6 +58,7 @@ document.addEventListener("readystatechange", (e) => {
                     console.log("Selected filter:", filterValue);
                 }
             });
+
         }
 
         if (window.location.pathname.includes("/webinars-and-podcasts/")) {
@@ -1324,11 +1327,48 @@ function parseYearDecade(label) {
     return null;
 }
 
-// Helper: parse string/array/null into a normalized value.
-// - If input is an array, return as-is.
-// - If input is a string with commas, split and trim to array.
-// - If input is a non-empty string, return trimmed string.
-// - Else return null or the original non-string value.
+function initSearchFeature(options) {
+    const {
+        inputId,
+        closeButtonId = null,
+        iconId = null,
+        minChars = 2,
+        debounceMs = 500,
+        onSearch,
+        onClear
+    } = options || {};
+
+    const input = inputId ? document.getElementById(inputId) : null;
+    const closeBtn = closeButtonId ? document.getElementById(closeButtonId) : null;
+    const icon = iconId ? document.getElementById(iconId) : null;
+    if (!input) return;
+
+    let t;
+    input.addEventListener('input', (e) => {
+        const val = (e.target.value || '').trim();
+        if (closeBtn) closeBtn.classList.toggle('active', val.length >= minChars);
+        if (icon) icon.style.display = val.length >= minChars ? 'none' : 'flex';
+
+        clearTimeout(t);
+        t = setTimeout(() => {
+            if (val.length >= minChars) {
+                if (typeof onSearch === 'function') onSearch(val);
+            } else if (val.length === 0) {
+                if (typeof onClear === 'function') onClear();
+            }
+        }, debounceMs);
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            input.value = '';
+            closeBtn.classList.remove('active');
+            if (icon) icon.style.display = 'flex';
+            if (typeof onClear === 'function') onClear();
+        });
+    }
+}
+
 function parseMultiValue(raw) {
     if (Array.isArray(raw)) return raw;
     if (typeof raw === 'string') {
@@ -1341,6 +1381,8 @@ function parseMultiValue(raw) {
     }
     return raw;
 }
+
+
 
 // Helper: resolve filter type and value from options or button dataset
 function resolveFilterTypeAndValue(button, options = {}) {
@@ -1400,48 +1442,6 @@ function initFilterButton(filterAttributes) {
 
         })
     })
-}
-
-function initSearchFeature(options) {
-    const {
-        inputId,
-        closeButtonId = null,
-        iconId = null,
-        minChars = 2,
-        debounceMs = 500,
-        onSearch,
-        onClear
-    } = options || {};
-
-    const input = inputId ? document.getElementById(inputId) : null;
-    const closeBtn = closeButtonId ? document.getElementById(closeButtonId) : null;
-    const icon = iconId ? document.getElementById(iconId) : null;
-    if (!input) return;
-
-    let t;
-    input.addEventListener('input', (e) => {
-        const val = (e.target.value || '').trim();
-        if (closeBtn) closeBtn.classList.toggle('active', val.length >= minChars);
-        if (icon) icon.style.display = val.length >= minChars ? 'none' : 'flex';
-
-        clearTimeout(t);
-        t = setTimeout(() => {
-            if (val.length >= minChars) {
-                if (typeof onSearch === 'function') onSearch(val);
-            } else if (val.length === 0) {
-                if (typeof onClear === 'function') onClear();
-            }
-        }, debounceMs);
-    });
-
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            input.value = '';
-            closeBtn.classList.remove('active');
-            if (icon) icon.style.display = 'flex';
-            if (typeof onClear === 'function') onClear();
-        });
-    }
 }
 
 function initLoadMoreWithFilters(config) {
@@ -1524,3 +1524,4 @@ function initLoadMoreWithFilters(config) {
             });
     }
 }
+
