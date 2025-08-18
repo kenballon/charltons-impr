@@ -30,6 +30,14 @@ document.addEventListener("readystatechange", (e) => {
                 ajaxAction: "load_more_newsletters",
                 postsPerPage: 20
             });
+
+            initFilterButton({
+                buttonSelector: ".newsletter_category_filter",
+                onClickCallback: (filterValue) => {
+                    // Handle filter button click
+                    console.log("Selected filter:", filterValue);
+                }
+            });
         }
 
         if (window.location.pathname.includes("/our-firm/awards-2/")) {
@@ -43,8 +51,11 @@ document.addEventListener("readystatechange", (e) => {
 
             initFilterButton({
                 buttonSelector: ".awards_btn_filter",
+                onClickCallback: (filterValue) => {
+                    // Handle filter button click
+                    console.log("Selected filter:", filterValue);
+                }
             });
-
         }
 
         if (window.location.pathname.includes("/webinars-and-podcasts/")) {
@@ -1313,79 +1324,40 @@ function parseYearDecade(label) {
     return null;
 }
 
-// function initFilterControls(options) {
-//     const {
-//         buttonsSelector,
-//         activeClass = 'active',
-//         resolveType,
-//         resolveValue,
-//         onChange
-//     } = options || {};
+// Helper: parse string/array/null into a normalized value.
+// - If input is an array, return as-is.
+// - If input is a string with commas, split and trim to array.
+// - If input is a non-empty string, return trimmed string.
+// - Else return null or the original non-string value.
+function parseMultiValue(raw) {
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+        const trimmed = raw.trim();
+        if (!trimmed) return null;
+        if (trimmed.includes(',')) {
+            return trimmed.split(',').map(v => v.trim()).filter(Boolean);
+        }
+        return trimmed;
+    }
+    return raw;
+}
 
-//     const buttons = document.querySelectorAll(buttonsSelector);
-//     if (!buttons.length) return;
+// Helper: resolve filter type and value from options or button dataset
+function resolveFilterTypeAndValue(button, options = {}) {
+    const { filterType, filterValue } = options;
+    const rawType = (typeof filterType !== 'undefined') ? filterType : (button.dataset.filterType ?? '');
+    const rawValue = (typeof filterValue !== 'undefined') ? filterValue : (button.dataset.filterValue ?? button.id ?? '');
+    return {
+        type: parseMultiValue(rawType),
+        value: parseMultiValue(rawValue)
+    };
+}
 
-//     const parseValues = (btn) => {
-//         // Prefer explicit list values
-//         const raw = btn.dataset.filterValues;
-//         if (!raw) return null;
-//         try {
-//             // Try JSON first
-//             const parsed = JSON.parse(raw);
-//             if (Array.isArray(parsed)) return parsed.map(v => String(v).trim()).filter(Boolean);
-//         } catch (e) {
-//             // Fallback: comma-separated list
-//             const arr = String(raw).split(',').map(s => s.trim()).filter(Boolean);
-//             if (arr.length) return arr;
-//         }
-//         return null;
-//     };
-
-//     const detectType = (btn) => {
-//         if (typeof resolveType === 'function') return resolveType(btn);
-//         const dataType = (btn.dataset.filterType || '').toLowerCase();
-//         if (dataType) {
-//             if (dataType === 'years' || dataType === 'year' || dataType === 'year-decade' || dataType === 'yeardecade' || dataType === 'decade') return 'yearDecade';
-//             if (dataType === 'tags' || dataType === 'tag') return dataType;
-//             if (dataType === 'categories' || dataType === 'category') return dataType;
-//             return dataType;
-//         }
-//         const cls = btn.className || '';
-//         if (/yrfilter|year/i.test(cls)) return 'yearDecade';
-//         if (/tag/i.test(cls)) return 'tag';
-//         return 'category';
-//     };
-
-//     const detectValue = (btn) => {
-//         if (typeof resolveValue === 'function') return resolveValue(btn);
-//         const multi = parseValues(btn);
-//         if (multi && multi.length) return multi; // array
-//         return btn.dataset.filterValue || btn.id || (btn.textContent || '').trim();
-//     };
-
-//     buttons.forEach((button) => {
-//         button.addEventListener('click', function () {
-//             // Toggle active state within the group
-//             buttons.forEach(b => b.classList.remove(activeClass));
-//             this.classList.add(activeClass);
-
-//             const type = detectType(this);
-//             const detected = detectValue(this);
-//             const isArray = Array.isArray(detected);
-//             const values = isArray ? detected : null;
-//             const value = isArray ? (detected[0] || '') : detected;
-//             const range = type === 'yearDecade' ? parseYearDecade(value) : null;
-
-//             console.log(detectType(this));
-//             console.log(detected);
-//             console.log(range);
-
-//             if (typeof onChange === 'function') {
-//                 onChange({ type, value, values, range, button: this });
-//             }
-//         });
-//     });
-// }
+// Optional helper: simple logger you can reuse as onClickCallback
+function defaultFilterClickLogger(payload) {
+    // payload: { type, value, button, event }
+    console.log('Selected filter:', payload?.value);
+}
 
 function initFilterButton(filterAttributes) {
     const {
@@ -1393,39 +1365,32 @@ function initFilterButton(filterAttributes) {
         filterType, // e.g. category, categories, tag, tags, yearDecade
         filterValue, // could accept a single value or an array
         activeClass = 'active',
-        onClick // callback function to handle click events
+        onClickCallback // callback function to handle click events
     } = filterAttributes || {};
 
     // Initialize the filter button with the given attributes
-    const buttons = document?.querySelectorAll(buttonSelector);
+    const filterButtons = document?.querySelectorAll(buttonSelector);
 
-    if (!buttons || buttons.length === 0) {
+    if (!filterButtons || filterButtons.length === 0) {
         return;
     }
 
-    buttons.forEach((button) => {
+    filterButtons.forEach((button) => {
         button.addEventListener('click', (e) => {
             e.preventDefault();
 
             // Remove active class from all buttons
-            buttons.forEach(btn => btn.classList.remove(activeClass));
+            filterButtons.forEach(btn => btn.classList.remove(activeClass));
 
             // Add active class to the clicked button
             button.classList.add(activeClass);
 
-            // Get filter Type
-            const resolvedFilterType = button.dataset.filterType || filterType || 'category';
-
-            // Get filter Value sometimes button id or data attribute can be used
-            // If filterValue is provided, use it; otherwise, use button's data attribute or text content
-            const resolvedFilterValue = button.dataset.filterValue || filterValue || button.id || button.textContent.trim();
-
-            console.log(`Filter Type: ${resolvedFilterType}`);
-            console.log(`Filter Value: ${resolvedFilterValue}`);
+            const { type: resolvedFilterType, value: resolvedFilterValue } =
+                resolveFilterTypeAndValue(button, { filterType, filterValue });
 
             // Invoke optional callback with resolved values
-            if (typeof onClick === 'function') {
-                onClick({
+            if (typeof onClickCallback === 'function') {
+                onClickCallback({
                     type: resolvedFilterType,
                     value: resolvedFilterValue,
                     button,
