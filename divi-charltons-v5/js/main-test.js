@@ -27,14 +27,8 @@ document.addEventListener("readystatechange", (e) => {
                 loadMoreBtnId: "newsletter-load-more-btn",
                 loadingSpinnerId: ".loading-spinner",
                 postsContainerId: "newsletters_post",
-                categoryButtonsSelector: ".newsletter_category_filter",
                 ajaxAction: "load_more_newsletters",
-                defaultCategory: "hong-kong-law",
-                postsPerPage: 20,
-                searchInputId: "newsletterSearch",
-                searchCloseButtonId: "nl_close_search",
-                searchIconId: "nl_search_icon",
-                useCustomAjaxSearch: true,
+                postsPerPage: 20
             });
         }
 
@@ -43,15 +37,14 @@ document.addEventListener("readystatechange", (e) => {
                 loadMoreBtnId: "awards-load-more-btn",
                 loadingSpinnerId: ".loading-spinner",
                 postsContainerId: "all_awards_wrapper",
-                // Include both tag and year-decade filters
-                categoryButtonsSelector: ".awards_btn_filter, .awards_btn_yrfilter",
                 ajaxAction: "load_more_content",
-                defaultCategory: "",
-                postsPerPage: 20,
-                searchInputId: "awardsSearch",
-                searchCloseButtonId: "awards_close_search",
-                searchIconId: "awards_search_icon"
+                postsPerPage: 20
             });
+
+            initFilterButton({
+                buttonSelector: ".awards_btn_filter",
+            });
+
         }
 
         if (window.location.pathname.includes("/webinars-and-podcasts/")) {
@@ -59,12 +52,8 @@ document.addEventListener("readystatechange", (e) => {
                 loadMoreBtnId: "webinars-load-more-btn",
                 loadingSpinnerId: ".loading-spinner",
                 postsContainerId: "pod-and-web",
-                categoryButtonsSelector: ".pod_web_btn_filter",
                 ajaxAction: "load_more_content",
-                defaultCategory: "webinars-and-podcasts, webinars",
-                postsPerPage: 15,
-                // Ensure we only clear article items to preserve button/spinner embedded in the container
-                itemSelector: "article.news_article_wrapper"
+                postsPerPage: 15
             });
         }
     }
@@ -1297,11 +1286,7 @@ FilterButton.initializeAll(SELECTORS.NewsletterAchiveFilter, (filterID) => {
 });
 
 
-/**
- * Parse a decade label like "2020s" or a year range into numeric start/end.
- * Accepts strings like "2020s", "2010-2019", or single year (treated as that decade start).
- * Returns { start: number, end: number } or null if not parseable.
- */
+
 function parseYearDecade(label) {
     if (!label) return null;
     const str = String(label).trim().toLowerCase();
@@ -1328,105 +1313,130 @@ function parseYearDecade(label) {
     return null;
 }
 
-/**
- * Initialize filter buttons for category/categories, tag/tags, or year-decade.
- *
- * options:
- * - buttonsSelector: CSS selector for all filter buttons within a group
- * - activeClass: class to toggle on active button (default: 'active')
- * - resolveType: (button: HTMLElement) => 'category'|'categories'|'tag'|'tags'|'yearDecade'
- *   Default: from data-filter-type, else heuristics on className, else 'category'
- * - resolveValue: (button: HTMLElement) => string | string[]
- *   Default: prefers data-filter-values (JSON or comma-separated) → string[]; else
- *   data-filter-value || id || textContent.trim() → string
- * - onChange: ({ type, value, values, range, button }) => void
- */
-function initFilterControls(options) {
+// function initFilterControls(options) {
+//     const {
+//         buttonsSelector,
+//         activeClass = 'active',
+//         resolveType,
+//         resolveValue,
+//         onChange
+//     } = options || {};
+
+//     const buttons = document.querySelectorAll(buttonsSelector);
+//     if (!buttons.length) return;
+
+//     const parseValues = (btn) => {
+//         // Prefer explicit list values
+//         const raw = btn.dataset.filterValues;
+//         if (!raw) return null;
+//         try {
+//             // Try JSON first
+//             const parsed = JSON.parse(raw);
+//             if (Array.isArray(parsed)) return parsed.map(v => String(v).trim()).filter(Boolean);
+//         } catch (e) {
+//             // Fallback: comma-separated list
+//             const arr = String(raw).split(',').map(s => s.trim()).filter(Boolean);
+//             if (arr.length) return arr;
+//         }
+//         return null;
+//     };
+
+//     const detectType = (btn) => {
+//         if (typeof resolveType === 'function') return resolveType(btn);
+//         const dataType = (btn.dataset.filterType || '').toLowerCase();
+//         if (dataType) {
+//             if (dataType === 'years' || dataType === 'year' || dataType === 'year-decade' || dataType === 'yeardecade' || dataType === 'decade') return 'yearDecade';
+//             if (dataType === 'tags' || dataType === 'tag') return dataType;
+//             if (dataType === 'categories' || dataType === 'category') return dataType;
+//             return dataType;
+//         }
+//         const cls = btn.className || '';
+//         if (/yrfilter|year/i.test(cls)) return 'yearDecade';
+//         if (/tag/i.test(cls)) return 'tag';
+//         return 'category';
+//     };
+
+//     const detectValue = (btn) => {
+//         if (typeof resolveValue === 'function') return resolveValue(btn);
+//         const multi = parseValues(btn);
+//         if (multi && multi.length) return multi; // array
+//         return btn.dataset.filterValue || btn.id || (btn.textContent || '').trim();
+//     };
+
+//     buttons.forEach((button) => {
+//         button.addEventListener('click', function () {
+//             // Toggle active state within the group
+//             buttons.forEach(b => b.classList.remove(activeClass));
+//             this.classList.add(activeClass);
+
+//             const type = detectType(this);
+//             const detected = detectValue(this);
+//             const isArray = Array.isArray(detected);
+//             const values = isArray ? detected : null;
+//             const value = isArray ? (detected[0] || '') : detected;
+//             const range = type === 'yearDecade' ? parseYearDecade(value) : null;
+
+//             console.log(detectType(this));
+//             console.log(detected);
+//             console.log(range);
+
+//             if (typeof onChange === 'function') {
+//                 onChange({ type, value, values, range, button: this });
+//             }
+//         });
+//     });
+// }
+
+function initFilterButton(filterAttributes) {
     const {
-        buttonsSelector,
+        buttonSelector, // e.g. ".filter-button"
+        filterType, // e.g. category, categories, tag, tags, yearDecade
+        filterValue, // could accept a single value or an array
         activeClass = 'active',
-        resolveType,
-        resolveValue,
-        onChange
-    } = options || {};
+        onClick // callback function to handle click events
+    } = filterAttributes || {};
 
-    const buttons = document.querySelectorAll(buttonsSelector);
-    if (!buttons.length) return;
+    // Initialize the filter button with the given attributes
+    const buttons = document?.querySelectorAll(buttonSelector);
 
-    const parseValues = (btn) => {
-        // Prefer explicit list values
-        const raw = btn.dataset.filterValues;
-        if (!raw) return null;
-        try {
-            // Try JSON first
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) return parsed.map(v => String(v).trim()).filter(Boolean);
-        } catch (e) {
-            // Fallback: comma-separated list
-            const arr = String(raw).split(',').map(s => s.trim()).filter(Boolean);
-            if (arr.length) return arr;
-        }
-        return null;
-    };
-
-    const detectType = (btn) => {
-        if (typeof resolveType === 'function') return resolveType(btn);
-        const dataType = (btn.dataset.filterType || '').toLowerCase();
-        if (dataType) {
-            if (dataType === 'years' || dataType === 'year' || dataType === 'year-decade' || dataType === 'yeardecade' || dataType === 'decade') return 'yearDecade';
-            if (dataType === 'tags' || dataType === 'tag') return dataType;
-            if (dataType === 'categories' || dataType === 'category') return dataType;
-            return dataType;
-        }
-        const cls = btn.className || '';
-        if (/yrfilter|year/i.test(cls)) return 'yearDecade';
-        if (/tag/i.test(cls)) return 'tag';
-        return 'category';
-    };
-
-    const detectValue = (btn) => {
-        if (typeof resolveValue === 'function') return resolveValue(btn);
-        const multi = parseValues(btn);
-        if (multi && multi.length) return multi; // array
-        return btn.dataset.filterValue || btn.id || (btn.textContent || '').trim();
-    };
+    if (!buttons || buttons.length === 0) {
+        return;
+    }
 
     buttons.forEach((button) => {
-        button.addEventListener('click', function () {
-            // Toggle active state within the group
-            buttons.forEach(b => b.classList.remove(activeClass));
-            this.classList.add(activeClass);
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
 
-            const type = detectType(this);
-            const detected = detectValue(this);
-            const isArray = Array.isArray(detected);
-            const values = isArray ? detected : null;
-            const value = isArray ? (detected[0] || '') : detected;
-            const range = type === 'yearDecade' ? parseYearDecade(value) : null;
+            // Remove active class from all buttons
+            buttons.forEach(btn => btn.classList.remove(activeClass));
 
-            console.log(detectType(this));
-            console.log(detected);
-            console.log(range);
+            // Add active class to the clicked button
+            button.classList.add(activeClass);
 
-            if (typeof onChange === 'function') {
-                onChange({ type, value, values, range, button: this });
+            // Get filter Type
+            const resolvedFilterType = button.dataset.filterType || filterType || 'category';
+
+            // Get filter Value sometimes button id or data attribute can be used
+            // If filterValue is provided, use it; otherwise, use button's data attribute or text content
+            const resolvedFilterValue = button.dataset.filterValue || filterValue || button.id || button.textContent.trim();
+
+            console.log(`Filter Type: ${resolvedFilterType}`);
+            console.log(`Filter Value: ${resolvedFilterValue}`);
+
+            // Invoke optional callback with resolved values
+            if (typeof onClick === 'function') {
+                onClick({
+                    type: resolvedFilterType,
+                    value: resolvedFilterValue,
+                    button,
+                    event: e
+                });
             }
-        });
-    });
+
+        })
+    })
 }
 
-/**
- * Initialize a modular search input with debounce and clear button toggles.
- *
- * options:
- * - inputId: element id of the search input
- * - closeButtonId: optional id for a clear/close button
- * - iconId: optional id for the search icon wrapper to toggle
- * - minChars: minimum characters before firing onSearch (default 2)
- * - debounceMs: debounce delay (default 500ms)
- * - onSearch: (term: string) => void
- * - onClear: () => void
- */
 function initSearchFeature(options) {
     const {
         inputId,
@@ -1474,404 +1484,34 @@ function initLoadMoreWithFilters(config) {
         loadMoreBtnId,
         loadingSpinnerId = ".loading-spinner",
         postsContainerId,
-        categoryButtonsSelector,
-        ajaxAction,
-        defaultCategory = null,
+        ajaxAction, //PHP Ajax Action
         postsPerPage = 20,
-        searchInputId = null,
-        searchCloseButtonId = null,
-        searchIconId = null,
-        // Optional: CSS selector for items inside the posts container. If provided, we'll only remove these on refresh
-        itemSelector = null,
-        // If true, use server-side ajax_search for searching instead of the generic loadCategoryPosts
-        useCustomAjaxSearch = false,
-        // The WordPress AJAX action to call for server-side search
-        searchAjaxAction = 'ajax_search',
-        // Optional param names for the search endpoint
-        searchRequestParamName = 'search',
-        searchCategoryParamName = 'category'
-    } = config;
+    } = config || {};
 
     const loadMoreBtn = document.getElementById(loadMoreBtnId);
     const loadingSpinner = document.querySelector(loadingSpinnerId);
     const postsContainer = document.getElementById(postsContainerId);
-    const categoryButtons = document.querySelectorAll(categoryButtonsSelector);
-
-    // Search elements
-    const searchInput = searchInputId ? document.getElementById(searchInputId) : null;
-    const searchCloseButton = searchCloseButtonId ? document.getElementById(searchCloseButtonId) : null;
-    const searchIcon = searchIconId ? document.getElementById(searchIconId) : null;
 
     if (!loadMoreBtn || !postsContainer) {
-        console.warn(`Load more functionality not initialized: missing elements`);
+        console.warn('Load more functionality not initialized: missing elements');
         return;
     }
 
-    // Helper functions
-    function getActiveCategory() {
-        // Robustly detect the active button even when the selector contains commas
-        const activeBtn = Array.from(categoryButtons).find(b => b.classList.contains('active'));
-        return activeBtn ? activeBtn.id : defaultCategory;
-    }
-
-    // Remove non-matching cards on the client to ensure search results only show matches
-    function getCardTitleText(card) {
-        const titleEl = card.querySelector('h2.post-title, h2.newsevents__post_title, .title');
-        if (titleEl) return titleEl.textContent.trim();
-        const anchor = card.querySelector('a[aria-label], a[title]');
-        if (anchor) return (anchor.getAttribute('aria-label') || anchor.getAttribute('title') || '').trim();
-        return '';
-    }
-
-    function filterRenderedPostsByTitle(searchTerm) {
-        if (!postsContainer) return;
-        const q = (searchTerm || '').trim().toLowerCase();
-        if (!q) return 0;
-
-        const cards = Array.from(postsContainer.querySelectorAll('article, .news_article_wrapper, .newsletter_post_item'));
-        let kept = 0;
-        cards.forEach(card => {
-            const text = getCardTitleText(card).toLowerCase();
-            if (text.includes(q)) {
-                kept++;
-            } else {
-                card.remove();
-            }
-        });
-
-        // If nothing remains, show a simple empty state
-        if (kept === 0) {
-            postsContainer.innerHTML = `<p class="no-results">No results found for “${sanitizeHTML(searchTerm)}”.</p>`;
-        }
-        return kept;
-    }
-
-    // Client-side filter for Awards by year range (decade) to complement server filtering
-    function filterRenderedAwardsByYear(range) {
-        if (!postsContainer || !range) return 0;
-        const { start, end } = range;
-        const cards = Array.from(postsContainer.querySelectorAll('article.awards_card_item'));
-        if (!cards.length) return 0;
-
-        let kept = 0;
-        const getYear = (card) => {
-            const dateEl = card.querySelector('.date_posted');
-            if (!dateEl) return null;
-            const txt = (dateEl.textContent || '').trim();
-            const m = txt.match(/(\d{4})/);
-            return m ? parseInt(m[1], 10) : null;
-        };
-
-        cards.forEach(card => {
-            const y = getYear(card);
-            if (y !== null && y >= start && y <= end) {
-                kept++;
-            } else {
-                card.remove();
-            }
-        });
-
-        if (kept === 0) {
-            postsContainer.innerHTML = `<p class="no-results">No results found for ${start}-${end}.</p>`;
-        }
-        return kept;
-    }
-
-    async function renderNewsletterSearchResults(html) {
-        const tmp = document.createElement('div');
-        tmp.innerHTML = html;
-
-        const items = Array.from(tmp.querySelectorAll('li'));
-        if (items.length === 0) {
-            // Fallback: show whatever came back
-            postsContainer.innerHTML = html;
-            return;
-        }
-
-        const fragment = document.createDocumentFragment();
-
-        const pickImageFromMedia = (mediaJson) => {
-            const sizes = mediaJson?.media_details?.sizes || {};
-            return (
-                sizes?.medium_large?.source_url ||
-                sizes?.large?.source_url ||
-                sizes?.medium?.source_url ||
-                mediaJson?.source_url ||
-                ''
-            );
-        };
-
-        const formatDate = (iso) => {
-            const d = new Date(iso);
-            const day = d.getDate();
-            const mon = d.toLocaleString('en-GB', { month: 'short' });
-            const year = d.getFullYear();
-            return `${day} ${mon} ${year}`;
-        };
-
-        const origin = window.location.origin;
-
-        for (const li of items) {
-            const a = li.querySelector('a');
-            if (!a) continue;
-
-            let link = a.href;
-            let title = a.getAttribute('title') || a.textContent.trim();
-            let img = li.dataset.img || (li.querySelector('img')?.src || '');
-            let postDate = li.dataset.date || '';
-
-            // Enrich with REST if missing data
-            if (!img || !postDate) {
-                try {
-                    const urlObj = new URL(link, origin);
-                    const parts = urlObj.pathname.split('/').filter(Boolean);
-                    const slug = parts[parts.length - 1];
-
-                    const postResp = await fetch(`${origin}/wp-json/wp/v2/posts?slug=${encodeURIComponent(slug)}&_fields=id,date,featured_media,title,link`);
-                    if (postResp.ok) {
-                        const arr = await postResp.json();
-                        const postJson = Array.isArray(arr) ? arr[0] : null;
-                        if (postJson) {
-                            postDate = postDate || formatDate(postJson.date);
-                            title = decodeHTMLEntities(postJson.title?.rendered || title);
-                            link = postJson.link || link;
-
-                            if (!img && postJson.featured_media) {
-                                const mediaResp = await fetch(`${origin}/wp-json/wp/v2/media/${postJson.featured_media}?_fields=source_url,media_details`);
-                                if (mediaResp.ok) {
-                                    const mediaJson = await mediaResp.json();
-                                    img = pickImageFromMedia(mediaJson);
-                                }
-                            }
-                        }
-                    }
-                } catch (e) {
-                    console.warn('Failed to enrich search item via REST:', e);
-                }
-            }
-
-            const postObj = {
-                categories: getActiveCategory() || '',
-                tags: '',
-                id: li.dataset.postId || '',
-                post_date: postDate || '',
-                featured_image: img || '',
-                featured_image_small: img || '',
-                featured_image_medium: img || '',
-                featured_image_large: img || '',
-                url: link,
-                title: title
-            };
-
-            const article = createCardUI(postObj, 'newsletter', true);
-            fragment.appendChild(article);
-        }
-
-        postsContainer.innerHTML = '';
-        postsContainer.appendChild(fragment);
-    }
-
-    function performSearch(searchTerm) {
-        const activeCategory = getActiveCategory();
-
-        // Reset offset and update button data
-        loadMoreBtn.dataset.offset = postsPerPage.toString();
-        loadMoreBtn.dataset.category = activeCategory;
-        loadMoreBtn.dataset.searchTerm = searchTerm;
-
-        // Clear current posts (preserve non-item children like buttons/spinners when itemSelector is provided)
-        if (itemSelector) {
-            postsContainer.querySelectorAll(itemSelector).forEach(el => el.remove());
-        } else {
-            postsContainer.innerHTML = "";
-        }
-
-        // Show loading state
-        loadMoreBtn.style.display = "none";
-        if (loadingSpinner) loadingSpinner.style.display = "block";
-
-        if (useCustomAjaxSearch) {
-            // Use the dedicated WP ajax_search endpoint which returns HTML <li> items
-            const params = new URLSearchParams();
-            params.append('action', searchAjaxAction);
-            params.append(searchRequestParamName, searchTerm);
-            if (activeCategory) params.append(searchCategoryParamName, activeCategory);
-
-            fetch(ajax_object.ajax_url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params
-            })
-                .then(res => res.text())
-                .then(async html => {
-                    // Convert <li> results into newsletter cards
-                    await renderNewsletterSearchResults(html);
-                    // Keep load more hidden during a search to avoid mixing unrelated posts
-                    loadMoreBtn.style.display = 'none';
-                })
-                .catch(err => {
-                    console.error('Search request failed:', err);
-                    // Show a minimal empty state
-                    postsContainer.innerHTML = `<li class="no-results">No results found</li>`;
-                })
-                .finally(() => {
-                    if (loadingSpinner) loadingSpinner.style.display = 'none';
-                });
-        } else {
-            // Load posts with search using the generic JSON endpoint
-            loadCategoryPosts(activeCategory, 0, true, searchTerm);
-        }
-    }
-
-    // Search functionality (modular)
-    if (searchInput) {
-        initSearchFeature({
-            inputId: searchInputId,
-            closeButtonId: searchCloseButtonId,
-            iconId: searchIconId,
-            minChars: 2,
-            debounceMs: 500,
-            onSearch: (term) => {
-                performSearch(term);
-            },
-            onClear: () => {
-                const activeCategory = getActiveCategory();
-                delete loadMoreBtn.dataset.searchTerm;
-                loadCategoryPosts(activeCategory, 0, true);
-            }
-        });
-    }
-
-    // Filter buttons (modular) — supports category/tag/yearDecade
-    if (categoryButtons && categoryButtons.length) {
-        initFilterControls({
-            buttonsSelector: categoryButtonsSelector,
-            activeClass: 'active',
-            onChange: ({ type, value, values, range, button }) => {
-                const callback = loadMoreBtn.dataset.callback || null;
-                const activeSearch = (searchInput ? searchInput.value.trim() : '') || '';
-
-                // Reset offset and update dataset for load-more state
-                loadMoreBtn.dataset.offset = postsPerPage.toString();
-                delete loadMoreBtn.dataset.tag;
-                delete loadMoreBtn.dataset.tags;
-                delete loadMoreBtn.dataset.yearStart;
-                delete loadMoreBtn.dataset.yearEnd;
-                delete loadMoreBtn.dataset.categories;
-
-                const isTag = (t) => t === 'tag' || t === 'tags';
-                const isCategory = (t) => t === 'category' || t === 'categories';
-
-                if (isTag(type)) {
-                    // Some endpoints expect 'tag' and sometimes category too
-                    loadMoreBtn.dataset.tag = value;
-                    if (Array.isArray(values) && values.length) {
-                        loadMoreBtn.dataset.tags = JSON.stringify(values);
-                    }
-                    // keep parity with legacy: mirror into category when only tag is present
-                    loadMoreBtn.dataset.category = value;
-                } else if (type === 'yearDecade' && range) {
-                    loadMoreBtn.dataset.yearStart = String(range.start);
-                    loadMoreBtn.dataset.yearEnd = String(range.end);
-                    // keep category as-is but also set to value for traceability
-                    loadMoreBtn.dataset.category = value;
-                    // For awards, ensure we still query the awards tag on server
-                    if (callback === 'getAwardPostItems') {
-                        loadMoreBtn.dataset.tag = loadMoreBtn.dataset.tag || 'awards';
-                    }
-                } else if (isCategory(type)) {
-                    // Special-case the "All" button on Awards: default to tag=awards
-                    if ((value || '').toLowerCase() === 'all' && callback === 'getAwardPostItems') {
-                        loadMoreBtn.dataset.category = '';
-                        loadMoreBtn.dataset.tag = 'awards';
-                        delete loadMoreBtn.dataset.categories;
-                        delete loadMoreBtn.dataset.tags;
-                    } else {
-                        loadMoreBtn.dataset.category = value;
-                        if (Array.isArray(values) && values.length) {
-                            loadMoreBtn.dataset.categories = JSON.stringify(values);
-                        }
-                        // For awards handler that expects tag
-                        if (callback === 'getAwardPostItems') {
-                            loadMoreBtn.dataset.tag = value;
-                            if (Array.isArray(values) && values.length) {
-                                loadMoreBtn.dataset.tags = JSON.stringify(values);
-                            }
-                        }
-                    }
-                } else {
-                    // default fallback
-                    loadMoreBtn.dataset.category = value;
-                }
-
-                if (activeSearch) {
-                    loadMoreBtn.dataset.searchTerm = activeSearch;
-                } else {
-                    delete loadMoreBtn.dataset.searchTerm;
-                }
-
-                // Clear current items
-                if (itemSelector) {
-                    postsContainer.querySelectorAll(itemSelector).forEach(el => el.remove());
-                } else {
-                    postsContainer.innerHTML = '';
-                }
-
-                // Show loading
-                loadMoreBtn.style.display = 'none';
-                if (loadingSpinner) loadingSpinner.style.display = 'block';
-
-                // If searching and server-side search is enabled
-                if (useCustomAjaxSearch && activeSearch && activeSearch.length >= 2) {
-                    performSearch(activeSearch);
-                    return;
-                }
-
-                // Otherwise load with applied filter
-                loadCategoryPosts(loadMoreBtn.dataset.category || null, 0, true, activeSearch || null);
-            }
-        });
-    }
-
-    // Load more functionality
+    // Load more: fetch next page and append
     loadMoreBtn.addEventListener("click", function () {
-        const offset = parseInt(this.dataset.offset);
-        const postType = this.dataset.postType;
-        const category = this.dataset.category;
-        const searchTerm = this.dataset.searchTerm || null;
+        const offset = parseInt(this.dataset.offset || '0', 10);
+        const category = this.dataset.category || null;
 
         // Show loading state
         loadMoreBtn.style.display = "none";
         if (loadingSpinner) loadingSpinner.style.display = "block";
 
-        // Make AJAX request
-        loadCategoryPosts(category, offset, false, searchTerm);
+        loadCategoryPosts(category, offset);
     });
 
-    function loadCategoryPosts(category, offset, isNewSearch = false, searchTerm = null) {
+    function loadCategoryPosts(category, offset) {
         const postType = loadMoreBtn.dataset.postType || "project";
         const callback = loadMoreBtn.dataset.callback || null;
-        const tag = loadMoreBtn.dataset.tag || null;
-        const tagsJson = loadMoreBtn.dataset.tags || null;
-        const categoriesJson = loadMoreBtn.dataset.categories || null;
-        const yearStart = loadMoreBtn.dataset.yearStart || null;
-        const yearEnd = loadMoreBtn.dataset.yearEnd || null;
-
-        // Parse arrays if present
-        const parseList = (raw) => {
-            if (!raw) return null;
-            try {
-                const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed)) return parsed;
-            } catch (e) {
-                const arr = String(raw).split(',').map(s => s.trim()).filter(Boolean);
-                if (arr.length) return arr;
-            }
-            return null;
-        };
-
-        const tagsArr = parseList(tagsJson);
-        const categoriesArr = parseList(categoriesJson);
 
         const requestBody = {
             action: ajaxAction,
@@ -1884,93 +1524,17 @@ function initLoadMoreWithFilters(config) {
             posts_per_page: postsPerPage
         };
 
-        // Add optional generic callback for the server dispatcher
         if (callback) requestBody.callback = callback;
-        // Add optional tag filter for awards
-        if (tag) {
-            requestBody.tag = tag;
-        } else if (callback === 'getAwardPostItems') {
-            // Fallback: treat selected category as tag for awards if tag is not explicitly set
-            requestBody.tag = category;
-        }
-
-        // Add plural forms if present; always include CSV variant for compatibility
-        if (categoriesArr && categoriesArr.length) {
-            requestBody.categories = categoriesArr; // becomes comma-separated via toString()
-            requestBody.categories_csv = categoriesArr.join(',');
-            // Ensure singulars are also populated for legacy handlers
-            if (!requestBody.category) requestBody.category = categoriesArr[0];
-            requestBody.filter_category = requestBody.category;
-        }
-        if (tagsArr && tagsArr.length) {
-            requestBody.tags = tagsArr; // becomes comma-separated
-            requestBody.tags_csv = tagsArr.join(',');
-            if (!requestBody.tag) requestBody.tag = tagsArr[0];
-        }
-
-        // Add optional year range when year-decade filter is used
-        if (yearStart && yearEnd) {
-            requestBody.year_start = yearStart;
-            requestBody.year_end = yearEnd;
-        }
-
-        // Add search term if provided
-        if (searchTerm && searchTerm.length >= 2) {
-            requestBody.search_term = searchTerm;
-        }
 
         fetch(ajax_object.ajax_url, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: new URLSearchParams(requestBody)
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    const insertContent = (html) => {
-                        if (itemSelector) {
-                            // Insert before spinner or load-more button if present
-                            const spinnerEl = postsContainer.querySelector(loadingSpinnerId);
-                            const loadMoreEl = document.getElementById(loadMoreBtnId);
-                            const anchor = spinnerEl || loadMoreEl;
-                            if (anchor && anchor.parentElement === postsContainer) {
-                                anchor.insertAdjacentHTML("beforebegin", html);
-                            } else {
-                                // Fallback: prepend
-                                postsContainer.insertAdjacentHTML("afterbegin", html);
-                            }
-                        } else {
-                            postsContainer.insertAdjacentHTML("beforeend", html);
-                        }
-                    };
-
-                    if (isNewSearch) {
-                        // Replace content for new search/filter
-                        if (itemSelector) {
-                            insertContent(data.data.content);
-                        } else {
-                            postsContainer.innerHTML = data.data.content;
-                        }
-                    } else {
-                        // Append content for load more
-                        insertContent(data.data.content);
-                    }
-
-                    // Apply client-side title filtering to ensure only matching posts are visible
-                    if (searchTerm && searchTerm.length >= 2) {
-                        const kept = filterRenderedPostsByTitle(searchTerm);
-                        // Keep load more hidden during a search to avoid mixing unrelated posts
-                        loadMoreBtn.style.display = "none";
-                    }
-
-                    // If a year-decade was selected (Awards), also filter client-side for now
-                    if (yearStart && yearEnd) {
-                        filterRenderedAwardsByYear({ start: parseInt(yearStart, 10), end: parseInt(yearEnd, 10) });
-                        // Avoid mixing unrelated posts
-                        loadMoreBtn.style.display = "none";
-                    }
+                    postsContainer.insertAdjacentHTML("beforeend", data.data.content);
 
                     // Update offset
                     loadMoreBtn.dataset.offset = data.data.next_offset;
@@ -1985,24 +1549,13 @@ function initLoadMoreWithFilters(config) {
                     console.error("Error:", data.data);
                     loadMoreBtn.style.display = "none";
                 }
-                if (loadingSpinner) loadingSpinner.style.display = "none";
             })
             .catch(error => {
                 console.error("Error loading more posts:", error);
                 loadMoreBtn.style.display = "block";
+            })
+            .finally(() => {
                 if (loadingSpinner) loadingSpinner.style.display = "none";
             });
-    }
-
-    // Initialize with default category if provided
-    if (defaultCategory) {
-        loadMoreBtn.dataset.category = defaultCategory;
-
-        // Set the default category button as active
-        const defaultBtn = document.getElementById(defaultCategory);
-        if (defaultBtn) {
-            categoryButtons.forEach(btn => btn.classList.remove("active"));
-            defaultBtn.classList.add("active");
-        }
     }
 }

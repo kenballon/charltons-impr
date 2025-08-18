@@ -68,29 +68,31 @@
         <nav aria-label="Awards Filter" class="btn_tag_filter_wrapper flex flex-wrap gap-1">
             <div class="btn_tag_group flex-wrap">
                 <button id="all" class="awards_btn_filter active" type="button" aria-pressed="true">All</button>
-                <button data-filter-type="tags" id="winner" class="awards_btn_filter" type="button">Awards</button>
-                <button data-filter-type="tags" id="recommended" class="awards_btn_filter"
-                    type="button">Rankings</button>
-                <button data-filter-type="tags" id="finalist" class="awards_btn_filter" type="button">Selected
+                <button data-filter-type="tag" id="winner" class="awards_btn_filter" type="button">Awards</button>
+                <!-- <button data-filter-type="tag" id="recommended" class="awards_btn_filter"
+                    type="button">Rankings</button>  -->
+                <button data-filter-type="tag" id="recommended" data-filter-value="rankings,recommended,news"
+                    class="awards_btn_filter" type="button">Rankings</button>
+                <button data-filter-type="tag" id="finalist" class="awards_btn_filter" type="button">Selected
                     Nominations</button>
             </div>
 
             <div class="btn_tag_group flex-wrap">
-                <button data-filter-type="tags" id="firm" class="awards_btn_filter" type="button">Firm</button>
-                <button data-filter-type="tags" id="partner" class="awards_btn_filter" type="button">Partner</button>
+                <button data-filter-type="tag" id="firm" class="awards_btn_filter" type="button">Firm</button>
+                <button data-filter-type="tag" id="partner" class="awards_btn_filter" type="button">Partner</button>
             </div>
             <div class="btn_tag_group flex-wrap">
-                <button data-filter-type="tags" id="alb" class="awards_btn_filter" type="button">ALB</button>
-                <button data-filter-type="tags" id="asialaw" class="awards_btn_filter" type="button">AsiaLaw</button>
-                <button data-filter-type="tags" id="chambers" class="awards_btn_filter" type="button">Chambers</button>
-                <button data-filter-type="tags" id="iflr" class="awards_btn_filter" type="button">IFLR</button>
-                <button data-filter-type="tags" id="legal500" class="awards_btn_filter" type="button">Legal500</button>
+                <button data-filter-type="tag" id="alb" class="awards_btn_filter" type="button">ALB</button>
+                <button data-filter-type="tag" id="asialaw" class="awards_btn_filter" type="button">AsiaLaw</button>
+                <button data-filter-type="tag" id="chambers" class="awards_btn_filter" type="button">Chambers</button>
+                <button data-filter-type="tag" id="iflr" class="awards_btn_filter" type="button">IFLR</button>
+                <button data-filter-type="tag" id="legal500" class="awards_btn_filter" type="button">Legal500</button>
             </div>
 
             <div class="btn_tag_group flex-wrap">
-                <button data-filter-type="years" id="2020" class="awards_btn_yrfilter" type="button">2020s</button>
-                <button data-filter-type="years" id="2010" class="awards_btn_yrfilter" type="button">2010s</button>
-                <button data-filter-type="years" id="2000" class="awards_btn_yrfilter" type="button">2000s</button>
+                <button data-filter-type="years" id="2020" class="awards_btn_filter" type="button">2020s</button>
+                <button data-filter-type="years" id="2010" class="awards_btn_filter" type="button">2010s</button>
+                <button data-filter-type="years" id="2000" class="awards_btn_filter" type="button">2000s</button>
             </div>
         </nav>
     </section>
