@@ -1397,7 +1397,7 @@ initSearchFeature({
     debounceMs: 400,
     onSearch: (term) => {
         const body = new URLSearchParams({
-            action: 'newsletter_search',
+            action: 'global_search',
             search: term,
             per_page: '4',
             post_type: 'post'

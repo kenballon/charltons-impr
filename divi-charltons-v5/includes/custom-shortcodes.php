@@ -2821,5 +2821,5 @@ add_action('wp_ajax_nopriv_load_more_content', 'load_more_content_ajax');
 // AJAX actions for search functionality
 add_action('wp_ajax_ajax_search', 'ajax_search');
 add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
-add_action('wp_ajax_newsletter_search', 'globalSearch');
-add_action('wp_ajax_nopriv_newsletter_search', 'globalSearch');
+add_action('wp_ajax_global_search', 'globalSearch');
+add_action('wp_ajax_nopriv_global_search', 'globalSearch');
