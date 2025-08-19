@@ -2656,27 +2656,78 @@ function ajax_latest_posts()
     die();
 }
 
-function search_newsletters()
+function globalSearch()
 {
     // Basic input handling
     $search = isset($_POST['search']) ? sanitize_text_field(wp_unslash($_POST['search'])) : '';
-    $slug = isset($_POST['category']) ? sanitize_title(wp_unslash($_POST['category'])) : '';
     $perPage = isset($_POST['per_page']) ? max(1, (int) $_POST['per_page']) : 5;
 
-    if (strlen($search) < 2) {
-        wp_send_json_success([]);
+    // Optional: allow specifying post_type, default to 'post'
+    $post_type = isset($_POST['post_type']) ? sanitize_text_field(wp_unslash($_POST['post_type'])) : 'post';
+    if (empty($post_type)) {
+        $post_type = 'post';
+    }
+
+    // Accept single or multiple categories/tags (CSV of slugs)
+    $category_raw = isset($_POST['category']) ? wp_unslash($_POST['category']) : (isset($_POST['categories']) ? wp_unslash($_POST['categories']) : '');
+    $tag_raw = isset($_POST['tag']) ? wp_unslash($_POST['tag']) : (isset($_POST['tags']) ? wp_unslash($_POST['tags']) : '');
+
+    // Operators within each taxonomy: IN (any) or AND (must have all terms)
+    $cat_operator = isset($_POST['category_operator']) ? strtoupper(sanitize_text_field(wp_unslash($_POST['category_operator']))) : 'IN';
+    $tag_operator = isset($_POST['tag_operator']) ? strtoupper(sanitize_text_field(wp_unslash($_POST['tag_operator']))) : 'IN';
+    $valid_ops = array('IN', 'AND');
+    if (!in_array($cat_operator, $valid_ops, true)) {
+        $cat_operator = 'IN';
+    }
+    if (!in_array($tag_operator, $valid_ops, true)) {
+        $tag_operator = 'IN';
+    }
+
+    // Relation between taxonomy clauses: AND (must match all clauses) or OR
+    $tax_relation = isset($_POST['tax_relation']) ? strtoupper(sanitize_text_field(wp_unslash($_POST['tax_relation']))) : 'AND';
+    $tax_relation = ($tax_relation === 'OR') ? 'OR' : 'AND';
+
+    // Normalize and sanitize slug arrays
+    $cat_slugs = array_filter(array_unique(array_map('sanitize_title', array_map('trim', explode(',', (string) $category_raw)))));
+    $tag_slugs = array_filter(array_unique(array_map('sanitize_title', array_map('trim', explode(',', (string) $tag_raw)))));
+
+    if (mb_strlen($search) < 2) {
+        wp_send_json_success(array());
     }
 
     $args = array(
         's' => $search,
+        'post_type' => $post_type,
         'posts_per_page' => $perPage,
         'post_status' => 'publish',
         'fields' => 'ids',
+        'has_password' => false,
     );
 
-    if (!empty($slug)) {
-        // Filter by category slug
-        $args['category_name'] = $slug;
+    // Build tax_query when categories/tags are provided
+    $tax_query = array();
+    if (!empty($cat_slugs)) {
+        $tax_query[] = array(
+            'taxonomy' => 'category',
+            'field' => 'slug',
+            'terms' => $cat_slugs,
+            'operator' => $cat_operator,  // IN (any) or AND (all)
+        );
+    }
+    if (!empty($tag_slugs)) {
+        $tax_query[] = array(
+            'taxonomy' => 'post_tag',
+            'field' => 'slug',
+            'terms' => $tag_slugs,
+            'operator' => $tag_operator,  // IN (any) or AND (all)
+        );
+    }
+    if (!empty($tax_query)) {
+        if (count($tax_query) > 1) {
+            $args['tax_query'] = array_merge(array('relation' => $tax_relation), $tax_query);
+        } else {
+            $args['tax_query'] = $tax_query;
+        }
     }
 
     $q = new WP_Query($args);
@@ -2770,5 +2821,5 @@ add_action('wp_ajax_nopriv_load_more_content', 'load_more_content_ajax');
 // AJAX actions for search functionality
 add_action('wp_ajax_ajax_search', 'ajax_search');
 add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
-add_action('wp_ajax_newsletter_search', 'search_newsletters');
-add_action('wp_ajax_nopriv_newsletter_search', 'search_newsletters');
+add_action('wp_ajax_newsletter_search', 'globalSearch');
+add_action('wp_ajax_nopriv_newsletter_search', 'globalSearch');
