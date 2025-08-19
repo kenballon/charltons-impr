@@ -12,9 +12,8 @@ in our server */
 @import url("_utility.css");
 
 :root {
-  --ff-primary: "Graphik", "Inter", system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
-    "Helvetica Neue", sans-serif;
+  --ff-primary: "Graphik", "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
   --chr-primary-color: #e71d24;
   --chr-primary-color-900: #6f0c0f;
@@ -211,9 +210,9 @@ ul {
   list-style: unset;
   list-style-type: initial;
   padding-left: 1rem;
-  padding-top:.25rem;
+  padding-top: 0.25rem;
 
-  li{
+  li {
     font-weight: 400;
   }
 }
@@ -254,7 +253,6 @@ ul {
         }
       }
     }
-
   }
 
   @media (max-width: 767px) {
@@ -275,7 +273,10 @@ ul {
     }
 
     .nl_page_custom_code {
-      background-image: linear-gradient(90deg, #0a0000 0%, rgba(10, 0, 0, 0.13) 100%), url(https://dev2.charltonslaw.com/wp-content/uploads/2025/01/hongkong-blue-scaled.webp) !important;
+      background-image: linear-gradient(90deg,
+          #0a0000 0%,
+          rgba(10, 0, 0, 0.13) 100%),
+        url(https://dev2.charltonslaw.com/wp-content/uploads/2025/01/hongkong-blue-scaled.webp) !important;
       padding: 2rem;
 
       .nl_hero_temp_2024 {
@@ -283,7 +284,6 @@ ul {
 
         @media (min-width: 768px) {
           max-width: 40%;
-
         }
       }
     }
@@ -310,9 +310,7 @@ ul {
       }
     }
   }
-
 }
-
 
 /* ================================================= */
 /* NEW HEADER NAVIGATION */
@@ -507,6 +505,10 @@ header#main-header {
 
             .grandchild_ul.active-hover {
               display: block;
+
+              .grandchild_list_item {
+                list-style: none !important;
+              }
             }
           }
 
@@ -4884,7 +4886,6 @@ img.img-display-block {
 }
 
 .contact_us_section {
-
   >div.et_pb_row {
     max-width: 100% !important;
   }
@@ -4906,9 +4907,12 @@ img.img-display-block {
   .contact_us_wrapper .et_pb_text_inner {
     padding: 24px;
     background: #d6d6d6;
-    background: linear-gradient(322deg, rgba(230, 230, 230, 1) 0%, rgba(242, 242, 242, 1) 50%, rgba(242, 242, 242, 1) 100%);
+    background: linear-gradient(322deg,
+        rgba(230, 230, 230, 1) 0%,
+        rgba(242, 242, 242, 1) 50%,
+        rgba(242, 242, 242, 1) 100%);
 
-    @media (max-width:992px) {
+    @media (max-width: 992px) {
       .contacts.h-card.vcard {
         flex-direction: column;
       }
@@ -4916,15 +4920,17 @@ img.img-display-block {
   }
 
   .location_contact_us {
-
     flex-wrap: wrap;
 
     .location_card_cu {
       flex: 1;
       padding: 24px;
       background: #d6d6d6;
-      background: linear-gradient(322deg, rgba(230, 230, 230, 1) 0%, rgba(242, 242, 242, 1) 50%, rgba(242, 242, 242, 1) 100%);
-      margin: .5rem;
+      background: linear-gradient(322deg,
+          rgba(230, 230, 230, 1) 0%,
+          rgba(242, 242, 242, 1) 50%,
+          rgba(242, 242, 242, 1) 100%);
+      margin: 0.5rem;
       min-height: 600px;
 
       h1,
@@ -4941,7 +4947,6 @@ img.img-display-block {
         object-fit: cover;
       }
 
-
       .org_office_headline>* {
         font-size: 24px;
         font-weight: 600;
@@ -4949,7 +4954,7 @@ img.img-display-block {
         opacity: 0.9;
         width: 15ch;
 
-        @media (max-width:992px) {
+        @media (max-width: 992px) {
           width: 100%;
         }
       }
@@ -4974,8 +4979,6 @@ img.img-display-block {
             color: var(--chr-primary-color) !important;
           }
         }
-
-
       }
 
       .org_contacts {
@@ -8790,7 +8793,9 @@ subpage MENU
   @media (max-width: 992px) {
     height: 600px;
     max-height: 600px;
-    background-image: linear-gradient(5deg, #000000 20%, rgb(0 0 0 / 60%) 100%) !important;
+    background-image: linear-gradient(5deg,
+        #000000 20%,
+        rgb(0 0 0 / 60%) 100%) !important;
 
     .hero_about_us {
       padding-inline: 24px !important;
@@ -8839,7 +8844,6 @@ subpage MENU
         >div {
           width: 100%;
 
-
           nav {
             width: 100%;
             margin-top: auto;
@@ -8856,10 +8860,9 @@ subpage MENU
                 height: 100%;
                 display: flex;
                 align-items: center;
-                padding: .5rem 1rem;
+                padding: 0.5rem 1rem;
                 cursor: pointer;
                 position: relative;
-
 
                 a {
                   width: 100%;
@@ -8870,23 +8873,20 @@ subpage MENU
                   background-color: var(--chr-text-gray-700);
                 }
 
-                @media (max-width:992px) {
+                @media (max-width: 992px) {
                   &:not(.nav_trail_active) {
                     display: none;
                   }
                 }
               }
-
             }
 
             ul.about_us_ul_nav_mobile {
               display: none;
-
-
             }
 
             ul.about_us_ul_nav_mobile.dropdown_active {
-              @media (max-width:992px) {
+              @media (max-width: 992px) {
                 display: flex;
                 flex-direction: column;
                 position: absolute;
@@ -8899,7 +8899,7 @@ subpage MENU
                 bottom: -205px;
 
                 li {
-                  padding-block: .5rem;
+                  padding-block: 0.5rem;
                   color: var(--chr-text-gray-100);
 
                   a {
@@ -8907,15 +8907,11 @@ subpage MENU
                   }
                 }
               }
-
             }
-
           }
-
-
         }
 
-        @media (max-width:992px) {
+        @media (max-width: 992px) {
           >div.et_pb_text_inner {
             margin-top: auto;
 
@@ -8939,9 +8935,7 @@ subpage MENU
   }
 
   @media (max-width: 994px) {
-
     .nav_trail_active {
-
       .hamburger {
         display: block;
         width: max-content;
@@ -8986,16 +8980,14 @@ subpage MENU
           width: 100% !important;
           height: 310px !important;
 
-          @media (max-width:600px) {
+          @media (max-width: 600px) {
             height: 250px !important;
           }
         }
       }
-
     }
   }
 }
-
 
 /* #endregion ABOUT SECTION - New June 2024 */
 
@@ -10060,7 +10052,7 @@ subpage MENU
       }
 
       .cta_wrapper a {
-        gap: .5rem;
+        gap: 0.5rem;
 
         span.material-symbols-outlined {
           transition: all 0.1s ease-in;
@@ -10145,8 +10137,6 @@ subpage MENU
     row-gap: 5rem;
     min-height: 600px;
 
-
-
     @media (min-width: 768px) {
       grid-template-columns: repeat(3, 1fr);
     }
@@ -10159,7 +10149,6 @@ subpage MENU
       grid-template-columns: repeat(5, 1fr);
     }
   }
-
 }
 
 .news_article_wrapper {
@@ -11016,7 +11005,6 @@ subpage MENU
 }
 
 .podcasts_and_webinars {
-
   .post-title {
     padding: 0;
     font-family: var(--ff-primary);
@@ -11044,7 +11032,7 @@ subpage MENU
     }
   }
 
-  @media (min-width:1024px) {
+  @media (min-width: 1024px) {
     grid-template-columns: repeat(5, 1fr);
   }
 }
@@ -11800,7 +11788,6 @@ subpage MENU
   100% {
     transform: rotate(180deg);
   }
-
 }
 
 /* ================================================= */
@@ -11973,7 +11960,7 @@ subpage MENU
 
 .temp_grandchild::before {
   content: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMjkiIHZpZXdCb3g9IjAgMCAxNiAyOSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTAuNSAxVjI4SDE1IiBzdHJva2U9IiM4RjhGOEYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWRhc2hhcnJheT0iMiAyIi8+Cjwvc3ZnPgo=");
-  margin-right: .2rem;
+  margin-right: 0.2rem;
 }
 
 .aside_module {
@@ -11985,19 +11972,18 @@ subpage MENU
     .aside_module_label {
       background-color: var(--chr-text-gray-700);
       color: white;
-      padding: .4rem .5rem;
+      padding: 0.4rem 0.5rem;
       border-radius: 4px;
     }
 
     .related_item {
-      margin-block: .5rem;
+      margin-block: 0.5rem;
       border: 1px solid var(--chr-text-gray-200);
       border-radius: 4px;
       overflow: hidden;
 
       a {
         .preview-image {
-
           img {
             width: 100%;
             aspect-ratio: 16 / 9;
@@ -12006,7 +11992,7 @@ subpage MENU
         }
 
         .title {
-          padding: .5rem;
+          padding: 0.5rem;
 
           .related_item_title {
             font-size: 0.75rem;
@@ -12018,7 +12004,6 @@ subpage MENU
         }
 
         &:hover {
-
           .preview-image {
             img {
               opacity: 0.8;
@@ -12032,11 +12017,11 @@ subpage MENU
       }
 
       &:hover {
-        box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
+          rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
       }
     }
   }
-
 }
 
 .et_pb_row.col-3-row-container {
@@ -12100,7 +12085,6 @@ subpage MENU
     grid-template-columns: 1fr;
     width: 95% !important;
 
-
     >div {
       padding: 0 !important;
       width: 100% !important;
@@ -12139,7 +12123,6 @@ subpage MENU
           background-size: 0 0.0625rem, 100% 0.0625rem;
         }
       }
-
     }
 
     >div:nth-child(1) {
@@ -12172,7 +12155,7 @@ subpage MENU
 
         ul,
         ol {
-          font-size: .85rem;
+          font-size: 0.85rem;
           font-weight: 400;
           line-height: 120%;
           padding-left: 2rem !important;
@@ -12180,7 +12163,6 @@ subpage MENU
       }
 
       .award_post_title {
-
         @media (max-width: 1306px) {
           flex-direction: column;
 
@@ -12196,12 +12178,12 @@ subpage MENU
         }
       }
 
-      @media (min-width:1024px) {
+      @media (min-width: 1024px) {
         padding: 3rem 4rem 0 !important;
       }
     }
 
-    @media (min-width:1025px) {
+    @media (min-width: 1025px) {
       grid-template-columns: 1fr 3fr 1fr;
       padding: 0;
       width: 100% !important;
@@ -12226,8 +12208,6 @@ subpage MENU
     grid-template-columns: repeat(3, 1fr);
   }
 
-
-
   .award_card_people_item {
     .people_image {
       img {
@@ -12246,7 +12226,6 @@ subpage MENU
           font-size: 20px;
           font-weight: 500;
         }
-
       }
 
       .people_position {
@@ -12266,8 +12245,8 @@ subpage MENU
 
       .practice_areas_links {
         display: flex;
-        column-gap: .5rem;
-        row-gap: .2rem;
+        column-gap: 0.5rem;
+        row-gap: 0.2rem;
         flex-wrap: wrap;
 
         a {
@@ -12290,9 +12269,7 @@ subpage MENU
       }
     }
   }
-
 }
-
 
 .et_pb_row.temp_award_row_wrapper {
   max-width: 100%;
@@ -12344,12 +12321,10 @@ subpage MENU
       .categ_date {
         margin-bottom: 1rem;
 
-        @media (max-width:1024px) {
+        @media (max-width: 1024px) {
           flex-direction: column;
         }
       }
-
-
 
       .title {
         font-size: clamp(0.875rem, 0.224vw + 0.732rem, 1rem);
@@ -12390,7 +12365,7 @@ subpage MENU
     justify-content: space-between;
   }
 
-  @media (min-width:2000px) {
+  @media (min-width: 2000px) {
     justify-content: flex-start;
   }
 }
@@ -12427,17 +12402,15 @@ subpage MENU
       font-size: 0.875rem;
       color: var(--chr-text-gray-500) !important;
       font-weight: 600;
-      margin-bottom: .3rem;
+      margin-bottom: 0.3rem;
       text-transform: uppercase;
     }
 
     a {
-
-
       img {
         max-width: 100px !important;
-        padding: .5rem;
-        border: 1px solid var(--chr-text-gray-200)
+        padding: 0.5rem;
+        border: 1px solid var(--chr-text-gray-200);
       }
 
       &:hover {
@@ -12449,8 +12422,8 @@ subpage MENU
 
 .et_pb_section.what_we_do_section {
   background-size: cover;
-  background-image: linear-gradient(15deg, #000 8%, rgba(0, 0, 0, 0) 100%), url(https://www.charltonslaw.com/wp-content/uploads/2024/03/hero_section_2-scaled.webp);
-
+  background-image: linear-gradient(15deg, #000 8%, rgba(0, 0, 0, 0) 100%),
+    url(https://www.charltonslaw.com/wp-content/uploads/2024/03/hero_section_2-scaled.webp);
 
   .et_pb_module.about_us_code_wrapper {
     height: 100%;
@@ -12471,8 +12444,9 @@ subpage MENU
     }
   }
 
-  @media (max-width:992px) {
-    background-image: linear-gradient(15deg, #000 20%, rgba(0, 0, 0, 0) 100%), url(https://www.charltonslaw.com/wp-content/uploads/2024/03/hero_section_2-scaled.webp);
+  @media (max-width: 992px) {
+    background-image: linear-gradient(15deg, #000 20%, rgba(0, 0, 0, 0) 100%),
+      url(https://www.charltonslaw.com/wp-content/uploads/2024/03/hero_section_2-scaled.webp);
     height: 100%;
     max-height: 100%;
     padding-block: 3rem !important;
@@ -12506,7 +12480,6 @@ ul.services_list {
     }
 
     &:hover {
-
       >.services_link_wrapper>a {
         padding-left: 1rem;
         color: #007bff;
@@ -12525,7 +12498,6 @@ ul.services_list {
     border-top: 1px solid #454545;
   }
 
-
   .services_link_wrapper {
     padding-block: 1rem;
 
@@ -12535,18 +12507,18 @@ ul.services_list {
       text-decoration: none;
       color: #000;
       line-height: 2em;
-      transition: all .3s ease;
+      transition: all 0.3s ease;
     }
 
     button.arrow_right_svg_plus_icon {
       border: 0;
       background-color: transparent;
       cursor: pointer;
-      transition: all .3s ease;
+      transition: all 0.3s ease;
 
       &:hover {
         svg {
-          animation: rotate .3s linear;
+          animation: rotate 0.3s linear;
           fill: #007bff;
         }
       }
@@ -12558,7 +12530,7 @@ ul.services_list {
       cursor: pointer;
 
       svg {
-        transition: all .3s ease;
+        transition: all 0.3s ease;
       }
     }
 
@@ -12581,14 +12553,13 @@ ul.services_list {
     display: none;
     padding-bottom: 1rem;
 
-
     .sub_services_list_item {
       font-size: 12px;
       font-weight: 300;
       text-decoration: none;
       color: #000;
       line-height: 2em;
-      padding-block: .4rem;
+      padding-block: 0.4rem;
       border-top: 1px dashed #d1d1d1;
 
       &:last-child {
@@ -12598,7 +12569,6 @@ ul.services_list {
       a {
         color: #000;
         text-decoration: none;
-
 
         &:hover {
           color: #007bff;
@@ -12718,7 +12688,7 @@ ul.home_redomicile_default_list {
   background-color: #ffffff;
   color: var(--chr-text-gray-900) !important;
   text-decoration: none;
-  font-weight: bold;  
+  font-weight: bold;
   transition: background-color 0.3s ease;
 }
 
@@ -12738,7 +12708,6 @@ ul.home_redomicile_default_list {
     padding-top: 2rem;
     column-count: 2;
     column-gap: 2rem;
-
   }
 }
 
@@ -12824,7 +12793,6 @@ ul.in_page_tab_menu {
 .side-hero-wrapper {
   display: none;
 
-
   @media (min-width: 1024px) {
     display: block;
     height: 100%;
@@ -12844,6 +12812,6 @@ ul.in_page_tab_menu {
   }
 }
 
-.et_pb_section.et_pb_section_0.et_section_regular{
+.et_pb_section.et_pb_section_0.et_section_regular {
   padding-block-start: 0;
 }

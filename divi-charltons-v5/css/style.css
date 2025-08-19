@@ -16,10 +16,7 @@ in our server */
 /* ================================================= */
 
 :root {
-  --ff-primary: "Satoshi", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-  /* --ff-primary: "Satoshi", "Switzer", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; */
+  --ff-primary: "Switzer", system-ui, -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
   --brand-color: hsl(358, 81%, 51%);
   --chr-primary-color-900: hsl(358, 81%, 24%);
@@ -4234,7 +4231,7 @@ ul.in_page_tab_menu {
         }
 
         .newsletter_search_wrapper {
-          min-width: 250px;
+          /* min-width: 250px; */
           position: relative;
 
           @media (max-width: 767px) {
@@ -4274,9 +4271,12 @@ ul.in_page_tab_menu {
     #newsletterSearch {
       border: 1px solid #dadada;
       min-height: 48px;
+      min-width: 250px;
+      transition: min-width 0.3s ease-in-out;
 
       &:focus {
         outline: 2px solid rgba(0, 0, 255, 0.5);
+        min-width: 320px;
       }
     }
 
@@ -7494,17 +7494,19 @@ img.emoji {
 }
 
 .search_res_list {
+  width: 100%;
   padding: 0 !important;
   background-color: var(--chr-text-gray-100);
   list-style: none !important;
 
   li.search-result-item {
-    padding-inline: 0.75rem;
+    padding: 0.75rem;
     border-bottom: 1px dotted var(--chr-text-gray-300);
 
     a {
       color: var(--chr-text-gray-800);
-      font-size: 12px;
+      font-size: 14px;
+      text-wrap: pretty;
     }
 
     &:last-child {

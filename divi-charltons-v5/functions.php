@@ -40,9 +40,9 @@ function mainjs_script()
     // Enqueue the main.js script
     wp_enqueue_script(
         'mainjs',
-        get_stylesheet_directory_uri() . '/js/main.js',
+        get_stylesheet_directory_uri() . '/js/main-test.js',
         ['jquery'],
-        filemtime(get_stylesheet_directory() . '/js/main.js'),  // Dynamic version based on file modification time
+        filemtime(get_stylesheet_directory() . '/js/main-test.js'),  // Dynamic version based on file modification time
         true  // Load the script in the footer
     );
 
@@ -77,7 +77,7 @@ function theme_gsap_script()
     wp_enqueue_script('gsap-js2', get_stylesheet_directory_uri() . '/js/app-gsap.js', array('gsap-js', 'gsap-splittext'), false, true);
 }
 
-// add_action('wp_enqueue_scripts', 'theme_gsap_script');
+add_action('wp_enqueue_scripts', 'theme_gsap_script');
 
 function enqueue_load_fa()
 {
