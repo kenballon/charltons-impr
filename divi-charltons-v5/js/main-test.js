@@ -23,13 +23,7 @@ document.addEventListener("readystatechange", (e) => {
 
 
         if (window.location.pathname.includes("/news/newsletters/hong-kong-law-3/")) {
-            // initLoadMoreWithFilters({
-            //     loadMoreBtnId: "newsletter-load-more-btn",
-            //     loadingSpinnerId: ".loading-spinner",
-            //     postsContainerId: "newsletters_post",
-            //     ajaxAction: "load_more_newsletters",
-            //     postsPerPage: 20,
-            // });
+
             initLoadMoreWithFilters({
                 loadMoreBtnId: "newsletter-load-more-btn",
                 loadingSpinnerId: ".loading-spinner",
@@ -37,12 +31,10 @@ document.addEventListener("readystatechange", (e) => {
                 ajaxAction: "load_more_newsletters",
                 postsPerPage: 20,
                 buttonSelector: ".newsletter_category_filter",
-                filterOnClickCallback: ({ value }) => {
-                    console.log("Selected filter:", value);
-                }
+                // filterOnClickCallback: ({ value }) => {
+                //     console.log("Selected filter:", value);
+                // }
             });
-
-
 
         }
 
@@ -54,9 +46,9 @@ document.addEventListener("readystatechange", (e) => {
                 ajaxAction: "load_more_content",
                 postsPerPage: 20,
                 buttonSelector: ".awards_btn_filter",
-                filterOnClickCallback: ({ value }) => {
-                    console.log("Selected filter:", value);
-                }
+                // filterOnClickCallback: ({ value }) => {
+                //     console.log("Selected filter:", value);
+                // }
             });
 
         }
@@ -612,6 +604,36 @@ function highlightMatches(text, query) {
 
 function escapeRegExp(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function parseMultiValue(raw) {
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+        const trimmed = raw.trim();
+        if (!trimmed) return null;
+        if (trimmed.includes(',')) {
+            return trimmed.split(',').map(v => v.trim()).filter(Boolean);
+        }
+        return trimmed;
+    }
+    return raw;
+}
+
+// Helper: resolve filter type and value from options or button dataset
+function resolveFilterTypeAndValue(button, options = {}) {
+    const { filterType, filterValue } = options;
+    const rawType = (typeof filterType !== 'undefined') ? filterType : (button.dataset.filterType ?? '');
+    const rawValue = (typeof filterValue !== 'undefined') ? filterValue : (button.dataset.filterValue ?? button.id ?? '');
+    return {
+        type: parseMultiValue(rawType),
+        value: parseMultiValue(rawValue)
+    };
+}
+
+// Optional helper: simple logger you can reuse as onClickCallback
+function defaultFilterClickLogger(payload) {
+    // payload: { type, value, button, event }
+    console.log('Selected filter:', payload?.value);
 }
 
 // ==================================================
@@ -1367,38 +1389,6 @@ function initSearchFeature(options) {
             if (typeof onClear === 'function') onClear();
         });
     }
-}
-
-function parseMultiValue(raw) {
-    if (Array.isArray(raw)) return raw;
-    if (typeof raw === 'string') {
-        const trimmed = raw.trim();
-        if (!trimmed) return null;
-        if (trimmed.includes(',')) {
-            return trimmed.split(',').map(v => v.trim()).filter(Boolean);
-        }
-        return trimmed;
-    }
-    return raw;
-}
-
-
-
-// Helper: resolve filter type and value from options or button dataset
-function resolveFilterTypeAndValue(button, options = {}) {
-    const { filterType, filterValue } = options;
-    const rawType = (typeof filterType !== 'undefined') ? filterType : (button.dataset.filterType ?? '');
-    const rawValue = (typeof filterValue !== 'undefined') ? filterValue : (button.dataset.filterValue ?? button.id ?? '');
-    return {
-        type: parseMultiValue(rawType),
-        value: parseMultiValue(rawValue)
-    };
-}
-
-// Optional helper: simple logger you can reuse as onClickCallback
-function defaultFilterClickLogger(payload) {
-    // payload: { type, value, button, event }
-    console.log('Selected filter:', payload?.value);
 }
 
 function initFilterButton(filterAttributes) {
