@@ -1388,6 +1388,50 @@ function initSearchFeature(options) {
     }
 }
 
+// Wire up newsletter search to PHP AJAX and log matches to console
+initSearchFeature({
+    inputId: 'newsletterSearch',
+    closeButtonId: 'nl_close_search',
+    iconId: 'nl_search_icon',
+    minChars: 2,
+    debounceMs: 400,
+    onSearch: (term) => {
+        const body = new URLSearchParams({
+            action: 'newsletter_search',
+            search: term,
+            per_page: '4',
+            post_type: 'post'
+            // Optional extras supported by PHP:
+            // category: 'some-category-slug',
+            // categories: 'slug-one,slug-two',
+            // tag: 'some-tag-slug',
+            // tags: 'tag-one,tag-two',
+            // category_operator: 'IN' | 'AND',
+            // tag_operator: 'IN' | 'AND',
+            // tax_relation: 'AND' | 'OR'
+        });
+
+        fetch(ajax_object.ajax_url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data && data.success) {
+                    // data.data is an array of { title, link }
+                    console.log('Newsletter search matches:', data.data);
+                } else {
+                    console.warn('Newsletter search failed:', data);
+                }
+            })
+            .catch((err) => console.error('Newsletter search error:', err));
+    },
+    onClear: () => {
+        console.log('Newsletter search cleared');
+    }
+});
+
 function initFilterButton(filterAttributes) {
     const {
         buttonSelector, // e.g. ".filter-button"
