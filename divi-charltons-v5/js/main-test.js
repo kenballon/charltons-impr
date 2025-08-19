@@ -636,6 +636,31 @@ function defaultFilterClickLogger(payload) {
     console.log('Selected filter:', payload?.value);
 }
 
+function parseYearDecade(label) {
+    if (!label) return null;
+    const str = String(label).trim().toLowerCase();
+    // Formats: 2020, 1990
+    const decadeMatch = str.match(/^(\d{4})$/);
+    if (decadeMatch) {
+        const start = parseInt(decadeMatch[1], 10);
+        if (!isNaN(start)) return { start, end: start + 9 };
+    }
+    // Formats: 2010-2019
+    const rangeMatch = str.match(/^(\d{4})\s*[-–]\s*(\d{4})$/);
+    if (rangeMatch) {
+        const start = parseInt(rangeMatch[1], 10);
+        const end = parseInt(rangeMatch[2], 10);
+        if (!isNaN(start) && !isNaN(end) && end >= start) return { start, end };
+    }
+    // Single year => treat as its decade
+    const yearMatch = str.match(/^(\d{4})$/);
+    if (yearMatch) {
+        const y = parseInt(yearMatch[1], 10);
+        const decadeStart = y - (y % 10);
+        return { start: decadeStart, end: decadeStart + 9 };
+    }
+    return null;
+}
 // ==================================================
 // #endregion Utility Functions:::END
 // ==================================================
@@ -1320,34 +1345,6 @@ FilterButton.initializeAll(SELECTORS.NewsletterAchiveFilter, (filterID) => {
 
     getArchivedAllPosts([currentFilterID]);
 });
-
-
-
-function parseYearDecade(label) {
-    if (!label) return null;
-    const str = String(label).trim().toLowerCase();
-    // Formats: 2020, 1990
-    const decadeMatch = str.match(/^(\d{4})$/);
-    if (decadeMatch) {
-        const start = parseInt(decadeMatch[1], 10);
-        if (!isNaN(start)) return { start, end: start + 9 };
-    }
-    // Formats: 2010-2019
-    const rangeMatch = str.match(/^(\d{4})\s*[-–]\s*(\d{4})$/);
-    if (rangeMatch) {
-        const start = parseInt(rangeMatch[1], 10);
-        const end = parseInt(rangeMatch[2], 10);
-        if (!isNaN(start) && !isNaN(end) && end >= start) return { start, end };
-    }
-    // Single year => treat as its decade
-    const yearMatch = str.match(/^(\d{4})$/);
-    if (yearMatch) {
-        const y = parseInt(yearMatch[1], 10);
-        const decadeStart = y - (y % 10);
-        return { start: decadeStart, end: decadeStart + 9 };
-    }
-    return null;
-}
 
 function initSearchFeature(options) {
     const {
