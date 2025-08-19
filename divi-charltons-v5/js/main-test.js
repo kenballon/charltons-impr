@@ -31,9 +31,10 @@ document.addEventListener("readystatechange", (e) => {
                 ajaxAction: "load_more_newsletters",
                 postsPerPage: 20,
                 buttonSelector: ".newsletter_category_filter",
-                // filterOnClickCallback: ({ value }) => {
-                //     console.log("Selected filter:", value);
-                // }
+                isSearchEnabled: true,
+                searchInputId: "newsletterSearch",
+                searchCloseButtonId: "nl_close_search",
+                searchIconId: "nl_search_icon",
             });
 
         }
@@ -1388,50 +1389,6 @@ function initSearchFeature(options) {
     }
 }
 
-// Wire up newsletter search to PHP AJAX and log matches to console
-initSearchFeature({
-    inputId: 'newsletterSearch',
-    closeButtonId: 'nl_close_search',
-    iconId: 'nl_search_icon',
-    minChars: 2,
-    debounceMs: 400,
-    onSearch: (term) => {
-        const body = new URLSearchParams({
-            action: 'global_search',
-            search: term,
-            per_page: '4',
-            post_type: 'post'
-            // Optional extras supported by PHP:
-            // category: 'some-category-slug',
-            // categories: 'slug-one,slug-two',
-            // tag: 'some-tag-slug',
-            // tags: 'tag-one,tag-two',
-            // category_operator: 'IN' | 'AND',
-            // tag_operator: 'IN' | 'AND',
-            // tax_relation: 'AND' | 'OR'
-        });
-
-        fetch(ajax_object.ajax_url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data && data.success) {
-                    // data.data is an array of { title, link }
-                    console.log('Newsletter search matches:', data.data);
-                } else {
-                    console.warn('Newsletter search failed:', data);
-                }
-            })
-            .catch((err) => console.error('Newsletter search error:', err));
-    },
-    onClear: () => {
-        console.log('Newsletter search cleared');
-    }
-});
-
 function initFilterButton(filterAttributes) {
     const {
         buttonSelector, // e.g. ".filter-button"
@@ -1484,6 +1441,14 @@ function initLoadMoreWithFilters(config) {
         postsPerPage = 20,
         buttonSelector,
         filterOnClickCallback,
+        // Search integration
+        isSearchEnabled = false,
+        searchInputId,
+        searchCloseButtonId = null,
+        searchIconId = null,
+        searchMinChars = 2,
+        searchDebounceMs = 500,
+        ajaxActionSearch = 'global_search'
     } = config || {};
 
     const loadMoreBtn = document.getElementById(loadMoreBtnId);
@@ -1493,6 +1458,41 @@ function initLoadMoreWithFilters(config) {
     if (!loadMoreBtn || !postsContainer) {
         console.warn('Load more functionality not initialized: missing elements');
         return;
+    }
+
+    // If search is enabled, attach search behavior that replaces the container with results
+    if (isSearchEnabled) {
+        initSearchFeature({
+            inputId: searchInputId,
+            closeButtonId: searchCloseButtonId,
+            iconId: searchIconId,
+            minChars: searchMinChars,
+            debounceMs: searchDebounceMs,
+            onSearch: (query) => {
+                // Clear and show loading, hide load more during search
+                postsContainer.innerHTML = '';
+                loadMoreBtn.style.display = 'none';
+                if (loadingSpinner) loadingSpinner.style.display = 'block';
+                loadSearchResults(query);
+            },
+            onClear: () => {
+                // Restore the non-search list (first page with current filters)
+                const categoryRaw = (loadMoreBtn.dataset.category || '').trim();
+                const tagsRaw = (loadMoreBtn.dataset.tags || '').trim();
+                const yearStartRaw = (loadMoreBtn.dataset.yearStart || '').trim();
+                const yearEndRaw = (loadMoreBtn.dataset.yearEnd || '').trim();
+
+                const category = categoryRaw && categoryRaw !== 'all' ? categoryRaw : null;
+                const tags = tagsRaw ? tagsRaw.split(',').map(s => s.trim()).filter(Boolean) : null;
+                const yearStart = yearStartRaw ? parseInt(yearStartRaw, 10) : null;
+                const yearEnd = yearEndRaw ? parseInt(yearEndRaw, 10) : null;
+
+                loadMoreBtn.dataset.offset = '0';
+                postsContainer.innerHTML = '';
+                if (loadingSpinner) loadingSpinner.style.display = 'block';
+                loadCategoryPosts(category, 0, tags, yearStart, yearEnd);
+            }
+        });
     }
 
     // Normalize type to 'category' or 'tag'
@@ -1660,6 +1660,133 @@ function initLoadMoreWithFilters(config) {
             })
             .finally(() => {
                 if (loadingSpinner) loadingSpinner.style.display = "none";
+            });
+    }
+
+    // Search fetcher: uses separate ajax action and always hides Load More (limit 4)
+    // function loadSearchResults(query) {
+    //     const postType = loadMoreBtn.dataset.postType || undefined;
+    //     const requestBody = {
+    //         action: ajaxActionSearch,
+    //         posts_per_page: 4,
+    //         limit: 4,
+    //         s: query,
+    //         query: query,
+    //         search: query
+    //     };
+    //     if (postType) requestBody.post_type = postType;
+
+    //     fetch(ajax_object.ajax_url, {
+    //         method: 'POST',
+    //         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    //         body: new URLSearchParams(requestBody)
+    //     })
+    //         .then(r => r.json())
+    //         .then(data => {
+
+    //             postsContainer.innerHTML = '';
+
+    //             if (data && Array.isArray(data.data) && data.data.length > 0) {
+    //                 data.data.forEach(post => {
+    //                     const postHtml = `
+    //                         <div class="search-result-item">
+    //                             <a href="${post.url}" class="default_link" target="_blank">
+    //                                 <h3>${decodeHTMLEntities(post.title)}</h3>
+    //                                 <p>${decodeHTMLEntities(post.excerpt || '')}</p>
+    //                             </a>
+    //                         </div>
+    //                     `;
+    //                     postsContainer.insertAdjacentHTML('beforeend', postHtml);
+    //                 })
+    //             }
+
+
+    //             // Clear container and render search content
+
+    //             // const content = data?.data?.content || data?.content || '';
+    //             // if (data?.success && content) {
+    //             //     postsContainer.insertAdjacentHTML('afterbegin', content);
+    //             // } else if (!data?.success) {
+    //             //     console.error('Search error:', data?.data || data);
+    //             // }
+    //             // Hide Load More for search results
+    //             // loadMoreBtn.style.display = 'none';
+    //         })
+    //         .catch(err => {
+    //             console.error('Error performing search:', err);
+    //             // Keep Load More hidden during failed search to avoid mismatch
+    //             loadMoreBtn.style.display = 'none';
+    //         })
+    //         .finally(() => {
+    //             if (loadingSpinner) loadingSpinner.style.display = 'none';
+    //         });
+    // }
+    function loadSearchResults(query) {
+        const postType = loadMoreBtn.dataset.postType || undefined;
+        const requestBody = {
+            action: ajaxActionSearch,
+            posts_per_page: 4,
+            limit: 4,
+            s: query,
+            query: query,
+            search: query
+        };
+        if (postType) requestBody.post_type = postType;
+
+        fetch(ajax_object.ajax_url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(requestBody)
+        })
+            .then(r => r.json())
+            .then(data => {
+                // console.log(data);
+                postsContainer.innerHTML = '';
+                if (data && Array.isArray(data.data) && data.data.length > 0) {
+                    data.data.forEach(post => {
+                        const articleCard = `
+                                <article class="newsletter_post_item flex-col"
+                                         data-category="${sanitizeHTML(post.categories || '')}"
+                                         data-tags="${sanitizeHTML(post.tags || '')}"
+                                         data-nl_date="${sanitizeHTML(post.post_date || '')}"
+                                         data-post-id="${sanitizeHTML(post.id || '')}">
+                                    <a href="${sanitizeHTML(post.url || '#')}"
+                                       rel="noopener noreferrer"
+                                       aria-label="${sanitizeHTML(decodeHTMLEntities(post.title || ''))}">
+                                        <div class="post-thumbnail">
+                                            ${post.featured_image ? `
+                                                <img decoding="async" width="286" height="286" class=""
+                                                     src="${sanitizeHTML(post.featured_image)}"
+                                                     alt="${sanitizeHTML(decodeHTMLEntities(post.title || ''))}">
+                                            ` : ''}
+                                            <time class="post-date" datetime="${sanitizeHTML(post.post_date || '')}">
+                                                ${sanitizeHTML(post.post_date || '')}
+                                            </time>
+                                            <h2 class="post-title"
+                                                title="${sanitizeHTML(decodeHTMLEntities(post.title || ''))}">
+                                                ${sanitizeHTML(decodeHTMLEntities(post.title || ''))}
+                                            </h2>
+                                        </div>
+                                    </a>
+                                </article>
+                            `;
+
+                        postsContainer.insertAdjacentHTML('beforeend', articleCard);
+
+                    });
+                    // Hide Load More during search results
+                    loadMoreBtn.style.display = 'none';
+                } else {
+                    postsContainer.innerHTML = '<p>No results found.</p>';
+                    loadMoreBtn.style.display = 'none';
+                }
+            })
+            .catch(err => {
+                console.error('Error performing search:', err);
+                loadMoreBtn.style.display = 'none';
+            })
+            .finally(() => {
+                if (loadingSpinner) loadingSpinner.style.display = 'none';
             });
     }
 }

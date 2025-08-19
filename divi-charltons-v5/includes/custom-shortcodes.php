@@ -2735,9 +2735,81 @@ function globalSearch()
 
     if ($q->have_posts()) {
         foreach ($q->posts as $post_id) {
+            // Display date string for UI card (e.g., "08 Oct 2013")
+            $post_date = get_the_date('d M Y', $post_id);
+
+            // Featured image with plugin fallback (fiuw_image_url)
+            $image_url = get_the_post_thumbnail_url($post_id, 'thumbnail');
+            if (!$image_url) {
+                $image_url = get_post_meta($post_id, 'fiuw_image_url', true) ?: '';
+            }
+
+            // Resolve categories and tags (support custom post types)
+            $ptype = get_post_type($post_id);
+
+            // Categories: prefer default for posts, else {post_type}_category if exists, fallback to 'category'
+            $cat_slugs = array();
+            if ($ptype === 'post') {
+                $cats = get_the_category($post_id);
+                if (!empty($cats)) {
+                    $cat_slugs = array_map(function ($c) {
+                        return strtolower($c->slug);
+                    }, $cats);
+                }
+            } else {
+                $cat_tax = $ptype . '_category';
+                if (taxonomy_exists($cat_tax)) {
+                    $cats = wp_get_post_terms($post_id, $cat_tax, array('fields' => 'all'));
+                } else {
+                    $cats = wp_get_post_terms($post_id, 'category', array('fields' => 'all'));
+                }
+                if (!is_wp_error($cats) && !empty($cats)) {
+                    $cat_slugs = array_map(function ($c) {
+                        return strtolower($c->slug);
+                    }, $cats);
+                }
+            }
+
+            // Tags: prefer default for posts, else {post_type}_tag if exists, fallback to 'post_tag'
+            $tag_slugs = array();
+            if ($ptype === 'post') {
+                $tags = get_the_tags($post_id);
+                if (!empty($tags) && !is_wp_error($tags)) {
+                    $tag_slugs = array_map(function ($t) {
+                        return strtolower($t->slug);
+                    }, $tags);
+                }
+            } else {
+                $tag_tax = $ptype . '_tag';
+                if (taxonomy_exists($tag_tax)) {
+                    $tags = wp_get_post_terms($post_id, $tag_tax, array('fields' => 'all'));
+                } else {
+                    $tags = wp_get_post_terms($post_id, 'post_tag', array('fields' => 'all'));
+                }
+                if (!is_wp_error($tags) && !empty($tags)) {
+                    $tag_slugs = array_map(function ($t) {
+                        return strtolower($t->slug);
+                    }, $tags);
+                }
+            }
+
+            $permalink = get_permalink($post_id);
+
+            // Compose result item with UI card needs + back-compat keys
             $results[] = array(
+                // UI card fields
+                'id' => $post_id,
+                'url' => $permalink,
+                'featured_image' => $image_url,
                 'title' => html_entity_decode(get_the_title($post_id), ENT_QUOTES, 'UTF-8'),
-                'link' => get_permalink($post_id),
+                'post_date' => $post_date,
+                'categories' => implode(',', $cat_slugs),
+                'tags' => implode(',', $tag_slugs),
+                // Back-compat keys
+                'link' => $permalink,
+                'date' => $post_date,
+                // Convenience alias matching data attribute
+                'nl_date' => $post_date,
             );
         }
     }
