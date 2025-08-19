@@ -1663,66 +1663,26 @@ function initLoadMoreWithFilters(config) {
             });
     }
 
-    // Search fetcher: uses separate ajax action and always hides Load More (limit 4)
-    // function loadSearchResults(query) {
-    //     const postType = loadMoreBtn.dataset.postType || undefined;
-    //     const requestBody = {
-    //         action: ajaxActionSearch,
-    //         posts_per_page: 4,
-    //         limit: 4,
-    //         s: query,
-    //         query: query,
-    //         search: query
-    //     };
-    //     if (postType) requestBody.post_type = postType;
-
-    //     fetch(ajax_object.ajax_url, {
-    //         method: 'POST',
-    //         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    //         body: new URLSearchParams(requestBody)
-    //     })
-    //         .then(r => r.json())
-    //         .then(data => {
-
-    //             postsContainer.innerHTML = '';
-
-    //             if (data && Array.isArray(data.data) && data.data.length > 0) {
-    //                 data.data.forEach(post => {
-    //                     const postHtml = `
-    //                         <div class="search-result-item">
-    //                             <a href="${post.url}" class="default_link" target="_blank">
-    //                                 <h3>${decodeHTMLEntities(post.title)}</h3>
-    //                                 <p>${decodeHTMLEntities(post.excerpt || '')}</p>
-    //                             </a>
-    //                         </div>
-    //                     `;
-    //                     postsContainer.insertAdjacentHTML('beforeend', postHtml);
-    //                 })
-    //             }
-
-
-    //             // Clear container and render search content
-
-    //             // const content = data?.data?.content || data?.content || '';
-    //             // if (data?.success && content) {
-    //             //     postsContainer.insertAdjacentHTML('afterbegin', content);
-    //             // } else if (!data?.success) {
-    //             //     console.error('Search error:', data?.data || data);
-    //             // }
-    //             // Hide Load More for search results
-    //             // loadMoreBtn.style.display = 'none';
-    //         })
-    //         .catch(err => {
-    //             console.error('Error performing search:', err);
-    //             // Keep Load More hidden during failed search to avoid mismatch
-    //             loadMoreBtn.style.display = 'none';
-    //         })
-    //         .finally(() => {
-    //             if (loadingSpinner) loadingSpinner.style.display = 'none';
-    //         });
-    // }
+    // Search fetcher: uses separate ajax action, respects active category/tags, and always hides Load More (limit 4)
     function loadSearchResults(query) {
         const postType = loadMoreBtn.dataset.postType || undefined;
+
+        // Read current filter state from the Load More button's dataset
+        const categoryRaw = (loadMoreBtn.dataset.category || '').trim();
+        const categoryLower = categoryRaw.toLowerCase();
+        const tagsRaw = (loadMoreBtn.dataset.tags || '').trim();
+
+        // If filter id is "all" (any case) or empty, don't constrain by category/tags
+        const category = categoryRaw && categoryLower !== 'all' ? categoryRaw : null;
+        let tags = null;
+        if (tagsRaw) {
+            const tagsLower = tagsRaw.toLowerCase();
+            if (tagsLower !== 'all') {
+                const arr = tagsRaw.split(',').map(s => s.trim()).filter(Boolean);
+                tags = arr.length ? arr : null;
+            }
+        }
+
         const requestBody = {
             action: ajaxActionSearch,
             posts_per_page: 4,
@@ -1731,7 +1691,25 @@ function initLoadMoreWithFilters(config) {
             query: query,
             search: query
         };
+
         if (postType) requestBody.post_type = postType;
+
+        // Include category under multiple keys for compatibility (category/categories/category_name/filter_category)
+        if (category) {
+            requestBody.category = category;
+            requestBody.categories = category;
+            requestBody.category_name = category;
+            requestBody.filter_category = category;
+        }
+
+        // Include tags as CSV under multiple keys (tag/tags/filter_tag/filter_tags)
+        if (tags && tags.length) {
+            const tagsCsv = tags.join(',');
+            requestBody.tag = tagsCsv;
+            requestBody.tags = tagsCsv;
+            requestBody.filter_tag = tagsCsv;
+            requestBody.filter_tags = tagsCsv;
+        }
 
         fetch(ajax_object.ajax_url, {
             method: 'POST',
