@@ -1934,62 +1934,6 @@ function getNewslettersPosts($atts = [])
     return $content;
 }
 
-// AJAX handler for load more functionality
-function load_more_newsletters_ajax()
-{
-    // Backward-compatible wrapper. Allows passing a different callback via POST, defaults to newsletters
-    $_POST['callback'] = isset($_POST['callback']) ? sanitize_text_field($_POST['callback']) : 'getNewslettersPosts';
-    load_more_content_ajax();
-}
-
-/**
- * Generic AJAX handler for "load more" style requests.
- * Accepts a `callback` POST param that maps to a whitelisted PHP function
- * (e.g. getNewslettersPosts, getAwardPostItems). All POST params are sanitized
- * and forwarded as shortcode-style $atts, with load_more enforced to true.
- */
-function load_more_content_ajax()
-{
-    // Whitelist allowed callbacks for security
-    $allowed_callbacks = [
-        'getNewslettersPosts',
-        'getAwardPostItems',
-        'getWebinarsPodcasts',
-    ];
-
-    $callback = sanitize_text_field($_POST['callback'] ?? 'getNewslettersPosts');
-    if (!in_array($callback, $allowed_callbacks, true) || !function_exists($callback)) {
-        wp_send_json_error('Invalid callback');
-    }
-
-    // Build a sanitized $atts array from POST; keep it generic
-    $raw = $_POST;
-    unset($raw['action'], $raw['callback']);
-
-    $atts = [];
-    foreach ($raw as $key => $value) {
-        // Normalize booleans and ints for common keys, else sanitize text
-        if (in_array($key, ['posts_per_page', 'offset', 'limit'], true)) {
-            $atts[$key] = intval($value);
-        } elseif (in_array($key, ['load_more'], true)) {
-            $atts[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-        } else {
-            // Accept strings (including comma-separated) and URLs
-            if (stripos($key, 'url') !== false) {
-                $atts[$key] = esc_url_raw($value);
-            } else {
-                $atts[$key] = sanitize_text_field($value);
-            }
-        }
-    }
-
-    // Force load_more for AJAX pathway
-    $atts['load_more'] = true;
-
-    // Invoke the target function; it should echo/return or wp_send_json_* itself
-    call_user_func($callback, $atts);
-}
-
 function getAwardPostItems($atts = [])
 {
     $atts = shortcode_atts([
@@ -2409,26 +2353,79 @@ function getWebinarsPodcasts(array $atts = []): string
         ]);
     }
 
-    // Initial load: return items plus spinner + load more button (parent container exists as #pod-and-web)
-    $full = $content;
+    // Initial load: return items; spinner + load more button outside of the container as requested
+    $full = '<div class="podcasts_and_webinars grid gap-1" id="pod-and-web">' . $content . '</div>';
     $full .= '
         <div class="flex justify-center items-center">
             <div class="loading-spinner mt-4 mb-4" style="display:none;"></div>
         </div>
-        <div class="webinars-load-more-container flex flex-col items-center">
+        <div class="webinars-load-more-container flex flex-col items-center pb-4">
             <button id="webinars-load-more-btn" class="load-more-btn py-2 px-4 my-4 cursor-pointer"
                 data-offset="' . esc_attr($limit) . '"
                 data-post-type="post"
-                data-category="' . esc_attr($category) . '"
-                data-tags="' . esc_attr(implode(',', $tag_slugs)) . '"
-                data-year-start="' . esc_attr($year_start_int ?? '') . '"
-                data-year-end="' . esc_attr($year_end_int ?? '') . '"
+                data-category="' . esc_attr($atts['category']) . '"
                 data-callback="getWebinarsPodcasts">
                 Load More
             </button>
         </div>';
 
     return $full;
+}
+
+// AJAX handler for load more functionality
+function load_more_newsletters_ajax()
+{
+    // Backward-compatible wrapper. Allows passing a different callback via POST, defaults to newsletters
+    $_POST['callback'] = isset($_POST['callback']) ? sanitize_text_field($_POST['callback']) : 'getNewslettersPosts';
+    load_more_content_ajax();
+}
+
+/**
+ * Generic AJAX handler for "load more" style requests.
+ * Accepts a `callback` POST param that maps to a whitelisted PHP function
+ * (e.g. getNewslettersPosts, getAwardPostItems). All POST params are sanitized
+ * and forwarded as shortcode-style $atts, with load_more enforced to true.
+ */
+function load_more_content_ajax()
+{
+    // Whitelist allowed callbacks for security
+    $allowed_callbacks = [
+        'getNewslettersPosts',
+        'getAwardPostItems',
+        'getWebinarsPodcasts',
+    ];
+
+    $callback = sanitize_text_field($_POST['callback'] ?? 'getNewslettersPosts');
+    if (!in_array($callback, $allowed_callbacks, true) || !function_exists($callback)) {
+        wp_send_json_error('Invalid callback');
+    }
+
+    // Build a sanitized $atts array from POST; keep it generic
+    $raw = $_POST;
+    unset($raw['action'], $raw['callback']);
+
+    $atts = [];
+    foreach ($raw as $key => $value) {
+        // Normalize booleans and ints for common keys, else sanitize text
+        if (in_array($key, ['posts_per_page', 'offset', 'limit'], true)) {
+            $atts[$key] = intval($value);
+        } elseif (in_array($key, ['load_more'], true)) {
+            $atts[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        } else {
+            // Accept strings (including comma-separated) and URLs
+            if (stripos($key, 'url') !== false) {
+                $atts[$key] = esc_url_raw($value);
+            } else {
+                $atts[$key] = sanitize_text_field($value);
+            }
+        }
+    }
+
+    // Force load_more for AJAX pathway
+    $atts['load_more'] = true;
+
+    // Invoke the target function; it should echo/return or wp_send_json_* itself
+    call_user_func($callback, $atts);
 }
 
 function ajax_search()

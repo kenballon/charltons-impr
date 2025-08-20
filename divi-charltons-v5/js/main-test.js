@@ -55,13 +55,14 @@ document.addEventListener("readystatechange", (e) => {
         }
 
         if (window.location.pathname.includes("/webinars-and-podcasts/")) {
-            // initLoadMoreWithFilters({
-            //     loadMoreBtnId: "webinars-load-more-btn",
-            //     loadingSpinnerId: ".loading-spinner",
-            //     postsContainerId: "pod-and-web",
-            //     ajaxAction: "load_more_content",
-            //     postsPerPage: 15
-            // });
+            initLoadMoreWithFilters({
+                loadMoreBtnId: "webinars-load-more-btn",
+                loadingSpinnerId: ".loading-spinner",
+                postsContainerId: "pod-and-web",
+                ajaxAction: "load_more_content",
+                postsPerPage: 15,
+                buttonSelector: ".pod_web_btn_filter",
+            });
         }
     }
 });
