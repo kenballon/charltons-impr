@@ -8,6 +8,7 @@ document.addEventListener("readystatechange", (e) => {
     if (e.target.readyState === "complete") {
         customHeaderNavigation();
         initNewsletterPage();
+        initNewsPagination();
 
         const buttonAllActive = document.getElementById("all");
         currentUrl.startsWith(origin + "/news")
@@ -18,7 +19,12 @@ document.addEventListener("readystatechange", (e) => {
         defaultFilterdBtn?.classList.add("active");
 
         const newseventsWrapper = document.querySelector('#all_news_posts');
-        newseventsWrapper && getNewsAndEventsPosts(["awards-and-rankings", "news"]);
+        // newseventsWrapper && getNewsAndEventsPosts(["awards-and-rankings", "news"]);
+        const hasServerPagination = document.querySelector('#news_posts_wrapper .pagination_container');
+        if (newseventsWrapper && !hasServerPagination) {
+            // Only use client-side fetch/render when pagination is NOT server-driven
+            getNewsAndEventsPosts(["awards-and-rankings", "news"]);
+        }
         // getArchivedAllPosts(["hong-kong-law"]);
 
 
@@ -1026,104 +1032,8 @@ const openIndexedDB = (dbName, version = 1) => {
 // ============================================================
 
 // ============================================================
-//  #region AWARDS COLLECTION PAGE:::START
-// ============================================================
-async function showFilteredAwards(filterID) {
-    await filterAndRenderPosts({
-        dbName: "PostsDatabase",
-        storeName: "posts",
-        filterFn: (post) => {
-            const postTags = post.tags.toLowerCase().split(",");
-            return postTags.includes("awards");
-        },
-        postFilter: (post) => {
-            const postTags = post.tags.toLowerCase().split(",");
-            return !filterID || postTags.includes(filterID);
-        },
-        renderType: "award",
-        maxInitialPosts: 15,
-        containerId: "all_awards_wrapper",
-        loadMoreId: "btn_load_more_wrapper"
-    });
-}
-
-async function showFilteredAwardsByYear(filterID) {
-    await filterAndRenderPosts({
-        dbName: "PostsDatabase",
-        storeName: "posts",
-        filterFn: (post) => {
-            const postTags = post.tags.toLowerCase().split(",");
-            return postTags.includes("awards");
-        },
-        postFilter: (post) => {
-            const postYear = parseInt(post.post_date.split(" ")[2], 10);
-            if (!filterID) return true;
-            const filterYear = parseInt(filterID, 10);
-            if (filterYear === 2020) {
-                return postYear >= 2020;
-            } else if (filterYear === 2010) {
-                return postYear >= 2010 && postYear <= 2019;
-            } else if (filterYear === 2000) {
-                return postYear >= 2000 && postYear <= 2009;
-            } else {
-                return postYear === filterYear;
-            }
-        },
-        renderType: "award",
-        maxInitialPosts: 20,
-        containerId: "all_awards_wrapper",
-        loadMoreId: "btn_load_more_wrapper"
-    });
-}
-
-// FilterButton.initializeAll(SELECTORS.awardsFilterButton, (filterID) => {
-//     currentFilterID = filterID === "all" ? null : filterID;
-
-//     showFilteredAwards(currentFilterID);
-
-//     const awardsYearFilterBtn = document?.querySelector(
-//         ".awards_btn_yrfilter.active"
-//     );
-//     awardsYearFilterBtn ? awardsYearFilterBtn.classList.remove("active") : null;
-// });
-
-// FilterButton.initializeAll(".awards_btn_yrfilter", (filterID) => {
-//     currentFilterID = filterID === "all" ? null : filterID;
-//     showFilteredAwardsByYear(currentFilterID);
-//     const awardsTagFilterBtn = document?.querySelector(
-//         ".awards_btn_filter.active"
-//     );
-//     awardsTagFilterBtn ? awardsTagFilterBtn.classList.remove("active") : null;
-
-// });
-
-const searchInput = document?.getElementById("newsletterSearch");
-const showCloseButton = document?.getElementById("nl_close_search");
-const nlSearchIcon = document?.getElementById("nl_search_icon");
-
-
-const buttonSVG = document.querySelectorAll('.arrow_right_svg_plus_icon');
-
-buttonSVG.forEach(button => {
-    button.addEventListener('click', () => {
-        button.classList.toggle('active');
-        const parentItem = button.closest('.services_list_item');
-        if (parentItem) {
-            const subServicesList = parentItem.querySelector('.sub_services_list');
-            if (subServicesList) {
-                subServicesList.classList.toggle('active');
-            }
-        }
-    });
-});
-
-// ============================================================
-//  #endregion AWARDS COLLECTION PAGE:::END
-// ============================================================
-
-// =======================================
 // #region PROFILE SINGLE PAGE OBSERVER:::START
-// =======================================
+// ============================================================
 // This code observes the profile content sections and updates the navigation items accordingly
 
 const sectionTextContent = [...document.querySelectorAll('.profile_content_section')];
@@ -1770,3 +1680,92 @@ function initLoadMoreWithFilters(config) {
     }
 }
 
+// =======================================
+//  NEWS PAGINATION (AJAX) ::: START
+// =======================================
+function initNewsPagination() {
+    // Delegate clicks from the document to handle dynamically replaced markup
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('#news_pagination_btns_wrapper button, .pagination_container button');
+        if (!btn) return;
+
+        const container = btn.closest('.pagination_container');
+        if (!container) return;
+
+        // Determine requested page
+        let targetPage = btn.dataset.page ? parseInt(btn.dataset.page, 10) : NaN;
+        if (Number.isNaN(targetPage)) return; // No-op if button doesn't specify a page
+
+        const currentPage = parseInt(container.getAttribute('data-current-page') || '1', 10);
+        const totalPages = parseInt(container.getAttribute('data-total-pages') || '1', 10);
+
+        // Guard rails
+        if (targetPage < 1 || targetPage > totalPages || targetPage === currentPage) {
+            e.preventDefault();
+            return;
+        }
+
+        const category = container.getAttribute('data-category') || 'news';
+        const ppp = parseInt(container.getAttribute('data-ppp') || '20', 10);
+
+        // Find wrapper to replace
+        const wrapper = document.getElementById('news_posts_wrapper');
+        if (!wrapper) return;
+
+        // Show loading spinner inside the wrapper
+        const spinner = wrapper.querySelector('.loading-spinner');
+        if (spinner) spinner.style.display = 'block';
+
+        const params = new URLSearchParams();
+        params.append('action', 'paginate_news_posts');
+        params.append('page', String(targetPage));
+        params.append('posts_per_page', String(ppp));
+        params.append('category', category);
+
+        fetch(ajax_object.ajax_url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params
+        })
+            .then(res => res.text())
+            .then(html => {
+                // Replace the entire wrapper with the returned HTML
+                const parent = wrapper.parentElement;
+                if (!parent) return;
+                // Create a temp container to parse
+                const temp = document.createElement('div');
+                temp.innerHTML = html.trim();
+                const newWrapper = temp.querySelector('#news_posts_wrapper');
+                if (newWrapper) {
+                    parent.replaceChild(newWrapper, wrapper);
+                    // Hide spinner on the freshly inserted wrapper
+                    const newSpinner = newWrapper.querySelector('.loading-spinner');
+                    if (newSpinner) newSpinner.style.display = 'none';
+                    // Scroll to top of the grid for better UX
+                    const allPosts = document.getElementById('all_news_posts');
+                    if (allPosts) {
+                        const top = allPosts.getBoundingClientRect().top + window.scrollY - 100;
+                        window.scrollTo({ top, behavior: 'smooth' });
+                    }
+                } else {
+                    // Fallback: just drop the HTML in place
+                    wrapper.outerHTML = html;
+                }
+            })
+            .catch(err => {
+                console.error('Failed to paginate news posts:', err);
+                if (spinner) spinner.style.display = 'none';
+            })
+            .finally(() => {
+                // Ensure spinner is hidden if wrapper wasn't replaced
+                const currentWrapper = document.getElementById('news_posts_wrapper');
+                const sp = currentWrapper ? currentWrapper.querySelector('.loading-spinner') : null;
+                if (sp) sp.style.display = 'none';
+            });
+
+        e.preventDefault();
+    });
+}
+// =======================================
+//  NEWS PAGINATION (AJAX) ::: END
+// =======================================

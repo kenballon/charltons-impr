@@ -2372,6 +2372,147 @@ function getWebinarsPodcasts(array $atts = []): string
     return $full;
 }
 
+function getNewsPostItems(array $atts = [])
+{
+    // Defaults: first page, 20 items, category "news"
+    $atts = shortcode_atts([
+        'category' => 'news',
+        'posts_per_page' => 20,
+        'page' => 1,
+        // Optional filters for future use
+        'tag' => '',
+    ], $atts, 'get_news_post_items');
+
+    $category = sanitize_text_field($atts['category']);
+    $ppp = max(1, intval($atts['posts_per_page']));
+    $page = max(1, intval($atts['page']));
+    $tag = sanitize_text_field($atts['tag']);
+
+    // Build args to fetch all matching posts, then we'll page the filtered list
+    $args = [
+        'post_type' => 'post',
+        'post_status' => 'publish',
+        'posts_per_page' => -1,  // get all, we'll slice after filtering for images
+        'has_password' => false,
+    ];
+    if (!empty($category)) {
+        $args['category_name'] = $category;
+    }
+    if (!empty($tag)) {
+        $args['tag'] = $tag;  // comma-separated slugs supported by WP_Query
+    }
+
+    // Use shared helper to normalize post data
+    $all_posts = function_exists('get_all_posts_data') ? get_all_posts_data(['post'], $args) : [];
+
+    // Filter out posts without any kind of featured image (native or plugin)
+    $all_posts = array_values(array_filter($all_posts, function ($post) {
+        $native_img = !empty($post['featured_image']);
+        $plugin_img = !empty(get_post_meta($post['id'], 'fiuw_image_url', true));
+        return $native_img || $plugin_img;
+    }));
+
+    // Sort newest first by datetime then date
+    usort($all_posts, function ($a, $b) {
+        $a_dt = !empty($a['post_datetime']) ? $a['post_datetime'] : ($a['post_date'] ?? '');
+        $b_dt = !empty($b['post_datetime']) ? $b['post_datetime'] : ($b['post_date'] ?? '');
+        return strtotime($b_dt) <=> strtotime($a_dt);
+    });
+
+    $total = count($all_posts);
+    if ($total === 0) {
+        return '<p>No posts found.</p>';
+    }
+
+    $total_pages = (int) ceil($total / $ppp);
+    if ($page > $total_pages) {
+        $page = $total_pages;  // clamp
+    }
+    $offset = ($page - 1) * $ppp;
+    $paged_posts = array_slice($all_posts, $offset, $ppp);
+
+    // Build items HTML (card UI)
+    ob_start();
+    foreach ($paged_posts as $post) {
+        $plugin_img_url = get_post_meta($post['id'], 'fiuw_image_url', true);
+        $img_url = !empty($plugin_img_url) ? $plugin_img_url : ($post['featured_image'] ?? '');
+        $categories_lower = strtolower($post['categories'] ?? '');
+        $tags_lower = strtolower($post['tags'] ?? '');
+?>
+<article class="news_article_wrapper" data-category="<?php echo esc_attr($categories_lower); ?>"
+    data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr($post['id']); ?>">
+    <div class="news_card_image">
+        <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
+            aria-label="<?php echo esc_attr($post['title']); ?>" title="<?php echo esc_attr($post['title']); ?>">
+            <?php if ($img_url): ?>
+            <img decoding="async" width="320" height="320" class="border-1" src="<?php echo esc_url($img_url); ?>"
+                alt="<?php echo esc_attr($post['title']); ?>">
+            <?php endif; ?>
+        </a>
+    </div>
+    <div class="news_card_content">
+        <?php if (!empty($post['post_date'])): ?>
+        <div class="newsevents__post_date"><?php echo esc_html($post['post_date']); ?></div>
+        <?php endif; ?>
+        <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
+            aria-label="<?php echo esc_attr($post['title']); ?>" title="<?php echo esc_attr($post['title']); ?>">
+            <h2 class="newsevents__post_title fw-medium"><?php echo esc_html($post['title']); ?></h2>
+        </a>
+    </div>
+</article>
+<?php
+    }
+    $items_html = ob_get_clean();
+
+    // Wrap everything for easy full replacement via AJAX
+    $output = '<div id="news_posts_wrapper">';
+    // Parent container
+    $output .= '<div id="all_news_posts" class="news_posts_container grid gap-2">' . $items_html . '</div>';
+
+    // Loading spinner (hidden by default) to show during AJAX pagination
+    $output .= '<div class="flex justify-center items-center"><div class="loading-spinner mt-4 mb-4" style="display:none;"></div></div>';
+
+    // Pagination UI (outside of parent)
+    // Determine sliding window of up to 5 buttons centered around current page
+    $window = 5;
+    $half = (int) floor($window / 2);
+    $start = max(1, $page - $half);
+    $end = min($total_pages, $start + $window - 1);
+    // Adjust start if we're near the end
+    $start = max(1, min($start, $end - $window + 1));
+
+    $btns = '';
+    for ($p = $start; $p <= $end; $p++) {
+        $active = $p === $page ? ' active' : '';
+        $btns .= '<button class="pagination_btn' . $active . '" type="button" data-page="' . esc_attr($p) . '" aria-label="Go to page ' . esc_attr($p) . '">' . esc_html($p) . '</button>';
+    }
+
+    $dots_before = $start > 2 ? '…' : '';
+    $dots_after = $end < ($total_pages - 1) ? '…' : '';
+
+    $prev_disabled = $page <= 1 ? ' disabled' : '';
+    $next_disabled = $page >= $total_pages ? ' disabled' : '';
+
+    $output .= '
+<div class="pagination_container flex justify-center" data-category="' . esc_attr($category) . '" data-ppp="' . esc_attr($ppp) . '" data-current-page="' . esc_attr($page) . '" data-total-pages="' . esc_attr($total_pages) . '">
+    <div class="news_previous_wrapper_div flex">
+        <button id="prev_post_btn" class="prev' . $prev_disabled . '" type="button" data-page="' . esc_attr(max(1, $page - 1)) . '">Previous</button>
+        <button id="first_post_btn" class="first" type="button" data-page="1">1</button>
+        <div id="ne_pagination_dots_first" class="ne_pagination_dots_first">' . $dots_before . '</div>
+    </div>
+    <div id="news_pagination_btns_wrapper" class="news_pagination_btns_wrapper">' . $btns . '</div>
+    <div class="news_next_wrapper_div flex">
+        <div id="ne_pagination_dots" class="ne_pagination_dots">' . $dots_after . '</div>
+        <button id="last_post_btn" class="last" type="button" data-page="' . esc_attr($total_pages) . '">' . esc_html($total_pages) . '</button>
+        <button id="next_post_btn" class="next' . $next_disabled . '" type="button" data-page="' . esc_attr(min($total_pages, $page + 1)) . '">Next</button>
+    </div>
+</div>';
+
+    $output .= '</div>';  // #news_posts_wrapper
+
+    return $output;
+}
+
 // AJAX handler for load more functionality
 function load_more_newsletters_ajax()
 {
@@ -2513,6 +2654,29 @@ function ajax_latest_posts()
     endif;
     wp_reset_postdata();
     die();
+}
+
+// AJAX: paginate news posts for getNewsPostItems shortcode
+function paginate_news_posts_ajax()
+{
+    $page = isset($_POST['page']) ? max(1, intval($_POST['page'])) : 1;
+    $ppp = isset($_POST['posts_per_page']) ? max(1, intval($_POST['posts_per_page'])) : 20;
+    $category = isset($_POST['category']) ? sanitize_text_field(wp_unslash($_POST['category'])) : 'news';
+    $tag = isset($_POST['tag']) ? sanitize_text_field(wp_unslash($_POST['tag'])) : '';
+
+    // Build attributes for the shortcode function
+    $atts = [
+        'category' => $category,
+        'posts_per_page' => $ppp,
+        'page' => $page,
+    ];
+    if (!empty($tag)) {
+        $atts['tag'] = $tag;
+    }
+
+    $html = getNewsPostItems($atts);
+    echo $html;  // return full markup (items + pagination)
+    wp_die();
 }
 
 function globalSearch()
@@ -2721,6 +2885,7 @@ function register_custom_shortcodes()
 
     add_shortcode('get_newsletter_posts', 'getNewslettersPosts');
     add_shortcode('get_award_post_items', 'getAwardPostItems');
+    add_shortcode('get_news_post_items', 'getNewsPostItems');
     add_shortcode('getNewsletterPostTitle', 'getNewsletterPostTitle');
     add_shortcode('getPostTitleAndCategory', 'getPostTitleAndCategory');
     add_shortcode('newsletter_scf_custom_fields', 'newsletter_scf_custom_fields');
@@ -2744,6 +2909,10 @@ add_action('wp_ajax_nopriv_load_more_newsletters', 'load_more_newsletters_ajax')
 // Generic load more endpoint that can dispatch to multiple callbacks
 add_action('wp_ajax_load_more_content', 'load_more_content_ajax');
 add_action('wp_ajax_nopriv_load_more_content', 'load_more_content_ajax');
+
+// News posts pagination endpoint
+add_action('wp_ajax_paginate_news_posts', 'paginate_news_posts_ajax');
+add_action('wp_ajax_nopriv_paginate_news_posts', 'paginate_news_posts_ajax');
 
 // AJAX actions for search functionality
 add_action('wp_ajax_ajax_search', 'ajax_search');
