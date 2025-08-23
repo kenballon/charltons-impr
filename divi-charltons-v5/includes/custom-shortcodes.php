@@ -2473,13 +2473,16 @@ function getNewsPostItems(array $atts = [])
     $output .= '<div class="flex justify-center items-center"><div class="loading-spinner mt-4 mb-4" style="display:none;"></div></div>';
 
     // Pagination UI (outside of parent)
-    // Determine sliding window of up to 5 buttons centered around current page
+    // Determine sliding window of up to 5 buttons centered around current page.
+    // IMPORTANT: Exclude the first and last page from this middle window to avoid
+    // duplicating "1" and the last page (they have dedicated buttons already).
     $window = 5;
     $half = (int) floor($window / 2);
-    $start = max(1, $page - $half);
-    $end = min($total_pages, $start + $window - 1);
-    // Adjust start if we're near the end
-    $start = max(1, min($start, $end - $window + 1));
+    // Middle range starts from page 2 and ends at total_pages - 1
+    $start = max(2, $page - $half);
+    $end = min(max(1, $total_pages - 1), $start + $window - 1);
+    // Adjust start if we're near the end and keep it >= 2
+    $start = max(2, min($start, max(1, $end - $window + 1)));
 
     $btns = '';
     for ($p = $start; $p <= $end; $p++) {
@@ -2493,17 +2496,25 @@ function getNewsPostItems(array $atts = [])
     $prev_disabled = $page <= 1 ? ' disabled' : '';
     $next_disabled = $page >= $total_pages ? ' disabled' : '';
 
+    // Active states for edge buttons and conditional last button (avoid duplicate "1" when only one page)
+    $first_active = $page === 1 ? ' active' : '';
+    $last_active = $page === $total_pages ? ' active' : '';
+    $first_btn_html = '<button id="first_post_btn" class="pagination_btn first' . $first_active . '" type="button" data-page="1">1</button>';
+    $last_btn_html = $total_pages > 1
+        ? '<button id="last_post_btn" class="pagination_btn last' . $last_active . '" type="button" data-page="' . esc_attr($total_pages) . '">' . esc_html($total_pages) . '</button>'
+        : '';
+
     $output .= '
 <div class="pagination_container flex justify-center" data-category="' . esc_attr($category) . '" data-ppp="' . esc_attr($ppp) . '" data-current-page="' . esc_attr($page) . '" data-total-pages="' . esc_attr($total_pages) . '">
     <div class="news_previous_wrapper_div flex">
         <button id="prev_post_btn" class="prev' . $prev_disabled . '" type="button" data-page="' . esc_attr(max(1, $page - 1)) . '">Previous</button>
-        <button id="first_post_btn" class="first" type="button" data-page="1">1</button>
+        ' . $first_btn_html . '
         <div id="ne_pagination_dots_first" class="ne_pagination_dots_first">' . $dots_before . '</div>
     </div>
     <div id="news_pagination_btns_wrapper" class="news_pagination_btns_wrapper">' . $btns . '</div>
     <div class="news_next_wrapper_div flex">
         <div id="ne_pagination_dots" class="ne_pagination_dots">' . $dots_after . '</div>
-        <button id="last_post_btn" class="last" type="button" data-page="' . esc_attr($total_pages) . '">' . esc_html($total_pages) . '</button>
+        ' . $last_btn_html . '
         <button id="next_post_btn" class="next' . $next_disabled . '" type="button" data-page="' . esc_attr(min($total_pages, $page + 1)) . '">Next</button>
     </div>
 </div>';
