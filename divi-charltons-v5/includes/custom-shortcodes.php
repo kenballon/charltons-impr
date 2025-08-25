@@ -2445,10 +2445,11 @@ function getNewsPostItems($atts = [])
     ]);
 
     if (!$q->have_posts()) {
+        $empty_wrapper = '<div id="all_news_posts" class="news_posts_container grid gap-2"><p>No posts found.</p></div>';
         if ($cache_ttl > 0) {
-            set_transient($cache_key, '', $cache_ttl);
+            set_transient($cache_key, $empty_wrapper, $cache_ttl);
         }
-        return '';
+        return $empty_wrapper;
     }
 
     ob_start();
@@ -2496,10 +2497,11 @@ function getNewsPostItems($atts = [])
     wp_reset_postdata();
 
     $output = ob_get_clean();
+    $newsArticleWrapper = '<div id="all_news_posts" class="news_posts_container grid gap-2">' . $output . '</div>';
     if ($cache_ttl > 0) {
-        set_transient($cache_key, $output, $cache_ttl);
+        set_transient($cache_key, $newsArticleWrapper, $cache_ttl);
     }
-    return $output;
+    return $newsArticleWrapper;
 }
 
 // AJAX handler for load more functionality
