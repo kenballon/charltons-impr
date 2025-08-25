@@ -7,7 +7,7 @@ const origin = window.location.origin;
 document.addEventListener("readystatechange", (e) => {
     if (e.target.readyState === "complete") {
         customHeaderNavigation();
-        initNewsletterPage();        
+        initNewsletterPage();
 
         const buttonAllActive = document.getElementById("all");
         currentUrl.startsWith(origin + "/news")
@@ -1679,211 +1679,350 @@ function initLoadMoreWithFilters(config) {
     }
 }
 
-// =======================================
-//  NEWS PAGINATION (AJAX) ::: START
-// =======================================
-// function initNewsPagination() {
-//     // Delegate clicks from the document to handle dynamically replaced markup
-//     document.addEventListener('click', function (e) {
-//         const btn = e.target.closest('#news_pagination_btns_wrapper button, .pagination_container button');
-//         if (!btn) return;
 
-//         const container = btn.closest('.pagination_container');
-//         if (!container) return;
+document.addEventListener('DOMContentLoaded', function () {
+    const target = document.querySelector('.all_newsevents_container');
 
-//         // Determine requested page
-//         let targetPage = btn.dataset.page ? parseInt(btn.dataset.page, 10) : NaN;
-//         if (Number.isNaN(targetPage)) return; // No-op if button doesn't specify a page
-
-//         const currentPage = parseInt(container.getAttribute('data-current-page') || '1', 10);
-//         const totalPages = parseInt(container.getAttribute('data-total-pages') || '1', 10);
-
-//         // Guard rails
-//         if (targetPage < 1 || targetPage > totalPages || targetPage === currentPage) {
-//             e.preventDefault();
-//             return;
-//         }
-
-//         const category = container.getAttribute('data-category') || 'news';
-//         const ppp = parseInt(container.getAttribute('data-ppp') || '20', 10);
-
-//         // Find wrapper to replace
-//         const wrapper = document.getElementById('news_posts_wrapper');
-//         if (!wrapper) return;
-
-//         // Show loading spinner inside the wrapper
-//         const spinner = wrapper.querySelector('.loading-spinner');
-//         if (spinner) spinner.style.display = 'block';
-
-//         const params = new URLSearchParams();
-//         params.append('action', 'paginate_news_posts');
-//         params.append('page', String(targetPage));
-//         params.append('posts_per_page', String(ppp));
-//         params.append('category', category);
-
-//         fetch(ajax_object.ajax_url, {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-//             body: params
-//         })
-//             .then(res => res.text())
-//             .then(html => {
-//                 // Replace the entire wrapper with the returned HTML
-//                 const parent = wrapper.parentElement;
-//                 if (!parent) return;
-//                 // Create a temp container to parse
-//                 const temp = document.createElement('div');
-//                 temp.innerHTML = html.trim();
-//                 const newWrapper = temp.querySelector('#news_posts_wrapper');
-//                 if (newWrapper) {
-//                     parent.replaceChild(newWrapper, wrapper);
-//                     // Hide spinner on the freshly inserted wrapper
-//                     const newSpinner = newWrapper.querySelector('.loading-spinner');
-//                     if (newSpinner) newSpinner.style.display = 'none';
-//                     // Scroll to top of the grid for better UX
-//                     const allPosts = document.getElementById('all_news_posts');
-//                     if (allPosts) {
-//                         const top = allPosts.getBoundingClientRect().top + window.scrollY - 100;
-//                         window.scrollTo({ top, behavior: 'smooth' });
-//                     }
-//                 } else {
-//                     // Fallback: just drop the HTML in place
-//                     wrapper.outerHTML = html;
-//                 }
-//             })
-//             .catch(err => {
-//                 console.error('Failed to paginate news posts:', err);
-//                 if (spinner) spinner.style.display = 'none';
-//             })
-//             .finally(() => {
-//                 // Ensure spinner is hidden if wrapper wasn't replaced
-//                 const currentWrapper = document.getElementById('news_posts_wrapper');
-//                 const sp = currentWrapper ? currentWrapper.querySelector('.loading-spinner') : null;
-//                 if (sp) sp.style.display = 'none';
-//             });
-
-//         e.preventDefault();
-//     });
-// }
-// =======================================
-//  NEWS PAGINATION (AJAX) ::: END
-// =======================================
-
-// Helper: resolve WP category ID by slug (cached)
-const getCategoryIdBySlug = (() => {
-    const cache = new Map();
-    return async function (slug) {
-        if (cache.has(slug)) return cache.get(slug);
-        const res = await fetch(`${location.origin}/wp-json/wp/v2/categories?slug=${encodeURIComponent(slug)}&_fields=id,slug`);
-        if (!res.ok) return null;
-        const arr = await res.json();
-        const id = Array.isArray(arr) && arr.length ? arr[0].id : null;
-        cache.set(slug, id);
-        return id;
-    };
-})();
-
-const newsPostItems = document?.querySelectorAll('.news_article_wrapper');
-const getNextPageBtn = document?.getElementById('get_paginate')
-
-getNextPageBtn.addEventListener('click', () => {
-newsPostItems.forEach(item => {
-    // get the last item in the list
-    const lastItem = item === newsPostItems[newsPostItems.length - 1];
-    if (!lastItem) return;
-
-    // Expecting data-post-date like "10 Mar 2025"
-    const rawDate = item.dataset.postDate || item.getAttribute('data-post-date');
-    if (!rawDate) {
-        console.warn('Missing data-post-date on last post item');
+    if (!target) {
+        console.warn('IntersectionObserver target not found: .all_newsevents_container');
         return;
     }
-
-    // Convert to "YYYY-MM-DDT23:59:59" (no timezone suffix)
-    const toIsoEndOfDayLocal = (dstr) => {
-        const months = { jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12 };
-        const parts = dstr.trim().split(/\s+/); // ["10","Mar","2025"]
-        if (parts.length !== 3) return null;
-        const [dayStr, monStr, yearStr] = parts;
-        const mm = months[monStr.toLowerCase()];
-        const dd = String(parseInt(dayStr, 10)).padStart(2, '0');
-        const mo = String(mm).padStart(2, '0');
-        const yy = String(parseInt(yearStr, 10));
-        if (!mm || !yy) return null;
-        return `${yy}-${mo}-${dd}T23:59:59`;
-    };
-
-    const before = toIsoEndOfDayLocal(rawDate);
-    if (!before) {
-        console.warn('Unable to parse data-post-date:', rawDate);
-        return;
-    }
-
-    // Fetch only posts in the "news" category (by slug)
-    (async () => {
-        try {
-            const newsCatId = await getCategoryIdBySlug('news');
-            if (!newsCatId) {
-                console.warn('Category "news" not found');
-                return;
-            }
-            // Exclude the last visible post from the next fetch
-            const rawId = item.dataset.postId || item.getAttribute('data-post-id');
-            const lastId = rawId ? parseInt(rawId, 10) : null;
-
-            const params = new URLSearchParams({
-                per_page: '15',
-                orderby: 'date',
-                order: 'desc',
-                before: before,
-                categories: String(newsCatId),
-                _fields: 'id,link,title.rendered,date'
+    const observer = new IntersectionObserver(
+        (entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                    // console.log('50% of the element is visible in the viewport');
+                    activatePagination();
+                    obs.disconnect();
+                }
             });
-            if (Number.isInteger(lastId)) params.append('exclude', String(lastId));
-
-            const url = `${location.origin}/wp-json/wp/v2/posts?${params.toString()}`;
-            const response = await fetch(url);
-            if (!response.ok) {
-                console.error('REST API error fetching posts:', response.status, response.statusText);
-                return;
-            }
-
-            // Totals for THIS query (includes before/exclude/per_page filters)
-            const totalItemsForQuery = parseInt(response.headers.get('X-WP-Total') || '0', 10);
-            const totalPagesForQuery = parseInt(response.headers.get('X-WP-TotalPages') || '0', 10);
-
-            const data = await response.json();
-            // Fallback guard: filter out lastId if API still returns it
-            const filtered = Array.isArray(data) && Number.isInteger(lastId)
-                ? data.filter(p => p && p.id !== lastId)
-                : data;
-            console.table(filtered);
-            console.log('WP REST totals (for current query):', {
-                totalItems: totalItemsForQuery,
-                totalPages: totalPagesForQuery
-            });                         
-        } catch (error) {
-            console.error('Error fetching more posts:', error);
+        },
+        {
+            threshold: [0.5] // Trigger when 50% of the element is visible
         }
-    })();
+    );
+    observer.observe(target);
 });
-});
 
-const target = document.getElementById('all_news_posts');
+/**
+ * Activates pagination for news posts by fetching total post count and creating page buttons
+ * 
+ * This function:
+ * 1. Validates required DOM elements exist
+ * 2. Fetches the 'news' category ID from WordPress REST API
+ * 3. Gets total post count for the category
+ * 4. Calculates total pages needed
+ * 5. Creates interactive pagination buttons
+ */
+async function activatePagination() {
+    console.log('Activating pagination...');
 
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-        console.log('It reaches halfway of the viewport');
-      }
-    });
-  },
-  {
-    threshold: [0.5] // Trigger when 50% of the element is visible
-  }
-);
+    // Configuration constants
+    const CONFIG = {
+        POSTS_PER_PAGE: 15,
+        INITIAL_PAGE: 1,
+        CATEGORY_SLUG: 'news',
+        SELECTORS: {
+            POSTS_CONTAINER: '#all_news_posts',
+            PAGINATION_WRAPPER: '.news_pagination_btns_wrapper'
+        },
+        CSS_CLASSES: {
+            PAGINATION_BTN: 'pagination_btn',
+            ACTIVE_BTN: 'active'
+        }
+    };
 
-if (target) {
-  observer.observe(target);
-}
+    // Early return if required elements don't exist
+    const { postsContainer, paginationWrapper } = validateRequiredElements(CONFIG.SELECTORS);
+    if (!postsContainer || !paginationWrapper) {
+        console.warn('Pagination not activated: Required DOM elements not found');
+        return;
+    }
+
+    // State management
+    let currentPage = CONFIG.INITIAL_PAGE;
+
+    try {
+        // Fetch category data and total posts
+        const newsCategoryId = await fetchNewsCategoryId(CONFIG.CATEGORY_SLUG);
+        const totalPosts = await fetchTotalPostsCount(newsCategoryId);
+
+        // Calculate pagination
+        const totalPages = Math.ceil(totalPosts / CONFIG.POSTS_PER_PAGE);
+
+        // Generate pagination UI
+        renderPaginationButtons(paginationWrapper, totalPages, currentPage, CONFIG.CSS_CLASSES);
+
+        console.log(`Pagination activated: ${totalPages} pages for ${totalPosts} posts`);
+
+    } catch (error) {
+        console.error('Failed to activate pagination:', error.message);
+        handlePaginationError(paginationWrapper);
+    }
+
+    /**
+     * Validates that required DOM elements exist
+     * @param {Object} selectors - Object containing CSS selectors
+     * @returns {Object} Object containing found elements or null
+     */
+    function validateRequiredElements(selectors) {
+        return {
+            postsContainer: document.querySelector(selectors.POSTS_CONTAINER),
+            paginationWrapper: document.querySelector(selectors.PAGINATION_WRAPPER)
+        };
+    }
+
+    /**
+     * Fetches the category ID for the given slug
+     * @param {string} categorySlug - The category slug to search for
+     * @returns {Promise<number>} Category ID
+     */
+    async function fetchNewsCategoryId(categorySlug) {
+        const categoryApiUrl = `${window.origin}/wp-json/wp/v2/categories?slug=${categorySlug}`;
+
+        const response = await fetch(categoryApiUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch category: ${response.status} ${response.statusText}`);
+        }
+
+        const categories = await response.json();
+
+        if (!Array.isArray(categories) || categories.length === 0) {
+            throw new Error(`Category '${categorySlug}' not found`);
+        }
+
+        return categories[0].id;
+    }
+
+    /**
+     * Fetches the total count of posts for a given category
+     * @param {number} categoryId - The category ID
+     * @returns {Promise<number>} Total number of posts
+     */
+    async function fetchTotalPostsCount(categoryId) {
+        const postsApiUrl = `${window.origin}/wp-json/wp/v2/posts?categories=${categoryId}&per_page=1`;
+
+        const response = await fetch(postsApiUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch posts count: ${response.status} ${response.statusText}`);
+        }
+
+        const totalPosts = parseInt(response.headers.get('X-WP-Total'), 10);
+
+        if (isNaN(totalPosts) || totalPosts < 0) {
+            throw new Error('Invalid total posts count received from API');
+        }
+
+        return totalPosts;
+    }
+
+    /**
+     * Creates pagination buttons and renders them in the container
+     * @param {HTMLElement} container - Container element for pagination buttons
+     * @param {number} totalPages - Total number of pages
+     * @param {number} activePage - Currently active page number
+     * @param {Object} cssClasses - CSS class names configuration
+     */
+    function renderPaginationButtons(container, totalPages, activePage, cssClasses) {
+        // Clear existing buttons
+        container.innerHTML = '';
+
+        // Create and append pagination buttons
+        for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
+            const button = createPaginationButton(pageNumber, activePage, cssClasses);
+            container.appendChild(button);
+        }
+    }
+
+    /**
+     * Creates a single pagination button with proper accessibility attributes and event handling
+     * @param {number} pageNumber - Page number for this button
+     * @param {number} activePage - Currently active page number
+     * @param {Object} cssClasses - CSS class names configuration
+     * @returns {HTMLButtonElement} Configured button element
+     */
+    function createPaginationButton(pageNumber, activePage, cssClasses) {
+        const button = document.createElement('button');
+
+        // Set basic attributes
+        button.className = cssClasses.PAGINATION_BTN;
+        button.type = 'button';
+        button.textContent = pageNumber;
+        button.setAttribute('aria-label', `Go to page ${pageNumber}`);
+
+        // Set active state if this is the current page
+        if (pageNumber === activePage) {
+            button.classList.add(cssClasses.ACTIVE_BTN);
+            button.setAttribute('aria-current', 'page');
+        }
+
+        // Add click event handler
+        button.addEventListener('click', () => handlePageClick(pageNumber));
+
+        return button;
+    }
+
+    /**
+     * Handles pagination button click events
+     * @param {number} selectedPage - The page number that was clicked
+     */
+    async function handlePageClick(selectedPage) {
+        if (selectedPage === currentPage) {
+            return; // No action needed if same page is clicked
+        }
+
+        // Update current page state
+        currentPage = selectedPage;
+
+        // Update button active states
+        updateActiveButtonState(paginationWrapper, selectedPage, CONFIG.CSS_CLASSES);
+
+        // Show loading state
+        showLoadingState(postsContainer);
+
+        try {
+            // Fetch and render posts for the selected page
+            const newsCategoryId = await fetchNewsCategoryId(CONFIG.CATEGORY_SLUG);
+            const posts = await fetchPostsByPage(newsCategoryId, selectedPage, CONFIG.POSTS_PER_PAGE);
+
+            // Clear current content and render new posts
+            renderPostsContent(postsContainer, posts);
+
+            console.log(`Page ${selectedPage} loaded with ${posts.length} posts`);
+        } catch (error) {
+            console.error(`Failed to load page ${selectedPage}:`, error.message);
+            handlePageLoadError(postsContainer);
+        }
+    }
+
+    /**
+     * Fetches posts for a specific page
+     * @param {number} categoryId - The category ID
+     * @param {number} page - The page number to fetch
+     * @param {number} postsPerPage - Number of posts per page
+     * @returns {Promise<Array>} Array of post objects
+     */
+    async function fetchPostsByPage(categoryId, page, postsPerPage) {
+        const offset = (page - 1) * postsPerPage;
+        const postsApiUrl = `${window.origin}/wp-json/wp/v2/posts?categories=${categoryId}&per_page=${postsPerPage}&offset=${offset}&_embed`;
+
+        const response = await fetch(postsApiUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch posts: ${response.status} ${response.statusText}`);
+        }
+
+        const posts = await response.json();
+
+        if (!Array.isArray(posts)) {
+            throw new Error('Invalid posts data received from API');
+        }
+
+        return posts.map(post => ({
+            id: post.id,
+            title: post.title.rendered,
+            url: post.link,
+            post_date: formatPostDate(post.date),
+            featured_image: post._embedded?.['wp:featuredmedia']?.[0]?.source_url || '',
+            excerpt: post.excerpt.rendered,
+            categories: post._embedded?.['wp:term']?.[0]?.map(cat => cat.name).join(', ') || ''
+        }));
+    }
+
+    /**
+     * Formats the post date from WordPress format to display format
+     * @param {string} dateString - WordPress date string
+     * @returns {string} Formatted date string
+     */
+    function formatPostDate(dateString) {
+        const date = new Date(dateString);
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    }
+
+    /**
+     * Shows loading state in the posts container
+     * @param {HTMLElement} container - Posts container element
+     */
+    function showLoadingState(container) {
+        container.innerHTML = `
+            <div class="loading-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                <div class="spinner" style="border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+                <p>Loading posts...</p>
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            </div>
+        `;
+    }
+
+    /**
+     * Renders posts content in the container
+     * @param {HTMLElement} container - Posts container element
+     * @param {Array} posts - Array of post objects
+     */
+    function renderPostsContent(container, posts) {
+        // Clear current content
+        container.innerHTML = '';
+
+        if (posts.length === 0) {
+            container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; padding: 2rem;">No posts found.</p>';
+            return;
+        }
+
+        // Create post cards using the existing createCardUI function if available, or create simple cards
+        posts.forEach(post => {
+            const articleCard = document.createElement('article');
+            articleCard.className = 'news_article_wrapper';
+            articleCard.innerHTML = getNewsHTML(post, post.post_date);
+            container.appendChild(articleCard);
+        });
+    }
+
+    /**
+     * Handles page load errors
+     * @param {HTMLElement} container - Posts container element
+     */
+    function handlePageLoadError(container) {
+        container.innerHTML = `
+            <div class="error-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #e74c3c;">
+                <p>Failed to load posts. Please try again.</p>
+                <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    Refresh Page
+                </button>
+            </div>
+        `;
+    }
+
+    /**
+     * Updates the active state of pagination buttons
+     * @param {HTMLElement} container - Container with pagination buttons
+     * @param {number} activePage - The page number to mark as active
+     * @param {Object} cssClasses - CSS class names configuration
+     */
+    function updateActiveButtonState(container, activePage, cssClasses) {
+        const allButtons = container.querySelectorAll(`.${cssClasses.PAGINATION_BTN}`);
+
+        allButtons.forEach(button => {
+            const isActive = parseInt(button.textContent, 10) === activePage;
+
+            button.classList.toggle(cssClasses.ACTIVE_BTN, isActive);
+
+            if (isActive) {
+                button.setAttribute('aria-current', 'page');
+            } else {
+                button.removeAttribute('aria-current');
+            }
+        });
+    }
+
+    /**
+     * Handles pagination errors by showing user-friendly message
+     * @param {HTMLElement} container - Pagination container element
+     */
+    function handlePaginationError(container) {
+        container.innerHTML = '<p class="pagination-error">Unable to load pagination. Please refresh the page.</p>';
+    }
+};

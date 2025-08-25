@@ -702,17 +702,17 @@ function related_post_sc($atts)
 
             $image_src = wp_get_attachment_image_src($image_id, 'medium_large');
             ?>
-            <a href="<?php the_permalink(); ?>" target="_blank" rel="noopener noreferrer">
-                <article class="related-post-item">
-                    <div class="related-post-image">
-                        <img src="<?php echo esc_url($image_src[0]); ?>" alt="<?php echo esc_attr($image_alt); ?>"
-                            width="<?php echo esc_attr($image_src[1]); ?>" height="<?php echo esc_attr($image_src[2]); ?>"
-                            loading="lazy">
-                    </div>
-                    <h1 class="related-page-title"><?php the_title(); ?></h1>
-                </article>
-            </a>
-            <?php
+<a href="<?php the_permalink(); ?>" target="_blank" rel="noopener noreferrer">
+    <article class="related-post-item">
+        <div class="related-post-image">
+            <img src="<?php echo esc_url($image_src[0]); ?>" alt="<?php echo esc_attr($image_alt); ?>"
+                width="<?php echo esc_attr($image_src[1]); ?>" height="<?php echo esc_attr($image_src[2]); ?>"
+                loading="lazy">
+        </div>
+        <h1 class="related-page-title"><?php the_title(); ?></h1>
+    </article>
+</a>
+<?php
         }
         echo '</aside>';
     }
@@ -828,19 +828,19 @@ function related_pages_sc($atts)
             $image_src = wp_get_attachment_image_src($image_id, 'medium_large');
             ?>
 
-            <article class="related_page_item <?php echo esc_attr($atts['layout_style']); ?>">
-                <a href="<?php the_permalink(); ?>" class="flex flex-col gap-1" aria-label="<?php the_title(); ?>">
-                    <?php if ($image_src): ?>
-                        <div class="rp_img_div_wrapper overflow-clip flex items-center">
-                            <img src="<?php echo esc_url($image_src[0]); ?>" alt="<?php echo esc_attr($image_alt); ?>" width="50"
-                                height="50" loading="lazy" class="related_page_img">
-                        </div>
-                    <?php endif; ?>
-                    <h1 class="rp_entry_title"><?php the_title(); ?></h1>
-                </a>
-            </article>
+<article class="related_page_item <?php echo esc_attr($atts['layout_style']); ?>">
+    <a href="<?php the_permalink(); ?>" class="flex flex-col gap-1" aria-label="<?php the_title(); ?>">
+        <?php if ($image_src): ?>
+        <div class="rp_img_div_wrapper overflow-clip flex items-center">
+            <img src="<?php echo esc_url($image_src[0]); ?>" alt="<?php echo esc_attr($image_alt); ?>" width="50"
+                height="50" loading="lazy" class="related_page_img">
+        </div>
+        <?php endif; ?>
+        <h1 class="rp_entry_title"><?php the_title(); ?></h1>
+    </a>
+</article>
 
-            <?php
+<?php
         endwhile;
         echo '</aside>';
     endif;
@@ -1028,19 +1028,19 @@ function custom_search_form_shortcode()
 {
     ob_start();
     ?>
-    <div class="search_wrapper relative d-none">
-        <form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>" class="custom-search-form">
-            <input type="search" name="s" id="search-input" placeholder="Search..."
-                value="<?php echo get_search_query(); ?>" autocomplete="off">
-            <input type="hidden" name="section" value="site">
-            <input type="submit" value="Search" class="submit">
-            <input type="button" value="Close" id="close_search" class="close-search-btn">
-        </form>
-        <div class="search_matches_wrapper" style="display:none;">
-            <ul class="search-results-list"></ul>
-        </div>
+<div class="search_wrapper relative d-none">
+    <form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>" class="custom-search-form">
+        <input type="search" name="s" id="search-input" placeholder="Search..."
+            value="<?php echo get_search_query(); ?>" autocomplete="off">
+        <input type="hidden" name="section" value="site">
+        <input type="submit" value="Search" class="submit">
+        <input type="button" value="Close" id="close_search" class="close-search-btn">
+    </form>
+    <div class="search_matches_wrapper" style="display:none;">
+        <ul class="search-results-list"></ul>
     </div>
-    <?php
+</div>
+<?php
     return ob_get_clean();
 }
 
@@ -1387,99 +1387,99 @@ function getNewsletterPostTitle($atts)
         // Start output buffer
         ob_start();
         ?>
-        <div class="featured_image">
-            <picture>
-                <source srcset="<?php echo esc_attr($featured_image_url); ?>" sizes="(max-width: 768px) 100vw, 768px"
-                    media="all and (max-width: 1790px)" type="<?php echo esc_attr($featured_image_mime_type); ?>"
-                    width="<?php echo esc_attr($featured_image_width); ?>"
-                    height="<?php echo esc_attr($featured_image_height); ?>">
-                <img src="<?php echo esc_url($featured_image_url); ?>" alt="<?php echo esc_attr($post_title); ?>">
-            </picture>
+<div class="featured_image">
+    <picture>
+        <source srcset="<?php echo esc_attr($featured_image_url); ?>" sizes="(max-width: 768px) 100vw, 768px"
+            media="all and (max-width: 1790px)" type="<?php echo esc_attr($featured_image_mime_type); ?>"
+            width="<?php echo esc_attr($featured_image_width); ?>"
+            height="<?php echo esc_attr($featured_image_height); ?>">
+        <img src="<?php echo esc_url($featured_image_url); ?>" alt="<?php echo esc_attr($post_title); ?>">
+    </picture>
+</div>
+<div class="nl_sp_hero_txt_wrapper">
+    <h1 class="entry-title"><?php echo esc_html($post_title); ?></h1>
+    <div class="category_name_wrapper">
+        <a href="<?php echo esc_url($category_link); ?>"
+            class="category_name uppercase fw-bold"><?php echo esc_html($category_name); ?></a>
+        <div class="date flex gap-1">
+            <time datetime="<?php echo esc_attr($post_datetime); ?>"
+                class="cayman_post_date text-gray-500 fw-regular"><?php echo esc_html($post_date); ?></time>
+            <span id="read_time_est" class="text-gray-500 fw-regular"></span>
         </div>
-        <div class="nl_sp_hero_txt_wrapper">
-            <h1 class="entry-title"><?php echo esc_html($post_title); ?></h1>
-            <div class="category_name_wrapper">
-                <a href="<?php echo esc_url($category_link); ?>"
-                    class="category_name uppercase fw-bold"><?php echo esc_html($category_name); ?></a>
-                <div class="date flex gap-1">
-                    <time datetime="<?php echo esc_attr($post_datetime); ?>"
-                        class="cayman_post_date text-gray-500 fw-regular"><?php echo esc_html($post_date); ?></time>
-                    <span id="read_time_est" class="text-gray-500 fw-regular"></span>
+    </div>
+</div>
+<div class="newsletter_btn_share_wrapper flex space-between items-center my-2">
+    <div class="tags_wrapper flex gap-1 items-center">
+        <?php echo $tags_list; ?>
+    </div>
+    <div class="printable_wrapper flex gap-1">
+        <input type="hidden" name="pdf_url" value="<?php echo esc_url($pdf_url); ?>" id="pdf_url_hidden_input">
+        <input type="hidden" name="word_url" value="<?php echo esc_url($word_url); ?>" id="word_url_hidden_input">
+        <!-- download document -->
+        <div class="nl_download-wrapper relative flex items-center">
+            <button type="button" class="print_btn" aria-label="Download as PDF" id="open_dl_options"
+                data-dialog="close">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                    fill="#e8eaed">
+                    <path
+                        d="M480-336.92 338.46-478.46l28.31-28.77L460-414v-346h40v346l93.23-93.23 28.31 28.77L480-336.92ZM264.62-200q-27.62 0-46.12-18.5Q200-237 200-264.62v-96.92h40v96.92q0 9.24 7.69 16.93 7.69 7.69 16.93 7.69h430.76q9.24 0 16.93-7.69 7.69-7.69 7.69-16.93v-96.92h40v96.92q0 27.62-18.5 46.12Q723-200 695.38-200H264.62Z" />
+                </svg>
+                <div class="pdf-dl">
+                    Download
                 </div>
+            </button>
+            <div id="nlDowloadOptions" aria-hidden="true">
+                <ul>
+
+                    <?php if (!empty($pdf_url)): ?>
+                    <li>
+                        <button aria-label="Share on twitter" class="flex gap-1 items-center" id="dl_pdf">
+                            <svg width="24" height="30" viewBox="0 0 24 30" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M19.2848 19.5722C18.9186 19.6801 18.381 19.6922 17.8046 19.6088C17.1859 19.5192 16.5549 19.3304 15.9347 19.0522C17.0407 18.8916 17.8987 18.9411 18.6326 19.2007C18.8064 19.2622 19.092 19.4266 19.2848 19.5722ZM13.1141 18.5594C13.0691 18.5716 13.0247 18.5832 12.9806 18.5954C12.683 18.6763 12.3935 18.7552 12.1145 18.8254L11.7382 18.9206C10.9814 19.1118 10.2075 19.3071 9.44322 19.5397C9.73367 18.8405 10.0035 18.1335 10.2678 17.4423C10.4634 16.9306 10.6632 16.408 10.8698 15.892C10.9746 16.0648 11.084 16.2377 11.1978 16.411C11.7163 17.1994 12.3682 17.9284 13.1141 18.5594ZM11.1889 10.6745C11.2379 11.5373 11.0514 12.3673 10.7779 13.1635C10.4409 12.1789 10.2839 11.0917 10.7052 10.2139C10.8132 9.98887 10.9017 9.86857 10.9591 9.8058C11.0478 9.94245 11.1644 10.2482 11.1889 10.6745ZM7.23761 21.6041C7.04829 21.9422 6.85504 22.2587 6.65698 22.5575C6.17899 23.2766 5.39727 24.0466 4.99569 24.0466C4.95617 24.0466 4.90835 24.0402 4.83847 23.9666C4.79349 23.9195 4.78629 23.8857 4.78847 23.8396C4.80201 23.5753 5.15291 23.1044 5.66124 22.6679C6.12262 22.2718 6.64412 21.9197 7.23761 21.6041ZM20.5635 19.6096C20.5021 18.7289 19.0171 18.1639 19.0024 18.1587C18.4284 17.9555 17.8047 17.8568 17.0959 17.8568C16.3372 17.8568 15.5192 17.9664 14.4687 18.2114C13.5339 17.5499 12.7264 16.7218 12.1231 15.805C11.8567 15.3999 11.6172 14.9956 11.4084 14.6006C11.9181 13.3841 12.377 12.076 12.2936 10.6109C12.2264 9.4362 11.6958 8.64713 10.9741 8.64713C10.4791 8.64713 10.0529 9.01313 9.70632 9.73598C9.08808 11.024 9.25059 12.6722 10.1891 14.6388C9.8511 15.4313 9.53706 16.253 9.23308 17.0483C8.85488 18.0374 8.46518 19.0577 8.02597 20.0284C6.79425 20.5149 5.78235 21.1049 4.93905 21.8293C4.38661 22.303 3.7206 23.0271 3.68259 23.783C3.66403 24.139 3.78631 24.4655 4.0348 24.7271C4.2988 25.0049 4.63047 25.1511 4.99516 25.1516C6.19963 25.1516 7.35888 23.4995 7.5788 23.1682C8.02139 22.5022 8.43565 21.7593 8.84158 20.9024C9.86395 20.5336 10.9535 20.2583 12.0095 19.9922L12.3877 19.8962C12.672 19.8241 12.9675 19.7443 13.2706 19.6615C13.5913 19.5749 13.9213 19.4852 14.2566 19.3999C15.341 20.0883 16.5071 20.5373 17.6443 20.7021C18.6022 20.8412 19.4529 20.7605 20.0288 20.4608C20.547 20.1914 20.5755 19.7757 20.5635 19.6096ZM22.8962 27.1821C22.8962 28.7949 21.4723 28.8944 21.185 28.8976H2.81351C1.20376 28.8976 1.10683 27.4664 1.10375 27.1821L1.10354 2.81731C1.10354 1.20292 2.53009 1.10505 2.81329 1.10181H15.2236L15.2302 1.10835V5.94297C15.2302 6.91322 15.8178 8.75017 18.043 8.75017H22.8547L22.896 8.79135L22.8962 27.1821ZM21.7555 7.6482H18.0439C16.4346 7.6482 16.3372 6.22477 16.335 5.94313V2.2148L21.7555 7.6482ZM24 27.1821V8.33677L16.335 0.653266V0.617518H16.2984L15.6828 0H2.81354C1.84034 0 0 0.589002 0 2.81783V27.1826C0 28.157 0.588233 30 2.81354 30H21.1867C22.1597 29.9998 24 29.4107 24 27.1821Z"
+                                    fill="#5f6368" />
+                            </svg>
+
+
+                            <div>PDF Version</div>
+                        </button>
+                    </li>
+                    <?php endif; ?>
+                    <?php if (!empty($word_url)): ?>
+                    <li>
+                        <button aria-label="Share on facebook" class="flex gap-1 items-center" id="dl_word">
+
+                            <svg width="24" height="25" viewBox="0 0 24 25" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M13.7117 0.385467C13.6212 0.382234 13.5307 0.387083 13.4402 0.403247L1.36746 2.53363C0.575431 2.67426 0 3.35961 0 4.16295V20.2879C0 21.0929 0.575431 21.7782 1.36746 21.9173L13.4402 24.0476C13.5113 24.0606 13.5841 24.0654 13.6552 24.0654C13.9461 24.0654 14.2274 23.9652 14.452 23.7761C14.7349 23.5401 14.8966 23.1926 14.8966 22.824V20.9151H22.7586C23.4423 20.9151 24 20.3575 24 19.6737V4.77717C24 4.09344 23.4423 3.53579 22.7586 3.53579H14.8966V1.62523C14.8966 1.25831 14.7349 0.91079 14.452 0.674799C14.2419 0.496997 13.9817 0.396782 13.7117 0.385467ZM13.6988 1.21467C13.8039 1.22437 13.8798 1.27448 13.9203 1.30842C13.9768 1.35529 14.069 1.45874 14.069 1.62523V22.824C14.069 22.9921 13.9768 23.0956 13.9203 23.1425C13.8653 23.1893 13.7505 23.2621 13.5841 23.233L1.51131 21.1026C1.1153 21.0331 0.827586 20.6904 0.827586 20.2879V4.16295C0.827586 3.76047 1.1153 3.41779 1.51131 3.34829L13.5824 1.2179C13.6245 1.21144 13.6633 1.20982 13.6988 1.21467ZM14.8966 4.36338H22.7586C22.9865 4.36338 23.1724 4.54926 23.1724 4.77717V19.6737C23.1724 19.9016 22.9865 20.0875 22.7586 20.0875H14.8966V17.6048H20.2759C20.5038 17.6048 20.6897 17.4205 20.6897 17.191C20.6897 16.9614 20.5038 16.7772 20.2759 16.7772H14.8966V15.122H17.1207C17.3486 15.122 17.5345 14.9377 17.5345 14.7082C17.5345 14.4787 17.3486 14.2944 17.1207 14.2944H14.8966V12.6392H20.2759C20.5038 12.6392 20.6897 12.455 20.6897 12.2254C20.6897 11.9959 20.5038 11.8117 20.2759 11.8117H14.8966V10.1565H20.2759C20.5038 10.1565 20.6897 9.97221 20.6897 9.74269C20.6897 9.51316 20.5038 9.32889 20.2759 9.32889H14.8966V7.67372H20.2759C20.5038 7.67372 20.6897 7.48945 20.6897 7.25993C20.6897 7.0304 20.5038 6.84614 20.2759 6.84614H14.8966V4.36338ZM3.375 7.67857C3.32166 7.67049 3.26509 7.67211 3.21013 7.68665C2.98869 7.74161 2.85291 7.96629 2.90948 8.18773L4.97845 16.4636C5.02371 16.6462 5.18534 16.7739 5.37285 16.7772C5.56035 16.7707 5.72683 16.6543 5.77856 16.4733L7.44828 10.4604L9.118 16.4733C9.1681 16.6543 9.33136 16.7772 9.51724 16.7772H9.52371C9.71121 16.7739 9.87285 16.6462 9.9181 16.4636L11.9871 8.18773C12.0436 7.96629 11.9079 7.74161 11.6864 7.68665C11.4666 7.63008 11.2403 7.76424 11.1853 7.9873L9.49623 14.7405L7.84752 8.80519C7.79741 8.62577 7.63416 8.50131 7.44828 8.50131C7.26239 8.50131 7.09914 8.62577 7.04903 8.80519L5.40032 14.7405L3.71121 7.9873C3.6708 7.82081 3.53341 7.70282 3.375 7.67857ZM18.6207 14.2944C18.3928 14.2944 18.2069 14.4787 18.2069 14.7082C18.2069 14.9377 18.3928 15.122 18.6207 15.122H20.2759C20.5038 15.122 20.6897 14.9377 20.6897 14.7082C20.6897 14.4787 20.5038 14.2944 20.2759 14.2944H18.6207Z"
+                                    fill="#5f6368" />
+                            </svg>
+
+                            <div>Word Version</div>
+                        </button>
+                    </li>
+                    <?php endif; ?>
+                </ul>
             </div>
         </div>
-        <div class="newsletter_btn_share_wrapper flex space-between items-center my-2">
-            <div class="tags_wrapper flex gap-1 items-center">
-                <?php echo $tags_list; ?>
-            </div>
-            <div class="printable_wrapper flex gap-1">
-                <input type="hidden" name="pdf_url" value="<?php echo esc_url($pdf_url); ?>" id="pdf_url_hidden_input">
-                <input type="hidden" name="word_url" value="<?php echo esc_url($word_url); ?>" id="word_url_hidden_input">
-                <!-- download document -->
-                <div class="nl_download-wrapper relative flex items-center">
-                    <button type="button" class="print_btn" aria-label="Download as PDF" id="open_dl_options"
-                        data-dialog="close">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                            fill="#e8eaed">
-                            <path
-                                d="M480-336.92 338.46-478.46l28.31-28.77L460-414v-346h40v346l93.23-93.23 28.31 28.77L480-336.92ZM264.62-200q-27.62 0-46.12-18.5Q200-237 200-264.62v-96.92h40v96.92q0 9.24 7.69 16.93 7.69 7.69 16.93 7.69h430.76q9.24 0 16.93-7.69 7.69-7.69 7.69-16.93v-96.92h40v96.92q0 27.62-18.5 46.12Q723-200 695.38-200H264.62Z" />
-                        </svg>
-                        <div class="pdf-dl">
-                            Download
-                        </div>
-                    </button>
-                    <div id="nlDowloadOptions" aria-hidden="true">
-                        <ul>
-
-                            <?php if (!empty($pdf_url)): ?>
-                                <li>
-                                    <button aria-label="Share on twitter" class="flex gap-1 items-center" id="dl_pdf">
-                                        <svg width="24" height="30" viewBox="0 0 24 30" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M19.2848 19.5722C18.9186 19.6801 18.381 19.6922 17.8046 19.6088C17.1859 19.5192 16.5549 19.3304 15.9347 19.0522C17.0407 18.8916 17.8987 18.9411 18.6326 19.2007C18.8064 19.2622 19.092 19.4266 19.2848 19.5722ZM13.1141 18.5594C13.0691 18.5716 13.0247 18.5832 12.9806 18.5954C12.683 18.6763 12.3935 18.7552 12.1145 18.8254L11.7382 18.9206C10.9814 19.1118 10.2075 19.3071 9.44322 19.5397C9.73367 18.8405 10.0035 18.1335 10.2678 17.4423C10.4634 16.9306 10.6632 16.408 10.8698 15.892C10.9746 16.0648 11.084 16.2377 11.1978 16.411C11.7163 17.1994 12.3682 17.9284 13.1141 18.5594ZM11.1889 10.6745C11.2379 11.5373 11.0514 12.3673 10.7779 13.1635C10.4409 12.1789 10.2839 11.0917 10.7052 10.2139C10.8132 9.98887 10.9017 9.86857 10.9591 9.8058C11.0478 9.94245 11.1644 10.2482 11.1889 10.6745ZM7.23761 21.6041C7.04829 21.9422 6.85504 22.2587 6.65698 22.5575C6.17899 23.2766 5.39727 24.0466 4.99569 24.0466C4.95617 24.0466 4.90835 24.0402 4.83847 23.9666C4.79349 23.9195 4.78629 23.8857 4.78847 23.8396C4.80201 23.5753 5.15291 23.1044 5.66124 22.6679C6.12262 22.2718 6.64412 21.9197 7.23761 21.6041ZM20.5635 19.6096C20.5021 18.7289 19.0171 18.1639 19.0024 18.1587C18.4284 17.9555 17.8047 17.8568 17.0959 17.8568C16.3372 17.8568 15.5192 17.9664 14.4687 18.2114C13.5339 17.5499 12.7264 16.7218 12.1231 15.805C11.8567 15.3999 11.6172 14.9956 11.4084 14.6006C11.9181 13.3841 12.377 12.076 12.2936 10.6109C12.2264 9.4362 11.6958 8.64713 10.9741 8.64713C10.4791 8.64713 10.0529 9.01313 9.70632 9.73598C9.08808 11.024 9.25059 12.6722 10.1891 14.6388C9.8511 15.4313 9.53706 16.253 9.23308 17.0483C8.85488 18.0374 8.46518 19.0577 8.02597 20.0284C6.79425 20.5149 5.78235 21.1049 4.93905 21.8293C4.38661 22.303 3.7206 23.0271 3.68259 23.783C3.66403 24.139 3.78631 24.4655 4.0348 24.7271C4.2988 25.0049 4.63047 25.1511 4.99516 25.1516C6.19963 25.1516 7.35888 23.4995 7.5788 23.1682C8.02139 22.5022 8.43565 21.7593 8.84158 20.9024C9.86395 20.5336 10.9535 20.2583 12.0095 19.9922L12.3877 19.8962C12.672 19.8241 12.9675 19.7443 13.2706 19.6615C13.5913 19.5749 13.9213 19.4852 14.2566 19.3999C15.341 20.0883 16.5071 20.5373 17.6443 20.7021C18.6022 20.8412 19.4529 20.7605 20.0288 20.4608C20.547 20.1914 20.5755 19.7757 20.5635 19.6096ZM22.8962 27.1821C22.8962 28.7949 21.4723 28.8944 21.185 28.8976H2.81351C1.20376 28.8976 1.10683 27.4664 1.10375 27.1821L1.10354 2.81731C1.10354 1.20292 2.53009 1.10505 2.81329 1.10181H15.2236L15.2302 1.10835V5.94297C15.2302 6.91322 15.8178 8.75017 18.043 8.75017H22.8547L22.896 8.79135L22.8962 27.1821ZM21.7555 7.6482H18.0439C16.4346 7.6482 16.3372 6.22477 16.335 5.94313V2.2148L21.7555 7.6482ZM24 27.1821V8.33677L16.335 0.653266V0.617518H16.2984L15.6828 0H2.81354C1.84034 0 0 0.589002 0 2.81783V27.1826C0 28.157 0.588233 30 2.81354 30H21.1867C22.1597 29.9998 24 29.4107 24 27.1821Z"
-                                                fill="#5f6368" />
-                                        </svg>
-
-
-                                        <div>PDF Version</div>
-                                    </button>
-                                </li>
-                            <?php endif; ?>
-                            <?php if (!empty($word_url)): ?>
-                                <li>
-                                    <button aria-label="Share on facebook" class="flex gap-1 items-center" id="dl_word">
-
-                                        <svg width="24" height="25" viewBox="0 0 24 25" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M13.7117 0.385467C13.6212 0.382234 13.5307 0.387083 13.4402 0.403247L1.36746 2.53363C0.575431 2.67426 0 3.35961 0 4.16295V20.2879C0 21.0929 0.575431 21.7782 1.36746 21.9173L13.4402 24.0476C13.5113 24.0606 13.5841 24.0654 13.6552 24.0654C13.9461 24.0654 14.2274 23.9652 14.452 23.7761C14.7349 23.5401 14.8966 23.1926 14.8966 22.824V20.9151H22.7586C23.4423 20.9151 24 20.3575 24 19.6737V4.77717C24 4.09344 23.4423 3.53579 22.7586 3.53579H14.8966V1.62523C14.8966 1.25831 14.7349 0.91079 14.452 0.674799C14.2419 0.496997 13.9817 0.396782 13.7117 0.385467ZM13.6988 1.21467C13.8039 1.22437 13.8798 1.27448 13.9203 1.30842C13.9768 1.35529 14.069 1.45874 14.069 1.62523V22.824C14.069 22.9921 13.9768 23.0956 13.9203 23.1425C13.8653 23.1893 13.7505 23.2621 13.5841 23.233L1.51131 21.1026C1.1153 21.0331 0.827586 20.6904 0.827586 20.2879V4.16295C0.827586 3.76047 1.1153 3.41779 1.51131 3.34829L13.5824 1.2179C13.6245 1.21144 13.6633 1.20982 13.6988 1.21467ZM14.8966 4.36338H22.7586C22.9865 4.36338 23.1724 4.54926 23.1724 4.77717V19.6737C23.1724 19.9016 22.9865 20.0875 22.7586 20.0875H14.8966V17.6048H20.2759C20.5038 17.6048 20.6897 17.4205 20.6897 17.191C20.6897 16.9614 20.5038 16.7772 20.2759 16.7772H14.8966V15.122H17.1207C17.3486 15.122 17.5345 14.9377 17.5345 14.7082C17.5345 14.4787 17.3486 14.2944 17.1207 14.2944H14.8966V12.6392H20.2759C20.5038 12.6392 20.6897 12.455 20.6897 12.2254C20.6897 11.9959 20.5038 11.8117 20.2759 11.8117H14.8966V10.1565H20.2759C20.5038 10.1565 20.6897 9.97221 20.6897 9.74269C20.6897 9.51316 20.5038 9.32889 20.2759 9.32889H14.8966V7.67372H20.2759C20.5038 7.67372 20.6897 7.48945 20.6897 7.25993C20.6897 7.0304 20.5038 6.84614 20.2759 6.84614H14.8966V4.36338ZM3.375 7.67857C3.32166 7.67049 3.26509 7.67211 3.21013 7.68665C2.98869 7.74161 2.85291 7.96629 2.90948 8.18773L4.97845 16.4636C5.02371 16.6462 5.18534 16.7739 5.37285 16.7772C5.56035 16.7707 5.72683 16.6543 5.77856 16.4733L7.44828 10.4604L9.118 16.4733C9.1681 16.6543 9.33136 16.7772 9.51724 16.7772H9.52371C9.71121 16.7739 9.87285 16.6462 9.9181 16.4636L11.9871 8.18773C12.0436 7.96629 11.9079 7.74161 11.6864 7.68665C11.4666 7.63008 11.2403 7.76424 11.1853 7.9873L9.49623 14.7405L7.84752 8.80519C7.79741 8.62577 7.63416 8.50131 7.44828 8.50131C7.26239 8.50131 7.09914 8.62577 7.04903 8.80519L5.40032 14.7405L3.71121 7.9873C3.6708 7.82081 3.53341 7.70282 3.375 7.67857ZM18.6207 14.2944C18.3928 14.2944 18.2069 14.4787 18.2069 14.7082C18.2069 14.9377 18.3928 15.122 18.6207 15.122H20.2759C20.5038 15.122 20.6897 14.9377 20.6897 14.7082C20.6897 14.4787 20.5038 14.2944 20.2759 14.2944H18.6207Z"
-                                                fill="#5f6368" />
-                                        </svg>
-
-                                        <div>Word Version</div>
-                                    </button>
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-                    </div>
+        <!-- share to social media -->
+        <div class="share-wrapper relative flex items-center">
+            <button type="button" class="share_btn" id="nl_sharebtn" data-dialog="close">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M15.218 4.931a.4.4 0 0 1-.118.132l.012.006a.45.45 0 0 1-.292.074.5.5 0 0 1-.3-.13l-2.02-2.02v7.07c0 .28-.23.5-.5.5s-.5-.22-.5-.5v-7.04l-2 2a.45.45 0 0 1-.57.04h-.02a.4.4 0 0 1-.16-.3.4.4 0 0 1 .1-.32l2.8-2.8a.5.5 0 0 1 .7 0l2.8 2.79a.42.42 0 0 1 .068.498m-.106.138.008.004v-.01zM16 7.063h1.5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-11c-1.1 0-2-.9-2-2v-10a2 2 0 0 1 2-2H8a.5.5 0 0 1 .35.15.5.5 0 0 1 .15.35.5.5 0 0 1-.15.35.5.5 0 0 1-.35.15H6.4c-.5 0-.9.4-.9.9v10.2a.9.9 0 0 0 .9.9h11.2c.5 0 .9-.4.9-.9v-10.2c0-.5-.4-.9-.9-.9H16a.5.5 0 0 1 0-1"
+                        clip-rule="evenodd"></path>
+                </svg>
+                <div class="share-this">
+                    Share
                 </div>
-                <!-- share to social media -->
-                <div class="share-wrapper relative flex items-center">
-                    <button type="button" class="share_btn" id="nl_sharebtn" data-dialog="close">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path fill-rule="evenodd"
-                                d="M15.218 4.931a.4.4 0 0 1-.118.132l.012.006a.45.45 0 0 1-.292.074.5.5 0 0 1-.3-.13l-2.02-2.02v7.07c0 .28-.23.5-.5.5s-.5-.22-.5-.5v-7.04l-2 2a.45.45 0 0 1-.57.04h-.02a.4.4 0 0 1-.16-.3.4.4 0 0 1 .1-.32l2.8-2.8a.5.5 0 0 1 .7 0l2.8 2.79a.42.42 0 0 1 .068.498m-.106.138.008.004v-.01zM16 7.063h1.5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-11c-1.1 0-2-.9-2-2v-10a2 2 0 0 1 2-2H8a.5.5 0 0 1 .35.15.5.5 0 0 1 .15.35.5.5 0 0 1-.15.35.5.5 0 0 1-.35.15H6.4c-.5 0-.9.4-.9.9v10.2a.9.9 0 0 0 .9.9h11.2c.5 0 .9-.4.9-.9v-10.2c0-.5-.4-.9-.9-.9H16a.5.5 0 0 1 0-1"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        <div class="share-this">
-                            Share
-                        </div>
-                    </button>
-                </div>
-            </div>
+            </button>
         </div>
-        <?php
+    </div>
+</div>
+<?php
         return ob_get_clean();
     }
 
@@ -1607,34 +1607,34 @@ function share_download_sc($atts)
         // Start output buffering
         ob_start();
         ?>
-        <div class="share_download_div_wrapper flex gap-1 relative">
-            <div class="share-wrapper relative flex items-center">
-                <button type="button" class="share_btn flex items-center" id="nl_sharebtn" data-dialog="close">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path fill-rule="evenodd"
-                            d="M15.218 4.931a.4.4 0 0 1-.118.132l.012.006a.45.45 0 0 1-.292.074.5.5 0 0 1-.3-.13l-2.02-2.02v7.07c0 .28-.23.5-.5.5s-.5-.22-.5-.5v-7.04l-2 2a.45.45 0 0 1-.57.04h-.02a.4.4 0 0 1-.16-.3.4.4 0 0 1 .1-.32l2.8-2.8a.5.5 0 0 1 .7 0l2.8 2.79a.42.42 0 0 1 .068.498m-.106.138.008.004v-.01zM16 7.063h1.5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-11c-1.1 0-2-.9-2-2v-10a2 2 0 0 1 2-2H8a.5.5 0 0 1 .35.15.5.5 0 0 1 .15.35.5.5 0 0 1-.15.35.5.5 0 0 1-.35.15H6.4c-.5 0-.9.4-.9.9v10.2a.9.9 0 0 0 .9.9h11.2c.5 0 .9-.4.9-.9v-10.2c0-.5-.4-.9-.9-.9H16a.5.5 0 0 1 0-1"
-                            clip-rule="evenodd"></path>
-                    </svg>
-                    <div class="share-this">
-                        Share
-                    </div>
-                </button>
+<div class="share_download_div_wrapper flex gap-1 relative">
+    <div class="share-wrapper relative flex items-center">
+        <button type="button" class="share_btn flex items-center" id="nl_sharebtn" data-dialog="close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path fill-rule="evenodd"
+                    d="M15.218 4.931a.4.4 0 0 1-.118.132l.012.006a.45.45 0 0 1-.292.074.5.5 0 0 1-.3-.13l-2.02-2.02v7.07c0 .28-.23.5-.5.5s-.5-.22-.5-.5v-7.04l-2 2a.45.45 0 0 1-.57.04h-.02a.4.4 0 0 1-.16-.3.4.4 0 0 1 .1-.32l2.8-2.8a.5.5 0 0 1 .7 0l2.8 2.79a.42.42 0 0 1 .068.498m-.106.138.008.004v-.01zM16 7.063h1.5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-11c-1.1 0-2-.9-2-2v-10a2 2 0 0 1 2-2H8a.5.5 0 0 1 .35.15.5.5 0 0 1 .15.35.5.5 0 0 1-.15.35.5.5 0 0 1-.35.15H6.4c-.5 0-.9.4-.9.9v10.2a.9.9 0 0 0 .9.9h11.2c.5 0 .9-.4.9-.9v-10.2c0-.5-.4-.9-.9-.9H16a.5.5 0 0 1 0-1"
+                    clip-rule="evenodd"></path>
+            </svg>
+            <div class="share-this">
+                Share
             </div>
-            <div>
-                <a href="<?= $slide_url ?>" class="view_slides flex items-center" target="_blank" title="Download Slides">
-                    <div class="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                            fill="#5f6368">
-                            <path
-                                d="M395.38-336.92 618.46-480 395.38-623.08v286.16ZM224.62-160q-27.62 0-46.12-18.5Q160-197 160-224.62v-510.76q0-27.62 18.5-46.12Q197-800 224.62-800h510.76q27.62 0 46.12 18.5Q800-763 800-735.38v510.76q0 27.62-18.5 46.12Q763-160 735.38-160H224.62Zm0-40h510.76q9.24 0 16.93-7.69 7.69-7.69 7.69-16.93v-510.76q0-9.24-7.69-16.93-7.69-7.69-16.93-7.69H224.62q-9.24 0-16.93 7.69-7.69 7.69-7.69 16.93v510.76q0 9.24 7.69 16.93 7.69 7.69 16.93 7.69ZM200-760v560-560Z" />
-                        </svg>
-                    </div>
-                    <div>Download Slides</div>
-                </a>
+        </button>
+    </div>
+    <div>
+        <a href="<?= $slide_url ?>" class="view_slides flex items-center" target="_blank" title="Download Slides">
+            <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                    fill="#5f6368">
+                    <path
+                        d="M395.38-336.92 618.46-480 395.38-623.08v286.16ZM224.62-160q-27.62 0-46.12-18.5Q160-197 160-224.62v-510.76q0-27.62 18.5-46.12Q197-800 224.62-800h510.76q27.62 0 46.12 18.5Q800-763 800-735.38v510.76q0 27.62-18.5 46.12Q763-160 735.38-160H224.62Zm0-40h510.76q9.24 0 16.93-7.69 7.69-7.69 7.69-16.93v-510.76q0-9.24-7.69-16.93-7.69-7.69-16.93-7.69H224.62q-9.24 0-16.93 7.69-7.69 7.69-7.69 16.93v510.76q0 9.24 7.69 16.93 7.69 7.69 16.93 7.69ZM200-760v560-560Z" />
+                </svg>
             </div>
-        </div>
+            <div>Download Slides</div>
+        </a>
+    </div>
+</div>
 
-        <?php
+<?php
         // Get the buffered content
         $output = ob_get_clean();
         return $output;
@@ -1728,18 +1728,18 @@ function getPostTitleAndCategory($atts)
         ob_start();
         ?>
 
-        <div class="award_post_title flex space-between">
-            <div class="post_title">
-                <h1><?= esc_html($post_title) ?></h1>
-            </div>
-            <div class="category_and_date flex flex-col">
-                <span class="categ_label fw-bold capitalize"><?= $category_name ?></span>
-                <time datetime="<?php echo esc_attr($post_datetime); ?>"><?= esc_html($post_date); ?></time>
-                <div class="divider"></div>
-                <span id="read_time_est" class="text-gray-500 fw-regular"></span>
-            </div>
-        </div>
-        <?php
+<div class="award_post_title flex space-between">
+    <div class="post_title">
+        <h1><?= esc_html($post_title) ?></h1>
+    </div>
+    <div class="category_and_date flex flex-col">
+        <span class="categ_label fw-bold capitalize"><?= $category_name ?></span>
+        <time datetime="<?php echo esc_attr($post_datetime); ?>"><?= esc_html($post_date); ?></time>
+        <div class="divider"></div>
+        <span id="read_time_est" class="text-gray-500 fw-regular"></span>
+    </div>
+</div>
+<?php
         return ob_get_clean();
     }
     return '';
@@ -1877,24 +1877,24 @@ function getNewslettersPosts($atts = [])
         $plugin_img_url = get_post_meta($post['id'], 'fiuw_image_url', true);
         $img_url = !empty($plugin_img_url) ? $plugin_img_url : $post['featured_image'];
         ?>
-        <article class="newsletter_post_item flex-col" data-category="<?php echo esc_attr($post['categories']); ?>"
-            data-tags="<?php echo esc_attr($post['tags']); ?>" data-nl_date="<?php echo esc_attr($post['post_date']); ?>"
-            data-post-id="<?php echo esc_attr($post['id']); ?>">
-            <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
-                aria-label="<?php echo esc_attr($post['title']); ?>">
-                <div class="post-thumbnail">
-                    <img decoding="async" width="286" height="286" class="" src="<?php echo esc_url($img_url); ?>"
-                        alt="<?php echo esc_attr($post['title']); ?>">
-                    <time class="post-date" datetime="<?php echo esc_attr($post['post_date']); ?>">
-                        <?php echo esc_html($post['post_date']); ?>
-                    </time>
-                    <h2 class="post-title" title="<?php echo esc_attr($post['title']); ?>">
-                        <?php echo esc_html($post['title']); ?>
-                    </h2>
-                </div>
-            </a>
-        </article>
-        <?php
+<article class="newsletter_post_item flex-col" data-category="<?php echo esc_attr($post['categories']); ?>"
+    data-tags="<?php echo esc_attr($post['tags']); ?>" data-nl_date="<?php echo esc_attr($post['post_date']); ?>"
+    data-post-id="<?php echo esc_attr($post['id']); ?>">
+    <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
+        aria-label="<?php echo esc_attr($post['title']); ?>">
+        <div class="post-thumbnail">
+            <img decoding="async" width="286" height="286" class="" src="<?php echo esc_url($img_url); ?>"
+                alt="<?php echo esc_attr($post['title']); ?>">
+            <time class="post-date" datetime="<?php echo esc_attr($post['post_date']); ?>">
+                <?php echo esc_html($post['post_date']); ?>
+            </time>
+            <h2 class="post-title" title="<?php echo esc_attr($post['title']); ?>">
+                <?php echo esc_html($post['title']); ?>
+            </h2>
+        </div>
+    </a>
+</article>
+<?php
     endforeach;
 
     $content = ob_get_clean();
@@ -2074,24 +2074,24 @@ function getAwardPostItems($atts = [])
         $tags_lower = strtolower($post['tags'] ?? '');
         $category_names_lower = strtolower($post['category_names'] ?? '');
         ?>
-        <article class="awards_card_item" data-category="<?php echo esc_attr($categories_lower); ?>"
-            data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr($post['id']); ?>">
-            <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
-                aria-label="<?php echo esc_attr($post['title']); ?>">
-                <?php if ($img_url): ?>
-                    <img decoding="async" width="300" height="300" class="awards_card_img" src="<?php echo esc_url($img_url); ?>"
-                        alt="<?php echo esc_attr($post['title']); ?>">
-                <?php endif; ?>
-                <div>
-                    <div class="categ_date flex">
-                        <div class="categ_lbl capitalize pr-2"><?php echo esc_html($category_names_lower); ?></div>
-                        <div class="date_posted text-gray-700 fw-light"><?php echo esc_html($post['post_date'] ?? ''); ?></div>
-                    </div>
-                    <div class="title"><?php echo esc_html($post['title']); ?></div>
-                </div>
-            </a>
-        </article>
-        <?php
+<article class="awards_card_item" data-category="<?php echo esc_attr($categories_lower); ?>"
+    data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr($post['id']); ?>">
+    <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
+        aria-label="<?php echo esc_attr($post['title']); ?>">
+        <?php if ($img_url): ?>
+        <img decoding="async" width="300" height="300" class="awards_card_img" src="<?php echo esc_url($img_url); ?>"
+            alt="<?php echo esc_attr($post['title']); ?>">
+        <?php endif; ?>
+        <div>
+            <div class="categ_date flex">
+                <div class="categ_lbl capitalize pr-2"><?php echo esc_html($category_names_lower); ?></div>
+                <div class="date_posted text-gray-700 fw-light"><?php echo esc_html($post['post_date'] ?? ''); ?></div>
+            </div>
+            <div class="title"><?php echo esc_html($post['title']); ?></div>
+        </div>
+    </a>
+</article>
+<?php
     }
     $content = ob_get_clean();
 
@@ -2318,28 +2318,28 @@ function getWebinarsPodcasts(array $atts = []): string
         $categories_lower = strtolower($post['categories'] ?? '');
         $tags_lower = strtolower($post['tags'] ?? '');
         ?>
-        <article class="news_article_wrapper" data-category="<?php echo esc_attr($categories_lower); ?>"
-            data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr($post['id']); ?>">
-            <div class="news_card_image">
-                <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
-                    aria-label="<?php echo esc_attr($post['title']); ?>" title="<?php echo esc_attr($post['title']); ?>">
-                    <?php if ($img_url): ?>
-                        <img decoding="async" width="320" height="320" class="border-1" src="<?php echo esc_url($img_url); ?>"
-                            alt="<?php echo esc_attr($post['title']); ?>">
-                    <?php endif; ?>
-                </a>
-            </div>
-            <div class="news_card_content">
-                <?php if (!empty($post['post_date'])): ?>
-                    <div class="newsevents__post_date"><?php echo esc_html($post['post_date']); ?></div>
-                <?php endif; ?>
-                <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
-                    aria-label="<?php echo esc_attr($post['title']); ?>" title="<?php echo esc_attr($post['title']); ?>">
-                    <h2 class="newsevents__post_title fw-medium"><?php echo esc_html($post['title']); ?></h2>
-                </a>
-            </div>
-        </article>
-        <?php
+<article class="news_article_wrapper" data-category="<?php echo esc_attr($categories_lower); ?>"
+    data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr($post['id']); ?>">
+    <div class="news_card_image">
+        <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
+            aria-label="<?php echo esc_attr($post['title']); ?>" title="<?php echo esc_attr($post['title']); ?>">
+            <?php if ($img_url): ?>
+            <img decoding="async" width="320" height="320" class="border-1" src="<?php echo esc_url($img_url); ?>"
+                alt="<?php echo esc_attr($post['title']); ?>">
+            <?php endif; ?>
+        </a>
+    </div>
+    <div class="news_card_content">
+        <?php if (!empty($post['post_date'])): ?>
+        <div class="newsevents__post_date"><?php echo esc_html($post['post_date']); ?></div>
+        <?php endif; ?>
+        <a href="<?php echo esc_url($post['url']); ?>" rel="noopener noreferrer"
+            aria-label="<?php echo esc_attr($post['title']); ?>" title="<?php echo esc_attr($post['title']); ?>">
+            <h2 class="newsevents__post_title fw-medium"><?php echo esc_html($post['title']); ?></h2>
+        </a>
+    </div>
+</article>
+<?php
     }
     $content = ob_get_clean();
 
@@ -2467,32 +2467,35 @@ function getNewsPostItems($atts = [])
         $cat_terms = get_the_terms($post_id, 'category') ?: [];
         $tag_terms = get_the_terms($post_id, 'post_tag') ?: [];
         $categories_lower = implode(',', array_map(static function ($t) {
-            return strtolower($t->slug); }, array_filter($cat_terms, 'is_object')));
+            return strtolower($t->slug);
+        }, array_filter($cat_terms, 'is_object')));
         $tags_lower = implode(',', array_map(static function ($t) {
-            return strtolower($t->slug); }, array_filter($tag_terms, 'is_object')));
+            return strtolower($t->slug);
+        }, array_filter($tag_terms, 'is_object')));
         ?>
-        <article class="news_article_wrapper" data-category="<?php echo esc_attr($categories_lower); ?>"
-            data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr((string) $post_id); ?>" data-post-date="<?php echo esc_attr($post_date); ?>">
-            <div class="news_card_image">
-                <a href="<?php echo esc_url($post_url); ?>" rel="noopener noreferrer"
-                    aria-label="<?php echo esc_attr($title); ?>" title="<?php echo esc_attr($title); ?>">
-                    <?php if (!empty($img_url)): ?>
-                        <img decoding="async" width="320" height="320" class="border-1" src="<?php echo esc_url($img_url); ?>"
-                            alt="<?php echo esc_attr($title); ?>">
-                    <?php endif; ?>
-                </a>
-            </div>
-            <div class="news_card_content">
-                <?php if (!empty($post_date)): ?>
-                    <div class="newsevents__post_date"><?php echo esc_html($post_date); ?></div>
-                <?php endif; ?>
-                <a href="<?php echo esc_url($post_url); ?>" rel="noopener noreferrer"
-                    aria-label="<?php echo esc_attr($title); ?>" title="<?php echo esc_attr($title); ?>">
-                    <h2 class="newsevents__post_title fw-medium"><?php echo esc_html($title); ?></h2>
-                </a>
-            </div>
-        </article>
-        <?php
+<article class="news_article_wrapper" data-category="<?php echo esc_attr($categories_lower); ?>"
+    data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr((string) $post_id); ?>"
+    data-post-date="<?php echo esc_attr($post_date); ?>">
+    <div class="news_card_image">
+        <a href="<?php echo esc_url($post_url); ?>" rel="noopener noreferrer"
+            aria-label="<?php echo esc_attr($title); ?>" title="<?php echo esc_attr($title); ?>">
+            <?php if (!empty($img_url)): ?>
+            <img decoding="async" width="320" height="320" class="border-1" src="<?php echo esc_url($img_url); ?>"
+                alt="<?php echo esc_attr($title); ?>">
+            <?php endif; ?>
+        </a>
+    </div>
+    <div class="news_card_content">
+        <?php if (!empty($post_date)): ?>
+        <div class="newsevents__post_date"><?php echo esc_html($post_date); ?></div>
+        <?php endif; ?>
+        <a href="<?php echo esc_url($post_url); ?>" rel="noopener noreferrer"
+            aria-label="<?php echo esc_attr($title); ?>" title="<?php echo esc_attr($title); ?>">
+            <h2 class="newsevents__post_title fw-medium"><?php echo esc_html($title); ?></h2>
+        </a>
+    </div>
+</article>
+<?php
     }
     wp_reset_postdata();
 
@@ -2584,21 +2587,21 @@ function ajax_search()
             $search_query->the_post();
             if (!post_password_required()):  // Exclude password-protected posts
                 ?>
-                <li>
-                    <a href="<?php the_permalink(); ?>">
-                        <div class="thumbnail">
-                            <?php if (has_post_thumbnail()):
+<li>
+    <a href="<?php the_permalink(); ?>">
+        <div class="thumbnail">
+            <?php if (has_post_thumbnail()):
                                 the_post_thumbnail('thumbnail');
                             else: ?>
-                                <img src="<?php echo get_template_directory_uri(); ?>/path/to/default-image.jpg" alt="Default Thumbnail">
-                            <?php endif; ?>
-                        </div>
-                        <div class="title">
-                            <?php the_title(); ?>
-                        </div>
-                    </a>
-                </li>
-                <?php
+            <img src="<?php echo get_template_directory_uri(); ?>/path/to/default-image.jpg" alt="Default Thumbnail">
+            <?php endif; ?>
+        </div>
+        <div class="title">
+            <?php the_title(); ?>
+        </div>
+    </a>
+</li>
+<?php
             endif;
         endwhile;
     else:
@@ -2624,21 +2627,21 @@ function ajax_latest_posts()
         while ($latest_posts->have_posts()):
             $latest_posts->the_post();
             ?>
-            <li>
-                <a href="<?php the_permalink(); ?>">
-                    <div class="thumbnail">
-                        <?php if (has_post_thumbnail()):
+<li>
+    <a href="<?php the_permalink(); ?>">
+        <div class="thumbnail">
+            <?php if (has_post_thumbnail()):
                             the_post_thumbnail('thumbnail');
                         else: ?>
-                            <img src="<?php echo get_template_directory_uri(); ?>/path/to/default-image.jpg" alt="Default Thumbnail">
-                        <?php endif; ?>
-                    </div>
-                    <div class="title">
-                        <?php the_title(); ?>
-                    </div>
-                </a>
-            </li>
-            <?php
+            <img src="<?php echo get_template_directory_uri(); ?>/path/to/default-image.jpg" alt="Default Thumbnail">
+            <?php endif; ?>
+        </div>
+        <div class="title">
+            <?php the_title(); ?>
+        </div>
+    </a>
+</li>
+<?php
         endwhile;
     else:
         echo '<li>No latest posts found</li>';
