@@ -23,7 +23,7 @@ document.addEventListener("readystatechange", (e) => {
         const hasServerPagination = document.querySelector('#news_posts_wrapper .pagination_container');
         if (newseventsWrapper && !hasServerPagination) {
             // Only use client-side fetch/render when pagination is NOT server-driven
-            getNewsAndEventsPosts(["awards-and-rankings", "news"]);
+            // getNewsAndEventsPosts(["awards-and-rankings", "news"]);
         }
         // getArchivedAllPosts(["hong-kong-law"]);
 
@@ -1769,3 +1769,142 @@ function initNewsPagination() {
 // =======================================
 //  NEWS PAGINATION (AJAX) ::: END
 // =======================================
+
+// Helper: resolve WP category ID by slug (cached)
+const getCategoryIdBySlug = (() => {
+    const cache = new Map();
+    return async function (slug) {
+        if (cache.has(slug)) return cache.get(slug);
+        const res = await fetch(`${location.origin}/wp-json/wp/v2/categories?slug=${encodeURIComponent(slug)}&_fields=id,slug`);
+        if (!res.ok) return null;
+        const arr = await res.json();
+        const id = Array.isArray(arr) && arr.length ? arr[0].id : null;
+        cache.set(slug, id);
+        return id;
+    };
+})();
+
+const newsPostItems = document?.querySelectorAll('.news_article_wrapper');
+const getNextPageBtn = document?.getElementById('get_paginate')
+
+const loadedPosts = [];
+
+loadedPosts.push(...newsPostItems);
+
+getNextPageBtn.addEventListener('click', () => {
+newsPostItems.forEach(item => {
+    // get the last item in the list
+    const lastItem = item === newsPostItems[newsPostItems.length - 1];
+    if (!lastItem) return;
+
+    // Expecting data-post-date like "10 Mar 2025"
+    const rawDate = item.dataset.postDate || item.getAttribute('data-post-date');
+    if (!rawDate) {
+        console.warn('Missing data-post-date on last post item');
+        return;
+    }
+
+    // Convert to "YYYY-MM-DDT23:59:59" (no timezone suffix)
+    const toIsoEndOfDayLocal = (dstr) => {
+        const months = { jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12 };
+        const parts = dstr.trim().split(/\s+/); // ["10","Mar","2025"]
+        if (parts.length !== 3) return null;
+        const [dayStr, monStr, yearStr] = parts;
+        const mm = months[monStr.toLowerCase()];
+        const dd = String(parseInt(dayStr, 10)).padStart(2, '0');
+        const mo = String(mm).padStart(2, '0');
+        const yy = String(parseInt(yearStr, 10));
+        if (!mm || !yy) return null;
+        return `${yy}-${mo}-${dd}T23:59:59`;
+    };
+
+    const before = toIsoEndOfDayLocal(rawDate);
+    if (!before) {
+        console.warn('Unable to parse data-post-date:', rawDate);
+        return;
+    }
+
+    // Fetch only posts in the "news" category (by slug)
+    (async () => {
+        try {
+            const newsCatId = await getCategoryIdBySlug('news');
+            if (!newsCatId) {
+                console.warn('Category "news" not found');
+                return;
+            }
+            // Exclude the last visible post from the next fetch
+            const rawId = item.dataset.postId || item.getAttribute('data-post-id');
+            const lastId = rawId ? parseInt(rawId, 10) : null;
+
+            const params = new URLSearchParams({
+                per_page: '15',
+                orderby: 'date',
+                order: 'desc',
+                before: before,
+                categories: String(newsCatId),
+                _fields: 'id,link,title.rendered,date'
+            });
+            if (Number.isInteger(lastId)) params.append('exclude', String(lastId));
+
+            const url = `${location.origin}/wp-json/wp/v2/posts?${params.toString()}`;
+            const response = await fetch(url);
+            if (!response.ok) {
+                console.error('REST API error fetching posts:', response.status, response.statusText);
+                return;
+            }
+
+            // Totals for THIS query (includes before/exclude/per_page filters)
+            const totalItemsForQuery = parseInt(response.headers.get('X-WP-Total') || '0', 10);
+            const totalPagesForQuery = parseInt(response.headers.get('X-WP-TotalPages') || '0', 10);
+
+            const data = await response.json();
+            // Fallback guard: filter out lastId if API still returns it
+            const filtered = Array.isArray(data) && Number.isInteger(lastId)
+                ? data.filter(p => p && p.id !== lastId)
+                : data;
+            console.table(filtered);
+            console.log('WP REST totals (for current query):', {
+                totalItems: totalItemsForQuery,
+                totalPages: totalPagesForQuery
+            });
+            
+            loadedPosts.forEach(post => {
+                post.classList.add('d-none');
+            })
+
+            // Optional: All-time total items for the "news" category (ignoring date/exclude)
+            // Use per_page=1 and _fields=id to minimize payload; totals come from headers
+            try {
+                const totalsParams = new URLSearchParams({
+                    per_page: '1',
+                    categories: String(newsCatId),
+                    _fields: 'id'
+                });
+                const totalsUrl = `${location.origin}/wp-json/wp/v2/posts?${totalsParams.toString()}`;
+                const totalsRes = await fetch(totalsUrl);
+                if (totalsRes.ok) {
+                    const totalNewsAllTime = parseInt(totalsRes.headers.get('X-WP-Total') || '0', 10);
+                    const totalNewsAllTimePages = parseInt(totalsRes.headers.get('X-WP-TotalPages') || '0', 10);
+                    console.log('WP REST totals (all-time for category "news"): ', {
+                        totalItems: totalNewsAllTime,
+                        totalPages: totalNewsAllTimePages
+                    });
+                }
+            } catch (e) {
+                // Swallow optional totals error
+            }
+        } catch (error) {
+            console.error('Error fetching more posts:', error);
+        }
+    })();
+});
+});
+
+
+
+
+function log(...args) {
+    if (typeof console !== 'undefined' && console.log) {
+        console.log(...args);
+    }
+}
