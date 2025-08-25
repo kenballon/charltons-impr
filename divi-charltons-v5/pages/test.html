@@ -1,31 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="all_newsevents_container">
-        <nav class="btn_tag_filter_wrapper flex gap-1"><button id="all" class="news_btn_tag_filter"
-                type="button">All</button>
-            <button id="webinars" class="news_btn_tag_filter" type="button">Webinars</button>
-            <button id="events" class="news_btn_tag_filter" type="button">Events</button>
-            <button id="news" class="news_btn_tag_filter" type="button">News</button>
-            <button id="awards" class="news_btn_tag_filter" type="button">Awards</button>
-            <button id="youtube" class="news_btn_tag_filter" type="button">Youtube</button>
-        </nav>
+      <nav class="btn_tag_filter_wrapper flex gap-1">
+        <button id="all" class="news_btn_tag_filter" type="button">All</button>
+        <button id="webinars" class="news_btn_tag_filter" type="button">
+          Webinars
+        </button>
+        <button id="events" class="news_btn_tag_filter" type="button">
+          Events
+        </button>
+        <button id="news" class="news_btn_tag_filter" type="button">
+          News
+        </button>
+        <button id="awards" class="news_btn_tag_filter" type="button">
+          Awards
+        </button>
+        <button id="youtube" class="news_btn_tag_filter" type="button">
+          Youtube
+        </button>
+      </nav>
 
-        [get_news_post_items posts_per_page="20" page="1" category="news"]
+      [get_news_post_items posts_per_page="20" page="1" category="news"]
 
-        <!---<div id="all_news_posts" class="news_posts_container grid gap-2">
+      <!---<div id="all_news_posts" class="news_posts_container grid gap-2">
             loop all posts with a certain category: shortcode loop
         </div>-->
 
-        <!-- custom pagination -->
-        <!-- <div class="pagination_container flex justify-center">
+      <!-- custom pagination -->
+      <!-- <div class="pagination_container flex justify-center">
             <div class="news_previous_wrapper_div flex">
                 <button id="prev_post_btn" class="prev d-none" type="button">Previous</button>
                 <button id="first_post_btn" class="first d-none" type="button">First</button>
@@ -39,6 +48,30 @@
             </div>
         </div> -->
     </div>
-</body>
 
+    <section class="takeover">
+      <article class="nl_hero_temp_2024 flex gap-1 flex-col">
+        <h1 class="p-0 text-white">
+          Hong Kong Codes on Takeovers and Mergers and Share Buy-backs
+        </h1>
+        <p class="text-white">
+          Explore the Hong Kong Takeovers Code and Share Buy-backs Code, the key
+          regulations from Securities and Futures Commission (SFC), aim to
+          ensure fair treatment of shareholders during takeovers, mergers, and
+          share buy-backs. The Codes are not legally binding but represent a
+          consensus on acceptable commercial conduct in Hong Kong’s financial
+          markets. For more detailed information, download the more
+          comprehensive PDF guide below.
+        </p>        
+        <div class="mt-4">
+          <a
+            class="btn-primary text-white "
+            href="https://charltonsquantum.com/media/ebooks/Charltons-Overview-of-Virtual-Assets-Law-and-Regulation.pdf"
+            target="_blank"
+            rel="noopener"
+            >Download PDF</a>
+        </div>
+      </article>
+    </section>
+  </body>
 </html>
