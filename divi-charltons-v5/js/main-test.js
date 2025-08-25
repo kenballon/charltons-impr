@@ -7,8 +7,7 @@ const origin = window.location.origin;
 document.addEventListener("readystatechange", (e) => {
     if (e.target.readyState === "complete") {
         customHeaderNavigation();
-        initNewsletterPage();
-        initNewsPagination();
+        initNewsletterPage();        
 
         const buttonAllActive = document.getElementById("all");
         currentUrl.startsWith(origin + "/news")
@@ -1683,89 +1682,89 @@ function initLoadMoreWithFilters(config) {
 // =======================================
 //  NEWS PAGINATION (AJAX) ::: START
 // =======================================
-function initNewsPagination() {
-    // Delegate clicks from the document to handle dynamically replaced markup
-    document.addEventListener('click', function (e) {
-        const btn = e.target.closest('#news_pagination_btns_wrapper button, .pagination_container button');
-        if (!btn) return;
+// function initNewsPagination() {
+//     // Delegate clicks from the document to handle dynamically replaced markup
+//     document.addEventListener('click', function (e) {
+//         const btn = e.target.closest('#news_pagination_btns_wrapper button, .pagination_container button');
+//         if (!btn) return;
 
-        const container = btn.closest('.pagination_container');
-        if (!container) return;
+//         const container = btn.closest('.pagination_container');
+//         if (!container) return;
 
-        // Determine requested page
-        let targetPage = btn.dataset.page ? parseInt(btn.dataset.page, 10) : NaN;
-        if (Number.isNaN(targetPage)) return; // No-op if button doesn't specify a page
+//         // Determine requested page
+//         let targetPage = btn.dataset.page ? parseInt(btn.dataset.page, 10) : NaN;
+//         if (Number.isNaN(targetPage)) return; // No-op if button doesn't specify a page
 
-        const currentPage = parseInt(container.getAttribute('data-current-page') || '1', 10);
-        const totalPages = parseInt(container.getAttribute('data-total-pages') || '1', 10);
+//         const currentPage = parseInt(container.getAttribute('data-current-page') || '1', 10);
+//         const totalPages = parseInt(container.getAttribute('data-total-pages') || '1', 10);
 
-        // Guard rails
-        if (targetPage < 1 || targetPage > totalPages || targetPage === currentPage) {
-            e.preventDefault();
-            return;
-        }
+//         // Guard rails
+//         if (targetPage < 1 || targetPage > totalPages || targetPage === currentPage) {
+//             e.preventDefault();
+//             return;
+//         }
 
-        const category = container.getAttribute('data-category') || 'news';
-        const ppp = parseInt(container.getAttribute('data-ppp') || '20', 10);
+//         const category = container.getAttribute('data-category') || 'news';
+//         const ppp = parseInt(container.getAttribute('data-ppp') || '20', 10);
 
-        // Find wrapper to replace
-        const wrapper = document.getElementById('news_posts_wrapper');
-        if (!wrapper) return;
+//         // Find wrapper to replace
+//         const wrapper = document.getElementById('news_posts_wrapper');
+//         if (!wrapper) return;
 
-        // Show loading spinner inside the wrapper
-        const spinner = wrapper.querySelector('.loading-spinner');
-        if (spinner) spinner.style.display = 'block';
+//         // Show loading spinner inside the wrapper
+//         const spinner = wrapper.querySelector('.loading-spinner');
+//         if (spinner) spinner.style.display = 'block';
 
-        const params = new URLSearchParams();
-        params.append('action', 'paginate_news_posts');
-        params.append('page', String(targetPage));
-        params.append('posts_per_page', String(ppp));
-        params.append('category', category);
+//         const params = new URLSearchParams();
+//         params.append('action', 'paginate_news_posts');
+//         params.append('page', String(targetPage));
+//         params.append('posts_per_page', String(ppp));
+//         params.append('category', category);
 
-        fetch(ajax_object.ajax_url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params
-        })
-            .then(res => res.text())
-            .then(html => {
-                // Replace the entire wrapper with the returned HTML
-                const parent = wrapper.parentElement;
-                if (!parent) return;
-                // Create a temp container to parse
-                const temp = document.createElement('div');
-                temp.innerHTML = html.trim();
-                const newWrapper = temp.querySelector('#news_posts_wrapper');
-                if (newWrapper) {
-                    parent.replaceChild(newWrapper, wrapper);
-                    // Hide spinner on the freshly inserted wrapper
-                    const newSpinner = newWrapper.querySelector('.loading-spinner');
-                    if (newSpinner) newSpinner.style.display = 'none';
-                    // Scroll to top of the grid for better UX
-                    const allPosts = document.getElementById('all_news_posts');
-                    if (allPosts) {
-                        const top = allPosts.getBoundingClientRect().top + window.scrollY - 100;
-                        window.scrollTo({ top, behavior: 'smooth' });
-                    }
-                } else {
-                    // Fallback: just drop the HTML in place
-                    wrapper.outerHTML = html;
-                }
-            })
-            .catch(err => {
-                console.error('Failed to paginate news posts:', err);
-                if (spinner) spinner.style.display = 'none';
-            })
-            .finally(() => {
-                // Ensure spinner is hidden if wrapper wasn't replaced
-                const currentWrapper = document.getElementById('news_posts_wrapper');
-                const sp = currentWrapper ? currentWrapper.querySelector('.loading-spinner') : null;
-                if (sp) sp.style.display = 'none';
-            });
+//         fetch(ajax_object.ajax_url, {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+//             body: params
+//         })
+//             .then(res => res.text())
+//             .then(html => {
+//                 // Replace the entire wrapper with the returned HTML
+//                 const parent = wrapper.parentElement;
+//                 if (!parent) return;
+//                 // Create a temp container to parse
+//                 const temp = document.createElement('div');
+//                 temp.innerHTML = html.trim();
+//                 const newWrapper = temp.querySelector('#news_posts_wrapper');
+//                 if (newWrapper) {
+//                     parent.replaceChild(newWrapper, wrapper);
+//                     // Hide spinner on the freshly inserted wrapper
+//                     const newSpinner = newWrapper.querySelector('.loading-spinner');
+//                     if (newSpinner) newSpinner.style.display = 'none';
+//                     // Scroll to top of the grid for better UX
+//                     const allPosts = document.getElementById('all_news_posts');
+//                     if (allPosts) {
+//                         const top = allPosts.getBoundingClientRect().top + window.scrollY - 100;
+//                         window.scrollTo({ top, behavior: 'smooth' });
+//                     }
+//                 } else {
+//                     // Fallback: just drop the HTML in place
+//                     wrapper.outerHTML = html;
+//                 }
+//             })
+//             .catch(err => {
+//                 console.error('Failed to paginate news posts:', err);
+//                 if (spinner) spinner.style.display = 'none';
+//             })
+//             .finally(() => {
+//                 // Ensure spinner is hidden if wrapper wasn't replaced
+//                 const currentWrapper = document.getElementById('news_posts_wrapper');
+//                 const sp = currentWrapper ? currentWrapper.querySelector('.loading-spinner') : null;
+//                 if (sp) sp.style.display = 'none';
+//             });
 
-        e.preventDefault();
-    });
-}
+//         e.preventDefault();
+//     });
+// }
 // =======================================
 //  NEWS PAGINATION (AJAX) ::: END
 // =======================================
@@ -1786,10 +1785,6 @@ const getCategoryIdBySlug = (() => {
 
 const newsPostItems = document?.querySelectorAll('.news_article_wrapper');
 const getNextPageBtn = document?.getElementById('get_paginate')
-
-const loadedPosts = [];
-
-loadedPosts.push(...newsPostItems);
 
 getNextPageBtn.addEventListener('click', () => {
 newsPostItems.forEach(item => {
@@ -1866,45 +1861,10 @@ newsPostItems.forEach(item => {
             console.log('WP REST totals (for current query):', {
                 totalItems: totalItemsForQuery,
                 totalPages: totalPagesForQuery
-            });
-            
-            loadedPosts.forEach(post => {
-                post.classList.add('d-none');
-            })
-
-            // Optional: All-time total items for the "news" category (ignoring date/exclude)
-            // Use per_page=1 and _fields=id to minimize payload; totals come from headers
-            try {
-                const totalsParams = new URLSearchParams({
-                    per_page: '1',
-                    categories: String(newsCatId),
-                    _fields: 'id'
-                });
-                const totalsUrl = `${location.origin}/wp-json/wp/v2/posts?${totalsParams.toString()}`;
-                const totalsRes = await fetch(totalsUrl);
-                if (totalsRes.ok) {
-                    const totalNewsAllTime = parseInt(totalsRes.headers.get('X-WP-Total') || '0', 10);
-                    const totalNewsAllTimePages = parseInt(totalsRes.headers.get('X-WP-TotalPages') || '0', 10);
-                    console.log('WP REST totals (all-time for category "news"): ', {
-                        totalItems: totalNewsAllTime,
-                        totalPages: totalNewsAllTimePages
-                    });
-                }
-            } catch (e) {
-                // Swallow optional totals error
-            }
+            });                         
         } catch (error) {
             console.error('Error fetching more posts:', error);
         }
     })();
 });
 });
-
-
-
-
-function log(...args) {
-    if (typeof console !== 'undefined' && console.log) {
-        console.log(...args);
-    }
-}
