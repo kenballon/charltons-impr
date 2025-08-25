@@ -1868,3 +1868,22 @@ newsPostItems.forEach(item => {
     })();
 });
 });
+
+const target = document.getElementById('all_news_posts');
+
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+        console.log('It reaches halfway of the viewport');
+      }
+    });
+  },
+  {
+    threshold: [0.5] // Trigger when 50% of the element is visible
+  }
+);
+
+if (target) {
+  observer.observe(target);
+}
