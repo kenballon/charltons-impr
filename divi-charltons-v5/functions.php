@@ -1,6 +1,6 @@
 <?php
 
-require_once ('nl-archives.php');
+require_once('nl-archives.php');
 
 // Enqueue parent and child theme styles
 function divi_child_enqueue_styles()
@@ -13,7 +13,7 @@ add_action('wp_enqueue_scripts', 'divi_child_enqueue_styles');
 
 function clf_theme_enqueue_styles()
 {
-    wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.56', 'all');
+    wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.57', 'all');
     wp_enqueue_style('custom-style');
 
     // Material Symbols
@@ -175,4 +175,58 @@ remove_filter('the_excerpt', 'wpautop');
 
 // =============================================
 // Custom Main Navigation Menu | END:::
+// =============================================
+
+// =============================================
+// #region For Featured Image that use a plugin
+// =============================================
+function add_featured_image_url_to_rest_api()
+{
+    register_rest_field(
+        array('post'), // Only register for the default post type
+        'featured_image_url',
+        array(
+            'get_callback' => 'get_featured_image_url_meta',
+            'schema' => array(
+                'description' => 'Featured image URL from plugin',
+                'type' => 'string',
+                'context' => array('view', 'edit')
+            )
+        )
+    );
+}
+add_action('rest_api_init', 'add_featured_image_url_to_rest_api');
+
+function get_featured_image_url_meta($post)
+{
+    // Debug: Check what meta fields exist for this post
+    $post_id = $post['id'];
+
+    // Try the most common meta keys used by Featured Image with URL plugins
+    $possible_keys = array(
+        '_fifu_image_url',        // Most common for Featured Image from URL plugin
+        'fifu_image_url',
+        '_featured_image_url',
+        'featured_image_url',
+        '_thumbnail_external_url'
+    );
+
+    foreach ($possible_keys as $key) {
+        $image_url = get_post_meta($post_id, $key, true);
+        if (!empty($image_url)) {
+            return $image_url;
+        }
+    }
+
+    // Fallback to regular WordPress featured image if no external URL is found
+    $featured_image_id = get_post_thumbnail_id($post_id);
+    if ($featured_image_id) {
+        $image_data = wp_get_attachment_image_src($featured_image_id, 'full');
+        return $image_data ? $image_data[0] : '';
+    }
+
+    return '';
+}
+// =============================================
+// #endregion For Featured Image that use a plugin | END:::
 // =============================================

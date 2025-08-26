@@ -8,6 +8,7 @@ document.addEventListener("readystatechange", (e) => {
     if (e.target.readyState === "complete") {
         customHeaderNavigation();
         initNewsletterPage();
+        loadNewsPagination();
 
         const buttonAllActive = document.getElementById("all");
         currentUrl.startsWith(origin + "/news")
@@ -1679,9 +1680,8 @@ function initLoadMoreWithFilters(config) {
     }
 }
 
-
-document.addEventListener('DOMContentLoaded', function () {
-    const target = document.querySelector('.all_newsevents_container');
+function loadNewsPagination() {
+    const target = document?.querySelector('.all_newsevents_container');
 
     if (!target) {
         console.warn('IntersectionObserver target not found: .all_newsevents_container');
@@ -1691,7 +1691,6 @@ document.addEventListener('DOMContentLoaded', function () {
         (entries, obs) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-                    // console.log('50% of the element is visible in the viewport');
                     activatePagination();
                     obs.disconnect();
                 }
@@ -1702,7 +1701,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     );
     observer.observe(target);
-});
+}
 
 /**
  * Activates pagination for news posts by fetching total post count and creating page buttons
@@ -1917,12 +1916,15 @@ async function activatePagination() {
             throw new Error('Invalid posts data received from API');
         }
 
+        console.log(posts);
+
+
         return posts.map(post => ({
             id: post.id,
             title: post.title.rendered,
             url: post.link,
             post_date: formatPostDate(post.date),
-            featured_image: post._embedded?.['wp:featuredmedia']?.[0]?.source_url || '',
+            featured_image: post.featured_image_url || post._embedded?.['wp:featuredmedia']?.[0]?.source_url || '',
             excerpt: post.excerpt.rendered,
             categories: post._embedded?.['wp:term']?.[0]?.map(cat => cat.name).join(', ') || ''
         }));
