@@ -73,13 +73,24 @@ document.addEventListener("readystatechange", (e) => {
         if (window.location.pathname.includes("/news/")) {
             initFilterButton({
                 buttonSelector: ".news_btn_tag_filter",
-                onClickCallback: ({ value }) => {
+                onClickCallback: async ({ value }) => {
                     console.log("Selected filter:", value);
 
                     // clear div container #all_news_posts
-
                     const allNewsPostsContainer = document.querySelector('#all_news_posts');
                     allNewsPostsContainer && (allNewsPostsContainer.innerHTML = "");
+
+                    // fetch data using wordpress rest api and use getNewsHtml to render posts
+                    await getNewsPostItems({
+                        categories: value === "all" ? [] : [value],
+                        renderPost: (post) => {
+                            const articleCard = document.createElement('article');
+                            articleCard.className = 'news_article_wrapper';
+                            articleCard.innerHTML = getNewsHTML(post, post.post_date);
+                            allNewsPostsContainer.appendChild(articleCard);
+                        },
+                        renderPagination: () => activatePagination({ tagSlug: value === "all" ? null : value })
+                    });
                 }
             });
         }
