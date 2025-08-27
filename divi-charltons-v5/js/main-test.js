@@ -17,7 +17,6 @@ document.addEventListener("readystatechange", (e) => {
 
         const defaultFilterdBtn = document?.getElementById("hong-kong-law");
         defaultFilterdBtn?.classList.add("active");
-
         // getArchivedAllPosts(["hong-kong-law"]);
 
 
@@ -60,7 +59,6 @@ document.addEventListener("readystatechange", (e) => {
                 buttonSelector: ".pod_web_btn_filter",
             });
         }
-
         if (window.location.pathname.includes("/news/")) {
             initFilterButton({
                 buttonSelector: ".news_btn_tag_filter",
