@@ -13,7 +13,7 @@ add_action('wp_enqueue_scripts', 'divi_child_enqueue_styles');
 
 function clf_theme_enqueue_styles()
 {
-    wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.57', 'all');
+    wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.59', 'all');
     wp_enqueue_style('custom-style');
 
     // Material Symbols
@@ -178,23 +178,24 @@ remove_filter('the_excerpt', 'wpautop');
 // =============================================
 
 // =============================================
-// #region For Featured Image that use a plugin
+// #region For Featured Image that use a plugin ::: START
 // =============================================
 function add_featured_image_url_to_rest_api()
 {
     register_rest_field(
-        array('post'), // Only register for the default post type
+        ['post'],
         'featured_image_url',
-        array(
+        [
             'get_callback' => 'get_featured_image_url_meta',
-            'schema' => array(
+            'schema' => [
                 'description' => 'Featured image URL from plugin',
                 'type' => 'string',
                 'context' => array('view', 'edit')
-            )
-        )
+            ]
+        ]
     );
 }
+
 add_action('rest_api_init', 'add_featured_image_url_to_rest_api');
 
 function get_featured_image_url_meta($post)
@@ -203,13 +204,13 @@ function get_featured_image_url_meta($post)
     $post_id = $post['id'];
 
     // Try the most common meta keys used by Featured Image with URL plugins
-    $possible_keys = array(
-        '_fifu_image_url',        // Most common for Featured Image from URL plugin
+    $possible_keys = [
+        '_fifu_image_url',// Most common for Featured Image from URL plugin
         'fifu_image_url',
         '_featured_image_url',
         'featured_image_url',
         '_thumbnail_external_url'
-    );
+    ];
 
     foreach ($possible_keys as $key) {
         $image_url = get_post_meta($post_id, $key, true);
@@ -228,5 +229,5 @@ function get_featured_image_url_meta($post)
     return '';
 }
 // =============================================
-// #endregion For Featured Image that use a plugin | END:::
+// #endregion For Featured Image that use a plugin ::: END
 // =============================================

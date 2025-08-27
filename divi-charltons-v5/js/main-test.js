@@ -70,6 +70,14 @@ document.addEventListener("readystatechange", (e) => {
                 buttonSelector: ".pod_web_btn_filter",
             });
         }
+        if (window.location.pathname.includes("/news/")) {
+            initFilterButton({
+                buttonSelector: ".news_btn_tag_filter",
+                onClickCallback: ({ value }) => {
+                    console.log("Selected filter:", value);
+                }
+            });
+        }
     }
 });
 
@@ -1160,14 +1168,17 @@ expandMoreBtn.forEach(btn => {
 // =======================================
 
 // =======================================
-//  NEWS & EVENTS PAGE JS CODE : REFACTORED
+// #region NEWS & EVENTS PAGE JS CODE : REFACTORED
 // =======================================
 
-// filter for awards 
-FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
-    currentFilterID = filterID === "all" ? null : filterID;
-    getNewsAndEventsPosts(["awards-and-rankings", "news"], currentFilterID);
-});
+// FilterButton.initializeAll(SELECTORS.newsEventsFilterButtons, (filterID) => {
+//     currentFilterID = filterID === "all" ? null : filterID;
+//     getNewsAndEventsPosts(["awards-and-rankings", "news"], currentFilterID);
+// });
+
+// =======================================
+// #endregion NEWS & EVENTS PAGE JS CODE : REFACTORED
+// =======================================
 
 // Initialize client-side filtering for webinars/podcasts only when load-more is not active
 if (!window.location.pathname.includes("/webinars-and-podcasts/") && !document.getElementById('webinars-load-more-btn')) {
@@ -1300,6 +1311,65 @@ function initSearchFeature(options) {
     }
 }
 
+/**
+ * Initializes filter buttons with click event handlers and active state management.
+ * 
+ * This function sets up event listeners for filter buttons that manage active states
+ * and execute callback functions with resolved filter type and value data.
+ * 
+ * @param {Object} filterAttributes - Configuration object for filter button initialization
+ * @param {string} filterAttributes.buttonSelector - CSS selector for filter buttons (e.g., ".filter-button")
+ * @param {string|string[]|null} [filterAttributes.filterType] - Type of filter (e.g., "category", "categories", "tag", "tags", "yearDecade")
+ * @param {string|string[]|null} [filterAttributes.filterValue] - Filter value(s) - can be single value or array
+ * @param {string} [filterAttributes.activeClass="active"] - CSS class name to apply to active buttons
+ * @param {Function} [filterAttributes.onClickCallback] - Callback function executed when button is clicked
+ * 
+ * @param {Object} filterAttributes.onClickCallback.payload - Callback function parameters
+ * @param {string|string[]|null} filterAttributes.onClickCallback.payload.type - Resolved filter type
+ * @param {string|string[]|null} filterAttributes.onClickCallback.payload.value - Resolved filter value
+ * @param {HTMLElement} filterAttributes.onClickCallback.payload.button - The clicked button element
+ * @param {Event} filterAttributes.onClickCallback.payload.event - The original click event
+ * 
+ * @returns {void}
+ * 
+ * @example
+ * // Basic usage with category filter
+ * initFilterButton({
+ *     buttonSelector: '.category-filter',
+ *     filterType: 'category',
+ *     filterValue: 'news',
+ *     onClickCallback: ({ type, value, button }) => {
+ *         console.log(`Filter applied: ${type} = ${value}`);
+ *     }
+ * });
+ * 
+ * @example
+ * // Usage with data attributes (filter type/value read from button dataset)
+ * initFilterButton({
+ *     buttonSelector: '.dynamic-filter',
+ *     onClickCallback: ({ type, value, button }) => {
+ *         // type and value are resolved from button.dataset.filterType and button.dataset.filterValue
+ *         filterPosts(type, value);
+ *     }
+ * });
+ * 
+ * @example
+ * // Usage with custom active class
+ * initFilterButton({
+ *     buttonSelector: '.tag-filter',
+ *     filterType: 'tag',
+ *     activeClass: 'selected',
+ *     onClickCallback: ({ value }) => {
+ *         updateTagFilter(value);
+ *     }
+ * });
+ * 
+ * @since 1.0.0
+ * @author Charltons Development Team
+ * 
+ * @see {@link resolveFilterTypeAndValue} - Helper function for resolving filter data
+ * @see {@link parseMultiValue} - Utility for parsing filter values
+ */
 function initFilterButton(filterAttributes) {
     const {
         buttonSelector, // e.g. ".filter-button"
@@ -1681,27 +1751,46 @@ function initLoadMoreWithFilters(config) {
 }
 
 function loadNewsPagination() {
-    const target = document?.querySelector('.all_newsevents_container');
+    // Check if IntersectionObserver is supported
+    if (!window.IntersectionObserver) return;
 
-    if (!target) {
-        console.warn('IntersectionObserver target not found: .all_newsevents_container');
-        return;
+    // Use standard querySelector (more compatible)
+    // TODO: works well with using an ID than querySeletor
+    const target = document.getElementById('all_news_posts');
+
+    if (!target) return;
+
+    try {
+        const observer = new IntersectionObserver(
+            function (entries, obs) {
+                entries.forEach(function (entry) {
+                    console.log('Intersection detected:', {
+                        isIntersecting: entry.isIntersecting,
+                        intersectionRatio: entry.intersectionRatio
+                    });
+
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
+                        console.log('News & Events section is at least 50% visible. Activating pagination...');
+                        activatePagination();
+                        obs.disconnect();
+                    }
+                });
+            },
+            {
+                threshold: [0.3] // Trigger when 30% of the element is visible
+            }
+        );
+
+        observer.observe(target);
+
+
+    } catch (error) {
+        console.error('Error setting up IntersectionObserver:', error);
     }
-    const observer = new IntersectionObserver(
-        (entries, obs) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-                    activatePagination();
-                    obs.disconnect();
-                }
-            });
-        },
-        {
-            threshold: [0.5] // Trigger when 50% of the element is visible
-        }
-    );
-    observer.observe(target);
 }
+
+// TODO: 
+// Refactor initFilterButton() to accommodate the activatePagination() needs
 
 /**
  * Activates pagination for news posts by fetching total post count and creating page buttons
@@ -1748,6 +1837,9 @@ async function activatePagination() {
 
         // Calculate pagination
         const totalPages = Math.ceil(totalPosts / CONFIG.POSTS_PER_PAGE);
+
+        // Store total pages globally for use in updateActiveButtonState
+        window.paginationTotalPages = totalPages;
 
         // Generate pagination UI
         renderPaginationButtons(paginationWrapper, totalPages, currentPage, CONFIG.CSS_CLASSES);
@@ -1816,7 +1908,7 @@ async function activatePagination() {
     }
 
     /**
-     * Creates pagination buttons and renders them in the container
+     * Creates pagination buttons and renders them in the container with smart pagination display
      * @param {HTMLElement} container - Container element for pagination buttons
      * @param {number} totalPages - Total number of pages
      * @param {number} activePage - Currently active page number
@@ -1826,10 +1918,76 @@ async function activatePagination() {
         // Clear existing buttons
         container.innerHTML = '';
 
-        // Create and append pagination buttons
-        for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
+        // If 5 or fewer pages, show all pages without Previous/Next
+        if (totalPages <= 5) {
+            for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
+                const button = createPaginationButton(pageNumber, activePage, cssClasses);
+                container.appendChild(button);
+            }
+            return;
+        }
+
+        // For more than 5 pages, implement smart pagination
+        const maxVisiblePages = 5;
+        let startPage, endPage;
+
+        // Calculate the range of pages to show
+        if (activePage <= 3) {
+            // Show pages 1-5 when on pages 1-3
+            startPage = 1;
+            endPage = maxVisiblePages;
+        } else if (activePage >= totalPages - 2) {
+            // Show last 5 pages when near the end
+            startPage = totalPages - maxVisiblePages + 1;
+            endPage = totalPages;
+        } else {
+            // Show current page in the middle
+            startPage = activePage - 2;
+            endPage = activePage + 2;
+        }
+
+        // Add Previous button (only show if not on first page)
+        if (activePage > 1) {
+            const prevButton = createNavigationButton('Previous', activePage - 1, cssClasses);
+            container.appendChild(prevButton);
+        }
+
+        // Add dots before if needed (when startPage > 1)
+        if (startPage > 1) {
+            // Always show page 1
+            const firstPageButton = createPaginationButton(1, activePage, cssClasses);
+            container.appendChild(firstPageButton);
+
+            // Add dots if there's a gap
+            if (startPage > 2) {
+                const dotsElement = createDotsElement();
+                container.appendChild(dotsElement);
+            }
+        }
+
+        // Add visible page numbers
+        for (let pageNumber = startPage; pageNumber <= endPage; pageNumber++) {
             const button = createPaginationButton(pageNumber, activePage, cssClasses);
             container.appendChild(button);
+        }
+
+        // Add dots after if needed (when endPage < totalPages)
+        if (endPage < totalPages) {
+            // Add dots if there's a gap
+            if (endPage < totalPages - 1) {
+                const dotsElement = createDotsElement();
+                container.appendChild(dotsElement);
+            }
+
+            // Always show last page
+            const lastPageButton = createPaginationButton(totalPages, activePage, cssClasses);
+            container.appendChild(lastPageButton);
+        }
+
+        // Add Next button (only show if not on last page)
+        if (activePage < totalPages) {
+            const nextButton = createNavigationButton('Next', activePage + 1, cssClasses);
+            container.appendChild(nextButton);
         }
     }
 
@@ -1859,6 +2017,40 @@ async function activatePagination() {
         button.addEventListener('click', () => handlePageClick(pageNumber));
 
         return button;
+    }
+
+    /**
+     * Creates a navigation button (Previous/Next) with proper event handling
+     * @param {string} text - Button text ('Previous' or 'Next')
+     * @param {number} targetPage - The page number to navigate to
+     * @param {Object} cssClasses - CSS class names configuration
+     * @returns {HTMLButtonElement} Configured navigation button element
+     */
+    function createNavigationButton(text, targetPage, cssClasses) {
+        const button = document.createElement('button');
+
+        // Set basic attributes
+        button.className = `${cssClasses.PAGINATION_BTN} pagination_nav_btn`;
+        button.type = 'button';
+        button.textContent = text;
+        button.setAttribute('aria-label', `${text} page`);
+
+        // Add click event handler
+        button.addEventListener('click', () => handlePageClick(targetPage));
+
+        return button;
+    }
+
+    /**
+     * Creates a dots element (...) to indicate hidden pages
+     * @returns {HTMLSpanElement} Dots element
+     */
+    function createDotsElement() {
+        const dots = document.createElement('span');
+        dots.className = 'pagination_dots';
+        dots.textContent = '...';
+        dots.setAttribute('aria-hidden', 'true');
+        return dots;
     }
 
     /**
@@ -1948,8 +2140,8 @@ async function activatePagination() {
     function showLoadingState(container) {
         container.innerHTML = `
             <div class="loading-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
-                <div class="spinner" style="border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
-                <p>Loading posts...</p>
+                <div class="spinner" style="border: 3px solid #f3f3f3; border-top: 3px solid hsl(358, 81%, 51%); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+                <p>Loading News...</p>
                 <style>
                     @keyframes spin {
                         0% { transform: rotate(0deg); }
@@ -1999,25 +2191,25 @@ async function activatePagination() {
     }
 
     /**
-     * Updates the active state of pagination buttons
+     * Updates the active state of pagination buttons by re-rendering the entire pagination
      * @param {HTMLElement} container - Container with pagination buttons
      * @param {number} activePage - The page number to mark as active
      * @param {Object} cssClasses - CSS class names configuration
      */
     function updateActiveButtonState(container, activePage, cssClasses) {
-        const allButtons = container.querySelectorAll(`.${cssClasses.PAGINATION_BTN}`);
+        // Since we have dynamic pagination with Previous/Next/Dots, 
+        // it's easier to re-render the entire pagination than to update individual buttons
+        const totalPages = calculateTotalPages();
+        renderPaginationButtons(container, totalPages, activePage, cssClasses);
+    }
 
-        allButtons.forEach(button => {
-            const isActive = parseInt(button.textContent, 10) === activePage;
-
-            button.classList.toggle(cssClasses.ACTIVE_BTN, isActive);
-
-            if (isActive) {
-                button.setAttribute('aria-current', 'page');
-            } else {
-                button.removeAttribute('aria-current');
-            }
-        });
+    /**
+     * Helper function to calculate total pages (cached from initial load)
+     * @returns {number} Total number of pages
+     */
+    function calculateTotalPages() {
+        // This will be set during initial pagination setup
+        return window.paginationTotalPages || Math.ceil(15 / CONFIG.POSTS_PER_PAGE); // fallback
     }
 
     /**
