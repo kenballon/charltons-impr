@@ -76,21 +76,61 @@ document.addEventListener("readystatechange", (e) => {
                 onClickCallback: async ({ value }) => {
                     console.log("Selected filter:", value);
 
-                    // clear div container #all_news_posts
+                    // Clear div container #all_news_posts
                     const allNewsPostsContainer = document.querySelector('#all_news_posts');
-                    allNewsPostsContainer && (allNewsPostsContainer.innerHTML = "");
+                    if (allNewsPostsContainer) {
+                        // Show loading state
+                        allNewsPostsContainer.innerHTML = '<div class="loading-indicator">Loading...</div>';
+                    }
 
-                    // fetch data using wordpress rest api and use getNewsHtml to render posts
-                    await getNewsPostItems({
-                        categories: value === "all" ? [] : [value],
-                        renderPost: (post) => {
-                            const articleCard = document.createElement('article');
-                            articleCard.className = 'news_article_wrapper';
-                            articleCard.innerHTML = getNewsHTML(post, post.post_date);
-                            allNewsPostsContainer.appendChild(articleCard);
-                        },
-                        renderPagination: () => activatePagination({ tagSlug: value === "all" ? null : value })
-                    });
+                    // Clear existing pagination before applying filters
+                    const paginationWrapper = document.querySelector('.news_pagination_btns_wrapper');
+                    if (paginationWrapper) {
+                        paginationWrapper.innerHTML = '';
+                        console.log('Cleared existing pagination for filter update');
+                    }
+
+                    try {
+                        // If "all" is selected, we could potentially restore server-rendered content
+                        // But for consistency, we'll fetch fresh data for any filter change
+                        const posts = await getNewsPostItems({
+                            categories: ['news'], // default category is always 'news'
+                            tags: value === "all" ? [] : [value], // filter by tag
+                            postsPerPage: 15,
+                            page: 1
+                        });
+
+                        // Clear loading and render posts
+                        if (allNewsPostsContainer) {
+                            allNewsPostsContainer.innerHTML = "";
+
+                            if (posts && posts.length > 0) {
+                                posts.forEach(post => {
+                                    const articleCard = document.createElement('article');
+                                    articleCard.className = 'news_article_wrapper';
+                                    articleCard.innerHTML = getNewsHTML(post, post.post_date);
+                                    allNewsPostsContainer.appendChild(articleCard);
+                                });
+                            } else {
+                                allNewsPostsContainer.innerHTML = '<p class="no-posts-message">No posts found for this filter.</p>';
+                            }
+                        }
+
+                        // Setup pagination for the filtered content
+                        await activatePagination({
+                            categories: ['news'],
+                            tags: value === "all" ? null : [value],
+                            postsPerPage: 15,
+                            postsContainer: '#all_news_posts',
+                            paginationWrapper: '.news_pagination_btns_wrapper'
+                        });
+
+                    } catch (error) {
+                        console.error('Error fetching filtered posts:', error);
+                        if (allNewsPostsContainer) {
+                            allNewsPostsContainer.innerHTML = '<p class="error-message">Error loading posts. Please try again.</p>';
+                        }
+                    }
                 }
             });
         }
@@ -447,6 +487,171 @@ function menuMobileBtnToggle() {
 
 // ==================================================
 // #endregion HEADER NAV:::END
+// ==================================================
+
+// ==================================================
+// #region NEWS POST FETCHING:::START
+// ==================================================
+
+/**
+ * Fetches news posts via WordPress REST API
+ * @param {Object} options - Configuration options
+ * @param {string[]} options.categories - Array of category slugs (default: ['news'])
+ * @param {string[]} options.tags - Array of tag slugs (optional)
+ * @param {number} options.postsPerPage - Number of posts per page (default: 15)
+ * @param {number} options.page - Page number (default: 1)
+ * @returns {Promise<Array>} Array of post objects
+ */
+async function getNewsPostItems(options = {}) {
+    const {
+        categories = ['news'],
+        tags = [],
+        postsPerPage = 15,
+        page = 1
+    } = options;
+
+    try {
+        // Get category IDs
+        const categoryIds = await window.fetchCategoryIds(categories);
+
+        // Get tag IDs if tags are specified
+        let tagIds = [];
+        if (tags && tags.length > 0) {
+            tagIds = await window.fetchTagIds(tags);
+        }
+
+        // Build the WordPress REST API URL
+        let apiUrl = `${window.origin}/wp-json/wp/v2/posts?per_page=${postsPerPage}&page=${page}&_embed`;
+
+        // Add categories parameter
+        if (categoryIds.length > 0) {
+            apiUrl += `&categories=${categoryIds.join(',')}`;
+        }
+
+        // Add tags parameter if specified
+        if (tagIds.length > 0) {
+            apiUrl += `&tags=${tagIds.join(',')}`;
+        }
+
+        // Fetch posts
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch posts: ${response.status} ${response.statusText}`);
+        }
+
+        const posts = await response.json();
+
+        // Transform WordPress REST API response to our expected format
+        return posts.map(post => transformPostData(post));
+
+    } catch (error) {
+        console.error('Error in getNewsPostItems:', error);
+        throw error;
+    }
+}
+
+/**
+ * Transforms WordPress REST API post data to our expected format
+ * @param {Object} post - WordPress REST API post object
+ * @returns {Object} Transformed post object
+ */
+function transformPostData(post) {
+    const featuredMedia = post._embedded?.['wp:featuredmedia']?.[0];
+
+    return {
+        id: post.id,
+        title: post.title.rendered,
+        url: post.link,
+        post_date: formatPostDate(post.date),
+        featured_image: post.featured_image_url || featuredMedia?.source_url || '',
+        featured_image_small: post.featured_image_url || featuredMedia?.media_details?.sizes?.medium?.source_url || featuredMedia?.source_url || '',
+        featured_image_medium: post.featured_image_url || featuredMedia?.media_details?.sizes?.large?.source_url || featuredMedia?.source_url || '',
+        featured_image_large: post.featured_image_url || featuredMedia?.source_url || '',
+        categories: post.categories || [],
+        tags: post.tags || [],
+        excerpt: post.excerpt?.rendered || ''
+    };
+}/**
+ * Formats WordPress date to readable format
+ * @param {string} dateString - WordPress date string
+ * @returns {string} Formatted date (e.g., "14 Jan 2024")
+ */
+function formatPostDate(dateString) {
+    const date = new Date(dateString);
+    const options = { day: 'numeric', month: 'short', year: 'numeric' };
+    return date.toLocaleDateString('en-GB', options);
+}
+
+/**
+ * Fetches category IDs for the given slugs
+ * @param {string[]} categorySlugs - Array of category slugs
+ * @returns {Promise<number[]>} Array of category IDs
+ */
+window.fetchCategoryIds = async function fetchCategoryIds(categorySlugs) {
+    const categoryIds = [];
+
+    for (const slug of categorySlugs) {
+        try {
+            const categoryApiUrl = `${window.origin}/wp-json/wp/v2/categories?slug=${slug}`;
+            const response = await fetch(categoryApiUrl);
+
+            if (!response.ok) {
+                console.warn(`Failed to fetch category '${slug}': ${response.status} ${response.statusText}`);
+                continue;
+            }
+
+            const categories = await response.json();
+
+            if (!Array.isArray(categories) || categories.length === 0) {
+                console.warn(`Category '${slug}' not found`);
+                continue;
+            }
+
+            categoryIds.push(categories[0].id);
+        } catch (error) {
+            console.warn(`Error fetching category '${slug}':`, error);
+        }
+    }
+
+    return categoryIds;
+}
+
+/**
+ * Fetches tag IDs for the given slugs
+ * @param {string[]} tagSlugs - Array of tag slugs
+ * @returns {Promise<number[]>} Array of tag IDs
+ */
+window.fetchTagIds = async function fetchTagIds(tagSlugs) {
+    const tagIds = [];
+
+    for (const slug of tagSlugs) {
+        try {
+            const tagApiUrl = `${window.origin}/wp-json/wp/v2/tags?slug=${slug}`;
+            const response = await fetch(tagApiUrl);
+
+            if (!response.ok) {
+                console.warn(`Failed to fetch tag '${slug}': ${response.status} ${response.statusText}`);
+                continue;
+            }
+
+            const tags = await response.json();
+
+            if (!Array.isArray(tags) || tags.length === 0) {
+                console.warn(`Tag '${slug}' not found`);
+                continue;
+            }
+
+            tagIds.push(tags[0].id);
+        } catch (error) {
+            console.warn(`Error fetching tag '${slug}':`, error);
+        }
+    }
+
+    return tagIds;
+}
+
+// ==================================================
+// #endregion NEWS POST FETCHING:::END
 // ==================================================
 
 // ==================================================
@@ -1771,7 +1976,7 @@ function loadNewsPagination() {
     if (!window.IntersectionObserver) return;
 
     // Use standard querySelector (more compatible)
-    // TODO: works well with using an ID than querySeletor
+    // TODO: works well with using an ID than querySelector
     const target = document.getElementById('all_news_posts');
 
     if (!target) return;
@@ -1786,13 +1991,12 @@ function loadNewsPagination() {
                     });
 
                     if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
-                        console.log('News & Events section is at least 50% visible. Activating pagination...');
-                        // You can now customize the pagination with different options:
-                        // activatePagination(); // Uses default 'news' category
-                        // activatePagination({ categories: ['news', 'events'] }); // Multiple categories
-                        // activatePagination({ categories: 'awards', tags: ['featured', 'important'] }); // Category + tags
-                        // activatePagination({ categories: 'insights', postsPerPage: 10 }); // Custom posts per page
-                        activatePagination();
+                        console.log('News & Events section is at least 30% visible. Setting up pagination...');
+
+                        // Setup pagination (preserves server-rendered content if it exists)
+                        loadInitialNewsPostsAndPagination();
+
+                        // Disconnect observer since we only need to run this once
                         obs.disconnect();
                     }
                 });
@@ -1804,9 +2008,88 @@ function loadNewsPagination() {
 
         observer.observe(target);
 
-
     } catch (error) {
         console.error('Error setting up IntersectionObserver:', error);
+    }
+}
+
+/**
+ * Loads initial news posts and sets up pagination
+ * Only fetches client-side content if no server-rendered content exists
+ */
+async function loadInitialNewsPostsAndPagination() {
+    const allNewsPostsContainer = document.querySelector('#all_news_posts');
+
+    if (!allNewsPostsContainer) {
+        console.warn('News posts container not found');
+        return;
+    }
+
+    try {
+        // Check if there's already server-rendered content
+        const existingPosts = allNewsPostsContainer.querySelectorAll('.news_article_wrapper');
+        const hasServerRenderedContent = existingPosts.length > 0;
+
+        if (hasServerRenderedContent) {
+            console.log('Server-rendered content found. Preserving existing posts and only setting up pagination.');
+
+            // Just setup pagination for the existing server-rendered content
+            await activatePagination({
+                categories: ['news'],
+                tags: null, // No tag filter for initial load
+                postsPerPage: 15,
+                postsContainer: '#all_news_posts',
+                paginationWrapper: '.news_pagination_btns_wrapper'
+            });
+
+            console.log('Pagination activated for server-rendered content');
+            return;
+        }
+
+        // If no server-rendered content, fetch client-side (fallback)
+        console.log('No server-rendered content found. Fetching posts via API...');
+
+        // Show loading state
+        allNewsPostsContainer.innerHTML = '<div class="loading-indicator">Loading news posts...</div>';
+
+        // Load initial posts with default category 'news' and no tag filter
+        const posts = await getNewsPostItems({
+            categories: ['news'],
+            tags: [],
+            postsPerPage: 15,
+            page: 1
+        });
+
+        // Clear loading and render posts
+        allNewsPostsContainer.innerHTML = "";
+
+        if (posts && posts.length > 0) {
+            posts.forEach(post => {
+                const articleCard = document.createElement('article');
+                articleCard.className = 'news_article_wrapper';
+                articleCard.innerHTML = getNewsHTML(post, post.post_date);
+                allNewsPostsContainer.appendChild(articleCard);
+            });
+        } else {
+            allNewsPostsContainer.innerHTML = '<p class="no-posts-message">No news posts found.</p>';
+        }
+
+        // Setup pagination for all news posts (no tag filter)
+        await activatePagination({
+            categories: ['news'],
+            tags: null,
+            postsPerPage: 15,
+            postsContainer: '#all_news_posts',
+            paginationWrapper: '.news_pagination_btns_wrapper'
+        });
+
+        console.log('Initial news posts loaded and pagination activated');
+
+    } catch (error) {
+        console.error('Error loading initial news posts:', error);
+        if (allNewsPostsContainer) {
+            allNewsPostsContainer.innerHTML = '<p class="error-message">Error loading news posts. Please try again.</p>';
+        }
     }
 }
 
@@ -1833,7 +2116,7 @@ function loadNewsPagination() {
  * 5. Creates interactive pagination buttons
  */
 async function activatePagination(options = {}) {
-    console.log('Activating pagination...');
+    console.log('Activating pagination...', options);
 
     // Normalize and validate options
     const {
@@ -1845,6 +2128,26 @@ async function activatePagination(options = {}) {
         paginationBtnClass = 'pagination_btn',
         activeBtnClass = 'active'
     } = options;
+
+    // Check if pagination is already active - but allow updates for filter changes
+    const existingPaginationWrapper = document.querySelector(paginationWrapper);
+    if (existingPaginationWrapper && existingPaginationWrapper.querySelector(`.${paginationBtnClass}`)) {
+        // Only skip if this is the exact same configuration (no filter change)
+        const currentTags = window.currentPaginationTags;
+        const newTags = tags ? (Array.isArray(tags) ? tags : [tags]) : null;
+        const tagsChanged = JSON.stringify(currentTags) !== JSON.stringify(newTags);
+
+        if (!tagsChanged) {
+            console.log('Pagination already active with same configuration. Skipping duplicate setup.');
+            return;
+        } else {
+            console.log('Filter changed, updating pagination...');
+        }
+    }
+
+    // Store current configuration for future comparisons and page navigation
+    window.currentPaginationTags = tags ? (Array.isArray(tags) ? tags : [tags]) : null;
+    window.currentPaginationCategories = Array.isArray(categories) ? categories : [categories];
 
     // Normalize categories and tags to arrays
     const categoryArray = Array.isArray(categories) ? categories : [categories];
@@ -1878,8 +2181,8 @@ async function activatePagination(options = {}) {
 
     try {
         // Fetch category and tag data and total posts
-        const categoryIds = await fetchCategoryIds(CONFIG.CATEGORIES);
-        const tagIds = CONFIG.TAGS ? await fetchTagIds(CONFIG.TAGS) : null;
+        const categoryIds = await window.fetchCategoryIds(CONFIG.CATEGORIES);
+        const tagIds = CONFIG.TAGS ? await window.fetchTagIds(CONFIG.TAGS) : null;
         const totalPosts = await fetchTotalPostsCount(categoryIds, tagIds);
 
         // Calculate pagination
@@ -1908,68 +2211,6 @@ async function activatePagination(options = {}) {
             postsContainer: document.querySelector(selectors.POSTS_CONTAINER),
             paginationWrapper: document.querySelector(selectors.PAGINATION_WRAPPER)
         };
-    }
-
-    /**
-     * Fetches category IDs for the given slugs
-     * @param {string[]} categorySlugs - Array of category slugs to search for
-     * @returns {Promise<number[]>} Array of category IDs
-     */
-    async function fetchCategoryIds(categorySlugs) {
-        const categoryIds = [];
-
-        for (const slug of categorySlugs) {
-            const categoryApiUrl = `${window.origin}/wp-json/wp/v2/categories?slug=${slug}`;
-
-            const response = await fetch(categoryApiUrl);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch category '${slug}': ${response.status} ${response.statusText}`);
-            }
-
-            const categories = await response.json();
-
-            if (!Array.isArray(categories) || categories.length === 0) {
-                console.warn(`Category '${slug}' not found, skipping...`);
-                continue;
-            }
-
-            categoryIds.push(categories[0].id);
-        }
-
-        if (categoryIds.length === 0) {
-            throw new Error('No valid categories found');
-        }
-
-        return categoryIds;
-    }
-
-    /**
-     * Fetches tag IDs for the given slugs
-     * @param {string[]} tagSlugs - Array of tag slugs to search for
-     * @returns {Promise<number[]>} Array of tag IDs
-     */
-    async function fetchTagIds(tagSlugs) {
-        const tagIds = [];
-
-        for (const slug of tagSlugs) {
-            const tagApiUrl = `${window.origin}/wp-json/wp/v2/tags?slug=${slug}`;
-
-            const response = await fetch(tagApiUrl);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch tag '${slug}': ${response.status} ${response.statusText}`);
-            }
-
-            const tags = await response.json();
-
-            if (!Array.isArray(tags) || tags.length === 0) {
-                console.warn(`Tag '${slug}' not found, skipping...`);
-                continue;
-            }
-
-            tagIds.push(tags[0].id);
-        }
-
-        return tagIds;
     }
 
     /**
@@ -2170,10 +2411,13 @@ async function activatePagination(options = {}) {
         showLoadingState(postsContainerEl);
 
         try {
-            // Fetch and render posts for the selected page
-            const categoryIds = await fetchCategoryIds(CONFIG.CATEGORIES);
-            const tagIds = CONFIG.TAGS ? await fetchTagIds(CONFIG.TAGS) : null;
-            const posts = await fetchPostsByPage(categoryIds, tagIds, selectedPage, CONFIG.POSTS_PER_PAGE);
+            // Fetch posts for the selected page using our getNewsPostItems function
+            const posts = await getNewsPostItems({
+                categories: CONFIG.CATEGORIES,
+                tags: CONFIG.TAGS,
+                postsPerPage: CONFIG.POSTS_PER_PAGE,
+                page: selectedPage
+            });
 
             // Clear current content and render new posts
             renderPostsContent(postsContainerEl, posts);
@@ -2186,60 +2430,24 @@ async function activatePagination(options = {}) {
     }
 
     /**
-     * Fetches posts for a specific page
-     * @param {number[]} categoryIds - Array of category IDs
-     * @param {number[]|null} tagIds - Array of tag IDs or null
-     * @param {number} page - The page number to fetch
-     * @param {number} postsPerPage - Number of posts per page
-     * @returns {Promise<Array>} Array of post objects
+     * Renders posts content in the container
+     * @param {HTMLElement} container - Posts container element
+     * @param {Array} posts - Array of post objects
      */
-    async function fetchPostsByPage(categoryIds, tagIds, page, postsPerPage) {
-        const offset = (page - 1) * postsPerPage;
-        let postsApiUrl = `${window.origin}/wp-json/wp/v2/posts?per_page=${postsPerPage}&offset=${offset}&_embed`;
+    function renderPostsContent(container, posts) {
+        container.innerHTML = '';
 
-        // Add categories parameter
-        if (categoryIds.length > 0) {
-            postsApiUrl += `&categories=${categoryIds.join(',')}`;
+        if (!posts || posts.length === 0) {
+            container.innerHTML = '<p class="no-posts-message">No posts found.</p>';
+            return;
         }
 
-        // Add tags parameter if provided
-        if (tagIds && tagIds.length > 0) {
-            postsApiUrl += `&tags=${tagIds.join(',')}`;
-        }
-
-        const response = await fetch(postsApiUrl);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch posts: ${response.status} ${response.statusText}`);
-        }
-
-        const posts = await response.json();
-
-        if (!Array.isArray(posts)) {
-            throw new Error('Invalid posts data received from API');
-        }
-
-        console.log(posts);
-
-        return posts.map(post => ({
-            id: post.id,
-            title: post.title.rendered,
-            url: post.link,
-            post_date: formatPostDate(post.date),
-            featured_image: post.featured_image_url || post._embedded?.['wp:featuredmedia']?.[0]?.source_url || '',
-            excerpt: post.excerpt.rendered,
-            categories: post._embedded?.['wp:term']?.[0]?.map(cat => cat.name).join(', ') || ''
-        }));
-    }
-
-    /**
-     * Formats the post date from WordPress format to display format
-     * @param {string} dateString - WordPress date string
-     * @returns {string} Formatted date string
-     */
-    function formatPostDate(dateString) {
-        const date = new Date(dateString);
-        const options = { year: 'numeric', month: 'short', day: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
+        posts.forEach(post => {
+            const articleCard = document.createElement('article');
+            articleCard.className = 'news_article_wrapper';
+            articleCard.innerHTML = getNewsHTML(post, post.post_date);
+            container.appendChild(articleCard);
+        });
     }
 
     /**
@@ -2259,29 +2467,6 @@ async function activatePagination(options = {}) {
                 </style>
             </div>
         `;
-    }
-
-    /**
-     * Renders posts content in the container
-     * @param {HTMLElement} container - Posts container element
-     * @param {Array} posts - Array of post objects
-     */
-    function renderPostsContent(container, posts) {
-        // Clear current content
-        container.innerHTML = '';
-
-        if (posts.length === 0) {
-            container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; padding: 2rem;">No posts found.</p>';
-            return;
-        }
-
-        // Create post cards using the existing createCardUI function if available, or create simple cards
-        posts.forEach(post => {
-            const articleCard = document.createElement('article');
-            articleCard.className = 'news_article_wrapper';
-            articleCard.innerHTML = getNewsHTML(post, post.post_date);
-            container.appendChild(articleCard);
-        });
     }
 
     /**
