@@ -75,6 +75,11 @@ document.addEventListener("readystatechange", (e) => {
                 buttonSelector: ".news_btn_tag_filter",
                 onClickCallback: ({ value }) => {
                     console.log("Selected filter:", value);
+
+                    // clear div container #all_news_posts
+
+                    const allNewsPostsContainer = document.querySelector('#all_news_posts');
+                    allNewsPostsContainer && (allNewsPostsContainer.innerHTML = "");
                 }
             });
         }
@@ -1771,6 +1776,11 @@ function loadNewsPagination() {
 
                     if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
                         console.log('News & Events section is at least 50% visible. Activating pagination...');
+                        // You can now customize the pagination with different options:
+                        // activatePagination(); // Uses default 'news' category
+                        // activatePagination({ categories: ['news', 'events'] }); // Multiple categories
+                        // activatePagination({ categories: 'awards', tags: ['featured', 'important'] }); // Category + tags
+                        // activatePagination({ categories: 'insights', postsPerPage: 10 }); // Custom posts per page
                         activatePagination();
                         obs.disconnect();
                     }
@@ -1793,36 +1803,61 @@ function loadNewsPagination() {
 // Refactor initFilterButton() to accommodate the activatePagination() needs
 
 /**
- * Activates pagination for news posts by fetching total post count and creating page buttons
+ * Activates pagination for posts by fetching total post count and creating page buttons
+ * 
+ * @param {Object} options - Configuration options for pagination
+ * @param {string|string[]} [options.categories] - Category slug(s) to filter by. Can be a single string or array of strings
+ * @param {string|string[]} [options.tags] - Tag slug(s) to filter by. Can be a single string or array of strings
+ * @param {number} [options.postsPerPage=15] - Number of posts to display per page
+ * @param {string} [options.postsContainer='#all_news_posts'] - CSS selector for posts container
+ * @param {string} [options.paginationWrapper='.news_pagination_btns_wrapper'] - CSS selector for pagination wrapper
+ * @param {string} [options.paginationBtnClass='pagination_btn'] - CSS class for pagination buttons
+ * @param {string} [options.activeBtnClass='active'] - CSS class for active pagination button
  * 
  * This function:
  * 1. Validates required DOM elements exist
- * 2. Fetches the 'news' category ID from WordPress REST API
- * 3. Gets total post count for the category
+ * 2. Fetches category/tag IDs from WordPress REST API
+ * 3. Gets total post count for the specified filters
  * 4. Calculates total pages needed
  * 5. Creates interactive pagination buttons
  */
-async function activatePagination() {
+async function activatePagination(options = {}) {
     console.log('Activating pagination...');
+
+    // Normalize and validate options
+    const {
+        categories = 'news',
+        tags = null,
+        postsPerPage = 15,
+        postsContainer = '#all_news_posts',
+        paginationWrapper = '.news_pagination_btns_wrapper',
+        paginationBtnClass = 'pagination_btn',
+        activeBtnClass = 'active'
+    } = options;
+
+    // Normalize categories and tags to arrays
+    const categoryArray = Array.isArray(categories) ? categories : [categories];
+    const tagArray = tags ? (Array.isArray(tags) ? tags : [tags]) : null;
 
     // Configuration constants
     const CONFIG = {
-        POSTS_PER_PAGE: 15,
+        POSTS_PER_PAGE: postsPerPage,
         INITIAL_PAGE: 1,
-        CATEGORY_SLUG: 'news',
+        CATEGORIES: categoryArray,
+        TAGS: tagArray,
         SELECTORS: {
-            POSTS_CONTAINER: '#all_news_posts',
-            PAGINATION_WRAPPER: '.news_pagination_btns_wrapper'
+            POSTS_CONTAINER: postsContainer,
+            PAGINATION_WRAPPER: paginationWrapper
         },
         CSS_CLASSES: {
-            PAGINATION_BTN: 'pagination_btn',
-            ACTIVE_BTN: 'active'
+            PAGINATION_BTN: paginationBtnClass,
+            ACTIVE_BTN: activeBtnClass
         }
     };
 
     // Early return if required elements don't exist
-    const { postsContainer, paginationWrapper } = validateRequiredElements(CONFIG.SELECTORS);
-    if (!postsContainer || !paginationWrapper) {
+    const { postsContainer: postsContainerEl, paginationWrapper: paginationWrapperEl } = validateRequiredElements(CONFIG.SELECTORS);
+    if (!postsContainerEl || !paginationWrapperEl) {
         console.warn('Pagination not activated: Required DOM elements not found');
         return;
     }
@@ -1831,9 +1866,10 @@ async function activatePagination() {
     let currentPage = CONFIG.INITIAL_PAGE;
 
     try {
-        // Fetch category data and total posts
-        const newsCategoryId = await fetchNewsCategoryId(CONFIG.CATEGORY_SLUG);
-        const totalPosts = await fetchTotalPostsCount(newsCategoryId);
+        // Fetch category and tag data and total posts
+        const categoryIds = await fetchCategoryIds(CONFIG.CATEGORIES);
+        const tagIds = CONFIG.TAGS ? await fetchTagIds(CONFIG.TAGS) : null;
+        const totalPosts = await fetchTotalPostsCount(categoryIds, tagIds);
 
         // Calculate pagination
         const totalPages = Math.ceil(totalPosts / CONFIG.POSTS_PER_PAGE);
@@ -1842,13 +1878,13 @@ async function activatePagination() {
         window.paginationTotalPages = totalPages;
 
         // Generate pagination UI
-        renderPaginationButtons(paginationWrapper, totalPages, currentPage, CONFIG.CSS_CLASSES);
+        renderPaginationButtons(paginationWrapperEl, totalPages, currentPage, CONFIG.CSS_CLASSES);
 
         console.log(`Pagination activated: ${totalPages} pages for ${totalPosts} posts`);
 
     } catch (error) {
         console.error('Failed to activate pagination:', error.message);
-        handlePaginationError(paginationWrapper);
+        handlePaginationError(paginationWrapperEl);
     }
 
     /**
@@ -1864,34 +1900,85 @@ async function activatePagination() {
     }
 
     /**
-     * Fetches the category ID for the given slug
-     * @param {string} categorySlug - The category slug to search for
-     * @returns {Promise<number>} Category ID
+     * Fetches category IDs for the given slugs
+     * @param {string[]} categorySlugs - Array of category slugs to search for
+     * @returns {Promise<number[]>} Array of category IDs
      */
-    async function fetchNewsCategoryId(categorySlug) {
-        const categoryApiUrl = `${window.origin}/wp-json/wp/v2/categories?slug=${categorySlug}`;
+    async function fetchCategoryIds(categorySlugs) {
+        const categoryIds = [];
 
-        const response = await fetch(categoryApiUrl);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch category: ${response.status} ${response.statusText}`);
+        for (const slug of categorySlugs) {
+            const categoryApiUrl = `${window.origin}/wp-json/wp/v2/categories?slug=${slug}`;
+
+            const response = await fetch(categoryApiUrl);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch category '${slug}': ${response.status} ${response.statusText}`);
+            }
+
+            const categories = await response.json();
+
+            if (!Array.isArray(categories) || categories.length === 0) {
+                console.warn(`Category '${slug}' not found, skipping...`);
+                continue;
+            }
+
+            categoryIds.push(categories[0].id);
         }
 
-        const categories = await response.json();
-
-        if (!Array.isArray(categories) || categories.length === 0) {
-            throw new Error(`Category '${categorySlug}' not found`);
+        if (categoryIds.length === 0) {
+            throw new Error('No valid categories found');
         }
 
-        return categories[0].id;
+        return categoryIds;
     }
 
     /**
-     * Fetches the total count of posts for a given category
-     * @param {number} categoryId - The category ID
+     * Fetches tag IDs for the given slugs
+     * @param {string[]} tagSlugs - Array of tag slugs to search for
+     * @returns {Promise<number[]>} Array of tag IDs
+     */
+    async function fetchTagIds(tagSlugs) {
+        const tagIds = [];
+
+        for (const slug of tagSlugs) {
+            const tagApiUrl = `${window.origin}/wp-json/wp/v2/tags?slug=${slug}`;
+
+            const response = await fetch(tagApiUrl);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch tag '${slug}': ${response.status} ${response.statusText}`);
+            }
+
+            const tags = await response.json();
+
+            if (!Array.isArray(tags) || tags.length === 0) {
+                console.warn(`Tag '${slug}' not found, skipping...`);
+                continue;
+            }
+
+            tagIds.push(tags[0].id);
+        }
+
+        return tagIds;
+    }
+
+    /**
+     * Fetches the total count of posts for given category and tag IDs
+     * @param {number[]} categoryIds - Array of category IDs
+     * @param {number[]|null} tagIds - Array of tag IDs or null
      * @returns {Promise<number>} Total number of posts
      */
-    async function fetchTotalPostsCount(categoryId) {
-        const postsApiUrl = `${window.origin}/wp-json/wp/v2/posts?categories=${categoryId}&per_page=1`;
+    async function fetchTotalPostsCount(categoryIds, tagIds = null) {
+        let postsApiUrl = `${window.origin}/wp-json/wp/v2/posts?per_page=1`;
+
+        // Add categories parameter
+        if (categoryIds.length > 0) {
+            postsApiUrl += `&categories=${categoryIds.join(',')}`;
+        }
+
+        // Add tags parameter if provided
+        if (tagIds && tagIds.length > 0) {
+            postsApiUrl += `&tags=${tagIds.join(',')}`;
+        }
 
         const response = await fetch(postsApiUrl);
         if (!response.ok) {
@@ -2066,36 +2153,48 @@ async function activatePagination() {
         currentPage = selectedPage;
 
         // Update button active states
-        updateActiveButtonState(paginationWrapper, selectedPage, CONFIG.CSS_CLASSES);
+        updateActiveButtonState(paginationWrapperEl, selectedPage, CONFIG.CSS_CLASSES);
 
         // Show loading state
-        showLoadingState(postsContainer);
+        showLoadingState(postsContainerEl);
 
         try {
             // Fetch and render posts for the selected page
-            const newsCategoryId = await fetchNewsCategoryId(CONFIG.CATEGORY_SLUG);
-            const posts = await fetchPostsByPage(newsCategoryId, selectedPage, CONFIG.POSTS_PER_PAGE);
+            const categoryIds = await fetchCategoryIds(CONFIG.CATEGORIES);
+            const tagIds = CONFIG.TAGS ? await fetchTagIds(CONFIG.TAGS) : null;
+            const posts = await fetchPostsByPage(categoryIds, tagIds, selectedPage, CONFIG.POSTS_PER_PAGE);
 
             // Clear current content and render new posts
-            renderPostsContent(postsContainer, posts);
+            renderPostsContent(postsContainerEl, posts);
 
             console.log(`Page ${selectedPage} loaded with ${posts.length} posts`);
         } catch (error) {
             console.error(`Failed to load page ${selectedPage}:`, error.message);
-            handlePageLoadError(postsContainer);
+            handlePageLoadError(postsContainerEl);
         }
     }
 
     /**
      * Fetches posts for a specific page
-     * @param {number} categoryId - The category ID
+     * @param {number[]} categoryIds - Array of category IDs
+     * @param {number[]|null} tagIds - Array of tag IDs or null
      * @param {number} page - The page number to fetch
      * @param {number} postsPerPage - Number of posts per page
      * @returns {Promise<Array>} Array of post objects
      */
-    async function fetchPostsByPage(categoryId, page, postsPerPage) {
+    async function fetchPostsByPage(categoryIds, tagIds, page, postsPerPage) {
         const offset = (page - 1) * postsPerPage;
-        const postsApiUrl = `${window.origin}/wp-json/wp/v2/posts?categories=${categoryId}&per_page=${postsPerPage}&offset=${offset}&_embed`;
+        let postsApiUrl = `${window.origin}/wp-json/wp/v2/posts?per_page=${postsPerPage}&offset=${offset}&_embed`;
+
+        // Add categories parameter
+        if (categoryIds.length > 0) {
+            postsApiUrl += `&categories=${categoryIds.join(',')}`;
+        }
+
+        // Add tags parameter if provided
+        if (tagIds && tagIds.length > 0) {
+            postsApiUrl += `&tags=${tagIds.join(',')}`;
+        }
 
         const response = await fetch(postsApiUrl);
         if (!response.ok) {
@@ -2109,7 +2208,6 @@ async function activatePagination() {
         }
 
         console.log(posts);
-
 
         return posts.map(post => ({
             id: post.id,
