@@ -18,13 +18,6 @@ document.addEventListener("readystatechange", (e) => {
         const defaultFilterdBtn = document?.getElementById("hong-kong-law");
         defaultFilterdBtn?.classList.add("active");
 
-        const newseventsWrapper = document.querySelector('#all_news_posts');
-        // newseventsWrapper && getNewsAndEventsPosts(["awards-and-rankings", "news"]);
-        const hasServerPagination = document.querySelector('#news_posts_wrapper .pagination_container');
-        if (newseventsWrapper && !hasServerPagination) {
-            // Only use client-side fetch/render when pagination is NOT server-driven
-            // getNewsAndEventsPosts(["awards-and-rankings", "news"]);
-        }
         // getArchivedAllPosts(["hong-kong-law"]);
 
 
@@ -67,6 +60,7 @@ document.addEventListener("readystatechange", (e) => {
                 buttonSelector: ".pod_web_btn_filter",
             });
         }
+
         if (window.location.pathname.includes("/news/")) {
             initFilterButton({
                 buttonSelector: ".news_btn_tag_filter",
