@@ -53,9 +53,6 @@ document.addEventListener("readystatechange", (e) => {
                 ajaxAction: "load_more_content",
                 postsPerPage: 20,
                 buttonSelector: ".awards_btn_filter",
-                // filterOnClickCallback: ({ value }) => {
-                //     console.log("Selected filter:", value);
-                // }
             });
 
         }
@@ -74,20 +71,20 @@ document.addEventListener("readystatechange", (e) => {
             initFilterButton({
                 buttonSelector: ".news_btn_tag_filter",
                 onClickCallback: async ({ value }) => {
-                    console.log("Selected filter:", value);
+                    // console.log("Selected filter:", value);
 
                     // Clear div container #all_news_posts
                     const allNewsPostsContainer = document.querySelector('#all_news_posts');
                     if (allNewsPostsContainer) {
                         // Show loading state
-                        allNewsPostsContainer.innerHTML = '<div class="loading-indicator">Loading...</div>';
+                        showLoadingState(allNewsPostsContainer, "Loading filtered news...");
                     }
 
                     // Clear existing pagination before applying filters
                     const paginationWrapper = document.querySelector('.news_pagination_btns_wrapper');
                     if (paginationWrapper) {
                         paginationWrapper.innerHTML = '';
-                        console.log('Cleared existing pagination for filter update');
+                        // console.log('Cleared existing pagination for filter update');
                     }
 
                     try {
@@ -867,11 +864,6 @@ function resolveFilterTypeAndValue(button, options = {}) {
     };
 }
 
-// Optional helper: simple logger you can reuse as onClickCallback
-function defaultFilterClickLogger(payload) {
-    // payload: { type, value, button, event }
-    console.log('Selected filter:', payload?.value);
-}
 
 function parseYearDecade(label) {
     if (!label) return null;
@@ -897,6 +889,26 @@ function parseYearDecade(label) {
         return { start: decadeStart, end: decadeStart + 9 };
     }
     return null;
+}
+
+/**
+ * Shows a loading state with spinner in the specified container
+ * @param {HTMLElement} container - The container element to show loading state in
+ * @param {string} [message="Loading..."] - Optional custom loading message
+ */
+function showLoadingState(container, message = "Loading...") {
+    container.innerHTML = `
+        <div class="loading-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+            <div class="spinner" style="border: 3px solid #f3f3f3; border-top: 3px solid hsl(358, 81%, 51%); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+            <p>${message}</p>
+            <style>
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        </div>
+    `;
 }
 // ==================================================
 // #endregion Utility Functions:::END
@@ -1234,28 +1246,6 @@ function initNewsletterPage() {
     };
 }
 
-const openIndexedDB = (dbName, version = 1) => {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(dbName, version);
-
-        request.onerror = (event) => {
-            console.error("IndexedDB Error:", event.target.errorCode);
-            reject(event.target.errorCode);
-        };
-
-        request.onsuccess = (event) => {
-            const db = event.target.result;
-            resolve(db);
-        };
-
-        request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            // Perform any database upgrade operations here if needed
-            console.log("Database upgrade needed:", db);
-        };
-    });
-};
-
 // ============================================================
 //  #endregion SHARING TO SOCIAL MEDIA JS CODE:::END
 // ============================================================
@@ -1485,7 +1475,6 @@ function createUITable(postsByYear, categories) {
 
 FilterButton.initializeAll(SELECTORS.NewsletterAchiveFilter, (filterID) => {
     currentFilterID = filterID === "all" ? null : filterID;
-    console.log(`Current Filter ID: ${currentFilterID}`);
 
     getArchivedAllPosts([currentFilterID]);
 });
@@ -1985,13 +1974,9 @@ function loadNewsPagination() {
         const observer = new IntersectionObserver(
             function (entries, obs) {
                 entries.forEach(function (entry) {
-                    console.log('Intersection detected:', {
-                        isIntersecting: entry.isIntersecting,
-                        intersectionRatio: entry.intersectionRatio
-                    });
 
                     if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
-                        console.log('News & Events section is at least 30% visible. Setting up pagination...');
+                        // console.log('News & Events section is at least 30% visible. Setting up pagination...');
 
                         // Setup pagination (preserves server-rendered content if it exists)
                         loadInitialNewsPostsAndPagination();
@@ -2031,7 +2016,7 @@ async function loadInitialNewsPostsAndPagination() {
         const hasServerRenderedContent = existingPosts.length > 0;
 
         if (hasServerRenderedContent) {
-            console.log('Server-rendered content found. Preserving existing posts and only setting up pagination.');
+            // console.log('Server-rendered content found. Preserving existing posts and only setting up pagination.');
 
             // Just setup pagination for the existing server-rendered content
             await activatePagination({
@@ -2042,12 +2027,12 @@ async function loadInitialNewsPostsAndPagination() {
                 paginationWrapper: '.news_pagination_btns_wrapper'
             });
 
-            console.log('Pagination activated for server-rendered content');
+            // console.log('Pagination activated for server-rendered content');
             return;
         }
 
         // If no server-rendered content, fetch client-side (fallback)
-        console.log('No server-rendered content found. Fetching posts via API...');
+        // console.log('No server-rendered content found. Fetching posts via API...');
 
         // Show loading state
         allNewsPostsContainer.innerHTML = '<div class="loading-indicator">Loading news posts...</div>';
@@ -2083,7 +2068,7 @@ async function loadInitialNewsPostsAndPagination() {
             paginationWrapper: '.news_pagination_btns_wrapper'
         });
 
-        console.log('Initial news posts loaded and pagination activated');
+        // console.log('Initial news posts loaded and pagination activated');
 
     } catch (error) {
         console.error('Error loading initial news posts:', error);
@@ -2116,7 +2101,7 @@ async function loadInitialNewsPostsAndPagination() {
  * 5. Creates interactive pagination buttons
  */
 async function activatePagination(options = {}) {
-    console.log('Activating pagination...', options);
+    // console.log('Activating pagination...', options);
 
     // Normalize and validate options
     const {
@@ -2137,12 +2122,7 @@ async function activatePagination(options = {}) {
         const newTags = tags ? (Array.isArray(tags) ? tags : [tags]) : null;
         const tagsChanged = JSON.stringify(currentTags) !== JSON.stringify(newTags);
 
-        if (!tagsChanged) {
-            console.log('Pagination already active with same configuration. Skipping duplicate setup.');
-            return;
-        } else {
-            console.log('Filter changed, updating pagination...');
-        }
+        if (!tagsChanged) return;
     }
 
     // Store current configuration for future comparisons and page navigation
@@ -2194,7 +2174,7 @@ async function activatePagination(options = {}) {
         // Generate pagination UI
         renderPaginationButtons(paginationWrapperEl, totalPages, currentPage, CONFIG.CSS_CLASSES);
 
-        console.log(`Pagination activated: ${totalPages} pages for ${totalPosts} posts`);
+        // console.log(`Pagination activated: ${totalPages} pages for ${totalPosts} posts`);
 
     } catch (error) {
         console.error('Failed to activate pagination:', error.message);
@@ -2408,7 +2388,7 @@ async function activatePagination(options = {}) {
         updateActiveButtonState(paginationWrapperEl, selectedPage, CONFIG.CSS_CLASSES);
 
         // Show loading state
-        showLoadingState(postsContainerEl);
+        showLoadingState(postsContainerEl, "Loading News...");
 
         try {
             // Fetch posts for the selected page using our getNewsPostItems function
@@ -2422,7 +2402,7 @@ async function activatePagination(options = {}) {
             // Clear current content and render new posts
             renderPostsContent(postsContainerEl, posts);
 
-            console.log(`Page ${selectedPage} loaded with ${posts.length} posts`);
+            // console.log(`Page ${selectedPage} loaded with ${posts.length} posts`);
         } catch (error) {
             console.error(`Failed to load page ${selectedPage}:`, error.message);
             handlePageLoadError(postsContainerEl);
@@ -2454,19 +2434,8 @@ async function activatePagination(options = {}) {
      * Shows loading state in the posts container
      * @param {HTMLElement} container - Posts container element
      */
-    function showLoadingState(container) {
-        container.innerHTML = `
-            <div class="loading-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
-                <div class="spinner" style="border: 3px solid #f3f3f3; border-top: 3px solid hsl(358, 81%, 51%); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
-                <p>Loading News...</p>
-                <style>
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                </style>
-            </div>
-        `;
+    function showLoadingStateInPagination(container) {
+        showLoadingState(container, "Loading News...");
     }
 
     /**
@@ -2477,7 +2446,7 @@ async function activatePagination(options = {}) {
         container.innerHTML = `
             <div class="error-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #e74c3c;">
                 <p>Failed to load posts. Please try again.</p>
-                <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer;">
                     Refresh Page
                 </button>
             </div>
