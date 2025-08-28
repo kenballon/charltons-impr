@@ -13,7 +13,7 @@ add_action('wp_enqueue_scripts', 'divi_child_enqueue_styles');
 
 function clf_theme_enqueue_styles()
 {
-    wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.59', 'all');
+    wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.01', 'all');
     wp_enqueue_style('custom-style');
 
     // Material Symbols
@@ -40,9 +40,9 @@ function mainjs_script()
     // Enqueue the main.js script
     wp_enqueue_script(
         'mainjs',
-        get_stylesheet_directory_uri() . '/js/main-test.js',
+        get_stylesheet_directory_uri() . '/js/main.js',
         ['jquery'],
-        filemtime(get_stylesheet_directory() . '/js/main-test.js'),  // Dynamic version based on file modification time
+        filemtime(get_stylesheet_directory() . '/js/main.js'),  // Dynamic version based on file modification time
         true  // Load the script in the footer
     );
 
