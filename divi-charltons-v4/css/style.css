@@ -847,6 +847,7 @@ header#main-header {
           rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
 
         .search-results-list {
+          list-style: none;
           padding-left: 0;
 
           li {
