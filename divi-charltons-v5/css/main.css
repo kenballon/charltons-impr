@@ -64,9 +64,6 @@ body {
   flex-direction: column;
 }
 #page-container #et-main-area {
-  /* flex: 1;
-  display: flex;
-  flex-direction: column; */
   position: relative;
 }
 #page-container #et-main-area #main-content {
@@ -383,6 +380,14 @@ ul {
   max-width: 100%;
 }
 
+.content-wrapper4 .et_pb_row.et_pb_row_0 {
+  max-width: 100%;
+}
+.content-wrapper4 .et_pb_row.et_pb_row_0 .et_pb_module.breadcrumb4-wrapper {
+  max-width: 1340px;
+  margin-inline: auto;
+}
+
 .page-submenu ul {
   list-style: none;
   padding: 0 !important;
@@ -685,12 +690,45 @@ ul {
   margin-bottom: 0 !important;
 }
 
-.cu-blog-wrapper,
+.cu-blog-wrapper.blog-wrapper-news {
+  padding-inline: 64px;
+}
+
+.cu-top-section {
+  padding-inline: 32px;
+}
+
+.cu-top-section.nl-page-top {
+  padding-block-end: 1rem;
+}
+@media (max-width: 767px) {
+  .cu-top-section.nl-page-top .et_pb_module {
+    padding-block-start: 0 !important;
+  }
+}
+@media (min-width: 1475px) {
+  .cu-top-section.nl-page-top {
+    padding-inline: 32px !important;
+  }
+}
+
+.et_pb_section.cu-blog-wrapper {
+  padding-block-start: 0;
+  padding-inline: 32px;
+}
+
+@media (max-width: 767px) {
+  .cu-top-section.nl-page-top,
+  .et_pb_section.cu-blog-wrapper {
+    padding-inline: 24px !important;
+  }
+}
+
+/* .cu-blog-wrapper,
 .cu-top-section {
   padding: 0 30px !important;
   margin: 11px 0 0 0 !important;
-}
-
+} */
 .fullwidth {
   padding: 0 !important;
 }
@@ -1197,6 +1235,7 @@ header#main-header .header_nav_div_wrapper .search_wrapper .search_matches_wrapp
   box-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
 }
 header#main-header .header_nav_div_wrapper .search_wrapper .search_matches_wrapper .search-results-list {
+  list-style: none;
   padding-left: 0;
 }
 header#main-header .header_nav_div_wrapper .search_wrapper .search_matches_wrapper .search-results-list li {
@@ -3408,9 +3447,9 @@ ul.in_page_tab_menu li:hover .tab_menu_link_div .arrow_right_svg svg {
 /* ================================================= */
 /* #region SECONDARY PAGES |  NEWSLETTER NEW PAGE */
 /* ================================================= */
-@media (min-width: 1024px) {
+@media (max-width: 767px) {
   .et_pb_section.newsletter_page_section {
-    /* min-height: 100dvh; */
+    padding-inline: 1.5rem !important;
   }
 }
 .et_pb_section.newsletter_page_section:nth-child(1) {
@@ -4705,6 +4744,7 @@ ul.in_page_tab_menu li:hover .tab_menu_link_div .arrow_right_svg svg {
 }
 .content-wrapper2 .et_pb_row .et_pb_column {
   padding-inline: 32px;
+  padding-block-end: 48px;
 }
 .content-wrapper2 .et_pb_row .et_pb_column.et-last-child .et_pb_module {
   position: fixed;
@@ -4712,6 +4752,9 @@ ul.in_page_tab_menu li:hover .tab_menu_link_div .arrow_right_svg svg {
 .content-wrapper2 .et_pb_row .et_pb_image_wrap img {
   position: relative;
   max-height: none;
+}
+.content-wrapper2 .tab-content-menu .et_pb_all_tabs .et_pb_tab.et-pb-active-slide {
+  padding-inline: 0;
 }
 
 .et_pb_section.subscription-wrapper .et_pb_module {
@@ -5076,6 +5119,12 @@ table.archive_table tbody tr:nth-of-type(even) {
 .et_pb_row.temp_award_row_wrapper > .et_pb_column {
   padding-inline: 2rem;
 }
+@media (max-width: 767px) {
+  .et_pb_row.temp_award_row_wrapper > .et_pb_column {
+    padding-block-start: 1rem;
+    padding-inline: 0;
+  }
+}
 .et_pb_row.temp_award_row_wrapper .awards_card_img {
   width: 100%;
   aspect-ratio: 1/1;
@@ -5306,9 +5355,14 @@ table.archive_table tbody tr:nth-of-type(even) {
     grid-template-columns: repeat(5, 1fr);
   }
 }
-@media (max-width: 992px) {
+@media (min-width: 768px) and (max-width: 992px) {
   .all_newsevents_container {
     padding-inline: 1.25rem;
+  }
+}
+@media (max-width: 767px) {
+  .all_newsevents_container {
+    padding-inline: 0;
   }
 }
 
@@ -6398,4 +6452,37 @@ img.emoji {
 }
 .search_res_list li.search-result-item:hover a {
   color: white;
+}
+
+.hero1-meta-row.hero1-date {
+  font-weight: 700;
+  color: white;
+}
+.hero1-meta-row.hero1-date > * {
+  font-weight: inherit !important;
+}
+
+.hero1-meta-row.hero1-link > * {
+  font-weight: 600;
+  color: white !important;
+}
+
+.hero1-meta {
+  padding: 40px 15px;
+  position: absolute;
+  top: 40px;
+  max-width: 60%;
+}
+.hero1-meta h1 {
+  font-weight: 700;
+}
+.hero1-meta h1 span {
+  color: white;
+  font-weight: inherit;
+}
+
+.hero1-meta-row {
+  margin-bottom: 20px;
+  line-height: 20px;
+  font-size: 15px;
 }/*# sourceMappingURL=main.css.map */
