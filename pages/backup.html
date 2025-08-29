@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <section class="awards">
+        <header>
+            <h1 style="font-size:clamp(1.75rem, 2.237vw + 0.315rem, 3rem);">Awards & Rankings</h1>
+        </header>
+
+        <nav aria-label="Awards Filter" class="btn_tag_filter_wrapper flex flex-wrap gap-1">
+            <div class="btn_tag_group flex-wrap">
+                <button id="all" class="awards_btn_filter active" type="button" aria-pressed="true">All</button>
+                <button id="winner" class="awards_btn_filter" type="button">Awards</button>
+                <button id="recommended" class="awards_btn_filter" type="button">Rankings</button>
+                <button id="finalist" class="awards_btn_filter" type="button">Selected Nominations</button>
+            </div>
+
+            <div class="btn_tag_group flex-wrap">
+                <button id="firm" class="awards_btn_filter" type="button">Firm</button>
+                <button id="partner" class="awards_btn_filter" type="button">Partner</button>
+            </div>
+            <div class="btn_tag_group flex-wrap">
+                <button id="alb" class="awards_btn_filter" type="button">ALB</button>
+                <button id="asialaw" class="awards_btn_filter" type="button">AsiaLaw</button>
+                <button id="chambers" class="awards_btn_filter" type="button">Chambers</button>
+                <button id="iflr" class="awards_btn_filter" type="button">IFLR</button>
+                <button id="legal500" class="awards_btn_filter" type="button">Legal500</button>
+            </div>
+
+            <div class="btn_tag_group flex-wrap">
+                <button id="2020" class="awards_btn_yrfilter" type="button">2020s</button>
+                <button id="2010" class="awards_btn_yrfilter" type="button">2010s</button>
+                <button id="2000" class="awards_btn_yrfilter" type="button">2000s</button>
+            </div>
+        </nav>
+
+        <div id="all_awards_wrapper">[get_award_post_items category="news" limit="15"]</div>
+        <div id="btn_load_more_wrapper" class="flex items-center justify-center py-4"></div>
+    </section>
+</body>
+
+</html>
