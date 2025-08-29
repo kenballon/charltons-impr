@@ -8,7 +8,7 @@ document.addEventListener("readystatechange", (e) => {
     if (e.target.readyState === "complete") {
         customHeaderNavigation();
         initNewsletterPage();
-        loadNewsPagination();
+
 
         const buttonAllActive = document.getElementById("all");
         currentUrl.startsWith(origin + "/news")
@@ -60,6 +60,7 @@ document.addEventListener("readystatechange", (e) => {
             });
         }
         if (window.location.pathname.includes("/news/")) {
+            loadNewsPagination();
             initFilterButton({
                 buttonSelector: ".news_btn_tag_filter",
                 onClickCallback: async ({ value }) => {
@@ -1953,40 +1954,18 @@ function initLoadMoreWithFilters(config) {
 }
 
 function loadNewsPagination() {
-    // Check if IntersectionObserver is supported
-    if (!window.IntersectionObserver) return;
-
-    // Use standard querySelector (more compatible)
-    // TODO: works well with using an ID than querySelector
     const target = document.getElementById('all_news_posts');
 
     if (!target) return;
 
     try {
-        const observer = new IntersectionObserver(
-            function (entries, obs) {
-                entries.forEach(function (entry) {
-
-                    if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
-                        // console.log('News & Events section is at least 30% visible. Setting up pagination...');
-
-                        // Setup pagination (preserves server-rendered content if it exists)
-                        loadInitialNewsPostsAndPagination();
-
-                        // Disconnect observer since we only need to run this once
-                        obs.disconnect();
-                    }
-                });
-            },
-            {
-                threshold: [0.3] // Trigger when 30% of the element is visible
-            }
-        );
-
-        observer.observe(target);
-
+        // Wait a short time for page to settle, then initialize
+        setTimeout(() => {
+            console.log('Initializing news pagination after delay...');
+            loadInitialNewsPostsAndPagination();
+        }, 500); // 500ms delay
     } catch (error) {
-        console.error('Error setting up IntersectionObserver:', error);
+        console.error('Error setting up delayed pagination:', error);
     }
 }
 
