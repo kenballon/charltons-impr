@@ -13,7 +13,7 @@ add_action('wp_enqueue_scripts', 'divi_child_enqueue_styles');
 
 function clf_theme_enqueue_styles()
 {
-    wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.01', 'all');
+    wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.59', 'all');
     wp_enqueue_style('custom-style');
 
     // Material Symbols

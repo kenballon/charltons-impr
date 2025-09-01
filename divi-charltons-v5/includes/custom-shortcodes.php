@@ -289,6 +289,19 @@ function show_parent_title_shortcode($atts, $content = null)
     return get_the_title($parent);
 }
 
+function get_insights_regulatory_breadcrumb_shortcode()
+{
+    $post = get_post();
+    $output = '';
+    $output .= '<ul>';
+    $output .= '<li><a href="/">Home</a></li>';
+    $output .= '<li><a href="/information-insights/">Insights</a></li>';
+    $output .= '<li><a href="/regulatory/">Hong Kong Regulatory Compliance</a></li>';
+    $output .= '<li><span>' . get_the_title($post) . '</span></li>';
+    $output .= '</ul>';
+    return $output;
+}
+
 function show_news_events_sitepath_shortcode()
 {
     $post = get_post();
@@ -2467,12 +2480,15 @@ function getNewsPostItems($atts = [])
         $cat_terms = get_the_terms($post_id, 'category') ?: [];
         $tag_terms = get_the_terms($post_id, 'post_tag') ?: [];
         $categories_lower = implode(',', array_map(static function ($t) {
-            return strtolower($t->slug); }, array_filter($cat_terms, 'is_object')));
+            return strtolower($t->slug);
+        }, array_filter($cat_terms, 'is_object')));
         $tags_lower = implode(',', array_map(static function ($t) {
-            return strtolower($t->slug); }, array_filter($tag_terms, 'is_object')));
+            return strtolower($t->slug);
+        }, array_filter($tag_terms, 'is_object')));
         ?>
         <article class="news_article_wrapper" data-category="<?php echo esc_attr($categories_lower); ?>"
-            data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr((string) $post_id); ?>" data-post-date="<?php echo esc_attr($post_date); ?>">
+            data-tags="<?php echo esc_attr($tags_lower); ?>" data-post-id="<?php echo esc_attr((string) $post_id); ?>"
+            data-post-date="<?php echo esc_attr($post_date); ?>">
             <div class="news_card_image">
                 <a href="<?php echo esc_url($post_url); ?>" rel="noopener noreferrer"
                     aria-label="<?php echo esc_attr($title); ?>" title="<?php echo esc_attr($title); ?>">
@@ -2841,6 +2857,7 @@ function register_custom_shortcodes()
     add_shortcode('show_nl_text_hong_kong_law', 'show_nl_text_hong_kong_law_shortcode');
     add_shortcode('show_current_page_parent_menu', 'show_current_page_parent_menu_shortcode');
     add_shortcode('show_parent_title', 'show_parent_title_shortcode');
+    add_shortcode('get_insights_regulatory_breadcrumb', 'get_insights_regulatory_breadcrumb_shortcode');
 
     add_shortcode('related_pages', 'related_post_sc');
     add_shortcode('related_page_item', 'related_pages_sc');
