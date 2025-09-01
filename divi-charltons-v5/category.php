@@ -5,7 +5,7 @@
     <?php if (have_posts()): ?>
         <header class="archive_header_hero">
             <div>
-                <h1 class="archive-title"><?php single_tag_title(); ?> Archive:</h1>
+                <h1 class="archive-title"><?php single_cat_title(); ?> Archive:</h1>
             </div>
         </header>
 
@@ -47,12 +47,12 @@
             </div>
 
             <div class="post-tags">
-                <h2 class="text-xs uppercase mb-2">Other topics that might interest you:</h2>
+                <h2 class="text-xs uppercase mb-2">Other categories that might interest you:</h2>
                 <?php
-                $all_tags = get_tags();
-                if ($all_tags) {
-                    foreach ($all_tags as $tag) {
-                        echo '<a href="' . get_tag_link($tag->term_id) . '" class="tag-link">' . $tag->name . '</a> ';
+                $all_categories = get_categories();
+                if ($all_categories) {
+                    foreach ($all_categories as $category) {
+                        echo '<a href="' . get_category_link($category->term_id) . '" class="tag-link">' . $category->name . '</a> ';
                     }
                 }
                 ?>
@@ -66,7 +66,7 @@
     <?php else: ?>
         <header class="archive_header_hero">
             <div>
-                <h1 class="archive-title"><?php single_tag_title(); ?></h1>
+                <h1 class="archive-title"><?php single_cat_title(); ?></h1>
             </div>
         </header>
         <div class="flex items-center" style="height: 50vh;">
