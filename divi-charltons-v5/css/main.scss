@@ -7622,3 +7622,66 @@ img.emoji {
   line-height: 20px;
   font-size: 15px;
 }
+
+.pnf-404 {
+  position: relative;
+  background-color: var(--chr-text-gray-900);
+
+
+
+  .page_not_found_wrapper {
+    position: relative;
+    margin-inline: auto;
+    min-height: calc(100dvh - var(--height));
+    max-width: min(90dvw, calc(100dvw - 2rem));
+    overflow: hidden;
+
+
+    img {
+      position: absolute;
+      object-fit: contain;
+      width: 100%;
+
+      &:first-child {
+        top: 20%;
+        left: 50%;
+
+        transform: translate(-30%, -20%);
+        width: 100%;
+        height: 100rem;
+        z-index: 1;
+        opacity: 0.8;
+      }
+
+      &:nth-child(2) {
+        top: 0;
+        left: 50%;
+        transform: translate(-50%, 0);
+        width: 100%;
+        height: 100rem;
+        z-index: 2;
+      }
+    }
+
+    .details_pnf {
+      position: relative;
+      z-index: 10;
+
+      .pnf-headline {
+        font-size: clamp(2rem, 10.37vw + 0.056rem, 12.5rem);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      /* min-height: calc(100dvh - var(--height)); */
+      max-width: min(90dvw, calc(100dvw - 8rem));
+
+      img {
+        &:first-child {
+          top: -40%;
+          transform: translate(-50%, -20%);
+        }
+      }
+    }
+  }
+}
