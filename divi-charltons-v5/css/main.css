@@ -5812,6 +5812,13 @@ table.archive_table tbody tr:nth-of-type(even) {
   }
 }
 
+.pod-web-img-logo-wrapper a img {
+  max-width: 150px;
+  height: auto;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+
 .award_card_contact_people {
   padding-block: 2rem;
   grid-template-columns: 1fr;

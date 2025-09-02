@@ -6821,6 +6821,16 @@ table.archive_table {
   }
 }
 
+.pod-web-img-logo-wrapper{
+  a{
+    img{
+      max-width: 150px;
+      height: auto;
+      object-fit: contain;
+    }
+  }
+}
+
 .award_card_contact_people {
   padding-block: 2rem;
   grid-template-columns: 1fr;
