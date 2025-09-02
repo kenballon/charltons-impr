@@ -15,7 +15,7 @@ in our server */
 /* ================================================= */
 :root {
   /* --ff-primary: "Graphik", sans-serif; */
-  --ff-primary: "Graphik", "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+  --ff-primary: "General Sans", "Inter", system-ui, -apple-system, BlinkMacSystemFont,
     Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   --brand-color: hsl(358, 81%, 51%);
   --chr-primary-color-900: hsl(358, 81%, 24%);
@@ -3712,7 +3712,7 @@ ul.in_page_tab_menu li:hover .tab_menu_link_div .arrow_right_svg svg {
   }
 }
 .newsletter_section_single_post .et_pb_row.newsletter_sp_row_hero > .et_pb_column .newsletter_single_post.hero_nl_single .et_pb_text_inner .newsletter_btn_share_wrapper {
-  padding-inline: 2rem;
+  padding-inline: 64px;
 }
 .newsletter_section_single_post .et_pb_row.newsletter_sp_row_hero > .et_pb_column .newsletter_single_post.hero_nl_single .et_pb_text_inner .nl_sp_hero_txt_wrapper {
   margin-top: -6rem;

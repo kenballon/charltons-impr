@@ -17,7 +17,7 @@ in our server */
 
 :root {
   /* --ff-primary: "Graphik", sans-serif; */
-  --ff-primary: "Graphik", "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+  --ff-primary: "General Sans", "Inter", system-ui, -apple-system, BlinkMacSystemFont,
     Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
   --brand-color: hsl(358, 81%, 51%);
@@ -4465,7 +4465,7 @@ ul.in_page_tab_menu {
           }
 
           .newsletter_btn_share_wrapper {
-            padding-inline: 2rem;
+            padding-inline: 64px;
           }
 
           .nl_sp_hero_txt_wrapper {
@@ -6821,9 +6821,9 @@ table.archive_table {
   }
 }
 
-.pod-web-img-logo-wrapper{
-  a{
-    img{
+.pod-web-img-logo-wrapper {
+  a {
+    img {
       max-width: 150px;
       height: auto;
       object-fit: contain;
