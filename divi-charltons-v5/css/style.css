@@ -4466,6 +4466,16 @@ ul.in_page_tab_menu {
 
           .newsletter_btn_share_wrapper {
             padding-inline: 64px;
+
+            @media (max-width:767px) {
+              padding-inline: 1.5rem;
+              flex-direction: column;
+              gap: 1rem;
+
+              .tags_wrapper {
+                flex-wrap: wrap;
+              }
+            }
           }
 
           .nl_sp_hero_txt_wrapper {
@@ -4487,6 +4497,10 @@ ul.in_page_tab_menu {
             @media (max-width: 1024px) {
               margin-top: initial;
             }
+
+            @media (max-width: 767px) {
+              padding-inline: 24px;
+            }
           }
         }
       }
@@ -4507,7 +4521,7 @@ ul.in_page_tab_menu {
 
       .single_post_content_wrapper {
         max-width: 900px;
-        padding-inline: 2rem;
+        padding-inline: 64px;
         font-size: var(--fs-paragrah);
         color: var(--chr-text-gray-700);
         line-height: 170%;
