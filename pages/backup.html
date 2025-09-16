@@ -9,11 +9,16 @@
         body {
             font-family: 'Graphik', sans-serif;
         }
+
+        .container {
+            width: min(90%, 1200px);
+            margin-inline: auto;
+        }
     </style>
 </head>
 
 <body>
-    <section class="awards">
+    <!-- <section class="awards">
         <header>
             <h1 style="font-size:clamp(1.75rem, 2.237vw + 0.315rem, 3rem);">Awards & Rankings</h1>
         </header>
@@ -47,11 +52,22 @@
 
         <div id="all_awards_wrapper">[get_award_post_items category="news" limit="15"]</div>
         <div id="btn_load_more_wrapper" class="flex items-center justify-center py-4"></div>
-    </section>
+    </section> -->
 
-    <section>
-        <h1 class="profile-name-text">Hello Dear</h1>
-        <p class="profile-name-text">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Officiis, nobis.</p>
+    <section class="container profile-name-section" style="margin-top: 200px;">
+        <h1 class="profile-name-text">Hello Mundong Ibabaw</h1>
+        <p class="profile-name-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius iste quod non? Nisi
+            deleniti doloremque quis fugiat non aperiam fugit dignissimos commodi excepturi, rem optio. Excepturi
+            consequatur, exercitationem aspernatur nihil vel laboriosam nisi quisquam soluta tempora maiores vero eaque
+            eligendi sunt ex obcaecati labore quidem natus necessitatibus similique nulla molestiae. Mollitia suscipit
+            fugiat tempore nemo! Nesciunt harum eligendi recusandae illum tempora corrupti distinctio porro, molestias
+            repudiandae officiis vero ducimus ut cum corporis labore quia perferendis sit natus. Eum alias doloribus
+            excepturi architecto delectus nulla, eius praesentium corporis officiis error facere cupiditate ipsum
+            maiores quo repudiandae omnis! Laborum vel quaerat voluptatibus aliquid quo temporibus nostrum facere maxime
+            soluta necessitatibus nam eos distinctio labore minus atque, minima eveniet, unde iusto officiis. Fugiat
+            quis perspiciatis minus magnam commodi libero quod nam totam sapiente unde saepe, culpa tempora, nulla
+            corrupti placeat corporis vel sint laboriosam dolore aliquam magni. Expedita harum maxime ab quis maiores!
+        </p>
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
@@ -62,7 +78,7 @@
         // use a script tag or an external JS file
         document.addEventListener("DOMContentLoaded", (event) => {
             gsap.registerPlugin(ScrollTrigger, SplitText)
-            let tl = gsap.timeline({ delay: 0.002 });
+            let tl = gsap.timeline({ delay: 0.03 });
             // gsap code here!
             let splitHeadings = document.querySelectorAll(".profile-name-text");
             splitHeadings.forEach((heading) => {
@@ -75,7 +91,7 @@
                     duration: 0.5,
                     opacity: 0,
                     yPercent: 20,
-                    stagger: 0.1,
+                    stagger: 0.109,
                     ease: "power2.out",
                 }, "+=0.1");
             });
