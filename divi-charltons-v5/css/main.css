@@ -2335,6 +2335,13 @@ ul.home_redomicile_default_list .home_redomicile_default_list_item:first-child {
 }
 .lawyer_profile_section.et_pb_with_background .lawyer_profile_row .et_pb_column .lawyer_profile_content_wrapper .et_pb_text_inner {
   width: min(100%, 500px);
+  /* 
+  .profile-name-text,
+  .profile_role,
+  .profile_card_wrapper,
+  .profile_contact_info a span {
+    visibility: hidden;
+  } */
 }
 .lawyer_profile_section.et_pb_with_background .lawyer_profile_row .et_pb_column .lawyer_profile_content_wrapper .et_pb_text_inner > div {
   padding: 2rem;
@@ -2378,12 +2385,6 @@ ul.home_redomicile_default_list .home_redomicile_default_list_item:first-child {
   .lawyer_profile_section.et_pb_with_background .lawyer_profile_row .et_pb_column .lawyer_profile_content_wrapper .et_pb_text_inner .profile_card_wrapper .profile_contact_info a span:nth-child(2) {
     display: none;
   }
-}
-.lawyer_profile_section.et_pb_with_background .lawyer_profile_row .et_pb_column .lawyer_profile_content_wrapper .et_pb_text_inner .profile-name-text,
-.lawyer_profile_section.et_pb_with_background .lawyer_profile_row .et_pb_column .lawyer_profile_content_wrapper .et_pb_text_inner .profile_role,
-.lawyer_profile_section.et_pb_with_background .lawyer_profile_row .et_pb_column .lawyer_profile_content_wrapper .et_pb_text_inner .profile_card_wrapper,
-.lawyer_profile_section.et_pb_with_background .lawyer_profile_row .et_pb_column .lawyer_profile_content_wrapper .et_pb_text_inner .profile_contact_info a span {
-  visibility: hidden;
 }
 .lawyer_profile_section.et_pb_with_background .lawyer_profile_row .et_pb_column .lawyer_profile_content_wrapper .et_pb_text_inner .profile_contact_info a:hover span > * {
   color: var(--chr-primary-color-500);
@@ -6573,4 +6574,14 @@ img.emoji {
     top: -40%;
     transform: translate(-50%, -20%);
   }
+}
+
+.frame-wrapper {
+  width: 100%;
+  height: 560px;
+}
+
+.downloadable_wrapper a:not(:last-child)::after {
+  content: " |";
+  margin-left: 4px;
 }/*# sourceMappingURL=main.css.map */
