@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        body {
+            font-family: 'Graphik', sans-serif;
+        }
+    </style>
 </head>
 
 <body>
@@ -43,6 +48,37 @@
         <div id="all_awards_wrapper">[get_award_post_items category="news" limit="15"]</div>
         <div id="btn_load_more_wrapper" class="flex items-center justify-center py-4"></div>
     </section>
+
+    <section>
+        <h1 class="split-heading">Hello Dear</h1>
+        <p class="split-heading">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Officiis, nobis.</p>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+
+    <script>
+        // use a script tag or an external JS file
+        document.addEventListener("DOMContentLoaded", (event) => {
+            gsap.registerPlugin(ScrollTrigger, SplitText)
+            let tl = gsap.timeline({ delay: 0.002 });
+            // gsap code here!
+            let splitHeadings = document.querySelectorAll(".split-heading");
+            splitHeadings.forEach((heading) => {
+                let split = new SplitText(heading, { type: "words, lines", mask: "lines", autoSplit: true });
+                tl.from(split.lines, {
+                    duration: 0.4,
+                    opacity: 0,
+                    yPercent: 20,
+                    stagger: 0.1,
+                    ease: "power2.out",
+                }, "+=0.1");
+            });
+        });
+
+    </script>
+    <script></script>
 </body>
 
 </html>
