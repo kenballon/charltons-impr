@@ -50,8 +50,8 @@
     </section>
 
     <section>
-        <h1 class="split-heading">Hello Dear</h1>
-        <p class="split-heading">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Officiis, nobis.</p>
+        <h1 class="profile-name-text">Hello Dear</h1>
+        <p class="profile-name-text">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Officiis, nobis.</p>
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
@@ -64,11 +64,15 @@
             gsap.registerPlugin(ScrollTrigger, SplitText)
             let tl = gsap.timeline({ delay: 0.002 });
             // gsap code here!
-            let splitHeadings = document.querySelectorAll(".split-heading");
+            let splitHeadings = document.querySelectorAll(".profile-name-text");
             splitHeadings.forEach((heading) => {
                 let split = new SplitText(heading, { type: "words, lines", mask: "lines", autoSplit: true });
+                console.clear();
+                console.log(split);
+                console.log(heading);
+
                 tl.from(split.lines, {
-                    duration: 0.4,
+                    duration: 0.5,
                     opacity: 0,
                     yPercent: 20,
                     stagger: 0.1,
@@ -78,7 +82,6 @@
         });
 
     </script>
-    <script></script>
 </body>
 
 </html>
