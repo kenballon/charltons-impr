@@ -56,7 +56,7 @@
 
     <section class="container profile-name-section" style="margin-top: 200px;">
         <h1 class="profile-name-text">Hello Mundong Ibabaw</h1>
-        <p class="profile-name-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius iste quod non? Nisi
+        <div class="profile-name-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius iste quod non? Nisi
             deleniti doloremque quis fugiat non aperiam fugit dignissimos commodi excepturi, rem optio. Excepturi
             consequatur, exercitationem aspernatur nihil vel laboriosam nisi quisquam soluta tempora maiores vero eaque
             eligendi sunt ex obcaecati labore quidem natus necessitatibus similique nulla molestiae. Mollitia suscipit
@@ -67,7 +67,7 @@
             soluta necessitatibus nam eos distinctio labore minus atque, minima eveniet, unde iusto officiis. Fugiat
             quis perspiciatis minus magnam commodi libero quod nam totam sapiente unde saepe, culpa tempora, nulla
             corrupti placeat corporis vel sint laboriosam dolore aliquam magni. Expedita harum maxime ab quis maiores!
-        </p>
+        </div>
     </section>
 
     <script src="/divi-charltons-v5/js/gsap.min.js"></script>
@@ -83,7 +83,7 @@
             let splitHeadings = document.querySelectorAll(".profile-name-text");
 
             splitHeadings.forEach((heading) => {
-                let split = new SplitText(heading, { type: "words, lines, chars", mask: "lines", autoSplit: true });
+                let split = new SplitText(heading, { type: "lines", mask: "lines", autoSplit: true });
                 console.clear();
                 console.log(split);
                 console.log(heading);
