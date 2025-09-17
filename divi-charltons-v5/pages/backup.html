@@ -7,7 +7,7 @@
     <title>Document</title>
     <style>
         body {
-            font-family: 'Graphik', sans-serif;
+            font-family: 'General Sans', sans-serif;
         }
 
         .container {
@@ -88,12 +88,25 @@
                 console.log(split);
                 console.log(heading);
 
+                // tl.from(split.lines, {
+                //     duration: 0.5,
+                //     opacity: 0,
+                //     yPercent: 40,
+                //     ease: "power2.out",
+                //     stagger: 0.03,
+                // }, "+=0.2");
+
                 tl.from(split.lines, {
-                    duration: 0.5,
+                    duration: 0.3,
+                    stagger: 0.05,
                     opacity: 0,
-                    yPercent: 40,
+                    yPercent: 10,
                     ease: "power2.out",
-                    stagger: 0.03,
+                    onStart: function () {
+                        split.chars.forEach(char => {
+                            char.style.color = "red";
+                        });
+                    },
                 }, "+=0.2");
             });
         });
