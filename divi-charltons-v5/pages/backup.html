@@ -81,19 +81,20 @@
             let tl = gsap.timeline({ delay: 0.03 });
             // gsap code here!
             let splitHeadings = document.querySelectorAll(".profile-name-text");
+
             splitHeadings.forEach((heading) => {
-                let split = new SplitText(heading, { type: "words, lines", mask: "lines", autoSplit: true });
+                let split = new SplitText(heading, { type: "words, lines, chars", mask: "lines", autoSplit: true });
                 console.clear();
                 console.log(split);
                 console.log(heading);
 
-                tl.from(split.words, {
+                tl.from(split.lines, {
                     duration: 0.5,
                     opacity: 0,
-                    yPercent: 20,
-                    stagger: 0.109,
+                    yPercent: 40,
                     ease: "power2.out",
-                }, "+=0.1");
+                    stagger: 0.03,
+                }, "+=0.2");
             });
         });
 
