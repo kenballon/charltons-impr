@@ -854,9 +854,9 @@ ul {
 
   ul {
     padding-inline-start: 2rem;
+    margin-left: 1rem;
 
-    li {
-      font-size: var(--fs-paragrah);
+    li {      
 
       ul {
         padding-block: 1rem !important;
@@ -2771,8 +2771,8 @@ ul.home_redomicile_default_list {
   opacity: 0;
   clip-path: inset(50% 0 0 0);
   background-attachment: fixed;
-  /* background-size: contain; */
-  /* background-position: top center; */
+  /* background-size: contain;
+  background-position: top center; */
 
   .lawyer_profile_row {
     height: 100%;
@@ -2840,11 +2840,15 @@ ul.home_redomicile_default_list {
             }
           }
 
-          /* 
-          .profile-name-text,
+          
+          /* .profile-name-text,
           .profile_role,
           .profile_card_wrapper,
           .profile_contact_info a span {
+            visibility: hidden;
+          } */
+           
+          /* .profile-name-text {
             visibility: hidden;
           } */
 
