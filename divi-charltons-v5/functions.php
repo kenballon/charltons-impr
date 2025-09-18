@@ -13,7 +13,7 @@ add_action('wp_enqueue_scripts', 'divi_child_enqueue_styles');
 
 function clf_theme_enqueue_styles()
 {
-    wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.css', [], '0.0.59', 'all');
+    wp_register_style('custom-style', get_stylesheet_directory_uri() . '/css/style.min.css', [], '0.0.02', 'all');
     wp_enqueue_style('custom-style');
 
     // Material Symbols
@@ -40,9 +40,9 @@ function mainjs_script()
     // Enqueue the main.js script
     wp_enqueue_script(
         'mainjs',
-        get_stylesheet_directory_uri() . '/js/main.js',
+        get_stylesheet_directory_uri() . '/js/main.min.js',
         ['jquery'],
-        filemtime(get_stylesheet_directory() . '/js/main.js'),  // Dynamic version based on file modification time
+        filemtime(get_stylesheet_directory() . '/js/main.min.js'),  // Dynamic version based on file modification time
         true  // Load the script in the footer
     );
 
@@ -71,10 +71,10 @@ add_filter('script_loader_tag', 'mainjs_module', 10, 3);
 
 function theme_gsap_script()
 {
-    wp_enqueue_script('gsap-js', 'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js', array(), false, true);
-    wp_enqueue_script('gsap-st', 'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js', array('gsap-js'), false, true);
-    wp_enqueue_script('gsap-splittext', 'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js', array('gsap-js'), false, true);
-    wp_enqueue_script('gsap-js2', get_stylesheet_directory_uri() . '/js/app-gsap.js', array('gsap-js', 'gsap-splittext'), false, true);
+    wp_enqueue_script('gsap-js', get_stylesheet_directory_uri() . '/js/gsap.min.js', array(), false, true);
+    wp_enqueue_script('gsap-st', get_stylesheet_directory_uri() . '/js/ScrollTrigger.min.js', array('gsap-js'), false, true);
+    wp_enqueue_script('gsap-splittext', get_stylesheet_directory_uri() . '/js/SplitText.min.js', array('gsap-js'), false, true);
+    wp_enqueue_script('gsap-js2', get_stylesheet_directory_uri() . '/js/app-gsap.js', array('gsap-js', 'gsap-splittext'), filemtime(get_stylesheet_directory() . '/js/app-gsap.js'), true);
 }
 
 add_action('wp_enqueue_scripts', 'theme_gsap_script');
