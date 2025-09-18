@@ -149,21 +149,12 @@ body {
     line-height: 14px;
     color: var(--chr-text-gray-500);
   }
-
-  div,
-  span,
-  textarea,
-  input,
-  p,
-  a,
-  ul li {
-    font-weight: 400;
-  }
 }
 
 p,
 ul li {
   font-size: 1.125rem;
+  font-weight: 400;
 
   @media (min-width: 768px) {
     font-size: 1rem;
@@ -856,7 +847,7 @@ ul {
     padding-inline-start: 2rem;
     margin-left: 1rem;
 
-    li {      
+    li {
 
       ul {
         padding-block: 1rem !important;
@@ -2804,11 +2795,6 @@ ul.home_redomicile_default_list {
             }
           }
 
-          .profile-name-text>*>*>* {
-            font-weight: 700 !important;
-            font-size: clamp(1.25rem, 0.877vw + 1.086rem, 1.875rem);
-          }
-
           .profile_card_wrapper {
             background-color: white;
 
@@ -2839,18 +2825,6 @@ ul.home_redomicile_default_list {
               }
             }
           }
-
-          
-          /* .profile-name-text,
-          .profile_role,
-          .profile_card_wrapper,
-          .profile_contact_info a span {
-            visibility: hidden;
-          } */
-           
-          /* .profile-name-text {
-            visibility: hidden;
-          } */
 
           .profile_contact_info a:hover span {
             >* {

@@ -145,19 +145,11 @@ body h6.kw {
   line-height: 14px;
   color: var(--chr-text-gray-500);
 }
-body div,
-body span,
-body textarea,
-body input,
-body p,
-body a,
-body ul li {
-  font-weight: 400;
-}
 
 p,
 ul li {
   font-size: 1.125rem;
+  font-weight: 400;
 }
 @media (min-width: 768px) {
   p,
@@ -2333,15 +2325,6 @@ ul.home_redomicile_default_list .home_redomicile_default_list_item:first-child {
 }
 .lawyer_profile_section.et_pb_with_background .lawyer_profile_row .et_pb_column .lawyer_profile_content_wrapper .et_pb_text_inner {
   width: min(100%, 500px);
-  /* .profile-name-text,
-  .profile_role,
-  .profile_card_wrapper,
-  .profile_contact_info a span {
-    visibility: hidden;
-  } */
-  /* .profile-name-text {
-    visibility: hidden;
-  } */
 }
 .lawyer_profile_section.et_pb_with_background .lawyer_profile_row .et_pb_column .lawyer_profile_content_wrapper .et_pb_text_inner > div {
   padding: 2rem;
@@ -2356,10 +2339,6 @@ ul.home_redomicile_default_list .home_redomicile_default_list_item:first-child {
   display: block;
   font-style: normal;
   color: var(--chr-text-dark-gray);
-}
-.lawyer_profile_section.et_pb_with_background .lawyer_profile_row .et_pb_column .lawyer_profile_content_wrapper .et_pb_text_inner .profile-name-text > * > * > * {
-  font-weight: 700 !important;
-  font-size: clamp(1.25rem, 0.877vw + 1.086rem, 1.875rem);
 }
 .lawyer_profile_section.et_pb_with_background .lawyer_profile_row .et_pb_column .lawyer_profile_content_wrapper .et_pb_text_inner .profile_card_wrapper {
   background-color: white;
