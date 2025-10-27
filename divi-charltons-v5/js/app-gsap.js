@@ -57,8 +57,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         ease: "power2.out",
     })
 
-    console.clear();
-
     console.log("GSAP animation completed for profile card");
 });
 

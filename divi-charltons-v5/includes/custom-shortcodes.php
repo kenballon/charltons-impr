@@ -166,7 +166,23 @@ function get_featured_img_url_shortcode($atts, $content = null)
 
     $output = '';
     if ($post_id) {
-        $output .= get_the_post_thumbnail_url($post_id, 'full');
+        // First check if post has a featured image (thumbnail)
+        if (has_post_thumbnail($post_id)) {
+            $featured_image_url = get_the_post_thumbnail_url($post_id, 'full');
+            if ($featured_image_url) {
+                $output .= $featured_image_url;
+            }
+        }
+
+        // If no featured image found, check for alternative methods
+        if (empty($output)) {
+            // You can add additional fallback methods here if needed
+            // For example, checking for custom fields or other image sources
+            $fallback_image_url = get_the_post_thumbnail_url($post_id, 'full');
+            if ($fallback_image_url) {
+                $output .= $fallback_image_url;
+            }
+        }
     }
     return $output;
 }
@@ -471,6 +487,50 @@ function get_ipo_rightbar_content_shortcode()
     return $output;
 }
 
+function show_podcasts_series_sitepath_shortcode()
+{
+    global $post;
+
+    $output = '';
+    $output .= '<ul>';
+    $output .= '<li><a href="/">Home</a></li>';
+    $output .= '<li><a href="/information-insights/podcasts-series/">Podcasts Series</a></li>';
+    $output .= '<li><span>' . get_the_title($post) . '</span></li>';
+    $output .= '</ul>';
+    return $output;
+}
+
+function get_posts_thumbs_v2_shortcode($atts, $content = null)
+{
+    global $post;
+
+    extract(shortcode_atts(array('category' => 'news', 'count' => 2), $atts));
+
+    $query_args = array(
+        'post_type' => 'post',
+        'posts_per_page' => $count,
+        'category_name' => $category,
+        'order' => 'DESC'
+    );
+
+    $query = new WP_Query($query_args);
+    $output = '';
+    while ($query->have_posts()):
+        $query->the_post();
+
+        $featured_img_url = get_the_post_thumbnail_url($query->post->ID, 'full');
+        $category_nice_name = get_the_category($query->post->ID);
+
+        $output .= '<article class="thumb-v2">
+		<span>' . get_the_date('d M Y') . '</span> | <span>' . $category_nice_name[0]->cat_name . '</span>
+		<h1><a href="' . get_permalink() . '" class="default_link">' . $query->post->post_title . '</a></h1>
+		</article>';
+    endwhile;
+    wp_reset_postdata();
+
+    return $output;
+}
+
 function get_posts_thumbs_shortcode($atts, $content = null)
 {
     extract(shortcode_atts(array('category' => 'news', 'count' => 4), $atts));
@@ -484,6 +544,8 @@ function get_posts_thumbs_shortcode($atts, $content = null)
 
     $query = new WP_Query($query_args);
     $output = '';
+    $latestEvents = '';
+    $viewMore = '';
     $today = strtotime(date('d.m.Y'));
 
     $getCurrentID = get_the_ID();
@@ -1717,25 +1779,71 @@ function getPostTitleAndCategory($atts)
     $atts = shortcode_atts(
         array(
             'category' => 'awards',  // Default category
+            'post_type' => '',       // Optional: specify post type
+            'taxonomy' => '',        // Optional: specify custom taxonomy
         ),
         $atts,
         'getPostTitleAndCategory'
     );
 
-    // Sanitize the category
+    // Sanitize the inputs
     $category = sanitize_text_field($atts['category']);
+    $specified_post_type = sanitize_text_field($atts['post_type']);
+    $specified_taxonomy = sanitize_text_field($atts['taxonomy']);
 
-    // Get the current post ID
+    // Get the current post ID and post type
     $current_post_id = get_the_ID();
+    $current_post_type = get_post_type($current_post_id);
 
-    // Check if the current post belongs to the specified category
-    if (has_category($category, $current_post_id)) {
+    // If post type is specified in shortcode, check if current post matches
+    if (!empty($specified_post_type) && $current_post_type !== $specified_post_type) {
+        return ''; // Early exit if post type doesn't match
+    }
+
+    // Determine the appropriate taxonomy based on post type
+    $taxonomy = '';
+    if (!empty($specified_taxonomy)) {
+        // Use specified taxonomy
+        $taxonomy = $specified_taxonomy;
+    } elseif ($current_post_type === 'post') {
+        // Default posts use 'category'
+        $taxonomy = 'category';
+    } else {
+        // Custom post types: try {post_type}_category first, then fallback to 'category'
+        $custom_taxonomy = $current_post_type . '_category';
+        if (taxonomy_exists($custom_taxonomy)) {
+            $taxonomy = $custom_taxonomy;
+        } elseif (taxonomy_exists('category')) {
+            $taxonomy = 'category';
+        } else {
+            return ''; // No suitable taxonomy found
+        }
+    }
+
+    // Check if the current post has the specified category/term
+    $has_term = false;
+    if ($current_post_type === 'post' && $taxonomy === 'category') {
+        // Use WordPress built-in function for posts
+        $has_term = has_category($category, $current_post_id);
+    } else {
+        // Use generic term check for custom post types
+        $has_term = has_term($category, $taxonomy, $current_post_id);
+    }
+
+    if ($has_term) {
         // Get the post details
         $post_title = get_the_title($current_post_id);
         $post_date = get_the_date('d M Y', $current_post_id);
         $post_datetime = get_the_date('Y-m-d', $current_post_id);  // ISO format
-        $categories = get_the_category($current_post_id);
-        $category_name = !empty($categories) ? esc_html($categories[0]->name) : 'Uncategorized';
+
+        // Get terms for the current post
+        if ($current_post_type === 'post' && $taxonomy === 'category') {
+            $terms = get_the_category($current_post_id);
+        } else {
+            $terms = wp_get_post_terms($current_post_id, $taxonomy);
+        }
+
+        $category_name = (!empty($terms) && !is_wp_error($terms)) ? esc_html($terms[0]->name) : 'Uncategorized';
 
         // Start output buffer
         ob_start();
@@ -1888,7 +1996,8 @@ function getNewslettersPosts($atts = [])
     ob_start();
     foreach ($custom_posts as $post):
         $plugin_img_url = get_post_meta($post['id'], 'fiuw_image_url', true);
-        $img_url = !empty($plugin_img_url) ? $plugin_img_url : $post['featured_image'];
+        // First check for WordPress featured image, then fall back to plugin image
+        $img_url = !empty($post['featured_image']) ? $post['featured_image'] : $plugin_img_url;
         ?>
         <article class="newsletter_post_item flex-col" data-category="<?php echo esc_attr($post['categories']); ?>"
             data-tags="<?php echo esc_attr($post['tags']); ?>" data-nl_date="<?php echo esc_attr($post['post_date']); ?>"
@@ -2824,6 +2933,19 @@ function globalSearch()
     wp_send_json_success($results);
 }
 
+function get_insights_publications_breadcrumb_shortcode()
+{
+    $post = get_post();
+    $output = '';
+    $output .= '<ul>';
+    $output .= '<li><a href="/">Home</a></li>';
+    $output .= '<li><a href="/information-insights/">Insights</a></li>';
+    $output .= '<li><a href="/publications-presentations/">Publications & Presentations</a></li>';
+    $output .= '<li><span>' . get_the_title($post) . '</span></li>';
+    $output .= '</ul>';
+    return $output;
+}
+
 // Register custom shortcodes.
 function register_custom_shortcodes()
 {
@@ -2858,6 +2980,9 @@ function register_custom_shortcodes()
     add_shortcode('show_current_page_parent_menu', 'show_current_page_parent_menu_shortcode');
     add_shortcode('show_parent_title', 'show_parent_title_shortcode');
     add_shortcode('get_insights_regulatory_breadcrumb', 'get_insights_regulatory_breadcrumb_shortcode');
+    add_shortcode('show_podcasts_series_sitepath', 'show_podcasts_series_sitepath_shortcode');
+    add_shortcode('get_posts_thumbs_v2', 'get_posts_thumbs_v2_shortcode');
+    add_shortcode('get_insights_publications_breadcrumb', 'get_insights_publications_breadcrumb_shortcode');
 
     add_shortcode('related_pages', 'related_post_sc');
     add_shortcode('related_page_item', 'related_pages_sc');

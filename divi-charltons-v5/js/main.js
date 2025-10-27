@@ -930,6 +930,22 @@ const SELECTORS = {
     NewsletterAchiveFilter: ".archive_btn_filter"
 };
 
+const buttonSVG = document.querySelectorAll('.arrow_right_svg_plus_icon');
+
+buttonSVG.forEach(button => {
+    button.addEventListener('click', () => {
+        button.classList.toggle('active');
+        const parentItem = button.closest('.services_list_item');
+        if (parentItem) {
+            const subServicesList = parentItem.querySelector('.sub_services_list');
+            if (subServicesList) {
+                subServicesList.classList.toggle('active');
+            }
+        }
+    });
+});
+
+
 // ============================================================
 //  #region Publication and Presentations:::START
 // ============================================================

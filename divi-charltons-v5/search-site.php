@@ -52,7 +52,7 @@
     }
 
     $big = 999999999;  // need an unlikely integer
-
+    
     $pagination = '<div class="result-post-paging my-5">Pages: ' . paginate_links(array(
         'base' => str_replace($big, '%#%', esc_url(get_pagenum_link($big))),
         'format' => '?paged=%#%',

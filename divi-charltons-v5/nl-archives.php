@@ -51,6 +51,7 @@ function list_charltons_newsletters($newsletter = false, $language = false, $sub
       by 8 desc' . $maxitems . '
     ;';
 
+    $last_changed = wp_cache_get_last_changed('posts');
     $key = md5($query);
     $key = "wp_get_archives:$key:$last_changed";
     if (!$results = wp_cache_get($key, 'posts')) {
