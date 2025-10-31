@@ -1,0 +1,24 @@
+#main-header {
+  background-color: #202020;
+  > div {
+    width: 100%;
+    max-width: 100%;
+    padding-inline: 3.75rem;
+  }
+}
+
+#et-top-navigation {
+  #top-menu-nav {
+    #top-menu {
+      > li {
+        a {
+          color: white !important;
+        }
+        ul.sub-menu {
+          background-color: #202020;
+          border-top: 3px solid hsl(358, 81%, 51%);
+        }
+      }
+    }
+  }
+}
