@@ -22,3 +22,141 @@
     }
   }
 }
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 125%;
+}
+
+form.wpcf7-form {
+  padding: 1rem;
+  background-color: #e5e5e5;
+  border-radius: 4px;
+
+  input:not([type="submit"]),
+  textarea,
+  select {
+    border: 0;
+    border-block-end: 1px solid;
+    padding: 0.5rem 1rem;
+    border-radius: 2px;
+    width: 100%;
+  }
+
+  input[type="submit"]:enabled {
+    background-color: hsl(358, 81%, 51%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    cursor: pointer;
+    width: 100%;
+    transition: hover 0.2s ease;
+
+    &:hover {
+      background-color: hsl(358, 84%, 37%);
+    }
+  }
+
+  input[type="submit"]:disabled {
+    padding: 0.5rem 1rem;
+    border: 1px solid hsl(355, 9%, 71%);
+    border-radius: 2px;
+    width: 100%;
+  }
+
+  p .wpcf7-form-control-wrap {
+    display: block;
+    width: 100%;
+    .wpcf7-form-control.wpcf7-acceptance {
+      display: block;
+      width: 100%;
+      .wpcf7-list-item {
+        display: block;
+        width: 100%;
+        margin: 0;
+        label {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          input[type="checkbox"] {
+            width: max-content;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* #region UTILITY CLASSES START */
+/* layouts */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+/* margins & paddings */
+.mt-auto {
+  margin-top: auto;
+}
+
+.my-auto {
+  margin-block: auto;
+}
+
+.my-1 {
+  margin-block: 0.25rem;
+}
+
+.my-2 {
+  margin-block: 0.5rem;
+}
+
+.my-3 {
+  margin-block: 0.75rem;
+}
+
+.my-4 {
+  margin-block: 1rem;
+}
+
+.py-auto {
+  padding-block: auto;
+}
+
+.py-1 {
+  padding-block: 0.25rem;
+}
+
+.py-2 {
+  padding-block: 0.5rem;
+}
+
+.py-3 {
+  padding-block: 0.75rem;
+}
+
+.py-4 {
+  padding-block: 1rem;
+}
+
+/* heights and widths */
+.h-full {
+  height: 100%;
+}
+
+.h-full-vh {
+  height: 100vh;
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* #endregion UTILITY CLASSES END */
