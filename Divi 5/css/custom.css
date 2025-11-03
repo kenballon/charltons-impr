@@ -1,9 +1,41 @@
+:root {
+  --brand-color: hsl(358, 81%, 51%);
+  --chr-primary-color-900: hsl(358, 81%, 24%);
+  --chr-primary-color-800: hsl(358, 81%, 32%);
+  --chr-primary-color-700: hsl(358, 81%, 40%);
+  --chr-primary-color-600: hsl(358, 81%, 48%);
+  --chr-primary-color-500: hsl(358, 81%, 51%);
+  --chr-primary-color-400: hsl(358, 81%, 60%);
+  --chr-primary-color-300: hsl(358, 81%, 68%);
+  --chr-primary-color-200: hsl(358, 81%, 76%);
+  --chr-primary-color-100: hsl(358, 81%, 84%);
+  --chr-primary-color-50: hsl(358, 81%, 94%);
+  --chr-text-dark-gray: hsl(0, 0%, 8%);
+  --chr-text-gray-900: hsl(0, 0%, 12%);
+  --chr-text-gray-800: hsl(0, 0%, 24%);
+  --chr-text-gray-700: hsl(0, 0%, 32%);
+  --chr-text-gray-600: hsl(0, 0%, 40%);
+  --chr-text-gray-500: hsl(0, 0%, 48%);
+  --chr-text-gray-400: hsl(0, 0%, 56%);
+  --chr-text-gray-300: hsl(0, 0%, 64%);
+  --chr-text-gray-200: hsl(0, 0%, 72%);
+  --chr-text-gray-100: hsl(0, 0%, 96%);
+
+  interpolate-size: allow-keywords;
+}
 #main-header {
   background-color: #202020;
   > div {
     width: 100%;
     max-width: 100%;
     padding-inline: 3.75rem;
+  }
+
+  .et-search-form input {
+    background: #303030;
+    color: white;
+    padding: 0.5rem 1rem;
+    height: max-content;
   }
 }
 
@@ -97,6 +129,10 @@ form.wpcf7-form {
   display: flex;
 }
 
+.d-block {
+  display: block;
+}
+
 .flex-col {
   flex-direction: column;
 }
@@ -159,4 +195,24 @@ form.wpcf7-form {
   width: 100%;
 }
 
+/* text colors */
+.text-white {
+  color: white;
+}
+
+/*button, links button-like elements */
+.btn-primary {
+  width: max-content;
+  color: white;
+  font-size: 1rem;
+  padding: 10px 20px;
+  background-color: var(--chr-primary-color-500);
+  transition: all 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  cursor: pointer;
+  border: 0;
+
+  &:hover {
+    background-color: var(--chr-primary-color-700);
+  }
+}
 /* #endregion UTILITY CLASSES END */
