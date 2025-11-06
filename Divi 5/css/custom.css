@@ -166,7 +166,6 @@ form.wpcf7-form {
 
     a {
       color: white;
-      display: block;
       border-block-end: 1px dotted white;
       padding-block: 0.5rem;
 
@@ -196,6 +195,10 @@ form.wpcf7-form {
   flex-direction: column;
 }
 
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
 /* spacings and gaps */
 .gap-1 {
   gap: 0.25rem;
@@ -211,6 +214,10 @@ form.wpcf7-form {
 
 .gap-4 {
   gap: 1rem;
+}
+
+.space-between {
+  justify-content: space-between;
 }
 
 /* margins & paddings */
