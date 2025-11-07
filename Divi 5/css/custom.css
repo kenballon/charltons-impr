@@ -155,6 +155,12 @@ form.wpcf7-form {
   }
 }
 
+.home_hero-row {
+  .et_pb_module_header {
+    font-size: clamp(1.5rem, 1.481vw + 1.222rem, 3rem);
+  }
+}
+
 .our-work-section-homepage-details {
   article {
     margin-block-end: 1.5rem;
@@ -182,21 +188,30 @@ form.wpcf7-form {
 }
 
 /* #region UTILITY CLASSES START */
-/* layouts */
+/* displays */
 .flex {
   display: flex;
+}
+
+.grid {
+  display: grid;
 }
 
 .d-block {
   display: block;
 }
 
+/* column layouts */
 .flex-col {
   flex-direction: column;
 }
 
 .flex-wrap {
   flex-wrap: wrap;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 /* spacings and gaps */
@@ -355,5 +370,32 @@ form.wpcf7-form {
     padding-inline: 4rem;
     padding-block-start: 4rem;
     background-color: white;
+  }
+}
+
+.home_about-us-section {
+  > div {
+    border-block-end: 1px dotted white;
+    padding-block-end: 0.5rem;
+
+    > div {
+      margin-block: auto;
+
+      &:hover {
+        .et_pb_code_inner {
+          a {
+            color: var(--chr-primary-color-500);
+          }
+        }
+      }
+    }
+
+    .et_pb_code_inner {
+      a {
+        color: white;
+        font-size: clamp(1.125rem, 0.247vw + 1.079rem, 1.375rem);
+        font-weight: 600;
+      }
+    }
   }
 }
