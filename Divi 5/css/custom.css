@@ -25,10 +25,12 @@
 }
 #main-header {
   background-color: #202020;
-  > div {
-    width: 100%;
-    max-width: 100%;
-    padding-inline: 3.75rem;
+  @media (min-width: 1024px) {
+    > div {
+      width: 100%;
+      max-width: 100%;
+      padding-inline: 3.75rem;
+    }
   }
 
   .et-search-form input {
