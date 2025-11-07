@@ -25,10 +25,11 @@
 }
 #main-header {
   background-color: #202020;
-  @media (min-width: 1024px) {
-    > div {
-      width: 100%;
-      max-width: 100%;
+  > div {
+    width: 100%;
+    max-width: 100%;
+    padding-inline: 1rem;
+    @media (min-width: 1024px) {
       padding-inline: 3.75rem;
     }
   }
