@@ -23,12 +23,15 @@
 
   interpolate-size: allow-keywords;
 }
+
 #main-header {
   background-color: #202020;
-  > div {
+
+  >div {
     width: 100%;
     max-width: 100%;
     padding-inline: 1rem;
+
     @media (min-width: 1024px) {
       padding-inline: 3.75rem;
     }
@@ -45,10 +48,11 @@
 #et-top-navigation {
   #top-menu-nav {
     #top-menu {
-      > li {
+      >li {
         a {
           color: white !important;
         }
+
         ul.sub-menu {
           background-color: #202020;
           border-top: 3px solid hsl(358, 81%, 51%);
@@ -106,17 +110,21 @@ form.wpcf7-form {
   p .wpcf7-form-control-wrap {
     display: block;
     width: 100%;
+
     .wpcf7-form-control.wpcf7-acceptance {
       display: block;
       width: 100%;
+
       .wpcf7-list-item {
         display: block;
         width: 100%;
         margin: 0;
+
         label {
           display: flex;
           align-items: center;
           width: 100%;
+
           input[type="checkbox"] {
             width: max-content;
           }
@@ -133,8 +141,7 @@ form.wpcf7-form {
   right: 2rem;
   border-radius: 50%;
   padding: 1rem;
-  background: var(--chr-primary-color-500)
-    url("/wp-content/uploads/2025/11/sub_newsletters.png") center no-repeat;
+  background: var(--chr-primary-color-500) url("/wp-content/uploads/2025/11/sub_newsletters.png") center no-repeat;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   border: 0;
@@ -324,6 +331,7 @@ form.wpcf7-form {
     background-color: var(--chr-primary-color-700);
   }
 }
+
 /* #endregion UTILITY CLASSES END */
 
 .footer_nav {
@@ -331,6 +339,7 @@ form.wpcf7-form {
     margin: 0;
     padding: 0;
     list-style: none;
+
     .footer_nav_list_item {
       color: white;
       padding-inline-end: 0.5rem;
@@ -340,6 +349,7 @@ form.wpcf7-form {
 
 .footer_sub_link {
   margin-block: 1rem;
+
   a {
     padding: 0.5rem 1rem;
     background-color: var(--chr-text-gray-100);
@@ -353,12 +363,14 @@ form.wpcf7-form {
 
 .footer_discover_charltons,
 .footer_socials {
+
   h2,
   h3,
   h4 {
     color: var(--chr-text-gray-100);
     font-weight: 600;
   }
+
   p,
   a {
     color: var(--chr-text-gray-100);
@@ -377,11 +389,11 @@ form.wpcf7-form {
 }
 
 .home_about-us-section {
-  > div {
+  >div {
     border-block-end: 1px dotted white;
     padding-block-end: 0.5rem;
 
-    > div {
+    >div {
       margin-block: auto;
 
       &:hover {
@@ -399,6 +411,85 @@ form.wpcf7-form {
         font-size: clamp(1.125rem, 0.247vw + 1.079rem, 1.375rem);
         font-weight: 600;
       }
+    }
+  }
+}
+
+header.et-l.et-l--header {
+  position: sticky;
+  top: 0;
+  z-index: 99999;
+
+  .custom-header-nav {
+    padding: 0;
+    padding-inline: 24px;
+    padding-block: 1rem;
+
+
+    .et_pb_row_0_tb_header {
+      gap: 0;
+
+      >div {
+        &:nth-child(1) {
+          max-width: 200px;
+
+          img {
+            max-width: 150px;
+            height: 45px;
+          }
+        }
+
+        &:nth-child(2) {
+          flex: 1;
+
+          @media (max-width: 820px) {
+            position: absolute;
+
+            .custom-header-nav-ul-wrapper {
+              background-color: transparent;
+            }
+          }
+
+          >div {
+            background-color: var(--chr-text-gray-900);
+
+            a {
+              color: var(--chr-text-gray-100) !important;
+            }
+
+            .sub-menu {
+              background-color: var(--chr-text-gray-900);
+            }
+          }
+
+
+        }
+
+        &:nth-child(3) {
+          max-width: max-content;
+        }
+      }
+    }
+
+    .et_pb_menu__search-container {
+      max-width: 400px;
+      padding: 0.75rem !important;
+      background-color: #3b3b3b;
+    }
+
+    .et_pb_menu .et_pb_menu__search-input {
+      color: white;
+    }
+
+  }
+}
+
+
+.social_icon_block_header {
+  a {
+    img {
+      width: 16px;
+      cursor: pointer;
     }
   }
 }
