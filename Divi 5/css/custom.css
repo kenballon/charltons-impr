@@ -222,6 +222,10 @@ form.wpcf7-form {
 
 .grid-cols-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* spacings and gaps */
@@ -240,6 +244,15 @@ form.wpcf7-form {
 .gap-4 {
   gap: 1rem;
 }
+
+.gap-5 {
+  gap: 1.25rem;
+}
+
+.gap-6 {
+  gap: 1.5rem;
+}
+
 
 .space-between {
   justify-content: space-between;
@@ -330,6 +343,50 @@ form.wpcf7-form {
   &:hover {
     background-color: var(--chr-primary-color-700);
   }
+}
+
+.text-xs {
+  font-size: clamp(0.75rem, 0.224vw + 0.607rem, 0.875rem);
+}
+
+.text-sm {
+  font-size: clamp(0.875rem, 0.9235rem + 0.2041vw, 1.25rem);
+}
+
+.text-medium {
+  font-size: clamp(1rem, 0.9235rem + 0.2041vw, 1.25rem);
+}
+
+.text-lg {
+  font-size: clamp(1.125rem, 0.9235rem + 0.2041vw, 1.25rem);
+}
+
+.text-xl {
+  font-size: clamp(1.25rem, 1.0204rem + 1.2245vw, 2rem);
+}
+
+.text-hero-headline {
+  font-size: clamp(2rem, 3.579vw - 0.295rem, 4rem);
+}
+
+.fw-light {
+  font-weight: 300;
+}
+
+.fw-regular {
+  font-weight: 400;
+}
+
+.fw-medium {
+  font-weight: 500;
+}
+
+.fw-semibold {
+  font-weight: 600;
+}
+
+.fw-bold {
+  font-weight: 700;
 }
 
 /* #endregion UTILITY CLASSES END */
@@ -491,5 +548,104 @@ header.et-l.et-l--header {
       width: 16px;
       cursor: pointer;
     }
+  }
+}
+
+.award_card_contact_people {
+  padding-block: 2rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1366px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .award_card_people_item {
+    .people_image {
+      img {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        object-position: top;
+      }
+    }
+
+    .people_info {
+      margin-bottom: 1rem;
+
+      .people_name {
+        h2 {
+          font-size: 20px;
+          font-weight: 500;
+        }
+      }
+
+      .people_position {
+        color: var(--chr-text-gray-600);
+      }
+    }
+
+    .practice_areas {
+      padding-top: 1rem;
+
+      h3 {
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: var(--chr-text-gray-600) !important;
+      }
+
+      .practice_areas_links {
+        display: flex;
+        column-gap: 0.5rem;
+        row-gap: 0.2rem;
+        flex-wrap: wrap;
+
+        a {
+          color: var(--chr-text-gray-500);
+          text-align: left !important;
+          font-size: 10px !important;
+
+          &::after {
+            content: ",";
+          }
+
+          &:last-child::after {
+            content: "";
+          }
+
+          &:hover {
+            color: var(--chr-primary-color-500) !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+.retrospectives_wrapper {
+  .retro_yt_card {
+    article {
+      iframe {
+        box-sizing: border-box;
+        width: 100% !important;
+        height: 310px !important;
+
+        @media (max-width: 600px) {
+          height: 250px !important;
+        }
+      }
+
+      @media (max-width: 600px) {
+        gap: 4rem;
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    gap: 4rem;
   }
 }
