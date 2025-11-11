@@ -473,7 +473,8 @@ form.wpcf7-form {
 }
 
 header.et-l.et-l--header {
-  position: sticky;
+  position: fixed;
+  width: 100%;
   top: 0;
   z-index: 99999;
 
