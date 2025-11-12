@@ -324,6 +324,10 @@ form.wpcf7-form {
   width: 100%;
 }
 
+.w-max-content {
+  max-width: max-content;
+}
+
 /* text colors */
 .text-white {
   color: white;
@@ -647,5 +651,40 @@ header.et-l.et-l--header {
 
   @media (max-width: 600px) {
     gap: 4rem;
+  }
+}
+
+
+.bottom-page-link {
+  a {
+    padding-block: 1rem;
+    position: relative;
+    display: block;
+    color: var(--chr-text-gray-700);
+    transition: all 0.1s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-bottom: 1px dotted var(--chr-text-gray-400);
+
+    &:first-child {
+      border-top: 1px dotted var(--chr-text-gray-400);
+    }
+
+    &:after {
+      content: "";
+      display: block;
+      width: 10px;
+      height: 10px;
+      border-width: 2px 2px 0 0;
+      border-color: #808285;
+      border-style: solid;
+      transform: rotate(45deg);
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform-origin: right top;
+    }
+
+    &:hover {
+      color: var(--chr-primary-color-500);
+    }
   }
 }
