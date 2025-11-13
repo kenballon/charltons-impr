@@ -70,6 +70,21 @@ h6 {
   line-height: 125%;
 }
 
+p,
+div,
+span,
+textarea,
+input,
+a {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.menu-item a {
+  font-size: 14px;
+}
+
 form.wpcf7-form {
   padding: 1rem;
   background-color: #e5e5e5;
@@ -253,6 +268,13 @@ form.wpcf7-form {
   gap: 1.5rem;
 }
 
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
 
 .space-between {
   justify-content: space-between;
@@ -545,7 +567,6 @@ header.et-l.et-l--header {
   }
 }
 
-
 .social_icon_block_header {
   a {
     img {
@@ -654,41 +675,30 @@ header.et-l.et-l--header {
   }
 }
 
-
 .bottom-page-link {
   a {
     padding-block: 1rem;
     position: relative;
-    display: block;
     color: var(--chr-text-gray-700);
-    transition: all 0.1s cubic-bezier(0.165, 0.84, 0.44, 1);
+    cursor: pointer;
     border-bottom: 1px dotted var(--chr-text-gray-400);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 
     &:first-child {
       border-top: 1px dotted var(--chr-text-gray-400);
     }
 
-    &:after {
-      content: "";
-      display: block;
-      width: 10px;
-      height: 10px;
-      border-width: 2px 2px 0 0;
-      border-color: #808285;
-      border-style: solid;
-      transform: rotate(45deg);
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform-origin: right top;
+    .material-symbols-outlined {
+      font-weight: 200;
+      transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
 
     &:hover {
       background-color: var(--chr-text-gray-100);
       padding-inline: 0.5rem;
 
-      &::after {
-        transform: rotate(0deg);
+      .material-symbols-outlined {
+        transform: rotate(-45deg);
       }
     }
   }
