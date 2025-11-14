@@ -185,6 +185,10 @@ form.wpcf7-form {
   }
 }
 
+address {
+  font-style: normal;
+}
+
 .home_hero-row {
   .et_pb_module_header {
     font-size: clamp(1.5rem, calc(1.481vw + 1.222rem), 3rem);
@@ -744,31 +748,93 @@ p:empty {
         }
       }
     }
+
+    &:hover {
+      .div_wrapper {
+        >h1 {
+          a {
+            color: var(--chr-primary-color-500);
+          }
+        }
+      }
+    }
   }
 
-  .profile-name .div_wrapper {
-    >h1 {
+  .profile-name {
+    .div_wrapper {
+      >h1 {
 
-      font-size: 1.25rem;
-      padding: 0;
+        font-size: 1.25rem;
+        padding: 0;
 
+        a {
+          font-size: inherit;
+          font-weight: 700;
+        }
+
+        @media (max-width:992px) {
+          font-size: 1.125rem;
+        }
+      }
+
+      .profile-title {
+        font-size: 14px;
+      }
+
+
+    }
+
+    .profile-email {
       a {
-        font-size: inherit;
-        font-weight: 700;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 14px;
+        color: var(--chr-text-gray-600);
+
+        >* {
+          font-size: inherit;
+        }
 
         &:hover {
           color: var(--chr-primary-color-500);
         }
       }
+    }
+  }
+}
 
-      @media (max-width:992px) {
-        font-size: 1.125rem;
-      }
+.et_pb_tabs {
+  border: 1px solid var(--chr-primary-color-500);
+}
+
+ul.et_pb_tabs_controls {
+  background-color: var(--chr-text-gray-900);
+  display: flex;
+
+  >li {
+    flex: 1;
+    height: 58px;
+  }
+
+  li:not(.et_pb_tab_active) {
+    >a {
+      color: white !important;
     }
 
-    .profile-title {
-      font-size: 14px;
-
+    &:hover {
+      background-color: var(--chr-primary-color-600);
     }
+  }
+
+  li.et_pb_tab_active {
+    background-color: var(--chr-primary-color-500);
+
+    >a {
+      color: white !important;
+    }
+  }
+
+  &::after {
+    border-top: 0;
   }
 }
