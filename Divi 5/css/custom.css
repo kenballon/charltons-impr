@@ -804,7 +804,7 @@ p:empty {
 }
 
 .et_pb_tabs {
-  border: 1px solid var(--chr-primary-color-500);
+  border: 0;
 }
 
 ul.et_pb_tabs_controls {
