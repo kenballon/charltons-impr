@@ -714,6 +714,7 @@ header.et-l.et-l--header {
     &:hover {
       background-color: var(--chr-text-gray-100);
       padding-inline: 0.5rem;
+      color: var(--chr-primary-color-500);
 
       .material-symbols-outlined {
         transform: rotate(-45deg);
