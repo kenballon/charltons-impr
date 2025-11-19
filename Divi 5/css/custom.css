@@ -310,6 +310,10 @@ address {
   margin-top: 1rem;
 }
 
+.mt-5 {
+  margin-top: 1.25rem;
+}
+
 .my-auto {
   margin-block: auto;
 }
@@ -330,8 +334,16 @@ address {
   margin-block: 1rem;
 }
 
+.my-5 {
+  margin-block: 1.25rem;
+}
+
 .mb-4 {
   margin-block-end: 1rem;
+}
+
+.mb-5 {
+  margin-block-end: 1.25rem;
 }
 
 .py-auto {
