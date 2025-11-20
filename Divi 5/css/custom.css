@@ -52,11 +52,6 @@
         a {
           color: white !important;
         }
-
-        ul.sub-menu {
-          background-color: #202020;
-          border-top: 3px solid hsl(358, 81%, 51%);
-        }
       }
     }
   }
@@ -573,6 +568,11 @@ header.et-l.et-l--header {
 
             .sub-menu {
               background-color: var(--chr-text-gray-900);
+
+              li>a {
+                padding-inline: 0;
+                font-size: 12px;
+              }
             }
           }
 
@@ -714,6 +714,7 @@ header.et-l.et-l--header {
     cursor: pointer;
     border-bottom: 1px dotted var(--chr-text-gray-400);
     transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    font-size: 13px;
 
     &:first-child {
       border-top: 1px dotted var(--chr-text-gray-400);
