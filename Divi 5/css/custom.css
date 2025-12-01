@@ -818,6 +818,10 @@ p:empty {
   }
 }
 
+.profile_contact_info a span {
+  font-size: 14px;
+}
+
 .et_pb_tabs {
   border: 0;
 }
@@ -898,4 +902,8 @@ ul.et_pb_tabs_controls {
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
       rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
   }
+}
+
+.awards_images br {
+  display: none;
 }
