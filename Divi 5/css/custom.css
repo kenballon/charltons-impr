@@ -904,6 +904,32 @@ ul.et_pb_tabs_controls {
   }
 }
 
-.awards_images br {
-  display: none;
+.awards_images {
+  place-items: center;
+
+  br {
+    display: none;
+  }
+}
+
+.tags_wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  .post-tag {
+    padding-block: 4px;
+    padding-inline: 8px;
+    border: 1px solid var(--chr-text-gray-300);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--chr-text-gray-800);
+    transition: all 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+    will-change: background-color, border-color;
+
+    &:hover {
+      background-color: var(--chr-primary-color-50);
+      border-color: var(--chr-primary-color-500);
+    }
+  }
 }
