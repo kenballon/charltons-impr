@@ -212,6 +212,11 @@ address {
   }
 }
 
+ul:not(.et-menu.nav.downwards),
+ul:not(.sub-menu) {
+  margin-inline-start: 1.25rem;
+}
+
 #footer-bottom {
   display: none !important;
 }
