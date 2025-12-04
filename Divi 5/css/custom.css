@@ -212,7 +212,6 @@ address {
   }
 }
 
-ul:not(.et-menu.nav.downwards),
 ul:not(.sub-menu) {
   margin-inline-start: 1.25rem;
 }
@@ -577,6 +576,10 @@ header.et-l.et-l--header {
               li>a {
                 padding-inline: 0;
                 font-size: 12px;
+              }
+
+              >.sub-menu {
+                background-color: var(--chr-text-gray-800);
               }
             }
           }
