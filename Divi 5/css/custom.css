@@ -952,3 +952,12 @@ ul.et_pb_tabs_controls {
     color: var(--chr-text-gray-700);
   }
 }
+
+.red_block {
+  border-radius: 4px;
+  font-size: 12px;
+  background-color: var(--chr-primary-color-50);
+  padding: 4px 8px;
+  color: var(--chr-text-gray-600);
+  margin-block: 1.5rem;
+}
