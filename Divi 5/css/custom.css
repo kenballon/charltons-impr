@@ -221,6 +221,11 @@ ul:not(.sub-menu) {
 }
 
 /* #region UTILITY CLASSES START */
+
+.capitalize {
+  text-transform: capitalize;
+}
+
 /* displays */
 .flex {
   display: flex;
@@ -866,49 +871,73 @@ ul.et_pb_tabs_controls {
   }
 }
 
-.related_item {
-  margin-block: 0.5rem;
-  border: 1px solid var(--chr-text-gray-200);
-  border-radius: 4px;
-  overflow: hidden;
+.aside_module {
+  row-gap: 0.5rem;
 
-  a {
-    .preview-image {
-      img {
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        object-fit: cover;
+  .related_item {
+    margin-block: 0.5rem;
+    border: 1px solid var(--chr-text-gray-200);
+    border-radius: 4px;
+    overflow: hidden;
+    gap: 0;
+
+    a {
+      .preview-image {
+        img {
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          object-fit: cover;
+        }
       }
-    }
 
-    .title {
-      padding: 0.5rem;
+      .title {
+        padding: 0.5rem;
 
-      .related_item_title {
-        font-size: 0.75rem;
-        font-weight: 700;
-        line-height: 150%;
-        text-align: left;
-        color: var(--chr-text-gray-700);
+        .related_item_title {
+          font-size: 0.75rem;
+          font-weight: 700;
+          line-height: 150%;
+          text-align: left;
+          color: var(--chr-text-gray-700);
+        }
+      }
+
+      &:hover {
+        .preview-image {
+          img {
+            opacity: 0.8;
+          }
+        }
+
+        .title .related_item_title {
+          color: var(--chr-primary-color-500);
+        }
+
+
       }
     }
 
     &:hover {
-      .preview-image {
-        img {
-          opacity: 0.8;
-        }
-      }
+      box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
 
-      .title .related_item_title {
-        color: var(--chr-primary-color-500);
-      }
+      /* .et_pb_image_wrap img {
+        opacity: 0.8;
+      } */
     }
-  }
 
-  &:hover {
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
-      rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+    .et_pb_text .et_pb_text_inner p {
+      font-size: 0.75rem;
+      font-weight: 700;
+      line-height: 150%;
+      text-align: left;
+      color: var(--chr-text-gray-700);
+    }
+
+    .et_pb_image_wrap img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+    }
   }
 }
 
