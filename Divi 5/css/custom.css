@@ -990,3 +990,20 @@ ul.et_pb_tabs_controls {
   color: var(--chr-text-gray-600);
   margin-block: 1.5rem;
 }
+
+article.et_pb_post.project.type-project.status-publish {
+  border-block-start: 1px dotted var(--chr-text-gray-300);
+  padding-block: 0.5rem;
+  margin: 0;
+
+  &:last-child {
+    border-block-end: 1px dotted var(--chr-text-gray-300);
+  }
+}
+
+.et_mobile_menu {
+  margin: 0 !important;
+  background-color: var(--chr-text-gray-900);
+  overflow-y: scroll;
+  max-height: 100svh;
+}
