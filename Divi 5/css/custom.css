@@ -1005,5 +1005,5 @@ article.et_pb_post.project.type-project.status-publish {
   margin: 0 !important;
   background-color: var(--chr-text-gray-900);
   overflow-y: scroll;
-  max-height: 100svh;
+  max-height: calc(100dvh - 4rem);
 }
