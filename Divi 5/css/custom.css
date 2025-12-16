@@ -1002,7 +1002,8 @@ article.et_pb_post.project.type-project.status-publish {
 }
 
 .et_mobile_menu {
-  margin: 0 !important;
+  margin-left: 0 !important;
+  margin-top: 1.25rem !important;
   background-color: var(--chr-text-gray-900);
   overflow-y: scroll;
   max-height: calc(100vh - 8rem);
