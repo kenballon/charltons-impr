@@ -996,9 +996,9 @@ article.et_pb_post.project.type-project.status-publish {
   padding-block: 0.5rem;
   margin: 0;
 
-  &:last-child {
+  /* &:last-child {
     border-block-end: 1px dotted var(--chr-text-gray-300);
-  }
+  } */
 }
 
 .et_mobile_menu {
