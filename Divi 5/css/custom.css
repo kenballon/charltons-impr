@@ -991,14 +991,12 @@ ul.et_pb_tabs_controls {
   margin-block: 1.5rem;
 }
 
-article.et_pb_post.project.type-project.status-publish {
-  border-block-start: 1px dotted var(--chr-text-gray-300);
-  padding-block: 0.5rem;
-  margin: 0;
-
-  /* &:last-child {
-    border-block-end: 1px dotted var(--chr-text-gray-300);
-  } */
+.pub-presentations {
+  article.et_pb_post.project.type-project.status-publish {
+    border-block-start: 1px dotted var(--chr-text-gray-300);
+    padding-block: 0.5rem;
+    margin: 0;
+  }
 }
 
 .et_mobile_menu {
