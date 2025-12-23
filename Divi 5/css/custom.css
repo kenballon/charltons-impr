@@ -408,6 +408,10 @@ ul:not(.sub-menu) {
   }
 }
 
+.hover-primary:hover {
+  color: var(--chr-primary-color-500);
+}
+
 .text-xs {
   font-size: clamp(0.75rem, calc(0.224vw + 0.607rem), 0.875rem);
 }
@@ -624,12 +628,12 @@ header.et-l.et-l--header {
   padding-block: 2rem;
   grid-template-columns: 1fr;
 
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
+  @media (min-width: 768px) and (max-width: 1365px) {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   @media (min-width: 1366px) {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .award_card_people_item {
@@ -639,6 +643,7 @@ header.et-l.et-l--header {
         aspect-ratio: 1 / 1;
         object-fit: cover;
         object-position: top;
+        transition: opacity 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
       }
     }
 
@@ -648,12 +653,17 @@ header.et-l.et-l--header {
       .people_name {
         h2 {
           font-size: 20px;
-          font-weight: 500;
+          padding: 0;
+
+          a {
+            font-weight: 500;
+          }
         }
       }
 
       .people_position {
         color: var(--chr-text-gray-600);
+        font-size: 13px;
       }
     }
 
@@ -689,6 +699,22 @@ header.et-l.et-l--header {
           &:hover {
             color: var(--chr-primary-color-500) !important;
           }
+        }
+      }
+    }
+
+    &:hover {
+      .people_name {
+        h2 {
+          a {
+            color: var(--chr-primary-color-500);
+          }
+        }
+      }
+
+      .people_image {
+        img {
+          opacity: 0.8;
         }
       }
     }
