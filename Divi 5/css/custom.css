@@ -1032,3 +1032,20 @@ ul.et_pb_tabs_controls {
   overflow-y: scroll;
   max-height: calc(100vh - 8rem);
 }
+
+table tr {
+  padding: 0.857em 0.587em;
+  border: 1px solid var(--chr-text-gray-300);
+}
+
+table th {
+  padding: 0.857em 0.587em;
+  border: 1px solid var(--chr-text-gray-300);
+}
+
+table td {
+  max-width: 100%;
+  padding: 0.857em 0.587em;
+  vertical-align: top;
+  border: 1px solid var(--chr-text-gray-300);
+}
