@@ -221,7 +221,7 @@ ul:not(.sub-menu) {
 }
 
 sup {
-  font-size: xx-small;
+  font-size: x-small;
 }
 
 /* #region UTILITY CLASSES START */
@@ -394,6 +394,10 @@ sup {
 /* text colors */
 .text-white {
   color: white;
+}
+
+.text-center {
+  text-align: center;
 }
 
 /*button, links button-like elements */
@@ -1105,7 +1109,15 @@ table td {
   }
 }
 
-.newsletter_post_footer {
+.et_pb_row_1_tb_body.et_pb_row.newsletter_post_footer {
+  padding-left: 64px !important;
+  padding-right: 64px !important;
+
+  >div {
+    background-color: var(--chr-text-gray-900);
+    padding-block: 1.25rem;
+  }
+
   .et_pb_image_wrap {
     display: flex;
     justify-content: center;
@@ -1113,6 +1125,11 @@ table td {
     img {
       max-width: 100px;
     }
+  }
+
+  @media (max-width:767px) {
+    padding-right: 1rem !important;
+    padding-left: 1rem !important;
   }
 }
 
