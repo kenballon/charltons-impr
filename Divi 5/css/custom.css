@@ -1178,3 +1178,17 @@ table td {
 .newsletter-footer-address {
   background-color: var(--chr-text-gray-800);
 }
+
+.post_body_content_wrapper {
+  >div>* {
+
+    h1 {
+      font-size: clamp(1.813rem, 1.007vw + 1.167rem, 2.375rem) !important;
+    }
+
+    h2,
+    h3 {
+      font-weight: bold;
+    }
+  }
+}
