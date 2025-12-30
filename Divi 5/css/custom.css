@@ -1115,3 +1115,33 @@ table td {
     }
   }
 }
+
+.download-version-wrapper {
+  border-block: 1px dotted var(--chr-text-gray-300);
+  padding-block: 1rem;
+  margin-block: 1rem;
+
+  a.download-version-item {
+
+    span.svg-icon svg path,
+    span.dl-version-label {
+      fill: var(--chr-text-gray-500);
+      color: var(--chr-text-gray-500);
+      transition: all 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+    }
+
+    span.dl-version-label {
+      font-size: 13px !important;
+    }
+
+    &:hover {
+      span.dl-version-label {
+        color: var(--chr-primary-color-500);
+      }
+
+      span.svg-icon svg path {
+        fill: var(--chr-primary-color-500) !important;
+      }
+    }
+  }
+}
