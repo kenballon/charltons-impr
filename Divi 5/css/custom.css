@@ -225,6 +225,13 @@ sup {
 }
 
 /* #region UTILITY CLASSES START */
+.flex-col-sm {
+  flex-direction: column;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+}
 
 .capitalize {
   text-transform: capitalize;
@@ -352,6 +359,10 @@ sup {
 
 .mb-5 {
   margin-block-end: 1.25rem;
+}
+
+.p-0 {
+  padding: 0;
 }
 
 .py-auto {
@@ -1064,6 +1075,7 @@ table td {
   padding: 1rem;
   border: 1px dotted var(--chr-text-gray-300);
   border-radius: 8px;
+  overflow: scroll;
 
   >* {
     color: var(--chr-text-gray-600);
@@ -1115,7 +1127,7 @@ table td {
 
   >div {
     background-color: var(--chr-text-gray-900);
-    padding-block: 1.25rem;
+    padding-block-start: 1.25rem;
   }
 
   .et_pb_image_wrap {
@@ -1161,4 +1173,8 @@ table td {
       }
     }
   }
+}
+
+.newsletter-footer-address {
+  background-color: var(--chr-text-gray-800);
 }
