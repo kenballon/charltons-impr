@@ -1201,3 +1201,58 @@ table td {
   background-color: #F9F9F9;
   margin-block: 1.5rem;
 }
+
+.nl-pagination-wrapper {
+  >div {
+    .et_pb_posts_nav {
+
+      .nav-previous,
+      .nav-next {
+        a {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: var(--chr-text-gray-900) !important;
+
+          >span {
+            font-size: 13px !important;
+
+          }
+
+          >.nav-label {
+            max-width: 400px;
+            display: flex;
+            flex-wrap: wrap;
+            overflow: scroll;
+          }
+
+          &:hover {
+            color: var(--chr-primary-color-500) !important;
+          }
+        }
+      }
+
+      .nav-previous {
+        padding-right: 0.5rem;
+      }
+
+      .nav-next {
+        padding-left: 0.5rem;
+        border-left: 1px dotted var(--chr-text-gray-300);
+      }
+    }
+  }
+
+  @media (min-width:1024px) {
+    padding-inline: 64px;
+  }
+
+  @media (max-width:767px) {
+    width: 100% !important;
+    padding-inline: 1rem;
+
+    >div>* {
+      flex-direction: column;
+    }
+  }
+}
