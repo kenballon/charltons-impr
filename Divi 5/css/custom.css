@@ -1192,3 +1192,12 @@ table td {
     }
   }
 }
+
+.para-note {
+  font-size: 12px !important;
+  font-style: italic;
+  font-weight: 300;
+  padding: 1rem !important;
+  background-color: #F9F9F9;
+  margin-block: 1.5rem;
+}
