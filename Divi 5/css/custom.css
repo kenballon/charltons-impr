@@ -218,7 +218,8 @@ ul {
 }
 
 ol[type="a"],
-ol[type="i"] {
+ol[type="i"],
+ol[type="1"] {
   list-style: lower-alpha !important;
   padding-inline-start: 1.25rem;
   margin-inline-start: 1.25rem;
