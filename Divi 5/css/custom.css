@@ -218,9 +218,14 @@ ul {
 }
 
 ol[type="a"],
-ol[type="i"],
-ol[type="1"] {
+ol[type="i"] {
   list-style: lower-alpha !important;
+  padding-inline-start: 1.25rem;
+  margin-inline-start: 1.25rem;
+}
+
+ol[type="1"] {
+  list-style: decimal !important;
   padding-inline-start: 1.25rem;
   margin-inline-start: 1.25rem;
 }
@@ -1095,6 +1100,7 @@ table td {
   border: 1px dotted var(--chr-text-gray-300);
   border-radius: 8px;
   overflow: scroll;
+  background-color: #f6f6f6;
 
   >* {
     color: var(--chr-text-gray-600);
