@@ -1102,6 +1102,11 @@ table td {
   overflow: scroll;
   background-color: #f6f6f6;
 
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+
   >* {
     color: var(--chr-text-gray-600);
     font-size: 12px !important;
@@ -1264,11 +1269,15 @@ table td {
 
           }
 
-          >.nav-label {
+          .nav-label {
             max-width: 400px;
             display: flex;
             flex-wrap: wrap;
             overflow: scroll;
+
+            &::-webkit-scrollbar {
+              display: none;
+            }
           }
 
           &:hover {
