@@ -1310,3 +1310,43 @@ table td {
     }
   }
 }
+
+.categ_sitemap_wrapper {
+  ul.sitemap_ul {
+    list-style: none !important;
+    margin: 0;
+    padding: 0;
+
+    .sitemap_list_item {
+      border-top: 1px dotted var(--chr-text-gray-300);
+      padding-block: 0.5rem;
+
+      &:last-child {
+        border-bottom: 1px dotted var(--chr-text-gray-300);
+      }
+
+      a {
+        color: unset;
+        font-size: 13px;
+
+        &:hover {
+          color: var(--chr-primary-color-500);
+        }
+      }
+
+      ul.sitemap_item_child_ul {
+        list-style: none !important;
+        padding-block-end: 0;
+
+        li a {
+          font-size: 13px;
+          color: unset;
+
+          &:hover {
+            color: var(--chr-primary-color-500);
+          }
+        }
+      }
+    }
+  }
+}
