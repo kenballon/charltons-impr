@@ -1388,3 +1388,9 @@ table td {
     }
   }
 }
+
+.web-pod-contacts {
+  @media (max-width: 767px) {
+    padding-inline: 0 !important;
+  }
+}
