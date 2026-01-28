@@ -1350,3 +1350,41 @@ table td {
     }
   }
 }
+
+.pod-web-img-logo-wrapper,
+.awards_contacts {
+  margin-block-start: 2rem;
+}
+
+.ap_content_section {
+  border-block: 1px solid var(--chr-text-gray-300);
+  padding-block: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.downloadable_wrapper {
+  a {
+    margin-block-start: 0.5rem;
+    color: var(--chr-primary-color-500);
+    background-image: linear-gradient(transparent, transparent), linear-gradient(currentColor, currentColor);
+    background-size: 100% 0.0625rem, 0 0.0625rem;
+    background-position: 100% 100%, 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.2s ease;
+    text-decoration: none;
+    font-size: 13px;
+
+    >div {
+      font-size: inherit;
+    }
+
+    &:not(:last-child)::after {
+      content: " |";
+      margin-left: 4px;
+    }
+
+    &:not(.btn_pill, .print_btn, .share_btn):hover {
+      background-size: 0 0.0625rem, 100% 0.0625rem;
+    }
+  }
+}
