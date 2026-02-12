@@ -1394,3 +1394,10 @@ table td {
     padding-inline: 0 !important;
   }
 }
+
+.wp-block-separator.has-alpha-channel-opacity {
+  width: 100% !important;
+  padding-block: 0.25rem;
+  border-bottom: 1px dotted var(--chr-text-gray-300);
+  margin-block-end: 2rem;
+}
