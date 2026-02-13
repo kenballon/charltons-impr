@@ -1401,3 +1401,29 @@ table td {
   border-bottom: 1px dotted var(--chr-text-gray-300);
   margin-block-end: 2rem;
 }
+
+@scope (.et_pb_blog) {
+  .et_pb_posts article .et_pb_image_container a img {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .entry-title a {
+    padding: 0;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 160%;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .post-meta>span,
+  .post-meta>span>* {
+    font-weight: 300;
+    font-size: 12px !important;
+    color: var(--chr-text-gray-600);
+  }
+}
