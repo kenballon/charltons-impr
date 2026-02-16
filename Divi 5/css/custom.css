@@ -19,7 +19,8 @@
   --chr-text-gray-400: hsl(0, 0%, 56%);
   --chr-text-gray-300: hsl(0, 0%, 64%);
   --chr-text-gray-200: hsl(0, 0%, 72%);
-  --chr-text-gray-100: hsl(0, 0%, 96%);
+  --chr-text-gray-100: hsl(0, 0%, 89%);
+  --chr-text-gray-50: hsl(0, 0%, 96%);
 
   interpolate-size: allow-keywords;
 }
@@ -1425,5 +1426,27 @@ table td {
     font-weight: 300;
     font-size: 12px !important;
     color: var(--chr-text-gray-600);
+  }
+}
+
+.wp-block-accordion-item.is-layout-flow.wp-block-accordion-item-is-layout-flow {
+  background-color: var(--chr-text-gray-100);
+  padding: 1rem;
+  margin-block: 1rem;
+  border: 1px solid var(--chr-text-gray-400);
+
+  .wp-block-accordion-heading {
+    .wp-block-accordion-heading__toggle-title {
+      font-weight: 700;
+    }
+  }
+
+  .wp-block-accordion-panel {
+    background-color: var(--chr-text-gray-50);
+    padding: 1rem;
+
+    p {
+      font-weight: 300;
+    }
   }
 }
