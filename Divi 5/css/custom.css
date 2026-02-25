@@ -1107,7 +1107,6 @@ table td {
     display: none;
   }
 
-
   >* {
     color: var(--chr-text-gray-600);
     font-size: 12px !important;
@@ -1149,6 +1148,10 @@ table td {
     width: 100%;
     margin: 0;
     margin-block: 1.5rem;
+  }
+
+  img {
+    max-width: 16px;
   }
 }
 
