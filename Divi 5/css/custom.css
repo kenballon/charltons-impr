@@ -1484,3 +1484,27 @@ table td {
     }
   }
 }
+
+.page-submenu {
+  ul {
+    list-style: none !important;
+    padding: 0 !important;
+    margin-left: 0 !important;
+
+    li {
+      border-bottom: 1px dotted var(--chr-text-gray-400);
+
+      a {
+        padding-block: 1rem;
+        position: relative;
+        display: block;
+        color: var(--chr-text-gray-700);
+        transition: all 0.1s cubic-bezier(0.165, 0.84, 0.44, 1);
+
+        &:hover {
+          color: var(--chr-primary-color-500);
+        }
+      }
+    }
+  }
+}
