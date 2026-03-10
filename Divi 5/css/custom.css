@@ -503,18 +503,36 @@ sup {
 
 /* #endregion UTILITY CLASSES END */
 
-.footer_nav {
-  .footer_nav_list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
+.footer-copyright {
+  padding-block-start: 0.5rem;
+  border-block-start: 1px dotted var(--chr-text-gray-300);
 
-    .footer_nav_list_item {
-      color: white;
-      padding-inline-end: 0.5rem;
+  .footer_nav {
+    .footer_nav_list {
+      margin: 0;
+      padding: 0;
+      list-style: none !important;
+
+      .footer_nav_list_item {
+
+        a {
+          color: var(--chr-text-gray-300);
+          font-size: 12px;
+          font-weight: 300;
+        }
+      }
     }
+
+  }
+
+  p {
+    color: var(--chr-text-gray-300);
+    font-size: 12px;
+    font-weight: 300;
   }
 }
+
+
 
 .footer_sub_link {
   margin-block: 1rem;
@@ -530,23 +548,35 @@ sup {
   }
 }
 
-.footer_discover_charltons,
-.footer_socials {
+.footer-row {
+  .footer_link_wrapper {
+    .footer-heading {
+      font-weight: 700;
+      color: var(--chr-text-gray-100);
+    }
 
-  h2,
-  h3,
-  h4 {
-    color: var(--chr-text-gray-100);
-    font-weight: 600;
+    ul {
+      list-style: none !important;
+      margin: 0;
+      padding: 0;
+
+      li {
+        a {
+          color: var(--chr-text-gray-200);
+          font-size: 12px;
+          font-weight: 300;
+
+          &:hover {
+            color: var(--chr-primary-color-200);
+          }
+        }
+      }
+    }
   }
 
-  p,
-  a {
-    color: var(--chr-text-gray-100);
-    font-weight: 300;
-    font-size: 14px;
-  }
 }
+
+
 
 .post_body_content_wrapper {
   @media (min-width: 1024px) {
@@ -1545,6 +1575,30 @@ details.wp-block-details {
     summary {
       border-block-end: 1px dotted var(--chr-text-gray-300);
       margin-block-end: 1rem;
+    }
+  }
+}
+
+.nl_subscribe_wrapper {
+  background-image: url(https://www.charltonslaw.com/legal/images/insights-library-bg-gray-news.jpg);
+  background-size: cover;
+  background-position: top center;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--chr-text-gray-300);
+  max-width: 300px;
+  font-weight: 700;
+
+  .subscribe_btn {
+    background-color: var(--chr-primary-color-500);
+    border-radius: 4px;
+    padding-block: 0.5rem;
+    padding-inline: 1rem;
+    width: max-content;
+    text-transform: uppercase;
+
+    &:hover {
+      background-color: var(--chr-primary-color-700);
     }
   }
 }
