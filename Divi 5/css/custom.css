@@ -28,7 +28,7 @@
 #main-header {
   background-color: #202020;
 
-  >div {
+  > div {
     width: 100%;
     max-width: 100%;
     padding-inline: 1rem;
@@ -49,7 +49,7 @@
 #et-top-navigation {
   #top-menu-nav {
     #top-menu {
-      >li {
+      > li {
         a {
           color: white !important;
         }
@@ -157,7 +157,8 @@ form.wpcf7-form {
   right: 2rem;
   border-radius: 50%;
   padding: 1rem;
-  background: var(--chr-primary-color-500) url("/wp-content/uploads/2025/11/sub_newsletters.png") center no-repeat;
+  background: var(--chr-primary-color-500)
+    url("/wp-content/uploads/2025/11/sub_newsletters.png") center no-repeat;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   border: 0;
@@ -168,16 +169,23 @@ form.wpcf7-form {
 }
 
 .default_link {
-  background-image: linear-gradient(transparent, transparent),
+  background-image:
+    linear-gradient(transparent, transparent),
     linear-gradient(currentColor, currentColor);
-  background-size: 100% 0.0625rem, 0 0.0625rem;
-  background-position: 100% 100%, 0 100%;
+  background-size:
+    100% 0.0625rem,
+    0 0.0625rem;
+  background-position:
+    100% 100%,
+    0 100%;
   background-repeat: no-repeat;
   transition: background-size 0.2s ease;
   text-decoration: none;
 
   &:hover {
-    background-size: 0 0.0625rem, 100% 0.0625rem;
+    background-size:
+      0 0.0625rem,
+      100% 0.0625rem;
   }
 }
 
@@ -514,7 +522,6 @@ sup {
       list-style: none !important;
 
       .footer_nav_list_item {
-
         a {
           color: var(--chr-text-gray-300);
           font-size: 12px;
@@ -522,7 +529,6 @@ sup {
         }
       }
     }
-
   }
 
   p {
@@ -531,8 +537,6 @@ sup {
     font-weight: 300;
   }
 }
-
-
 
 .footer_sub_link {
   margin-block: 1rem;
@@ -573,10 +577,7 @@ sup {
       }
     }
   }
-
 }
-
-
 
 .post_body_content_wrapper {
   @media (min-width: 1024px) {
@@ -588,11 +589,11 @@ sup {
 }
 
 .home_about-us-section {
-  >div {
+  > div {
     border-block-end: 1px dotted white;
     padding-block-end: 0.5rem;
 
-    >div {
+    > div {
       margin-block: auto;
 
       &:hover {
@@ -615,17 +616,15 @@ sup {
 }
 
 header.et-l.et-l--header {
-
   .custom-header-nav {
     padding: 0;
     padding-inline: 24px;
     padding-block: 1rem;
 
-
     .et_pb_row_0_tb_header {
       gap: 0;
 
-      >div {
+      > div {
         &:nth-child(1) {
           max-width: 200px;
 
@@ -646,7 +645,7 @@ header.et-l.et-l--header {
             }
           }
 
-          >div {
+          > div {
             background-color: var(--chr-text-gray-900);
 
             a {
@@ -656,18 +655,16 @@ header.et-l.et-l--header {
             .sub-menu {
               background-color: var(--chr-text-gray-900);
 
-              li>a {
+              li > a {
                 padding-inline: 0;
                 font-size: 12px;
               }
 
-              >.sub-menu {
+              > .sub-menu {
                 background-color: var(--chr-text-gray-800);
               }
             }
           }
-
-
         }
 
         &:nth-child(3) {
@@ -685,7 +682,6 @@ header.et-l.et-l--header {
     .et_pb_menu .et_pb_menu__search-input {
       color: white;
     }
-
   }
 }
 
@@ -879,7 +875,7 @@ p:empty {
 
     &:hover {
       .div_wrapper {
-        >h1 {
+        > h1 {
           a {
             color: var(--chr-primary-color-500);
           }
@@ -890,8 +886,7 @@ p:empty {
 
   .profile-name {
     .div_wrapper {
-      >h1 {
-
+      > h1 {
         font-size: 1.25rem;
         padding: 0;
 
@@ -900,7 +895,7 @@ p:empty {
           font-weight: 700;
         }
 
-        @media (max-width:992px) {
+        @media (max-width: 992px) {
           font-size: 1.125rem;
         }
       }
@@ -908,8 +903,6 @@ p:empty {
       .profile-title {
         font-size: 14px;
       }
-
-
     }
 
     .profile-email {
@@ -919,7 +912,7 @@ p:empty {
         font-size: 14px;
         color: var(--chr-text-gray-600);
 
-        >* {
+        > * {
           font-size: inherit;
         }
 
@@ -943,13 +936,13 @@ ul.et_pb_tabs_controls {
   background-color: var(--chr-text-gray-900);
   display: flex;
 
-  >li {
+  > li {
     flex: 1;
     height: 58px;
   }
 
   li:not(.et_pb_tab_active) {
-    >a {
+    > a {
       color: white !important;
     }
 
@@ -961,7 +954,7 @@ ul.et_pb_tabs_controls {
   li.et_pb_tab_active {
     background-color: var(--chr-primary-color-500);
 
-    >a {
+    > a {
       color: white !important;
     }
   }
@@ -1012,13 +1005,13 @@ ul.et_pb_tabs_controls {
         .title .related_item_title {
           color: var(--chr-primary-color-500);
         }
-
-
       }
     }
 
     &:hover {
-      box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+      box-shadow:
+        rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
+        rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
 
       /* .et_pb_image_wrap img {
         opacity: 0.8;
@@ -1137,11 +1130,11 @@ table td {
     display: none;
   }
 
-  >* {
+  > * {
     color: var(--chr-text-gray-600);
     font-size: 12px !important;
 
-    >* {
+    > * {
       font-size: 12px !important;
     }
   }
@@ -1156,12 +1149,12 @@ table td {
       line-height: 150%;
       font-size: 12px;
 
-      >* {
+      > * {
         font-family: inherit !important;
         color: var(--chr-text-gray-600);
       }
 
-      >a {
+      > a {
         font-size: 12px;
         color: var(--chr-primary-color-500);
       }
@@ -1189,7 +1182,7 @@ table td {
   padding-left: 64px !important;
   padding-right: 64px !important;
 
-  >div {
+  > div {
     background-color: var(--chr-text-gray-900);
     padding-block-start: 1.25rem;
   }
@@ -1203,7 +1196,7 @@ table td {
     }
   }
 
-  @media (max-width:767px) {
+  @media (max-width: 767px) {
     padding-right: 1rem !important;
     padding-left: 1rem !important;
   }
@@ -1215,7 +1208,6 @@ table td {
   margin-block: 1rem;
 
   a.download-version-item {
-
     span.svg-icon svg path,
     span.dl-version-label {
       fill: var(--chr-text-gray-500);
@@ -1243,7 +1235,6 @@ table td {
   margin-block-start: 0;
 
   a.download-version-item {
-
     span.svg-icon svg path,
     span.dl-version-label {
       fill: var(--chr-text-gray-100);
@@ -1264,8 +1255,7 @@ table td {
 }
 
 .post_body_content_wrapper {
-  >div>* {
-
+  > div > * {
     h1 {
       font-size: clamp(1.813rem, 1.007vw + 1.167rem, 2.375rem) !important;
     }
@@ -1282,14 +1272,13 @@ table td {
   font-style: italic;
   font-weight: 300;
   padding: 1rem !important;
-  background-color: #F9F9F9;
+  background-color: #f9f9f9;
   margin-block: 1.5rem;
 }
 
 .nl-pagination-wrapper {
-  >div {
+  > div {
     .et_pb_posts_nav {
-
       .nav-previous,
       .nav-next {
         a {
@@ -1298,9 +1287,8 @@ table td {
           gap: 0.5rem;
           color: var(--chr-text-gray-900) !important;
 
-          >span {
+          > span {
             font-size: 13px !important;
-
           }
 
           .nav-label {
@@ -1331,15 +1319,15 @@ table td {
     }
   }
 
-  @media (min-width:1024px) {
+  @media (min-width: 1024px) {
     padding-inline: 64px;
   }
 
-  @media (max-width:767px) {
+  @media (max-width: 767px) {
     width: 100% !important;
     padding-inline: 1rem;
 
-    >div>* {
+    > div > * {
       flex-direction: column;
     }
   }
@@ -1400,15 +1388,21 @@ table td {
   a {
     margin-block-start: 0.5rem;
     color: var(--chr-primary-color-500);
-    background-image: linear-gradient(transparent, transparent), linear-gradient(currentColor, currentColor);
-    background-size: 100% 0.0625rem, 0 0.0625rem;
-    background-position: 100% 100%, 0 100%;
+    background-image:
+      linear-gradient(transparent, transparent),
+      linear-gradient(currentColor, currentColor);
+    background-size:
+      100% 0.0625rem,
+      0 0.0625rem;
+    background-position:
+      100% 100%,
+      0 100%;
     background-repeat: no-repeat;
     transition: background-size 0.2s ease;
     text-decoration: none;
     font-size: 13px;
 
-    >div {
+    > div {
       font-size: inherit;
     }
 
@@ -1418,7 +1412,9 @@ table td {
     }
 
     &:not(.btn_pill, .print_btn, .share_btn):hover {
-      background-size: 0 0.0625rem, 100% 0.0625rem;
+      background-size:
+        0 0.0625rem,
+        100% 0.0625rem;
     }
   }
 }
@@ -1454,8 +1450,8 @@ table td {
     text-overflow: ellipsis;
   }
 
-  .post-meta>span,
-  .post-meta>span>* {
+  .post-meta > span,
+  .post-meta > span > * {
     font-weight: 300;
     font-size: 12px !important;
     color: var(--chr-text-gray-600);
@@ -1486,7 +1482,6 @@ table td {
 
 .breadcrumb {
   border-block: 1px dotted var(--chr-text-gray-300);
-
 
   ul {
     list-style: none !important;
@@ -1550,13 +1545,12 @@ details.wp-block-details {
   background-color: var(--chr-text-gray-50);
 
   summary {
-    padding-block: .8rem;
+    padding-block: 0.8rem;
     font-weight: 600;
     cursor: pointer;
   }
 
   div {
-
     ol,
     ul {
       margin-left: 1rem;
@@ -1599,6 +1593,57 @@ details.wp-block-details {
 
     &:hover {
       background-color: var(--chr-primary-color-700);
+    }
+  }
+}
+
+.group_row_card_wrapper {
+  .et_pb_image {
+    margin: 0;
+    border: 1px solid var(--chr-text-gray-200);
+    .et_pb_image_wrap img {
+      display: block;
+    }
+  }
+  .newsletter_card_ui {
+    .et_pb_image {
+      .et_pb_image_wrap img {
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+      }
+    }
+  }
+  .newsevents__post_date {
+    margin: 0;
+    margin-block-start: 0.5rem;
+    .et_pb_text_inner p {
+      font-weight: 300;
+      font-size: 13px;
+      color: var(--chr-text-gray-400);
+    }
+  }
+
+  .newsevents__post_title {
+    .et_pb_heading_container {
+      .et_pb_module_header {
+        font-size: 16px;
+        font-weight: 700;
+        text-wrap: pretty;
+        line-height: 150%;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-block-end: 0;
+        transition: hover 0.2s ease;
+        margin-top: 0.5rem;
+
+        &:hover {
+          text-decoration: underline;
+          color: var(--chr-primary-color-500);
+        }
+      }
     }
   }
 }
