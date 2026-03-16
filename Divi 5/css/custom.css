@@ -509,6 +509,30 @@ sup {
   font-weight: 700;
 }
 
+.cta-button {
+  margin-top: 2rem;
+  display: inline-block;
+  padding: 10px 16px;
+  background-color: #ffffff;
+  color: var(--chr-text-gray-900) !important;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+div.cta {
+  display: flex;
+  flex-wrap: wrap;
+  a.cta-button {
+    font-size: 13px;
+
+    &:hover {
+      background-color: var(--chr-primary-color-500);
+      color: white !important;
+    }
+  }
+}
+
 /* #endregion UTILITY CLASSES END */
 
 .footer-copyright {
@@ -629,8 +653,7 @@ header.et-l.et-l--header {
           max-width: 200px;
 
           img {
-            max-width: 150px;
-            height: 45px;
+            max-width: 100px;
           }
         }
 
@@ -855,20 +878,19 @@ p:empty {
 
   .profile-item {
     .profile-photo {
-      display: flex;
-      height: 100%;
-      max-height: 400px;
+      aspect-ratio: 3 / 4;
       overflow: hidden;
 
       a {
         display: block;
-        width: 100%;
 
         br {
           display: none;
         }
 
         img {
+          display: block;
+          aspect-ratio: 3 / 4;
           width: 100%;
           height: 100%;
           object-fit: cover;
@@ -881,17 +903,13 @@ p:empty {
       .profile-photo {
         opacity: 0.8;
       }
-      .div_wrapper {
-        > h1 {
-          a {
-            color: var(--chr-primary-color-500);
-            text-decoration: underline;
-          }
-        }
+
+      .div_wrapper > h1 a {
+        color: var(--chr-primary-color-500);
+        text-decoration: underline;
       }
     }
   }
-
   .profile-name {
     .div_wrapper {
       > h1 {
@@ -1655,4 +1673,130 @@ details.wp-block-details {
       }
     }
   }
+}
+
+@media (max-width: 600px) {
+  .team_profile_tab {
+    .et_pb_tabs_controls {
+      flex-direction: column;
+      margin: 0;
+    }
+    .et_pb_all_tabs {
+      .et_pb_tab {
+        padding-inline: 0;
+      }
+    }
+  }
+}
+
+.profile_single_hero {
+  @media (max-width: 600px) {
+    background-position: 96% -14% !important;
+  }
+}
+
+.news_events_featured_row {
+  .et-last-child {
+    align-self: center;
+  }
+}
+
+.featured_new_post {
+  .featured_new_post_content {
+    flex-shrink: 1;
+    flex-basis: 0%;
+    row-gap: 1rem;
+    .et_pb_heading_container .et_pb_module_header {
+      font-weight: 700;
+      font-size: 1.5rem;
+      line-height: 140%;
+      text-wrap: pretty;
+      padding-bottom: 0;
+    }
+    .et_pb_text_inner p {
+      font-weight: 300;
+      font-size: 14px;
+    }
+
+    .et_pb_button_module_wrapper {
+      .et_pb_button {
+        font-size: 13px;
+      }
+    }
+  }
+}
+
+.featured_newsevents_right-col {
+  gap: 0.5rem;
+  border-block-start: 1px dotted var(--chr-text-gray-300);
+  padding-block-start: 1rem;
+
+  .date_container {
+    .et_pb_text_inner p {
+      font-size: 14px;
+      font-weight: 300;
+      text-transform: uppercase;
+    }
+  }
+
+  .newsevents__post-title {
+    .et_pb_heading_container h1 {
+      font-weight: 600;
+      font-size: 1rem;
+      line-height: 140%;
+      padding: 0;
+    }
+  }
+
+  &:hover {
+    .newsevents__post-title {
+      .et_pb_heading_container h1 {
+        text-decoration: underline;
+        color: var(--chr-primary-color-500);
+      }
+    }
+  }
+
+  &:first-child {
+    border-block-start: 0;
+  }
+
+  &:last-child {
+    padding-block-end: 1rem;
+  }
+}
+
+.home_redomicile_default_list {
+  .home_redomicile_default_list_item {
+    color: var(--chr-text-gray-100);
+  }
+}
+
+ul.home_redomicile_default_list {
+  padding-inline-start: 1.25rem;
+  list-style: none !important;
+  padding-left: 0;
+  margin-block: 2rem;
+
+  .home_redomicile_default_list_item {
+    padding-block: 0.85rem;
+    border-bottom: 1px dotted var(--chr-text-gray-300);
+    padding-inline-start: 0.5rem;
+
+    &:first-child {
+      border-top: 1px dotted var(--chr-text-gray-300);
+    }
+  }
+}
+
+.home_redomicile {
+  padding: 2rem;
+  background-color: #ffffff24;
+  backdrop-filter: blur(15px);
+  border-radius: 8px;
+  box-shadow:
+    0 8px 32px 0 rgba(31, 38, 135, 0.37),
+    0 4px 16px 0 rgba(255, 255, 255, 0.1) inset,
+    0 -4px 16px 0 rgba(0, 0, 0, 0.1) inset;
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
