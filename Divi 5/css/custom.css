@@ -1800,3 +1800,16 @@ ul.home_redomicile_default_list {
     0 -4px 16px 0 rgba(0, 0, 0, 0.1) inset;
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
+
+.nl_reader_digest {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 24px;
+  background-color: var(--chr-text-gray-100);
+  border: 1px solid var(--chr-text-gray-300);
+  .reader_digest_label {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+}
