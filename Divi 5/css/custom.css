@@ -79,10 +79,24 @@ a {
 
 }
 
-.et_pb_post_content.et_pb_module p {
+.et_pb_post_content.et_pb_module {
   @media (min-width: 768px) {
-    text-align: justify;
+    p {
+      text-align: justify;
+    }
+
+    ul li {
+      text-align: justify;
+
+      ul li {
+        text-align: justify;
+      }
+    }
   }
+
+
+
+
 }
 
 .menu-item a {
