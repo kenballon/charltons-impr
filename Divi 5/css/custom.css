@@ -1732,11 +1732,22 @@ details.wp-block-details {
   }
 }
 
+.team_profile_tab {
+  .et_pb_tabs_controls {
+    margin: 0;
+  }
+
+  .et_pb_all_tabs {
+    >div.et_pb_tab {
+      padding-inline: 0 !important;
+    }
+  }
+}
+
 @media (max-width: 600px) {
   .team_profile_tab {
     .et_pb_tabs_controls {
       flex-direction: column;
-      margin: 0;
     }
 
     .et_pb_all_tabs {
