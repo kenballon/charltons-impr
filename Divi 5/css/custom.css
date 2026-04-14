@@ -1513,6 +1513,13 @@ table td {
   margin-block-end: 2rem;
 }
 
+.entry-title a {
+  &:hover {
+    color: var(--chr-primary-color-500);
+    text-decoration: underline;
+  }
+}
+
 @scope (.et_pb_blog) {
   .et_pb_posts article .et_pb_image_container a img {
     aspect-ratio: 16 / 9;
@@ -1529,6 +1536,11 @@ table td {
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    &:hover {
+      color: var(--chr-primary-color-500);
+      text-decoration: underline;
+    }
   }
 
   .post-meta>span,
