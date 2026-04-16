@@ -1114,6 +1114,7 @@ ul.et_pb_tabs_controls {
 
 .awards_images {
   place-items: center;
+  margin-top: 1.5rem;
 
   br {
     display: none;
