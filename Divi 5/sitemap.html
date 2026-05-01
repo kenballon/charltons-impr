@@ -257,6 +257,27 @@
         </ol>
     </div>
 
+    <script>
+        // Problem 1: Reverse a String
+        // without using built-in reverse() method
+        function reverseString(str) {
+            let reversedResult = [];
+            for (let i = str.length - 1; i >= 0; i--) {
+                reversedResult.push(str[i]);
+            }
+            return reversedResult.join('');
+        }
+
+        // Problem 2: Count Word Occurrences
+        // function accepts array and return object with word counts
+        function countWordOccurrences(arr) {
+            let wordCount = {};
+            for (const word of arr) {
+                wordCount[word] = (wordCount[word] || 0) + 1;
+            }
+            return wordCount;
+        }    
+    </script>
 </body>
 
 </html>
