@@ -1723,8 +1723,8 @@ details.wp-block-details {
   }
 
   .newsevents__post_title {
-    .et_pb_heading_container {
-      .et_pb_module_header {
+    .et_pb_text_inner {
+      h2 {
         font-size: 16px;
         font-weight: 700;
         text-wrap: pretty;
@@ -1786,7 +1786,7 @@ details.wp-block-details {
     flex-basis: 0%;
     row-gap: 1rem;
 
-    .et_pb_heading_container .et_pb_module_header {
+    h2 {
       font-weight: 700;
       font-size: 1.5rem;
       line-height: 140%;
@@ -1821,7 +1821,7 @@ details.wp-block-details {
   }
 
   .newsevents__post-title {
-    .et_pb_heading_container h1 {
+    h2 {
       font-weight: 600;
       font-size: 1rem;
       line-height: 140%;
