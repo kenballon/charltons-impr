@@ -93,15 +93,35 @@
         // Problem 5 — Sum of Even Numbers
         // function accepts an array of numbers and returns the sum of all even numbers
         function sumOfEvenNumbers(arr) {
-            if (!Array.isArray(arr)) return null; // Handle non-array input case
+            if (!Array.isArray(arr)) return null; // Handle non-array input case         
 
             let sum = 0;
             for (const num of arr) {
+
+                if (!Number.isInteger(num)) return null;
+
                 if (num % 2 === 0) {
                     sum += num;
                 }
             }
             return sum;
+        }
+
+        // DAY 2
+        // Problem 1 — Double the Numbers
+        // function accepts an array of numbers and returns a new array with each number doubled
+        function doubleNumbers(arr) {
+            if (!Array.isArray(arr)) return null; // Handle non-array input case
+
+            // const doubled = [];
+            // for (const num of arr) {
+            //     if (!Number.isInteger(num)) return null;
+            //     doubled.push(num * 2)
+            // }
+            // return doubled;
+
+            if (!arr.every(Number.isInteger)) return null; // Handle non-integer input case
+            return arr.map(num => num * 2);
         }
     </script>
 </body>
