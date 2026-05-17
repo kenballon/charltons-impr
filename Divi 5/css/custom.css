@@ -242,6 +242,10 @@ address {
   }
 }
 
+a {
+  color: var(--chr-primary-color-500);
+}
+
 ol,
 ul {
   list-style: initial !important;
