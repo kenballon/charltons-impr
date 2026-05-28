@@ -1895,3 +1895,9 @@ ul.home_redomicile_default_list {
     font-weight: 700;
   }
 }
+
+.home_news_events_heading .et_pb_text_inner>* {
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+}
