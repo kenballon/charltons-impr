@@ -1900,4 +1900,9 @@ ul.home_redomicile_default_list {
   color: white;
   font-size: 14px;
   font-weight: 700;
+
+  &:hover {
+    color: var(--chr-primary-color-500);
+    text-decoration: underline;
+  }
 }
