@@ -1205,7 +1205,8 @@ table td {
   border: 1px solid var(--chr-text-gray-300);
 }
 
-.newsletter_references {
+.newsletter_references,
+.newsletter_references_rounded {
   position: relative;
   margin-top: 2rem;
   padding: 1rem;
@@ -1264,6 +1265,10 @@ table td {
   img {
     max-width: 16px;
   }
+}
+
+.newsletter_references_rounded {
+  border-radius: 16px;
 }
 
 .et_pb_row_1_tb_body.et_pb_row.newsletter_post_footer {
@@ -1913,5 +1918,56 @@ ul.home_red_textomicile_default_list {
   &:hover {
     color: var(--chr-primary-color-500);
     text-decoration: underline;
+  }
+}
+
+.regula_enforcement {
+  .regula_enforcement_row {
+    .regula_enforcement_hero_details {
+      gap: 0.5rem;
+
+      h1 {
+        font-weight: 700;
+        line-height: 140%;
+        text-wrap: pretty;
+        font-size: clamp(1.25rem, 0.9091rem + 1.8182vw, 2.5rem);
+        text-align: center;
+      }
+    }
+
+  }
+}
+
+.regula_enforcement_content_section {
+  padding-block-start: 0 !important;
+
+  .regula_enforcement_content_row {
+    >div {
+      row-gap: 8px;
+    }
+
+    .regula_post_body {
+
+      h2,
+      h3 {
+        font-weight: 700;
+        line-height: 140%;
+      }
+
+      p {
+        line-height: 1.7em;
+      }
+    }
+  }
+}
+
+.regula_post_date {
+  .et_pb_text_inner {
+    >* {
+      text-transform: uppercase;
+      font-size: 13px;
+      font-weight: 300;
+      letter-spacing: 3px;
+    }
   }
 }
