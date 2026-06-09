@@ -24,6 +24,23 @@ document.addEventListener('DOMContentLoaded', () => {
         .querySelector('.toggle-content')
         ?.querySelectorAll('p br')
         .forEach((lineBreak) => lineBreak.remove());
+
+    function calculateReadingTime() {
+        const postBody = document.querySelector(".regula_post_body");
+        const readTimeDiv = document.getElementById("read_time_mins");
+        if (!postBody || !readTimeDiv) return;
+
+        const text = postBody.innerText;
+        const words = text.trim().split(/\s+/).length;
+        const wordsPerMinute = 200;
+        const minutes = Math.ceil(words / wordsPerMinute);
+
+        readTimeDiv.textContent = `${minutes} Minute(s)`;
+    }
+
+    // Run it
+    calculateReadingTime();
 });
 
 // END CUSTOM JS >
+

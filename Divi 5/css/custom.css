@@ -1971,3 +1971,29 @@ ul.home_red_textomicile_default_list {
     }
   }
 }
+
+.aside_left_pub_wrapper {
+  gap: 0;
+
+  >div {
+    &:first-child {
+      .et_pb_text_inner {
+        >* {
+          text-transform: uppercase;
+          font-size: 13px;
+          font-weight: 300;
+          letter-spacing: 3px;
+        }
+      }
+    }
+
+    &:last-child {
+      .et_pb_text_inner {
+        >* {
+          font-size: 14px;
+          font-weight: 700;
+        }
+      }
+    }
+  }
+}
