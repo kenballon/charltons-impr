@@ -1942,6 +1942,7 @@ ul.home_red_textomicile_default_list {
   padding-block-start: 0 !important;
 
   .regula_enforcement_content_row {
+
     >div {
       row-gap: 8px;
     }
@@ -1956,6 +1957,27 @@ ul.home_red_textomicile_default_list {
 
       p {
         line-height: 1.7em;
+      }
+    }
+  }
+}
+
+.regula_enforcement_content_row {
+  gap: 2rem;
+
+  >div {
+    &:nth-child(2) {
+      flex: 1;
+      padding-inline: 1.5rem;
+      border-inline: 1px dotted var(--chr-text-gray-300);
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5 {
+        font-weight: 700;
+        line-height: 140%;
       }
     }
   }
@@ -1998,4 +2020,90 @@ ul.home_red_textomicile_default_list {
       }
     }
   }
+}
+
+.regula_enforcement_aside_right {
+  gap: 2px;
+
+  h2 {
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 140%;
+    text-wrap: pretty;
+    padding: 0;
+  }
+
+  p {
+    font-weight: 300;
+    font-size: 13px;
+    line-height: 1.7em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &:hover {
+    h2 {
+      color: var(--chr-primary-color-500);
+      text-decoration: underline;
+    }
+  }
+}
+
+.span_label_transform {
+  .et_pb_text_inner {
+    >* {
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: var(--chr-text-gray-500);
+    }
+  }
+}
+
+.download_btn_wrapper {
+  padding-block: 1rem;
+  border-block: 1px dotted var(--chr-text-gray-300);
+  flex-direction: row;
+
+  .btn_downloads {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+    padding-block: 0.5rem;
+    border: 0 !important;
+
+    >div .et_pb_text_inner p {
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      color: var(--chr-text-gray-500);
+    }
+
+    &:hover .et_pb_text_inner p {
+      color: var(--chr-primary-color-500);
+    }
+  }
+
+  .btn_downloads .et_pb_icon_wrap .et-pb-icon {
+    font-size: 24px;
+    color: var(--chr-text-gray-500) !important;
+  }
+
+  .btn_downloads:hover .et_pb_icon_wrap .et-pb-icon {
+    color: var(--chr-primary-color-500) !important;
+  }
+}
+
+
+body #page-container .et_pb_section .et_pb_button_0_tb_body.btn_downloads:hover,
+body #page-container .et_pb_section .et_pb_button_1_tb_body.btn_downloads:hover {
+  padding: 0 !important;
+  padding-block: 0.5rem !important;
+  background-color: transparent !important;
 }
