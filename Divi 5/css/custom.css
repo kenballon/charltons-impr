@@ -300,6 +300,10 @@ sup {
   text-transform: capitalize;
 }
 
+.uppercase {
+  text-transform: uppercase;
+}
+
 /* displays */
 .flex {
   display: flex;
@@ -1943,9 +1947,6 @@ ul.home_red_textomicile_default_list {
 
   .regula_enforcement_content_row {
 
-    >div {
-      row-gap: 8px;
-    }
 
     .regula_post_body {
 
@@ -1966,10 +1967,10 @@ ul.home_red_textomicile_default_list {
   gap: 2rem;
 
   >div {
-    &:nth-child(2) {
+    &:nth-child(1) {
       flex: 1;
-      padding-inline: 1.5rem;
-      border-inline: 1px dotted var(--chr-text-gray-300);
+      padding-inline-end: 1.5rem;
+      border-inline-end: 1px dotted var(--chr-text-gray-300);
 
       h1,
       h2,
@@ -1978,6 +1979,14 @@ ul.home_red_textomicile_default_list {
       h5 {
         font-weight: 700;
         line-height: 140%;
+        font-family: "DT Super Ds Trial", "Gloock", serif;
+      }
+
+      h2,
+      h3,
+      h4,
+      h5 {
+        padding-block-start: 2rem;
       }
     }
   }
@@ -1992,6 +2001,10 @@ ul.home_red_textomicile_default_list {
       letter-spacing: 3px;
     }
   }
+}
+
+.regula_read_time_wrapper {
+  flex-direction: row;
 }
 
 .aside_left_pub_wrapper {
@@ -2102,8 +2115,20 @@ ul.home_red_textomicile_default_list {
 
 
 body #page-container .et_pb_section .et_pb_button_0_tb_body.btn_downloads:hover,
-body #page-container .et_pb_section .et_pb_button_1_tb_body.btn_downloads:hover {
+body #page-container .et_pb_section .et_pb_button_1_tb_body.btn_downloads:hover,
+body #page-container .et_pb_section .et_pb_button_2_tb_body.btn_downloads:hover {
   padding: 0 !important;
   padding-block: 0.5rem !important;
   background-color: transparent !important;
+}
+
+.regulatory_disclaimer {
+  background-color: #400C0E;
+  color: #bda7a8;
+  padding: 1rem;
+
+  p,
+  a {
+    font-size: 12px !important;
+  }
 }
