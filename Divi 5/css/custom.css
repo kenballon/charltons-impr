@@ -1275,7 +1275,7 @@ table td {
   border-radius: 16px;
 }
 
-.et_pb_row_1_tb_body.et_pb_row.newsletter_post_footer {
+.et_pb_row.newsletter_post_footer {
   padding-left: 64px !important;
   padding-right: 64px !important;
 
@@ -2125,7 +2125,7 @@ body #page-container .et_pb_section .et_pb_button_2_tb_body.btn_downloads:hover 
 .regulatory_disclaimer {
   background-color: #400C0E;
   color: #bda7a8;
-  padding: 1rem;
+  padding: 2rem;
 
   p,
   a {
