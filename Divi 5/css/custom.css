@@ -666,11 +666,99 @@ div.cta {
 }
 
 .post_body_content_wrapper {
+
+
+  >div {
+    gap: 0 !important;
+
+    @media (max-width: 767px) {
+      .et_pb_post_title {
+        .et_pb_title_container .entry-title {
+          text-wrap: balance;
+          border-bottom: 1px solid var(--chr-text-gray-300);
+          margin-bottom: 8px;
+
+        }
+      }
+
+      .regula_subheadline .et_pb_text_inner h2 {
+        font-size: 20px;
+      }
+    }
+
+
+
+    >div {
+      &:nth-child(4) {
+        padding-top: 1.5rem;
+      }
+
+      &:last-child {
+        padding-block-start: 1.5rem;
+      }
+    }
+
+    .post_pub_cat_wrapper {
+      padding-block-start: 1rem;
+      gap: 4px;
+
+      >div {
+
+        .et_pb_text_inner {
+          display: flex;
+          align-items: center;
+          height: 100%;
+        }
+
+        &:first-child {
+          .et_pb_text_inner p {
+            color: var(--chr-text-gray-400) !important;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 300;
+          }
+        }
+
+        &:last-child {
+          .et_pb_text_inner p a {
+            color: var(--chr-text-gray-400) !important;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 300;
+          }
+        }
+      }
+
+      @media (max-width: 767px) {
+        flex-direction: column;
+      }
+    }
+  }
+
   @media (min-width: 1024px) {
     margin-top: -10rem !important;
     padding-inline: 4rem;
     padding-block-start: 4rem;
     background-color: white;
+  }
+
+  @media(max-width: 767px) {
+    width: 90% !important;
+  }
+}
+
+.post_body_content_wrapper {
+  >div>* {
+    h1 {
+      font-size: clamp(1.813rem, 1.007vw + 1.167rem, 2.375rem) !important;
+    }
+
+    h2,
+    h3 {
+      font-weight: bold;
+    }
   }
 }
 
@@ -1353,18 +1441,7 @@ table td {
   background-color: var(--chr-text-gray-800);
 }
 
-.post_body_content_wrapper {
-  >div>* {
-    h1 {
-      font-size: clamp(1.813rem, 1.007vw + 1.167rem, 2.375rem) !important;
-    }
 
-    h2,
-    h3 {
-      font-weight: bold;
-    }
-  }
-}
 
 .para-note {
   font-size: 12px !important;
