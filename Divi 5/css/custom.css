@@ -2300,3 +2300,8 @@ body #page-container .et_pb_section .et_pb_button_2_tb_body.btn_downloads:hover 
   }
 
 }
+
+.et_pb_title_featured_container,
+.wp-block-embed__wrapper .fluid-width-video-wrapper {
+  margin-block-end: 1.5rem;
+}
