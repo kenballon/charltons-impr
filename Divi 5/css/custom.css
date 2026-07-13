@@ -1388,13 +1388,21 @@ table td {
   >div {
     background-color: var(--chr-text-gray-900);
     padding-block-start: 1.25rem;
+
+    >div {
+      .et_pb_text_inner {
+        padding-inline: 2rem;
+      }
+    }
   }
 
   .et_pb_image_wrap {
     display: flex;
     justify-content: center;
+    width: 100%;
 
     img {
+      width: 100px;
       max-width: 100px;
     }
   }
