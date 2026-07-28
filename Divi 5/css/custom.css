@@ -815,9 +815,11 @@ header.et-l.et-l--header {
 
     .et_pb_row_0_tb_header {
       gap: 0;
+      justify-content: space-between;
 
       >div {
         &:nth-child(1) {
+          width: max-content;
           max-width: 200px;
 
           img {
@@ -826,15 +828,7 @@ header.et-l.et-l--header {
         }
 
         &:nth-child(2) {
-          flex: 1;
-
-          @media (max-width: 820px) {
-            position: absolute;
-
-            .custom-header-nav-ul-wrapper {
-              background-color: transparent;
-            }
-          }
+          width: max-content;
 
           >div {
             background-color: var(--chr-text-gray-900);
@@ -856,22 +850,71 @@ header.et-l.et-l--header {
               }
             }
           }
+
+          .mobile_nav.opened,
+          .mobile_nav.closed {
+            #mobile_menu1 {
+              position: absolute;
+              width: 300px;
+              left: -216px;
+            }
+          }
+
+          @media (max-width:1023px) {
+
+            .et_pb_menu__search-container.et_pb_no_animation.et_pb_menu__search-container--visible,
+            .et_pb_menu__search-container.et_pb_menu__search-container--visible.et_pb_is_animating {
+              width: 300px;
+              left: -235px;
+            }
+
+            .et_pb_menu__search-container.et_pb_no_animation.et_pb_menu__search-container--hidden.et_pb_is_animating {
+              width: 300px;
+              left: -235px;
+            }
+          }
         }
 
         &:nth-child(3) {
-          max-width: max-content;
+          display: none;
         }
       }
-    }
 
-    .et_pb_menu__search-container {
-      max-width: 400px;
-      padding: 0.75rem !important;
-      background-color: #3b3b3b;
-    }
+      .et_pb_menu__search-container {
+        max-width: 400px;
+        padding: 0.75rem !important;
+        background-color: #3b3b3b;
+      }
 
-    .et_pb_menu .et_pb_menu__search-input {
-      color: white;
+      .et_pb_menu .et_pb_menu__search-input {
+        color: white;
+      }
+
+      /* large screens sizes  */
+      @media (min-width: 1024px) {
+        >div {
+          &:nth-child(1) {
+            width: 200px
+          }
+
+          &:nth-child(2) {
+            flex: 1;
+
+            @media (max-width: 820px) {
+              position: absolute;
+
+              .custom-header-nav-ul-wrapper {
+                background-color: transparent;
+              }
+            }
+          }
+
+          &:nth-child(3) {
+            display: unset;
+            max-width: max-content;
+          }
+        }
+      }
     }
   }
 }
