@@ -1,0 +1,853 @@
+//@version=6
+indicator(
+     "NY ORB + ICT",
+     shorttitle = "NY ORB + ICT",
+     overlay = true,
+     max_lines_count = 20,
+     max_labels_count = 100,
+     max_boxes_count = 10
+)
+
+//──────────────────────────────────────────────────────────────────────────────
+// SETTINGS
+//──────────────────────────────────────────────────────────────────────────────
+
+string DEFAULT_TZ = "America/New_York"
+
+//──────────────────────────────────────────────────────────────────────────────
+// PREVIOUS DAY
+//──────────────────────────────────────────────────────────────────────────────
+
+groupPreviousDay = "Previous Day"
+
+bool showPreviousDay = input.bool(
+     true,
+     "Show Previous Day High / Low",
+     group = groupPreviousDay
+)
+
+//──────────────────────────────────────────────────────────────────────────────
+// OPENING CUSTOM RANGE
+//──────────────────────────────────────────────────────────────────────────────
+
+groupOpeningRange = "Opening Custom Range"
+
+bool showOpeningRange = input.bool(
+     true,
+     "",
+     group = groupOpeningRange,
+     inline = "openingRangeTime"
+)
+
+string openingStart = input.string(
+     "08:00",
+     "",
+     group = groupOpeningRange,
+     inline = "openingRangeTime"
+)
+
+string openingEnd = input.string(
+     "08:30",
+     "—",
+     group = groupOpeningRange,
+     inline = "openingRangeTime"
+)
+
+string openingTimezone = input.string(
+     "New York",
+     "",
+     options = [
+         "New York",         
+         "London",
+         "Tokyo"
+     ],
+     group = groupOpeningRange,
+     inline = "openingRangeTime"
+)
+
+bool showOpeningBox = input.bool(
+     true,
+     "Show Range Box",
+     group = groupOpeningRange
+)
+
+//──────────────────────────────────────────────────────────────────────────────
+// FAILURE SWINGS
+//──────────────────────────────────────────────────────────────────────────────
+
+groupFailureSwings = "Failure Swings"
+
+bool showFailureSwings = input.bool(
+     true,
+     "Show H1 Failure Swings",
+     group = groupFailureSwings
+)
+
+int failureSwingLookbackHours = input.int(
+     18,
+     "Lookback Hours",
+     minval = 1,
+     maxval = 48,
+     group = groupFailureSwings
+)
+
+//──────────────────────────────────────────────────────────────────────────────
+// TIMEFRAME
+// Only show the indicator on 1m–30m charts.
+//──────────────────────────────────────────────────────────────────────────────
+
+bool validTimeframe =
+     timeframe.isminutes and
+     timeframe.multiplier >= 1 and
+     timeframe.multiplier <= 30
+
+//──────────────────────────────────────────────────────────────────────────────
+// DRAWING HELPERS
+//──────────────────────────────────────────────────────────────────────────────
+
+setHorizontalLevel(line levelLine, int startBar, float price, int endBar) =>
+    if not na(levelLine)
+        line.set_x1(levelLine, startBar)
+        line.set_y1(levelLine, price)
+        line.set_x2(levelLine, endBar)
+        line.set_y2(levelLine, price)
+
+setLevelLabel(label levelLabel, int labelBar, float price) =>
+    if not na(levelLabel)
+        label.set_x(levelLabel, labelBar)
+        label.set_y(levelLabel, price)
+
+setLineEnd(line levelLine, int endBar) =>
+    if not na(levelLine)
+        line.set_x2(levelLine, endBar)
+
+findH1WickTime(float wickPrice, int h1Start, int h1End, bool isHigh) =>
+    int wickTime = na
+
+    // The indicator runs on 1m–30m charts, so 61 bars covers one completed H1 bar.
+    for offset = 0 to 60
+        bool insideH1Bar =
+             not na(time[offset]) and
+             time[offset] >= h1Start and
+             time[offset] < h1End
+
+        bool matchesWick =
+             isHigh ? high[offset] == wickPrice : low[offset] == wickPrice
+
+        if insideH1Bar and matchesWick
+            wickTime := time[offset]
+            break
+
+    wickTime
+
+//──────────────────────────────────────────────────────────────────────────────
+// TIMEZONE
+//──────────────────────────────────────────────────────────────────────────────
+
+string rangeTimezone =
+     openingTimezone == "New York" ? "America/New_York" :
+     openingTimezone == "London"   ? "Europe/London" :
+     openingTimezone == "Tokyo"    ? "Asia/Tokyo" :
+     "Etc/UTC"
+
+//──────────────────────────────────────────────────────────────────────────────
+// SESSION STRING
+//
+// Converts:
+//     08:00 → 0800
+//     08:30 → 0830
+//
+// Result:
+//     0800-0830
+//──────────────────────────────────────────────────────────────────────────────
+
+string startHHMM =
+     str.replace_all(openingStart, ":", "")
+
+string endHHMM =
+     str.replace_all(openingEnd, ":", "")
+
+string openingSession =
+     startHHMM + "-" + endHHMM
+
+//──────────────────────────────────────────────────────────────────────────────
+// NEW YORK DATE
+//
+// Previous Day High / Low always uses the New York trading day.
+// This remains independent from the custom Opening Range timezone.
+//──────────────────────────────────────────────────────────────────────────────
+
+int nyYear  = year(time, DEFAULT_TZ)
+int nyMonth = month(time, DEFAULT_TZ)
+int nyDay   = dayofmonth(time, DEFAULT_TZ)
+
+int nyDate =
+     nyYear * 10000 +
+     nyMonth * 100 +
+     nyDay
+
+var int currentDate = na
+
+bool newNYDay =
+     na(currentDate) or
+     nyDate != currentDate
+
+//──────────────────────────────────────────────────────────────────────────────
+// CURRENT / PREVIOUS NEW YORK DAY HIGH & LOW
+//──────────────────────────────────────────────────────────────────────────────
+
+var float currentDayHigh = na
+var float currentDayLow  = na
+
+var int currentDayHighBar = na
+var int currentDayLowBar  = na
+
+var float previousDayHigh = na
+var float previousDayLow  = na
+
+var int previousDayHighBar = na
+var int previousDayLowBar  = na
+
+if newNYDay
+
+    // Store completed New York day's extremes.
+    previousDayHigh := currentDayHigh
+    previousDayLow  := currentDayLow
+
+    previousDayHighBar := currentDayHighBar
+    previousDayLowBar  := currentDayLowBar
+
+    // Begin tracking the new New York day.
+    currentDayHigh := high
+    currentDayLow  := low
+
+    currentDayHighBar := bar_index
+    currentDayLowBar  := bar_index
+
+    currentDate := nyDate
+
+else
+
+    // Track current NY day HIGH.
+    if na(currentDayHigh) or high > currentDayHigh
+
+        currentDayHigh := high
+        currentDayHighBar := bar_index
+
+    // Track current NY day LOW.
+    if na(currentDayLow) or low < currentDayLow
+
+        currentDayLow := low
+        currentDayLowBar := bar_index
+
+//──────────────────────────────────────────────────────────────────────────────
+// H1 FAILURE SWINGS
+//
+// Bearish: H1 high exceeds the prior H1 high, then closes back below it.
+// Bullish: H1 low breaks the prior H1 low, then closes back above it.
+//──────────────────────────────────────────────────────────────────────────────
+
+type failureSwingDrawing
+    label callout
+    int confirmedTime
+
+var array<failureSwingDrawing> failureSwingHistory = array.new<failureSwingDrawing>()
+
+[h1Time, h1CloseTime, h1High, h1Low, h1BearishFailure, h1BullishFailure] =
+     request.security(
+         syminfo.tickerid,
+         "60",
+         [
+             time,
+             time_close,
+             high,
+             low,
+             high > high[1] and close < high[1],
+             low < low[1] and close > low[1]
+         ],
+         gaps = barmerge.gaps_off,
+         lookahead = barmerge.lookahead_off
+     )
+
+bool newConfirmedH1Bar =
+     not na(h1Time) and
+     (na(h1Time[1]) or h1Time != h1Time[1])
+
+if validTimeframe and showFailureSwings and newConfirmedH1Bar
+
+    if h1BearishFailure
+
+        int bearishWickTime = findH1WickTime(
+             h1High,
+             h1Time,
+             h1CloseTime,
+             true
+        )
+
+        array.push(
+             failureSwingHistory,
+             failureSwingDrawing.new(
+                 label.new(
+                     x = na(bearishWickTime) ? h1Time : bearishWickTime,
+                     y = h1High,
+                     text = "Failure Swing",
+                     xloc = xloc.bar_time,
+                     style = label.style_label_down,
+                     color = color.new(color.red, 80),
+                     textcolor = color.black,
+                     size = size.small
+                 ),
+                 h1CloseTime
+             )
+        )
+
+    if h1BullishFailure
+
+        int bullishWickTime = findH1WickTime(
+             h1Low,
+             h1Time,
+             h1CloseTime,
+             false
+        )
+
+        array.push(
+             failureSwingHistory,
+             failureSwingDrawing.new(
+                 label.new(
+                     x = na(bullishWickTime) ? h1Time : bullishWickTime,
+                     y = h1Low,
+                     text = "Failure Swing",
+                     xloc = xloc.bar_time,
+                     style = label.style_label_up,
+                     color = color.new(color.green, 80),
+                     textcolor = color.black,
+                     size = size.small
+                 ),
+                 h1CloseTime
+             )
+        )
+
+int failureSwingCutoff =
+     time - failureSwingLookbackHours * 60 * 60 * 1000
+
+while array.size(failureSwingHistory) > 0
+
+    failureSwingDrawing oldestFailureSwing = array.get(failureSwingHistory, 0)
+
+    if oldestFailureSwing.confirmedTime < failureSwingCutoff
+        failureSwingDrawing expiredFailureSwing = array.shift(failureSwingHistory)
+        label.delete(expiredFailureSwing.callout)
+
+    else
+        break
+
+//──────────────────────────────────────────────────────────────────────────────
+// PREVIOUS DAY LEVEL OBJECTS
+//──────────────────────────────────────────────────────────────────────────────
+
+var line pdhLine = na
+var line pdlLine = na
+
+var label pdhLabel = na
+var label pdlLabel = na
+
+type previousDayDrawing
+    line highLine
+    line lowLine
+    label highLabel
+    label lowLabel
+
+var array<previousDayDrawing> previousDayHistory = array.new<previousDayDrawing>()
+
+deletePreviousDayDrawing(previousDayDrawing drawing) =>
+    if not na(drawing.highLine)
+        line.delete(drawing.highLine)
+    if not na(drawing.lowLine)
+        line.delete(drawing.lowLine)
+    if not na(drawing.highLabel)
+        label.delete(drawing.highLabel)
+    if not na(drawing.lowLabel)
+        label.delete(drawing.lowLabel)
+
+var int previousDayLineEndTime = na
+var int previousDayLineEndBar  = na
+
+// The previous-day levels end at 10:30 AM New York time on the following day.
+if newNYDay
+
+    previousDayLineEndTime := timestamp(
+         DEFAULT_TZ,
+         nyYear,
+         nyMonth,
+         nyDay,
+         10,
+         30
+    )
+
+    previousDayLineEndBar := na
+
+if not na(previousDayLineEndTime) and na(previousDayLineEndBar) and time >= previousDayLineEndTime
+
+    previousDayLineEndBar := bar_index
+
+//──────────────────────────────────────────────────────────────────────────────
+// CREATE PREVIOUS DAY LEVELS
+//──────────────────────────────────────────────────────────────────────────────
+
+if newNYDay and validTimeframe
+
+    // Start a fresh pair while retaining the two prior PDH / PDL sets.
+    pdhLine := na
+    pdlLine := na
+    pdhLabel := na
+    pdlLabel := na
+
+    //──────────────────────────────────────────────────────────────────────────
+    // PDH
+    //──────────────────────────────────────────────────────────────────────────
+
+    if showPreviousDay and not na(previousDayHigh) and not na(previousDayHighBar)
+
+        pdhLine := line.new(
+             x1 = previousDayHighBar,
+             y1 = previousDayHigh,
+             x2 = na(previousDayLineEndBar) ? bar_index : previousDayLineEndBar,
+             y2 = previousDayHigh,
+             xloc = xloc.bar_index,
+             extend = extend.none,
+             color = color.new(color.gray, 20),
+             style = line.style_dashed,
+             width = 1
+        )
+
+        pdhLabel := label.new(
+             x = bar_index + 1,
+             y = previousDayHigh,
+             text = "PDH",
+             xloc = xloc.bar_index,
+             style = label.style_label_left,
+             color = color.new(color.white, 100),
+             textcolor = color.gray,
+             size = size.small
+        )
+
+    //──────────────────────────────────────────────────────────────────────────
+    // PDL
+    //──────────────────────────────────────────────────────────────────────────
+
+    if showPreviousDay and not na(previousDayLow) and not na(previousDayLowBar)
+
+        pdlLine := line.new(
+             x1 = previousDayLowBar,
+             y1 = previousDayLow,
+             x2 = na(previousDayLineEndBar) ? bar_index : previousDayLineEndBar,
+             y2 = previousDayLow,
+             xloc = xloc.bar_index,
+             extend = extend.none,
+             color = color.new(color.gray, 20),
+             style = line.style_dashed,
+             width = 1
+        )
+
+        pdlLabel := label.new(
+             x = bar_index + 1,
+             y = previousDayLow,
+             text = "PDL",
+             xloc = xloc.bar_index,
+             style = label.style_label_left,
+             color = color.new(color.white, 100),
+             textcolor = color.gray,
+             size = size.small
+        )
+
+    if showPreviousDay and not na(pdhLine) and not na(pdlLine)
+
+        array.push(
+             previousDayHistory,
+             previousDayDrawing.new(
+                  pdhLine,
+                  pdlLine,
+                  pdhLabel,
+                  pdlLabel
+             )
+        )
+
+        if array.size(previousDayHistory) > 3
+
+            previousDayDrawing oldestPreviousDay = array.shift(previousDayHistory)
+            deletePreviousDayDrawing(oldestPreviousDay)
+
+//──────────────────────────────────────────────────────────────────────────────
+// EXTEND THE ACTIVE PDH / PDL PAIR
+//──────────────────────────────────────────────────────────────────────────────
+
+if validTimeframe and showPreviousDay
+
+    int previousDayEndBar =
+         na(previousDayLineEndBar) ? bar_index : previousDayLineEndBar
+
+    setHorizontalLevel(
+         pdhLine,
+         previousDayHighBar,
+         previousDayHigh,
+         previousDayEndBar
+    )
+
+    setHorizontalLevel(
+         pdlLine,
+         previousDayLowBar,
+         previousDayLow,
+         previousDayEndBar
+    )
+
+    setLevelLabel(pdhLabel, previousDayEndBar + 1, previousDayHigh)
+    setLevelLabel(pdlLabel, previousDayEndBar + 1, previousDayLow)
+
+//──────────────────────────────────────────────────────────────────────────────
+// OPENING CUSTOM RANGE SESSION
+//──────────────────────────────────────────────────────────────────────────────
+
+bool inOpeningRange =
+     not na(
+         time(
+             timeframe.period,
+             openingSession,
+             rangeTimezone
+         )
+     )
+
+//──────────────────────────────────────────────────────────────────────────────
+// OPENING RANGE HIGH / LOW
+//──────────────────────────────────────────────────────────────────────────────
+
+var float openingHigh = na
+var float openingLow  = na
+
+var bool openingRangeStarted = false
+var bool openingRangeFinished = false
+var bool openingBreakoutUp = false
+var bool openingBreakoutDown = false
+
+if newNYDay
+
+    openingHigh := na
+    openingLow := na
+
+    openingRangeStarted := false
+    openingRangeFinished := false
+    openingBreakoutUp := false
+    openingBreakoutDown := false
+
+// Start / update range.
+if inOpeningRange
+
+    openingRangeStarted := true
+
+    openingHigh :=
+         na(openingHigh) ?
+         high :
+         math.max(openingHigh, high)
+
+    openingLow :=
+         na(openingLow) ?
+         low :
+         math.min(openingLow, low)
+
+// Range is finished once we leave the session after it started.
+if openingRangeStarted and not inOpeningRange
+
+    openingRangeFinished := true
+
+if openingRangeFinished
+
+    if not na(openingHigh) and close > openingHigh
+        openingBreakoutUp := true
+        openingBreakoutDown := false
+
+    if not na(openingLow) and close < openingLow
+        openingBreakoutDown := true
+        openingBreakoutUp := false
+
+//──────────────────────────────────────────────────────────────────────────────
+// OPENING RANGE OBJECTS
+//──────────────────────────────────────────────────────────────────────────────
+
+var line orHighLine = na
+var line orLowLine = na
+var line orMidLine = na
+
+var label orHighLabel = na
+var label orLowLabel = na
+
+var box openingBox = na
+
+type openingRangeDrawing
+    line highLine
+    line lowLine
+    line midLine
+    label highLabel
+    label lowLabel
+    box rangeBox
+
+var array<openingRangeDrawing> openingRangeHistory = array.new<openingRangeDrawing>()
+
+deleteOpeningRangeDrawing(openingRangeDrawing drawing) =>
+    if not na(drawing.highLine)
+        line.delete(drawing.highLine)
+    if not na(drawing.lowLine)
+        line.delete(drawing.lowLine)
+    if not na(drawing.midLine)
+        line.delete(drawing.midLine)
+    if not na(drawing.highLabel)
+        label.delete(drawing.highLabel)
+    if not na(drawing.lowLabel)
+        label.delete(drawing.lowLabel)
+    if not na(drawing.rangeBox)
+        box.delete(drawing.rangeBox)
+
+// Preserve the completed OR values independently of the live session tracker.
+var float lockedOrHigh = na
+var float lockedOrLow  = na
+var int lockedOrDate = na
+var int openingRangeEndBar = na
+
+// Close the completed opening range at the first bar of the next NY day.
+if not na(lockedOrDate) and nyDate != lockedOrDate and na(openingRangeEndBar)
+    openingRangeEndBar := bar_index
+
+//──────────────────────────────────────────────────────────────────────────────
+// CREATE OPENING RANGE LEVELS
+//──────────────────────────────────────────────────────────────────────────────
+
+if openingRangeFinished and not openingRangeFinished[1] and validTimeframe
+
+    lockedOrHigh := openingHigh
+    lockedOrLow  := openingLow
+    lockedOrDate := nyDate
+    openingRangeEndBar := na
+
+    // Start a fresh set of drawing references while keeping the prior ranges.
+    orHighLine := na
+    orLowLine := na
+    orMidLine := na
+    orHighLabel := na
+    orLowLabel := na
+    openingBox := na
+
+    //──────────────────────────────────────────────────────────────────────────
+    // OPENING RANGE BOX
+    //──────────────────────────────────────────────────────────────────────────
+
+    if showOpeningRange and showOpeningBox
+
+        openingBox := box.new(
+             left = bar_index,
+             top = lockedOrHigh,
+             right = na(openingRangeEndBar) ? bar_index : openingRangeEndBar,
+             bottom = lockedOrLow,
+             xloc = xloc.bar_index,
+             bgcolor = color.new(color.blue, 92),
+             border_color = color.new(color.gray, 75)
+        )
+
+    //──────────────────────────────────────────────────────────────────────────
+    // OPENING HIGH
+    //──────────────────────────────────────────────────────────────────────────
+
+    if showOpeningRange and not na(lockedOrHigh)
+
+        orHighLine := line.new(
+             x1 = bar_index,
+             y1 = lockedOrHigh,
+             x2 = na(openingRangeEndBar) ? bar_index : openingRangeEndBar,
+             y2 = lockedOrHigh,
+             xloc = xloc.bar_index,
+             extend = extend.none,
+             color = color.new(color.blue, 15),
+             style = line.style_dashed,
+             width = 1
+        )
+
+        orHighLabel := label.new(
+             x = bar_index + 1,
+             y = lockedOrHigh,
+             text = "ORH",
+             xloc = xloc.bar_index,
+             style = label.style_label_left,
+             color = color.new(color.white, 100),
+             textcolor = color.blue,
+             size = size.small
+        )
+
+    //──────────────────────────────────────────────────────────────────────────
+    // OPENING LOW
+    //──────────────────────────────────────────────────────────────────────────
+
+    if showOpeningRange and not na(lockedOrLow)
+
+        orLowLine := line.new(
+             x1 = bar_index,
+             y1 = lockedOrLow,
+             x2 = na(openingRangeEndBar) ? bar_index : openingRangeEndBar,
+             y2 = lockedOrLow,
+             xloc = xloc.bar_index,
+             extend = extend.none,
+             color = color.new(color.red, 15),
+             style = line.style_dashed,
+             width = 1
+        )
+
+        orLowLabel := label.new(
+             x = bar_index + 1,
+             y = lockedOrLow,
+             text = "ORL",
+             xloc = xloc.bar_index,
+             style = label.style_label_left,
+             color = color.new(color.white, 100),
+             textcolor = color.red,
+             size = size.small
+        )
+
+    //──────────────────────────────────────────────────────────────────────────
+    // OPENING MIDPOINT
+    //──────────────────────────────────────────────────────────────────────────
+
+    if showOpeningRange and showOpeningBox and not na(lockedOrHigh) and not na(lockedOrLow)
+
+        orMidLine := line.new(
+             x1 = bar_index,
+             y1 = (lockedOrHigh + lockedOrLow) / 2,
+             x2 = na(openingRangeEndBar) ? bar_index : openingRangeEndBar,
+             y2 = (lockedOrHigh + lockedOrLow) / 2,
+             xloc = xloc.bar_index,
+             extend = extend.none,
+             color = color.new(color.gray, 35),
+             style = line.style_dashed,
+             width = 1
+        )
+
+    if showOpeningRange
+
+        array.push(
+             openingRangeHistory,
+             openingRangeDrawing.new(
+                  orHighLine,
+                  orLowLine,
+                  orMidLine,
+                  orHighLabel,
+                  orLowLabel,
+                  openingBox
+             )
+        )
+
+        if array.size(openingRangeHistory) > 3
+
+            openingRangeDrawing oldestRange = array.shift(openingRangeHistory)
+            deleteOpeningRangeDrawing(oldestRange)
+
+//──────────────────────────────────────────────────────────────────────────────
+// EXTEND THE ACTIVE OPENING RANGE
+//──────────────────────────────────────────────────────────────────────────────
+
+if validTimeframe and showOpeningRange
+
+    int openingRangeRightBar =
+         na(openingRangeEndBar) ? bar_index : openingRangeEndBar
+
+    setLineEnd(orHighLine, openingRangeRightBar)
+    setLineEnd(orLowLine, openingRangeRightBar)
+    setLineEnd(orMidLine, openingRangeRightBar)
+
+    setLevelLabel(orHighLabel, openingRangeRightBar + 1, lockedOrHigh)
+    setLevelLabel(orLowLabel, openingRangeRightBar + 1, lockedOrLow)
+
+    if not na(openingBox)
+        box.set_right(openingBox, openingRangeRightBar)
+        box.set_bgcolor(
+             openingBox,
+             openingBreakoutUp ? color.new(color.blue, 88) :
+             openingBreakoutDown ? color.new(color.red, 88) :
+             color.new(color.blue, 92)
+        )
+
+    // Recreate current labels last to keep them above the range box.
+    if barstate.islast
+
+        if not na(orHighLabel)
+            label.delete(orHighLabel)
+
+        if not na(orLowLabel)
+            label.delete(orLowLabel)
+
+        if not na(orHighLine)
+            orHighLabel := label.new(
+                 x = openingRangeRightBar + 1,
+                 y = lockedOrHigh,
+                 text = "ORH",
+                 xloc = xloc.bar_index,
+                 style = label.style_label_left,
+                 color = color.rgb(0, 0, 0, 100),
+                 textcolor = color.blue,
+                 size = size.small
+            )
+
+        if not na(orLowLine)
+            orLowLabel := label.new(
+                 x = openingRangeRightBar + 1,
+                 y = lockedOrLow,
+                 text = "ORL",
+                 xloc = xloc.bar_index,
+                 style = label.style_label_left,
+                 color = color.rgb(0, 0, 0, 100),
+                 textcolor = color.red,
+                 size = size.small
+            )
+
+        // Keep the newest history record aligned with the recreated labels.
+        if array.size(openingRangeHistory) > 0
+            array.set(
+                 openingRangeHistory,
+                 array.size(openingRangeHistory) - 1,
+                 openingRangeDrawing.new(
+                      orHighLine,
+                      orLowLine,
+                      orMidLine,
+                      orHighLabel,
+                      orLowLabel,
+                      openingBox
+                 )
+            )
+
+//──────────────────────────────────────────────────────────────────────────────
+// TIMEFRAME WARNING
+//──────────────────────────────────────────────────────────────────────────────
+
+var table warning =
+     table.new(
+         position.top_center,
+         1,
+         1
+     )
+
+if barstate.islast
+
+    if not validTimeframe
+
+        table.cell(
+             warning,
+             0,
+             0,
+             "NY ORB + ICT — USE 1m–30m",
+             text_color = color.white,
+             bgcolor = color.red
+        )
+
+    else
+
+        table.clear(
+             warning,
+             0,
+             0,
+             0,
+             0
+        )
