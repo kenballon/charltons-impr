@@ -254,6 +254,7 @@ address {
 ol,
 ul {
   list-style: initial !important;
+  margin-block-end: 1rem;
 }
 
 ol[type="a"],
