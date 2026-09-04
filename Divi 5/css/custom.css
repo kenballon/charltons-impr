@@ -21,6 +21,11 @@
   --chr-text-gray-200: hsl(0, 0%, 72%);
   --chr-text-gray-100: hsl(0, 0%, 89%);
   --chr-text-gray-50: hsl(0, 0%, 96%);
+  --fs-h2: 2.488rem;
+  --fs-h3: 2.074rem;
+  --fs-h4: 1.728rem;
+  --fs-h5: 1.44rem;
+  --fs-h6: 1.2rem;
 
   interpolate-size: allow-keywords;
 }
@@ -68,6 +73,8 @@ h4,
 h5,
 h6 {
   line-height: 125%;
+  font-size: var(--fs-h4);
+  font-weight: 600;
 }
 
 h1.red_text,
@@ -90,6 +97,15 @@ a {
   line-height: 1.5;
 
 
+}
+
+ol,
+ul {
+  li p {
+    &:last-child {
+      margin-block-end: 1rem;
+    }
+  }
 }
 
 .et_pb_post_content.et_pb_module {
@@ -288,8 +304,12 @@ ol.wp-block-list {
   display: none !important;
 }
 
-sup {
-  font-size: x-small;
+sup,
+sub {
+  a {
+    font-size: 10px;
+    padding: 4px;
+  }
 }
 
 /* #region UTILITY CLASSES START */
@@ -391,6 +411,14 @@ sup {
 /* margins & paddings */
 .mt-auto {
   margin-top: auto;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mt-3 {
+  margin-top: 0.75rem;
 }
 
 .mt-4 {
@@ -1806,18 +1834,71 @@ table td {
   }
 }
 
-details.wp-block-details {
-  border: 1px solid var(--chr-text-gray-300);
+details {
+  background-color: var(--chr-text-gray-50);
   padding-block: 0.5rem;
   padding-inline: 1rem;
   margin-block: 0.5rem;
-  background-color: var(--chr-text-gray-50);
+  transition: transform 0.3s ease;
 
   summary {
     padding-block: 0.8rem;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
     cursor: pointer;
+
+    span,
+    div {
+      font-weight: 600;
+
+      &:last-child {
+        font-weight: 300;
+      }
+    }
+
+    .accordion-icon {
+      transition: transform 400ms ease-in-out;
+    }
   }
+
+  &[open] {
+    border: 1px solid var(--chr-text-gray-300);
+    background-color: white;
+
+    summary {
+      border-block-end: 1px dotted var(--chr-text-gray-300);
+      margin-block-end: 1rem;
+
+      .accordion-icon {
+        transform: rotate(180deg);
+      }
+    }
+
+    &::details-content {
+      padding-block-end: 0.5rem;
+    }
+
+    p {
+      margin-block-end: 1rem;
+    }
+  }
+
+  &:last-child {
+    margin-block-end: 2rem;
+  }
+
+  summary::marker,
+  summary::-webkit-details-marker {
+    content: "";
+  }
+}
+
+details.wp-block-details,
+details.custom-accordion {
+  border: 1px solid var(--chr-text-gray-300);
 
   div {
 
@@ -1828,20 +1909,26 @@ details.wp-block-details {
     }
   }
 
-  summary::marker,
-  summary::-webkit-details-marker {
-    content: "";
-  }
-
-  &[open] {
-    background-color: white;
-
-    summary {
-      border-block-end: 1px dotted var(--chr-text-gray-300);
-      margin-block-end: 1rem;
-    }
-  }
 }
+
+
+details::details-content {
+  block-size: 0;
+  overflow: clip;
+  opacity: 0;
+  transition:
+    block-size 0.3s ease,
+    opacity 0.3s ease,
+    content-visibility 0.3s allow-discrete;
+}
+
+details[open]::details-content {
+  block-size: auto;
+  /* animates in supporting browsers */
+  opacity: 1;
+}
+
+
 
 .nl_subscribe_wrapper {
   background-image: url(https://www.charltonslaw.com/legal/images/insights-library-bg-gray-news.jpg);
