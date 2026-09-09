@@ -527,6 +527,23 @@ sub {
   }
 }
 
+.news-events-card-item {
+  >div {
+    .post-hidden-btn {
+      visibility: hidden;
+      height: 0;
+      padding: 0;
+      margin: 0;
+    }
+
+    &:last-child {
+      height: 0;
+    }
+  }
+}
+
+
+
 .hover-primary:hover {
   color: var(--chr-primary-color-500);
 }
