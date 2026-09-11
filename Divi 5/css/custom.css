@@ -527,7 +527,9 @@ sub {
   }
 }
 
-.news-events-card-item {
+.news-events-card-item,
+.group_row_card_wrapper,
+.newsletter_card_ui {
   >div {
     .post-hidden-btn {
       visibility: hidden;
