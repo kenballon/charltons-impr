@@ -7,10 +7,32 @@
     --fs-h6: 1.2rem;
 }
 
-section.et_pb_fullwidth_header.hero-sec {}
-
 /* #endregion UTILITY CLASS */
 
+/* #region HOME PAGE | HERO SECTION  */
+section.et_pb_fullwidth_header.hero-sec {
+    .header-content.et_flex_module {
+        width: 100%;
+        max-width: 100%;
+        margin-inline: 0;
+
+        h1.et_pb_module_header {
+            text-wrap: pretty;
+            text-transform: capitalize;
+        }
+
+        span.et_pb_fullwidth_header_subhead {
+            text-wrap: pretty;
+        }
+
+        @media (min-width:1024px) {
+            max-width: 70%;
+            margin-inline: auto;
+        }
+    }
+}
+
+/* #endregion HOME PAGE | HERO SECTION  */
 
 .et_fullscreen_slider .et_pb_slides,
 .et_fullscreen_slider .et_pb_slide,

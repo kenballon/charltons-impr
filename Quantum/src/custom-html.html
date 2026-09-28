@@ -5,6 +5,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom HTML</title>
+    <style>
+        body {
+            align-items: center;
+            background: #E3E3E3;
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-1750px);
+            }
+        }
+
+        .slider {
+            background: white;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.125);
+            height: 100px;
+            margin: auto;
+            overflow: hidden;
+            position: relative;
+            width: 960px;
+        }
+
+        .slider::before,
+        .slider::after {
+            background: linear-gradient(to right, rgb(255, 255, 255) 0%, rgba(255, 255, 255, 0) 100%);
+            content: "";
+            height: 100px;
+            position: absolute;
+            width: 200px;
+            z-index: 2;
+        }
+
+        .slider::after {
+            right: 0;
+            top: 0;
+            transform: rotateZ(180deg);
+        }
+
+        .slider::before {
+            left: 0;
+            top: 0;
+        }
+
+        .slider .slide-track {
+            animation: scroll 40s linear infinite;
+            display: flex;
+            width: 3500px;
+        }
+
+        .slider .slide {
+            height: 100px;
+            width: 250px;
+        }
+    </style>
 </head>
 
 <body>
@@ -15,6 +76,68 @@
     <main>
         <section>
             This is section
+        </section>
+        <section class="infinite-slider">
+            <div class="slider">
+                <div class="slide-track">
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Mountain lake landscape" />
+                    </div>
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Foggy forest hills" />
+                    </div>
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Sunlit mountain valley" />
+                    </div>
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Green hills and clouds" />
+                    </div>
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Snowy mountain peaks" />
+                    </div>
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1433838552652-f9a46b332c40?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Coastal cliffs at dusk" />
+                    </div>
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Misty pine forest" />
+                    </div>
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Mountain lake landscape" />
+                    </div>
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Foggy forest hills" />
+                    </div>
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Sunlit mountain valley" />
+                    </div>
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Green hills and clouds" />
+                    </div>
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Snowy mountain peaks" />
+                    </div>
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1433838552652-f9a46b332c40?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Coastal cliffs at dusk" />
+                    </div>
+                    <div class="slide">
+                        <img src="https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?auto=format&fit=crop&w=250&h=100&q=80"
+                            height="100" width="250" alt="Misty pine forest" />
+                    </div>
+                </div>
+            </div>
         </section>
     </main>
     <footer>
