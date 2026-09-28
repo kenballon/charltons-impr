@@ -1,0 +1,155 @@
+/* #region UTILITY CLASS */
+:root {
+    --fs-h2: 2.488rem;
+    --fs-h3: 2.074rem;
+    --fs-h4: 1.728rem;
+    --fs-h5: 1.44rem;
+    --fs-h6: 1.2rem;
+}
+
+section.et_pb_fullwidth_header.hero-sec {}
+
+/* #endregion UTILITY CLASS */
+
+
+.et_fullscreen_slider .et_pb_slides,
+.et_fullscreen_slider .et_pb_slide,
+.et_fullscreen_slider .et_pb_container {
+    min-height: 100% !important;
+    height: 100% !important;
+}
+
+h1.kw,
+h2.kw,
+h3.kw,
+h4.kw,
+h5.kw,
+h6.kw {
+    /* HEADER TAGS */
+    color: #4d4d4d;
+    display: inline;
+    font-size: 100%;
+    font-weight: normal;
+    line-height: 1em !important;
+}
+
+h1.kw:after,
+h2.kw:after,
+h3.kw:after,
+h4.kw:after,
+h5.kw:after,
+h6.kw:after {
+    content: " | ";
+}
+
+
+.et_pb_text_1 {
+    text-align: justify;
+}
+
+.et_pb_blog_grid .et_pb_post a {
+    color: #ffd13c;
+    font-weight: bold;
+}
+
+.et_pb_blog_grid .et_pb_post p {
+    color: #ffd13c;
+    line-height: 1.2em;
+}
+
+.et_pb_blog_grid .et_pb_post {
+    background-color: #000;
+}
+
+#footer-info {
+    color: #ffd13c !important;
+    font-weight: bold;
+}
+
+
+.et_pb_section {
+    padding-top: 0px;
+}
+
+.et_pb_row.et_pb_row_0.et_pb_gutters1 {
+    padding-top: 0;
+}
+
+.et_pb_image_0 .et_pb_image_wrap,
+.et_pb_image_0 img {
+    width: 100%;
+}
+
+#main-content .container:before {
+    background-color: #ffd13c;
+}
+
+h1.entry-title {
+    font-size: 2em;
+    font-weight: bold;
+    padding-bottom: 30px;
+}
+
+.et_pb_text_1 h2,
+.et_pb_text_1 h3,
+.et_pb_text_1 h4 {
+    font-size: 1.25em;
+    font-weight: bold;
+}
+
+/* FAQ Guide pages - Accordion */
+@media (max-width: 1024px) {
+
+    .faq-title::after,
+    .faq-title h2,
+    .faq-content h3,
+    .faq-content h4 {
+        font-size: 16px;
+    }
+}
+
+.faq-content h5 {
+    font-size: 16px;
+}
+
+.faq-content h2,
+.faq-content h3,
+.faq-content h4,
+.faq-content h5,
+.faq-content p {
+    line-height: 1.7;
+}
+
+.faq-content {
+    display: none;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.faq-title h2 {
+    width: 95%;
+}
+
+.faq-title {
+    cursor: pointer;
+    position: relative;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.faq-title::after {
+    content: "+";
+    position: absolute;
+    right: 0;
+    font-weight: bold;
+    font-size: 24px;
+    color: #ff6e00;
+}
+
+.faq-title.active::after {
+    content: "-";
+}
