@@ -39,7 +39,7 @@ section.et_pb_fullwidth_header.hero-sec {
 }
 
 /* CSS Marquee Animation */
-@keyframes scroll {
+@keyframes scroll-left {
     from {
         transform: translateX(0);
     }
@@ -50,19 +50,20 @@ section.et_pb_fullwidth_header.hero-sec {
 }
 
 .slider {
-    background-color: hsl(0, 0%, 6%);
+    background-color: #181818;
     box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.125);
     height: 40px;
     margin: auto;
     overflow: hidden;
     position: relative;
     width: 100%;
+    border-block: 1px dotted #ff8400;
 
     .slide-track {
         display: flex;
         width: max-content;
         height: 100%;
-        animation: scroll 70s linear infinite;
+        animation: scroll-left 70s linear infinite;
         will-change: transform;
 
         .slide {
