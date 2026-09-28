@@ -6,64 +6,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom HTML</title>
     <style>
-        /* body {
-            align-items: center;
-            background: #E3E3E3;
-            display: flex;
-            height: 100vh;
-            justify-content: center;
-        } */
+        body {
+            font-family: 'Jetbrains Mono', Courier, monospace;
+        }
 
         @keyframes scroll {
-            0% {
+            from {
                 transform: translateX(0);
             }
 
-            100% {
-                transform: translateX(-1750px);
+            to {
+                transform: translateX(-50%);
             }
         }
 
         .slider {
-            background: white;
+            background: #FF8200;
             box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.125);
-            height: 100px;
+            height: 40px;
             margin: auto;
             overflow: hidden;
             position: relative;
-            width: 960px;
+            width: 100%;
+
+            .slide-track {
+                display: flex;
+                width: max-content;
+                height: 100%;
+                animation: scroll 70s linear infinite;
+                will-change: transform;
+
+                .slide {
+                    flex: 0 0 auto;
+                    display: flex;
+                    align-items: center;
+                    height: 100%;
+                    white-space: nowrap;
+
+                    span {
+                        display: block;
+                        white-space: nowrap;
+                        font-size: 14px;
+                        font-weight: 300;
+                        color: white;
+
+                        &::after {
+                            content: " | ";
+                            padding-inline: 2rem;
+                        }
+                    }
+                }
+            }
+
+            &:hover {
+                .slide-track {
+                    animation-play-state: paused;
+                }
+            }
         }
 
-        /* .slider::before,
-        .slider::after {
-            background: linear-gradient(to right, rgb(255, 255, 255) 0%, rgba(255, 255, 255, 0) 100%);
-            content: "";
-            height: 100px;
-            position: absolute;
-            width: 200px;
-            z-index: 2;
-        }
-
-        .slider::after {
-            right: 0;
-            top: 0;
-            transform: rotateZ(180deg);
-        }
-
-        .slider::before {
-            left: 0;
-            top: 0;
-        } */
-
-        .slider .slide-track {
-            animation: scroll 40s linear infinite;
-            display: flex;
-            width: 3500px;
-        }
-
-        .slider .slide {
-            height: 100px;
-            width: 250px;
+        @media (prefers-reduced-motion: reduce) {
+            .slide-track {
+                animation: none;
+            }
         }
     </style>
 </head>
@@ -80,62 +85,29 @@
         <section class="infinite-slider">
             <div class="slider">
                 <div class="slide-track">
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Mountain lake landscape" />
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Foggy forest hills" />
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Sunlit mountain valley" />
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Green hills and clouds" />
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Snowy mountain peaks" />
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1433838552652-f9a46b332c40?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Coastal cliffs at dusk" />
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Misty pine forest" />
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Mountain lake landscape" />
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Foggy forest hills" />
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Sunlit mountain valley" />
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Green hills and clouds" />
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Snowy mountain peaks" />
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1433838552652-f9a46b332c40?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Coastal cliffs at dusk" />
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?auto=format&fit=crop&w=250&h=100&q=80"
-                            height="100" width="250" alt="Misty pine forest" />
-                    </div>
+                    <div class="slide"><span>US SEC Proposes Regulation Crypto Assets With US$75 Million Fundraising
+                            Exemption, US$5 Million Startup Exemption and Investment Contract Safe Harbor</span></div>
+                    <div class="slide"><span>US SEC Former Tricolor Executives Charged over Alleged US$1.9 Billion
+                            ABS Fraud</span></div>
+                    <div class="slide"><span>Cayman Islands: CIMA Warns BitMart Is Not Regulated or Authorised to
+                            Provide Virtual Asset Services</span></div>
+                    <div class="slide"><span>US CFTC: Innovation Advisory Committee to Examine Crypto Assets, AI and
+                            Prediction Markets at Inaugural Meeting</span></div>
+                    <div class="slide"><span>US SEC Division of Corporation Finance Ends All Rule 14a-8 No-Action
+                            Responses on Shareholder Proposal Exclusions</span></div>
+
+                    <!-- exact copy for a seamless loop -->
+                    <div class="slide"><span>US SEC Proposes Regulation Crypto Assets With US$75 Million Fundraising
+                            Exemption, US$5 Million Startup Exemption and Investment Contract Safe Harbor</span></div>
+                    <div class="slide"><span>US SEC Former Tricolor Executives Charged over Alleged US$1.9 Billion
+                            ABS Fraud</span></div>
+                    <div class="slide"><span>Cayman Islands: CIMA Warns BitMart Is Not Regulated or Authorised to
+                            Provide Virtual Asset Services</span></div>
+                    <div class="slide"><span>US CFTC: Innovation Advisory Committee to Examine Crypto Assets, AI and
+                            Prediction Markets at Inaugural Meeting</span></div>
+                    <div class="slide"><span>US SEC Division of Corporation Finance Ends All Rule 14a-8 No-Action
+                            Responses on Shareholder Proposal Exclusions</span></div>
+
                 </div>
             </div>
         </section>

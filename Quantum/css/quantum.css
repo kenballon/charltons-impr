@@ -5,6 +5,12 @@
     --fs-h4: 1.728rem;
     --fs-h5: 1.44rem;
     --fs-h6: 1.2rem;
+    --ff-mono: 'Jetbrains Mono', Courier, monospace;
+}
+
+html,
+body {
+    overscroll-behavior: none;
 }
 
 /* #endregion UTILITY CLASS */
@@ -29,6 +35,69 @@ section.et_pb_fullwidth_header.hero-sec {
             max-width: 70%;
             margin-inline: auto;
         }
+    }
+}
+
+/* CSS Marquee Animation */
+@keyframes scroll {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.slider {
+    background: #FF8200;
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.125);
+    height: 40px;
+    margin: auto;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+
+    .slide-track {
+        display: flex;
+        width: max-content;
+        height: 100%;
+        animation: scroll 70s linear infinite;
+        will-change: transform;
+
+        .slide {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            white-space: nowrap;
+
+            span {
+                font-family: var(--ff-mono);
+                display: block;
+                white-space: nowrap;
+                font-size: 14px;
+                font-weight: 300;
+                color: white;
+
+                &::after {
+                    content: " | ";
+                    padding-inline: 2rem;
+                }
+            }
+        }
+    }
+
+    &:hover {
+        .slide-track {
+            animation-play-state: paused;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .slide-track {
+        animation: none;
     }
 }
 
