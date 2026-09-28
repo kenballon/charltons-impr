@@ -50,7 +50,7 @@ section.et_pb_fullwidth_header.hero-sec {
 }
 
 .slider {
-    background: #FF8200;
+    background-color: hsl(0, 0%, 6%);
     box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.125);
     height: 40px;
     margin: auto;
@@ -78,7 +78,7 @@ section.et_pb_fullwidth_header.hero-sec {
                 white-space: nowrap;
                 font-size: 14px;
                 font-weight: 300;
-                color: white;
+                color: hsl(31, 100%, 50%);
 
                 &::after {
                     content: " | ";
