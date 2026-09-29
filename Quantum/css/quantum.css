@@ -5,9 +5,11 @@
     --fs-h4: 1.728rem;
     --fs-h5: 1.44rem;
     --fs-h6: 1.2rem;
+    --ff-primary: 'Open Sans', Helvetica, Arial, Lucida, sans-serif;
     --ff-mono: 'Jetbrains Mono', Courier, monospace;
 
     --color-body-text: #161616;
+    --dm-white-text: #f8f8f8;
 }
 
 html,
@@ -28,6 +30,7 @@ a.default_link {
     background-repeat: no-repeat;
     transition: background-size 0.2s ease;
     text-decoration: none;
+    cursor: pointer;
 
     &:hover {
         background-size:
@@ -40,12 +43,20 @@ a.default_link {
     font-family: var(--ff-mono);
 }
 
+.font-primary {
+    font-family: var(--ff-primary);
+}
+
 .text-white {
     color: white;
 }
 
 .text-default-color {
     color: var(--color-body-text);
+}
+
+.all-caps {
+    text-transform: uppercase;
 }
 
 .fw-light {
@@ -244,12 +255,15 @@ footer {
 
             &:last-child {
                 flex: none;
+
+                >div {
+                    gap: .5rem;
+                }
             }
         }
     }
 
     .footer_logo_img .et_pb_image_wrap img {
-        opacity: 0.6;
         max-width: 80px;
 
         @media (min-width:1024px) {
@@ -272,14 +286,12 @@ footer {
         }
     }
 
-    .footer_nav_wrapper,
     .footer_group_link_wrapper {
         display: flex;
         flex-direction: column;
 
         a {
             width: max-content;
-            cursor: pointer;
             color: #161515 !important;
 
             &:hover {
@@ -288,13 +300,7 @@ footer {
         }
     }
 
-    .footer_nav_wrapper {
-        gap: 1.25rem;
 
-        a {
-            font-size: 24px;
-        }
-    }
 
     .footer_group_link_wrapper {
         gap: .2rem;
@@ -307,6 +313,7 @@ footer {
     .footer_contacts_wrapper {
         border-block: .75px solid #ffb881cb;
         padding-block: 1rem;
+        row-gap: 0.5rem;
 
         >div {
             flex: 1;
@@ -315,7 +322,6 @@ footer {
                 color: var(--color-body-text) !important;
                 font-size: 13px;
                 font-weight: 300;
-                cursor: pointer;
             }
 
             @media (max-width:768px) {
@@ -323,6 +329,14 @@ footer {
                     justify-content: right;
                 }
             }
+        }
+    }
+
+    .footer_social_wrapper {
+        a {
+            color: var(--dm-white-text) !important;
+            font-size: 13px;
+            font-weight: 300;
         }
     }
 }
