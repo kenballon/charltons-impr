@@ -250,10 +250,10 @@ footer {
 
     .footer_logo_img .et_pb_image_wrap img {
         opacity: 0.6;
-        max-width: 150px;
+        max-width: 80px;
 
         @media (min-width:1024px) {
-            max-width: 250px;
+            max-width: 150px;
         }
     }
 
