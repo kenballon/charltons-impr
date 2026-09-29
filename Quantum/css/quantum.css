@@ -34,6 +34,10 @@ a.default_link {
     }
 }
 
+.font-mono {
+    font-family: var(--ff-mono);
+}
+
 /* #endregion UTILITY CLASS */
 
 /* #region HEADER NAVIGATION */
@@ -200,7 +204,7 @@ footer {
     }
 
     .footer_group_link_wrapper {
-        gap: .5rem;
+        gap: .2rem;
 
         a {
             font-weight: 300;
