@@ -13,9 +13,65 @@ body {
     overscroll-behavior: none;
 }
 
+a.default_link {
+    background-image:
+        linear-gradient(transparent, transparent),
+        linear-gradient(currentColor, currentColor);
+    background-size:
+        100% 0.0625rem,
+        0 0.0625rem;
+    background-position:
+        100% 100%,
+        0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.2s ease;
+    text-decoration: none;
+
+    &:hover {
+        background-size:
+            0 0.0625rem,
+            100% 0.0625rem;
+    }
+}
+
 /* #endregion UTILITY CLASS */
 
+/* #region HEADER NAVIGATION */
+header#main-header {
+    @media (max-width:768px) {
+        display: flex;
+        align-items: center;
+
+        div.et_menu_container {
+            margin: 1rem;
+            width: 100%;
+        }
+    }
+}
+
+/* #endregion HEADER NAVIGATION */
+
 /* #region HOME PAGE | HERO SECTION  */
+
+footer_logo_wrapper .hero_section {
+    /* .et_pb_row{
+        widt;
+    } */
+}
+
+.et_block_section.home-sec {
+    display: flex;
+    flex-direction: column;
+
+    section.hero-sec {
+        flex: 1;
+    }
+
+    @media (min-width: 882px) {
+        min-height: 70dvh;
+    }
+}
+
 section.et_pb_fullwidth_header.hero-sec {
     .header-content.et_flex_module {
         width: 100%;
@@ -103,6 +159,58 @@ section.et_pb_fullwidth_header.hero-sec {
 }
 
 /* #endregion HOME PAGE | HERO SECTION  */
+
+/* #region HOME PAGE | FOOTER SECTION  */
+footer {
+    .footer_group_wrapper {
+        gap: 1rem;
+
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            padding: 0;
+            margin: 0;
+        }
+    }
+
+    .footer_nav_wrapper,
+    .footer_group_link_wrapper {
+        display: flex;
+        flex-direction: column;
+
+        a {
+            width: max-content;
+            cursor: pointer;
+            color: #161515 !important;
+
+            &:hover {
+                color: #fbba89 !important;
+            }
+        }
+    }
+
+    .footer_nav_wrapper {
+        gap: 1.25rem;
+
+        a {
+            font-size: 24px;
+        }
+    }
+
+    .footer_group_link_wrapper {
+        gap: .5rem;
+
+        a {
+            font-weight: 300;
+        }
+    }
+}
+
+/* #endregion HOME PAGE | FOOTER SECTION  */
+
+
 
 .et_fullscreen_slider .et_pb_slides,
 .et_fullscreen_slider .et_pb_slide,
