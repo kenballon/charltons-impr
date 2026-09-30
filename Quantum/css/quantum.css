@@ -292,7 +292,6 @@ footer {
 
         a {
             width: max-content;
-            color: #161515 !important;
 
             &:hover {
                 color: #fbba89 !important;
@@ -319,7 +318,6 @@ footer {
             flex: 1;
 
             a {
-                color: var(--color-body-text) !important;
                 font-size: 13px;
                 font-weight: 300;
             }
@@ -334,7 +332,6 @@ footer {
 
     .footer_social_wrapper {
         a {
-            color: var(--dm-white-text) !important;
             font-size: 13px;
             font-weight: 300;
         }
