@@ -313,6 +313,15 @@ sub {
 }
 
 /* #region UTILITY CLASSES START */
+header.et-l--header,
+header.et-l--header .et_pb_sticky,
+#main-header {
+  position: fixed !important;
+  top: 0 !important;
+  width: 100%;
+  z-index: 99999;
+}
+
 .flex-col-sm {
   flex-direction: column;
 
