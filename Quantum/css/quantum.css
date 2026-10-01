@@ -120,6 +120,15 @@ a.default_link {
     white-space: nowrap;
 }
 
+header.et-l--header,
+header.et-l--header .et_pb_sticky,
+#main-header {
+    position: fixed !important;
+    top: 0 !important;
+    width: 100%;
+    z-index: 99999;
+}
+
 /* #endregion UTILITY CLASS */
 
 /* #region HEADER NAVIGATION */
@@ -249,6 +258,11 @@ section.et_pb_fullwidth_header.hero-sec {
 /* #region HOME PAGE | FOOTER SECTION  */
 footer {
 
+    .iframe-newsletter-wrapper .et_pb_code_inner {
+        border: 1px solid #474747;
+        padding: 1rem;
+    }
+
     .footer_sec_details_wrapper {
         >div {
             flex: 1;
@@ -340,7 +354,11 @@ footer {
 
 /* #endregion HOME PAGE | FOOTER SECTION  */
 
-
+.et_pb_slide_description .et_pb_slide_title {
+    padding-block-end: 1.25rem;
+    text-wrap: pretty;
+    line-height: 1.5em;
+}
 
 .et_fullscreen_slider .et_pb_slides,
 .et_fullscreen_slider .et_pb_slide,
