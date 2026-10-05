@@ -77,6 +77,16 @@ span {
     font-size: 1rem;
 }
 
+ol,
+ul {
+    margin-inline-start: 1rem;
+    padding-inline-start: 0.5rem;
+
+    li {
+        padding-block-end: 1rem;
+    }
+}
+
 /* grids & flex */
 .flex {
     display: flex;
