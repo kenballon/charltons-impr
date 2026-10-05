@@ -77,12 +77,11 @@ span {
     font-size: 1rem;
 }
 
-ol,
-ul {
+:is(ol, ul):not(#top-menu, .sub-menu) {
     margin-inline-start: 1rem;
     padding-inline-start: 0.5rem;
 
-    li {
+    & li {
         padding-block-end: 1rem;
     }
 }
