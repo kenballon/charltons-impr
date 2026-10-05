@@ -546,36 +546,63 @@ table th,
 
 /* #region NEWSLETTERS BLOG LAYOUT */
 .group_row_card_wrapper {
-    .et_pb_image_wrap {
-        img {
-            aspect-ratio: 16 / 9;
-            object-fit: cover;
-        }
-    }
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.25rem;
 
-    .et_pb_heading_container {
-        .et_pb_module_header {
-            font-size: 18px;
-            font-weight: 700;
-            line-height: 1.3em;
-            padding: 0;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
+    .nl_post_group_wrapper {
+        .et_pb_image_wrap {
+            img {
+                aspect-ratio: 16 / 9;
+                object-fit: cover;
+            }
         }
-    }
 
-    .post_excerpt_text .et_pb_text_inner {
-        >* {
-            font-size: 13px;
-            line-height: 1.5em;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .nl_post_group_wrapper_inner {
+            padding-inline: 0.75rem;
+            padding-block-end: 1rem;
+
+            .et_pb_heading_container {
+                .et_pb_module_header {
+                    font-size: 18px;
+                    font-weight: 700;
+                    line-height: 1.3em;
+                    padding: 0;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+
+            .post_excerpt_text .et_pb_text_inner {
+                >* {
+                    font-size: 13px;
+                    line-height: 1.5em;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 3;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+
+            .et_pb_module.et_pb_button_module_wrapper {
+                margin-block-start: 1rem;
+
+                a.et_pb_button {
+                    color: white;
+                    border: 0;
+                    border-width: 0;
+                    font-size: 1rem;
+                    background-color: #ff6e00;
+
+                    &:hover {
+                        background-color: #de6000;
+                    }
+                }
+            }
         }
     }
 }
