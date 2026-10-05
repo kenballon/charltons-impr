@@ -543,3 +543,41 @@ table th,
     background-color: #ff6e00;
     color: white;
 }
+
+/* #region NEWSLETTERS BLOG LAYOUT */
+.group_row_card_wrapper {
+    .et_pb_image_wrap {
+        img {
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+    }
+
+    .et_pb_heading_container {
+        .et_pb_module_header {
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.3em;
+            padding: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .post_excerpt_text .et_pb_text_inner {
+        >* {
+            font-size: 13px;
+            line-height: 1.5em;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+/* #endregion NEWSLETTERS BLOG LAYOUT */
