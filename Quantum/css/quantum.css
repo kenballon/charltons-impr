@@ -15,6 +15,7 @@
 html,
 body {
     overscroll-behavior: none;
+    background-color: #000;
 }
 
 a.default_link {
@@ -65,6 +66,15 @@ a.default_link {
 
 .fs-small {
     font-size: 13px;
+}
+
+p,
+ol li,
+ul li,
+div,
+span {
+    font-weight: 300;
+    font-size: 1rem;
 }
 
 /* grids & flex */
@@ -147,12 +157,6 @@ header#main-header {
 /* #endregion HEADER NAVIGATION */
 
 /* #region HOME PAGE | HERO SECTION  */
-
-footer_logo_wrapper .hero_section {
-    /* .et_pb_row{
-        widt;
-    } */
-}
 
 .et_block_section.home-sec {
     display: flex;
@@ -306,6 +310,7 @@ footer {
 
         a {
             width: max-content;
+            font-size: 13px;
 
             &:hover {
                 color: #fbba89 !important;
@@ -331,10 +336,7 @@ footer {
         >div {
             flex: 1;
 
-            a {
-                font-size: 13px;
-                font-weight: 300;
-            }
+
 
             @media (max-width:768px) {
                 &:last-child {
@@ -342,12 +344,28 @@ footer {
                 }
             }
         }
+
+        a,
+        a span {
+            font-size: 13px;
+            font-weight: 300;
+        }
+
+        .material-symbols-outlined {
+            font-weight: 100;
+            font-size: 13px;
+        }
     }
 
     .footer_social_wrapper {
         a {
             font-size: 13px;
             font-weight: 300;
+        }
+
+        div,
+        span {
+            font-size: 13px;
         }
     }
 }
@@ -500,4 +518,10 @@ h1.entry-title {
 
 .faq-title.active::after {
     content: "-";
+}
+
+table th,
+.entry-content tr th {
+    background-color: #ff6e00;
+    color: white;
 }
