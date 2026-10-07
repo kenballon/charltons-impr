@@ -2506,9 +2506,12 @@ body #page-container .et_pb_section .et_pb_button_2_tb_body.btn_downloads:hover 
   }
 
   .cpd_or_time .et_pb_text_inner>* {
-    padding: 0.5rem 1rem !important;
     color: var(--brand-color);
     font-size: 13px;
     font-weight: 700;
+  }
+
+  .right_col_group_contents {
+    gap: 0.8rem;
   }
 }
