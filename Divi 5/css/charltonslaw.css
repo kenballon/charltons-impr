@@ -2422,10 +2422,15 @@ body #page-container .et_pb_section .et_pb_button_2_tb_body.btn_downloads:hover 
       }
 
       .ne_pinned_featured {
+        flex-direction: column;
 
         .ne_pinned_featured_details {
           .featured_new_post_img {
-            width: 100%;
+            max-width: 50%;
+
+            img {
+              max-width: 50%;
+            }
           }
 
           .cpd_or_time .et_pb_text_inner>* {
