@@ -513,7 +513,8 @@ sub {
 }
 
 /*button, links button-like elements */
-.btn-primary {
+.btn-primary,
+.wp-block-button__link.wp-element-button {
   width: max-content;
   color: white;
   font-size: 1rem;
@@ -522,6 +523,7 @@ sub {
   transition: all 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955);
   cursor: pointer;
   border: 0;
+  margin-block-end: 1rem;
 
   &:hover {
     background-color: var(--chr-primary-color-700);
@@ -2425,6 +2427,8 @@ body #page-container .et_pb_section .et_pb_button_2_tb_body.btn_downloads:hover 
         flex-direction: column;
 
         .ne_pinned_featured_details {
+          gap: 1rem;
+
           .featured_new_post_img {
             max-width: 50%;
 
@@ -2437,6 +2441,27 @@ body #page-container .et_pb_section .et_pb_button_2_tb_body.btn_downloads:hover 
             color: var(--brand-color);
             font-size: 13px;
             font-weight: 600;
+          }
+
+          .et_pb_heading .et_pb_heading_container .et_pb_module_header {
+            font-weight: 700;
+            padding: 0;
+            font-size: clamp(1.5rem, 0.895vw + 0.926rem, 2rem);
+          }
+
+          .et_pb_button_module_wrapper {
+            a {
+              background-color: var(--chr-primary-color-600);
+              color: white;
+              font-size: 1rem;
+              border: 0 !important;
+              margin-bottom: 1rem;
+
+              &:hover {
+                background-color: var(--chr-primary-color-800);
+                border: 0 !important;
+              }
+            }
           }
 
         }
