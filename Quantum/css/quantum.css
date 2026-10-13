@@ -608,3 +608,13 @@ table th,
 }
 
 /* #endregion NEWSLETTERS BLOG LAYOUT */
+
+.et_pb_posts_nav {
+
+    .nav-previous,
+    .nav-next {
+        a>* {
+            color: var(--dm-white-text) !important;
+        }
+    }
+}

@@ -2473,11 +2473,6 @@ body #page-container .et_pb_section .et_pb_button_2_tb_body.btn_downloads:hover 
       gap: 0.4rem;
 
       .right_rn_wrapper {
-        padding-block: 1rem;
-        padding-inline: 1rem;
-        background-color: white;
-        border: 2px solid var(--chr-text-gray-200);
-        border-radius: 8px;
 
         .right_col_post_details {
           gap: 0.3rem;
