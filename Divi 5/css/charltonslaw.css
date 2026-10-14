@@ -2489,7 +2489,13 @@ body #page-container .et_pb_section .et_pb_button_2_tb_body.btn_downloads:hover 
             }
           }
 
-          /* .date_container {} */
+          .date_container {
+            .et_pb_text_inner>* {
+              color: var(--chr-text-gray-500);
+              font-size: 13px;
+              text-transform: uppercase;
+            }
+          }
 
           .ne_right_post_title .et_pb_text_inner h2 {
             font-size: 1rem;
