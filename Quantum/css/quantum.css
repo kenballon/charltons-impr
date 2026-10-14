@@ -547,7 +547,7 @@ table th,
 /* #region NEWSLETTERS BLOG LAYOUT */
 .group_row_card_wrapper {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.25rem;
 
     .nl_post_group_wrapper {
@@ -609,12 +609,35 @@ table th,
 
 /* #endregion NEWSLETTERS BLOG LAYOUT */
 
-.et_pb_posts_nav {
 
-    .nav-previous,
-    .nav-next {
-        a>* {
-            color: var(--dm-white-text) !important;
+
+.pagination_wrapper {
+
+    .et_pb_posts_nav {
+
+        .nav-previous,
+        .nav-next {
+            a>* {
+                color: var(--dm-white-text) !important;
+            }
         }
+    }
+
+    @media (min-width:822px) {
+        max-width: 600px;
+        align-self: center;
+    }
+}
+
+#content-area {
+    h1.entry-title {
+        color: white;
+    }
+
+    .et_pb_section.et_section_regular.et_block_section {
+        background-color: black;
+        color: white;
+
+
     }
 }
