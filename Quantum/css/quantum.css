@@ -10,12 +10,24 @@
 
     --color-body-text: #161616;
     --dm-white-text: #f8f8f8;
+
+    --chr-text-dark-gray: hsl(0, 0%, 8%);
+    --chr-text-gray-900: hsl(0, 0%, 12%);
+    --chr-text-gray-800: hsl(0, 0%, 24%);
+    --chr-text-gray-700: hsl(0, 0%, 32%);
+    --chr-text-gray-600: hsl(0, 0%, 40%);
+    --chr-text-gray-500: hsl(0, 0%, 48%);
+    --chr-text-gray-400: hsl(0, 0%, 56%);
+    --chr-text-gray-300: hsl(0, 0%, 64%);
+    --chr-text-gray-200: hsl(0, 0%, 72%);
+    --chr-text-gray-100: hsl(0, 0%, 89%);
+    --chr-text-gray-50: hsl(0, 0%, 96%);
+    --brand-color: #ff6e00;
 }
 
 html,
 body {
     overscroll-behavior: none;
-    background-color: #000;
 }
 
 a.default_link {
@@ -441,10 +453,6 @@ h6.kw:after {
     line-height: 1.2em;
 }
 
-.et_pb_blog_grid .et_pb_post {
-    background-color: #000;
-}
-
 #footer-info {
     color: #ffd13c !important;
     font-weight: bold;
@@ -462,10 +470,6 @@ h6.kw:after {
 .et_pb_image_0 .et_pb_image_wrap,
 .et_pb_image_0 img {
     width: 100%;
-}
-
-#main-content .container:before {
-    background-color: #ffd13c;
 }
 
 h1.entry-title {
@@ -634,10 +638,70 @@ table th,
         color: white;
     }
 
-    .et_pb_section.et_section_regular.et_block_section {
+    /* .et_pb_section.et_section_regular.et_block_section {
         background-color: black;
         color: white;
+    } */
+}
+
+.download_div_wrapper {
+    border-block: 1px dotted var(--chr-text-gray-300);
+
+    .download-version-wrapper {
+
+        flex-direction: row;
+        margin-inline: auto;
+        padding-block: 0.5rem;
+
+        .et_pb_link {
 
 
+            .et_pb_link_inner .et_pb_link_text {
+                font-size: 13px;
+                text-transform: uppercase;
+            }
+
+            &:hover {
+                .et_pb_link_inner .et_pb_link_text {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+
+    }
+}
+
+.related_card_item {
+    .related_card_item_featured_img {
+        .et_pb_image_wrap {
+            overflow: hidden;
+        }
+
+        img {
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            transition: transform .3s ease-in-out;
+            will-change: transform;
+        }
+    }
+
+    .et_pb_module_header {
+        font-size: 14px !important;
+        line-height: 1.2em;
+        font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    &:hover {
+        .related_card_item_featured_img {
+            .et_pb_image_wrap img {
+                transform: scale(1.1);
+            }
+        }
+
+        .et_pb_module_header {
+            text-decoration: underline;
+            color: var(--brand-color);
+        }
     }
 }
