@@ -673,6 +673,8 @@ table th,
 }
 
 .related_card_item {
+    gap: 0.5rem;
+
     .related_card_item_featured_img {
         .et_pb_image_wrap {
             overflow: hidden;
