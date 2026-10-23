@@ -169,6 +169,14 @@ header.et-l--header .et_pb_sticky,
   z-index: 99999;
 }
 
+.d-none {
+  display: none !important;
+}
+
+a.et_pb_link:not([href]) {
+  display: none !important;
+}
+
 /* #endregion UTILITY CLASS */
 
 /* #region HEADER NAVIGATION */
@@ -571,7 +579,7 @@ table th,
   }
 
   .wp-block-heading {
-    font-size: 18px;
+    font-size: 20px;
     line-height: 1.5;
     margin-block-start: 1rem;
   }
