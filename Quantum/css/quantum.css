@@ -701,6 +701,15 @@ table th,
       }
     }
 
+    .related_card_item_featured_img.crypto_news {
+      img {
+        aspect-ratio: unset;
+        object-fit: contain;
+        transition: transform 0.3s ease-in-out;
+        will-change: transform;
+      }
+    }
+
     .et_pb_module_header {
       font-size: 14px !important;
       line-height: 1.2em;
@@ -803,7 +812,7 @@ table th,
 .blog_row_wrapper {
   > div {
     .looper_wrapper {
-      border-block-start: 4px solid var(--brand-color);
+      border-block-start: 4px solid white;
       background-color: var(--chr-text-gray-900);
       padding: 0.85rem;
 
@@ -820,7 +829,7 @@ table th,
             overflow: hidden;
             text-overflow: ellipsis;
             padding: 0;
-            color: var(--chr-text-gray-50);
+            color: var(--brand-color);
           }
         }
       }
@@ -838,6 +847,9 @@ table th,
       }
 
       .pub_and_readmore_wrapper {
+        .pub_date .et_pb_text_inner > * {
+          font-size: 13px;
+        }
         .et_pb_button_module_wrapper a.learn_more_btn {
           border-radius: 50px;
           font-size: 14px;
